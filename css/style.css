@@ -128,42 +128,28 @@ main { display: grid; gap: 12px; padding-top: 4px; }
 .install { display: flex; align-items: center; gap: 10px; background: var(--sun-soft); border: 1px solid var(--sun); border-radius: 16px; padding: 10px 12px; }
 .install p { margin: 0; flex: 1; font-size: .85rem; font-weight: 700; }
 
-/* Jardin : scène toujours en plein soleil, même en thème sombre */
-.garden { position: relative; border-radius: 22px; padding: 14px; overflow: hidden; border: 1px solid rgba(60,120,30,.25);
-  --sand: #f0dcb0; --sand-wet: #cfac76;
-  background:
-    radial-gradient(ellipse 70% 55% at 12% 0%, rgba(255,251,210,.75), transparent 70%),
-    radial-gradient(circle at 30% 40%, rgba(255,255,255,.22) 0 1.5px, transparent 2.5px) 0 0 / 22px 22px,
-    radial-gradient(circle at 70% 75%, rgba(40,110,20,.12) 0 2px, transparent 3px) 0 0 / 30px 30px,
-    linear-gradient(170deg, #b4ee7c 0%, #8bdb5c 45%, #6cc84a 100%);
-  box-shadow: inset 0 -20px 40px rgba(30,90,10,.12); }
-.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+/* Jardin : pelouse illustrée et bacs en bois */
+.garden { position: relative; border-radius: 22px; padding: 14px 10px 18px; overflow: hidden; border: 1px solid rgba(60,120,30,.25);
+  background: #8fcf52 url("../assets/img/bg-garden.webp") center / cover; }
+.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4px 8px; padding-top: 14%; }
 @media (min-width: 620px) { .plots { grid-template-columns: repeat(4, minmax(0,1fr)); } }
-/* Bac en bois rempli de terre sableuse. Terre humide = plus foncée. */
-.plot { --soil-fill: var(--sand-wet);
-  position: relative; aspect-ratio: 1; max-width: 100%; padding: 0; border-radius: 13px; overflow: hidden;
-  border: 5px solid transparent;
-  background:
-    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255,255,255,.38), transparent 70%) padding-box,
-    radial-gradient(rgba(110,70,25,.07) .8px, transparent 1.3px) 0 0 / 6px 6px padding-box,
-    linear-gradient(var(--soil-fill), var(--soil-fill)) padding-box,
-    linear-gradient(165deg, #d7a46b 0%, #b07a45 45%, #8a5a32 100%) border-box;
-  box-shadow: inset 0 4px 7px rgba(90,55,20,.28), 0 3px 0 #6e4626, 0 7px 12px rgba(40,80,15,.22);
-}
-.plot.dry, .plot.empty, .plot.ripe, .plot.weed { --soil-fill: var(--sand); }
+/* Le bac occupe le bas de la case ; la plante dépasse au-dessus. */
+.plot { position: relative; aspect-ratio: 1 / .95; max-width: 100%; padding: 0; border: 0; background: url("../assets/img/plot-wet.webp") center bottom / 100% auto no-repeat; overflow: visible; }
+.plot.dry, .plot.empty { background-image: url("../assets/img/plot-dry.webp"); }
 .plot:active { transform: scale(.97); }
-.plot svg.art { position: absolute; left: -10%; top: -14%; width: 120%; height: 120%; }
-.plot.empty { display: grid; place-items: center; color: #8a6638; font-weight: 800; font-size: .85rem; }
-.plot.empty span { display: grid; justify-items: center; gap: 2px; }
-.plot.empty b { font-family: var(--f-display); font-size: 1.6rem; line-height: 1; }
-.plot.locked { border: 2px dashed rgba(255,255,255,.75); background: rgba(255,255,255,.22); box-shadow: none; color: #2c5a1c; }
-.plot .tag { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.plot svg.art { position: absolute; left: 9%; width: 82%; height: 86%; bottom: 16%; top: auto; }
+.plot.empty { display: grid; place-items: center; color: #fff; font-weight: 800; font-size: .8rem; text-shadow: 0 1px 2px rgba(60,30,10,.7); }
+.plot.empty span { display: grid; justify-items: center; gap: 0; padding-top: 34%; }
+.plot.empty b { font-family: var(--f-display); font-size: 1.5rem; line-height: 1; }
+.plot.locked { background-image: url("../assets/img/plot-locked.webp"); display: grid; align-items: end; justify-items: center; }
+.plot.locked .price { margin-bottom: -6px; background: var(--panel); color: var(--ink); border-radius: 99px; padding: 2px 9px 2px 5px; font-size: .78rem; font-weight: 800; display: inline-flex; gap: 4px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.plot .tag { position: absolute; top: 2px; right: 2px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
 .plot .tag svg { width: 16px; height: 16px; }
-.plot .gbar { position: absolute; left: 10%; right: 10%; bottom: 5px; height: 6px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
+.plot .gbar { position: absolute; left: 16%; right: 16%; bottom: 3%; z-index: 2; height: 6px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
 .plot .gbar i { display: block; height: 100%; background: #7fe04f; border-radius: 99px; }
 .plot.dry .gbar i { background: #ffd27a; }
-.plot .gt { position: absolute; left: 6px; top: 6px; font-size: .7rem; font-weight: 800; color: #fff; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 99px; font-variant-numeric: tabular-nums; }
-.plot.ripe { box-shadow: inset 0 4px 7px rgba(90,55,20,.28), 0 0 0 3px #ffd94a, 0 0 18px rgba(255,217,74,.7); }
+.plot .gt { position: absolute; left: 2px; top: 2px; z-index: 2; font-size: .7rem; font-weight: 800; color: #fff; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+.plot.ripe svg.art { filter: drop-shadow(0 0 6px rgba(255,226,90,.95)); }
 .plot.ripe svg.art { animation: bob 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
 .plot.dry svg.art { filter: saturate(.7); }
 @keyframes bob { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05, .97); } }
@@ -219,8 +205,9 @@ button.chip[aria-pressed="true"] { background: var(--sun-soft); border-color: va
 .herb .hy { font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--peach); }
 
 /* Commandes */
-.order { display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
-.avatar svg { width: 46px; height: 46px; }
+.order { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.avatar { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #fff8e6, #f3dfb6); border: 2px solid #e6c98f; overflow: hidden; display: grid; place-items: end center; }
+.avatar img, .avatar svg { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
 .order .who { font-family: var(--f-display); font-weight: 600; }
 .order .say { font-size: .85rem; color: var(--muted); }
 .order .foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
@@ -363,6 +350,20 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .danger .set-link.armed small, .danger .set-link.armed .ico { color: #fff; background: transparent; border-color: rgba(255,255,255,.5); }
 
 /* Images détaillées */
-.plot svg.art.img { left: 2%; top: -1%; width: 96%; height: 96%; }
+
 .reveal-art { width: 140px; height: 140px; }
 .reveal-art svg { width: 100%; height: 100%; }
+
+/* Illustrations de décor */
+.brand img { width: 30px; height: 30px; }
+.upg-img { width: 48px; height: 48px; object-fit: contain; }
+@media (max-width: 519px) { .upg-img { width: 44px; height: 44px; } }
+.stove-img { width: 84px; height: 84px; object-fit: contain; }
+.stove-pic { position: relative; }
+.stove-dish { position: absolute; right: -14px; bottom: -4px; width: 40px; height: 40px; background: var(--panel); border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2); display: grid; place-items: center; }
+.stove-dish svg { width: 34px; height: 34px; }
+.lab-head { display: flex; align-items: center; gap: 12px; }
+.lab-head img { width: 76px; height: 76px; object-fit: contain; flex: none; }
+.cauldron { width: 64px; height: 64px; object-fit: contain; }
+.cauldron.bubbling { animation: bob 1.6s ease-in-out infinite; }
+.banner-img { width: 120px; height: 120px; object-fit: contain; }

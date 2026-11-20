@@ -274,6 +274,8 @@ function face(cx, cy, s) {
     `<circle cx="${cx - s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/><circle cx="${cx + s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/>`;
 }
 function avatar(v) {
+  const i = VILLAGERS.indexOf(v);
+  if (i >= 0) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;
   return `<svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="${v.color}" opacity=".22"/><circle cx="12" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="34" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="23" cy="25" r="15" fill="${vol(v.color)}"/><ellipse cx="23" cy="31" rx="7" ry="5" fill="#fff" opacity=".55"/><circle cx="23" cy="29" r="2.2" fill="${INK}"/>${face(23, 23, 3.2)}</svg>`;
 }
 
