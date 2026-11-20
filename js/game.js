@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.11.13";
+const APP_VERSION = "0.11.14";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -377,7 +377,6 @@ function views_garden() {
     <div class="garden"><div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
     </div></div>
-    <p class="small muted" style="margin:0">Touche une parcelle pour planter, arroser ou récolter. Une plante assoiffée arrête de pousser (sans jamais faner). Garde un œil sur les papillons et les escargots !</p>
   </section>
   <section class="panel">
     <div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
