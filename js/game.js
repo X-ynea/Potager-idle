@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.6.0";
+const APP_VERSION = "0.6.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -53,7 +53,8 @@ function load() {
   return null;
 }
 function migrate(s) { const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
-function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+let lastSaveAt = 0;
+function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); lastSaveAt = S.last; } catch (e) {} }
 
 /* ---------------- Simulation ---------------- */
 function tick(t) {
@@ -258,18 +259,21 @@ const A = {
   },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
   cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
-  copySave(_, ev) {
+  exportSave() {
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(S))));
-    const ta = $("#save-out"); ta.value = code;
-    navigator.clipboard?.writeText(code).then(() => toast("Sauvegarde copiée."), () => { ta.select(); toast("Sélectionne et copie le texte."); });
-    if (!navigator.clipboard) ta.select();
+    const fallback = () => { UI.exportCode = code; render(true); const t = $("#save-out"); if (t) { t.focus(); t.select(); } toast("Copie le code affiché, puis colle-le sur ton autre appareil."); };
+    if (!navigator.clipboard) return fallback();
+    navigator.clipboard.writeText(code).then(() => { UI.exportCode = null; render(true); toast("Code copié ! Colle-le sur ton autre appareil, dans Importer une partie."); }, fallback);
   },
+  toggleImport() { UI.importOpen = !UI.importOpen; render(true); if (UI.importOpen) $("#save-in")?.focus(); },
   importSave() {
-    try { const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0; S = migrate(s); applyTheme(); commit(); toast("Sauvegarde chargée !"); }
-    catch (e) { toast("Ce code de sauvegarde n’est pas valide. Vérifie qu’il est complet."); }
+    try {
+      const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0;
+      S = migrate(s); UI.importOpen = false; applyTheme(); commit(); toast("Partie importée !");
+    } catch (e) { toast("Ce code n’est pas valide. Vérifie qu’il est complet."); }
   },
   reset() {
-    if (!resetArmed) { resetArmed = true; render(true); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
+    if (!resetArmed) { resetArmed = true; render(true); buzz([20, 60, 20]); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
     resetArmed = false; const keepSettings = S.settings; S = fresh(); S.settings = keepSettings; S.orders = [genOrder(), genOrder()]; closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
   },
 };
@@ -300,10 +304,18 @@ function applyTheme() {
   document.getElementById("theme-color")?.setAttribute("content", dark ? "#172016" : "#f2f9e6");
 }
 darkQuery.addEventListener?.("change", () => S && applyTheme());
+const CHEVRON = `<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICON_UP = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+const ICON_DOWN = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+const ICON_RESET = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4v4h4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function savedAgo() {
+  const s = Math.round((now() - (lastSaveAt || S.last || now())) / 1000);
+  return s < 10 ? "à l’instant" : s < 60 ? `il y a ${s} s` : `il y a ${Math.round(s / 60)} min`;
+}
 function viewSettings() {
   const th = S.settings.theme;
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Paramètres">
-    <div class="row spread"><h2>Paramètres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Paramètres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
     ${installPrompt ? `<div class="install"><p>Installe le jeu sur ton téléphone pour y jouer comme une vraie appli.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
@@ -313,15 +325,19 @@ function viewSettings() {
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
     </div>
     <div class="set-group"><h3>Sauvegarde</h3>
-      <p class="small muted" style="margin:0">Ta partie est enregistrée automatiquement sur cet appareil. Pour changer d’appareil, copie ton code de sauvegarde puis colle-le de l’autre côté.</p>
-      <button class="btn ghost" data-act="copySave">Copier ma sauvegarde</button>
-      <textarea id="save-out" readonly placeholder="Ton code de sauvegarde apparaîtra ici"></textarea>
-      <textarea id="save-in" placeholder="Colle un code de sauvegarde ici"></textarea>
-      <div class="d-acts"><button class="btn ghost" data-act="importSave">Charger ce code</button>
-      <button class="btn ${resetArmed ? "peach" : "ghost"}" data-act="reset">${resetArmed ? "Confirmer : tout effacer" : "Recommencer à zéro"}</button></div>
+      <div class="save-status"><span class="ok-dot"></span><div><b>Partie sauvegardée</b><span>${savedAgo()} · sur cet appareil</span></div></div>
+      <div class="set-list">
+        <button class="set-link" data-act="exportSave">${ICON_UP}<span><b>Exporter ma partie</b><small>Copie un code pour continuer sur un autre appareil</small></span>${CHEVRON}</button>
+        ${UI.exportCode ? `<textarea id="save-out" readonly aria-label="Code de sauvegarde">${UI.exportCode}</textarea>` : ""}
+        <button class="set-link" data-act="toggleImport" aria-expanded="${!!UI.importOpen}">${ICON_DOWN}<span><b>Importer une partie</b><small>Colle le code venant d’un autre appareil</small></span>${CHEVRON}</button>
+        ${UI.importOpen ? `<div class="import-box"><textarea id="save-in" placeholder="Colle ton code ici"></textarea><p class="small muted" style="margin:0">Attention : la partie actuelle sera remplacée.</p><button class="btn" data-act="importSave">Importer</button></div>` : ""}
+      </div>
     </div>
     <div class="set-group"><h3>Statistiques</h3>
       <div class="stats">${mi("Récoltes", fmt(S.stats.harvest))}${mi("Plats cuisinés", fmt(S.stats.cooked))}${mi("Commandes", fmt(S.stats.orders))}${mi("Papillons", fmt(S.stats.butterflies))}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Escargots", fmt(S.stats.weeds))}</div>
+    </div>
+    <div class="set-group danger"><h3>Zone sensible</h3>
+      <button class="set-link ${resetArmed ? "armed" : ""}" data-act="reset">${ICON_RESET}<span><b>${resetArmed ? "Touche encore pour tout effacer" : "Recommencer à zéro"}</b><small>${resetArmed ? "Cette action est définitive" : "Efface toute ta progression (tes réglages sont gardés)"}</small></span></button>
     </div>
     <div class="set-group"><h3>À propos</h3>
       <button class="btn ghost" data-act="checkUpdate">Vérifier les mises à jour</button>
@@ -451,7 +467,7 @@ function invBody(ctx, cat) {
   return det + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
 function viewInv() {
-  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
 }
 
 /* ---------------- Marché ---------------- */
@@ -619,7 +635,7 @@ function openPicker(i) {
   const keys = ORDER.filter(k => seedAvailable(k) || cnt(S.seeds, k) > 0);
   keys.sort((a, b) => (b === S.lastPick) - (a === S.lastPick) || (cnt(S.seeds, b) > 0) - (cnt(S.seeds, a) > 0));
   $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
-    <div class="row spread"><h2>Que planter ?</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Que planter ?</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
     <div class="list">${keys.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
       <div class="item">${plantArt(k, 3)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${i}:${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${i}:${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
@@ -643,7 +659,7 @@ function openModal() {
 }
 let modalView = null;
 function closeModal(fromBack) {
-  modalView = null;
+  modalView = null; UI.importOpen = false; UI.exportCode = null;
   if ($("#modal").hidden) return;
   $("#modal").hidden = true; $("#modal").innerHTML = "";
   if (!fromBack && history.state && history.state.modal) history.back();
