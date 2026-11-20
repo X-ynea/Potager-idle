@@ -41,6 +41,17 @@ def remove_flat_bg(im):
     labels, _ = ndimage.label(candidate)
     border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
     bg = np.isin(labels, border[border > 0])
+    if not dark:
+        # Poches de fond enfermées entre deux objets (ex. entre des graines) : on les retire
+        # quand elles contiennent le motif du damier (blanc ET gris), pas un simple reflet blanc.
+        lo = arr.min(axis=2)
+        n = labels.max()
+        ids = np.arange(1, n + 1)
+        has_white = ndimage.maximum(lo >= 248, labels, ids)
+        has_grey = ndimage.maximum((lo >= 170) & (lo <= 236), labels, ids)
+        size = ndimage.sum(np.ones_like(lo), labels, ids)
+        checker = ids[(has_white > 0) & (has_grey > 0) & (size >= 300)]
+        bg |= np.isin(labels, checker)
     # Bande de contour : transparence progressive, couleur débarrassée du fond.
     band = ndimage.binary_dilation(bg, iterations=2) & ~bg
     alpha = np.where(bg, 0.0, 1.0)
