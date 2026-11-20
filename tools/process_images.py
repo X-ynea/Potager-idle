@@ -33,7 +33,12 @@ def remove_flat_bg(im):
     dark = arr[:6, :6].mean() < 128
     # « Distance » au fond : 0 = couleur du fond, 255 = très différent.
     dist = arr.max(axis=2) if dark else 255 - arr.min(axis=2)
-    labels, _ = ndimage.label(dist <= 20)
+    if dark:
+        candidate = dist <= 20
+    else:
+        # Blanc uni ou faux damier blanc/gris : gris clairs et neutres (sans couleur).
+        candidate = (arr.min(axis=2) >= 170) & (arr.max(axis=2) - arr.min(axis=2) <= 8)
+    labels, _ = ndimage.label(candidate)
     border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
     bg = np.isin(labels, border[border > 0])
     # Bande de contour : transparence progressive, couleur débarrassée du fond.
@@ -93,6 +98,14 @@ LAYOUT = {
     "tournesol": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
     # ligne 2 : plant en fleurs, potiron, sac
     "potiron": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
+    # ligne 2 : un plant en plus avant la plante mûre
+    "poivree": {"stages": [0, 1, 2, 4], "crop": 5, "seeds": 6},
+    # ligne 2 : plant en fleurs, plant avec fruits, sac (récolte : override)
+    "fraisille": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
+    # ligne 2 : plant en fleurs, grosse citrouillotte, sac (récolte : override)
+    "citrouillotte": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
+    # ligne 2 : bouton, fleur épanouie, sac collé à une fleur (récolte : override)
+    "lilas": {"stages": [0, 1, 2, 4], "crop": 4, "seeds": 5},
 }
 
 

@@ -1,2 +1,2 @@
 /* Généré par tools/process_images.py : liste des images disponibles. */
-window.IMG = {"plants": ["basilic", "ble", "carotte", "fraise", "laitue", "lavande", "myrtille", "potiron", "radis", "tomate", "tournesol"], "dishes": [], "ui": []};
+window.IMG = {"plants": ["basilic", "basilomate", "ble", "bledor", "carotte", "citrouillotte", "fraise", "fraisille", "laitue", "lavande", "lilas", "lune", "myrtille", "poivree", "potiron", "radis", "rubis", "tomate", "tournesol"], "dishes": [], "ui": []};
