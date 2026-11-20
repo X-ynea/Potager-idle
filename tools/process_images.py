@@ -24,30 +24,30 @@ SIZE = 320          # taille de sortie (px), suffisant pour un téléphone
 GROUND = 0.97       # ligne de sol commune aux stades (part de la hauteur)
 
 
-def remove_white_bg(im):
-    """Pour les images sur fond blanc uni : retire le blanc relié aux bords
-    (pas le blanc à l'intérieur des objets, comme des fleurs) et adoucit les contours."""
+def remove_flat_bg(im):
+    """Pour les images sur fond uni blanc ou noir : retire la couleur de fond reliée aux bords
+    (pas celle à l'intérieur des objets, comme des fleurs blanches) et adoucit les contours."""
     arr = np.array(im.convert("RGB")).astype(np.float32)
-    lo = arr.min(axis=2)
-    near_white = lo >= 236
-    labels, _ = ndimage.label(near_white)
+    dark = arr[:6, :6].mean() < 128
+    # « Distance » au fond : 0 = couleur du fond, 255 = très différent.
+    dist = arr.max(axis=2) if dark else 255 - arr.min(axis=2)
+    labels, _ = ndimage.label(dist <= 20)
     border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
     bg = np.isin(labels, border[border > 0])
-    # Bande de contour : transparence progressive selon la « blancheur », couleur décontaminée.
+    # Bande de contour : transparence progressive, couleur débarrassée du fond.
     band = ndimage.binary_dilation(bg, iterations=2) & ~bg
     alpha = np.where(bg, 0.0, 1.0)
-    a_band = np.clip((255 - lo) / 45.0, 0, 1)
-    alpha = np.where(band, np.minimum(alpha, a_band), alpha)
+    alpha = np.where(band, np.minimum(alpha, np.clip(dist / 45.0, 0, 1)), alpha)
     safe = np.maximum(alpha, 1e-3)[..., None]
-    rgb = np.where(band[..., None], np.clip((arr - (1 - alpha[..., None]) * 255) / safe, 0, 255), arr)
-    out = np.dstack([rgb, alpha * 255]).astype(np.uint8)
-    return Image.fromarray(out, "RGBA")
+    base = 0.0 if dark else 255.0
+    rgb = np.where(band[..., None], np.clip((arr - (1 - alpha[..., None]) * base) / safe, 0, 255), arr)
+    return Image.fromarray(np.dstack([rgb, alpha * 255]).astype(np.uint8), "RGBA")
 
 
 def load(path):
     im = Image.open(path).convert("RGBA")
-    if im.getchannel("A").getextrema()[0] == 255:  # aucun pixel transparent : fond blanc à retirer
-        im = remove_white_bg(im)
+    if im.getchannel("A").getextrema()[0] == 255:  # aucun pixel transparent : fond uni à retirer
+        im = remove_flat_bg(im)
     return im
 
 
@@ -81,26 +81,47 @@ def save(im, name):
     im.save(OUT / name, "WEBP", quality=86, method=6)
 
 
-def split_sheet(sheet, cols=3, rows=2):
-    """Repère chaque objet (zone opaque d'un seul tenant) et le range dans la case
-    où se trouve son centre. Un objet qui déborde sur la case voisine reste entier,
-    et les morceaux qui dépassent ne polluent pas la case d'à côté."""
+# Planches qui ne suivent pas exactement la grille : quelle vignette sert à quoi.
+# Les vignettes sont numérotées dans l'ordre de lecture (ligne par ligne, de gauche à droite).
+DEFAULT_LAYOUT = {"stages": [0, 1, 2, 3], "crop": 4, "seeds": 5}
+LAYOUT = {
+    # ligne 2 : buisson en fleurs, buisson avec baies, baies, sac
+    "myrtille": {"stages": [0, 1, 2, 4], "crop": 5, "seeds": 6},
+    # ligne 2 : bouton floral, tournesol épanoui (sert aussi de récolte), sac
+    "tournesol": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
+    # ligne 2 : plant en fleurs, potiron, sac
+    "potiron": {"stages": [0, 1, 3, 4], "crop": 4, "seeds": 5},
+}
+
+
+def split_sheet(sheet):
+    """Repère les objets de la planche et les renvoie dans l'ordre de lecture.
+    Chaque gros objet est une vignette ; les petits morceaux détachés (graines,
+    feuilles tombées…) sont rattachés au gros objet le plus proche."""
     arr = np.array(sheet)
     labels, n = ndimage.label(arr[:, :, 3] > 0, structure=np.ones((3, 3)))
     H, W = labels.shape
-    sizes = ndimage.sum(np.ones_like(labels), labels, range(1, n + 1))
-    centers = ndimage.center_of_mass(np.ones_like(labels), labels, range(1, n + 1))
-    groups = [[] for _ in range(cols * rows)]
-    for i, (size, (cy, cx)) in enumerate(zip(sizes, centers), start=1):
-        if size < 40:  # poussières
+    ids = np.arange(1, n + 1)
+    sizes = ndimage.sum(np.ones_like(labels), labels, ids)
+    centers = ndimage.center_of_mass(np.ones_like(labels), labels, ids)
+    boxes = ndimage.find_objects(labels)
+    big = [i for i in ids if sizes[i - 1] >= 0.012 * W * H]
+    groups = {i: [i] for i in big}
+    for i in ids:
+        if i in groups or sizes[i - 1] < 40:
             continue
-        c = min(cols - 1, int(cx // (W / cols))) + cols * min(rows - 1, int(cy // (H / rows)))
-        groups[c].append(i)
+        cy, cx = centers[i - 1]
+        def gap(j):
+            sl = boxes[j - 1]
+            dy = max(sl[0].start - cy, 0, cy - sl[0].stop)
+            dx = max(sl[1].start - cx, 0, cx - sl[1].stop)
+            return dx * dx + dy * dy
+        groups[min(big, key=gap)].append(i)
+    order = sorted(big, key=lambda i: (centers[i - 1][0] >= H / 2, centers[i - 1][1]))
     cells = []
-    for ids in groups:
-        keep = np.isin(labels, ids)
+    for i in order:
         out = arr.copy()
-        out[:, :, 3] = np.where(keep, arr[:, :, 3], 0)
+        out[:, :, 3] = np.where(np.isin(labels, groups[i]), arr[:, :, 3], 0)
         im = Image.fromarray(out, "RGBA")
         cells.append(im.crop(bbox(im)))
     return cells
@@ -108,13 +129,21 @@ def split_sheet(sheet, cols=3, rows=2):
 
 def process_sheet(path, key):
     cells = split_sheet(clean(load(path)))
-    objs = cells[:4]
+    lay = LAYOUT.get(key, DEFAULT_LAYOUT)
+    need = max(lay["stages"] + [lay["crop"], lay["seeds"]]) + 1
+    if len(cells) < need:
+        print(f"Attention : {path.name} contient {len(cells)} objets, {need} attendus. Planche ignorée.")
+        return False
+    if len(cells) != need:
+        print(f"Note : {path.name} contient {len(cells)} objets ({need} attendus), vérifie le résultat.")
+    objs = [cells[i] for i in lay["stages"]]
     # Même échelle pour les 4 stades : le tas de terre garde la même taille en grandissant.
     scale = min(SIZE * 0.94 / max(o.size) for o in objs)
     for i, o in enumerate(objs):
         save(place(o, scale, anchor_bottom=True), f"{key}-{i}.webp")
-    save(icon(cells[4]), f"{key}-crop.webp")
-    save(icon(cells[5]), f"{key}-seeds.webp")
+    save(icon(cells[lay["crop"]]), f"{key}-crop.webp")
+    save(icon(cells[lay["seeds"]]), f"{key}-seeds.webp")
+    return True
 
 
 def main():
@@ -124,8 +153,8 @@ def main():
         name = path.stem
         if name.startswith("sheet-"):
             key = name[6:]
-            process_sheet(path, key)
-            found["plants"].append(key)
+            if process_sheet(path, key):
+                found["plants"].append(key)
         elif name.startswith("dish-"):
             save(icon(clean(load(path))), f"{name}.webp")
             found["dishes"].append(name[5:])
