@@ -2,7 +2,7 @@
 
 Un petit jeu idle de potager, pensé pour le téléphone (Android) et installable comme une appli (PWA).
 
-Plante, arrose, récolte, cuisine des plats, croise tes récoltes dans la Serre pour découvrir des variétés hybrides et livre les commandes des voisins du village. Les plantes poussent en temps réel (de 1 à 20 minutes), même quand le jeu est fermé.
+Plante, arrose, récolte, cuisine des plats, croise tes récoltes dans la Serre pour découvrir des variétés hybrides et livre les commandes des voisins du village. Les plantes poussent en temps réel (de 3 minutes à 1 heure), même quand le jeu est fermé.
 
 ## Jouer
 

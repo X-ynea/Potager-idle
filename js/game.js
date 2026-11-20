@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.13";
+const APP_VERSION = "0.11.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -43,9 +43,9 @@ function fresh() {
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
   };
   // Un jardin déjà commencé pour la première visite
-  Object.assign(s.plots[0], { seed: "radis", grown: 60000, waterUntil: t + 240000 });
-  Object.assign(s.plots[1], { seed: "laitue", grown: 50000, waterUntil: t + 240000 });
-  Object.assign(s.plots[2], { seed: "radis", grown: 20000, waterUntil: t + 240000 });
+  Object.assign(s.plots[0], { seed: "radis", grown: 180000, waterUntil: t + 300000 });
+  Object.assign(s.plots[1], { seed: "laitue", grown: 150000, waterUntil: t + 300000 });
+  Object.assign(s.plots[2], { seed: "radis", grown: 60000, waterUntil: t + 300000 });
   return s;
 }
 function load() {
