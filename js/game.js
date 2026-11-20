@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.11.14";
+const APP_VERSION = "0.11.15";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -241,6 +241,7 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
   toggleVibrate() { S.settings.vibrate = !S.settings.vibrate; if (S.settings.vibrate) buzz(15); commit(); },
@@ -640,11 +641,12 @@ function live(t) {
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
 /* ---------------- Modal, toasts, fx ---------------- */
-const PICK = { plot: null, order: [] };
+const PICK = { plot: null, order: [], cat: "base" };
 function openPicker(i) {
   PICK.plot = i;
   const keys = ORDER.filter(k => seedAvailable(k) || cnt(S.seeds, k) > 0);
   keys.sort((a, b) => (b === S.lastPick) - (a === S.lastPick) || (cnt(S.seeds, b) > 0) - (cnt(S.seeds, a) > 0));
+  if (PICK.cat === "hybrid" && !keys.some(k => PLANTS[k].hybrid)) PICK.cat = "base";
   PICK.order = keys; // ordre figé tant que la fenêtre est ouverte, pour ne pas faire bouger les boutons
   modalView = viewPicker; $("#modal").innerHTML = viewPicker(); openModal();
   $("#modal .sheet button")?.focus();
@@ -665,7 +667,10 @@ function viewPicker() {
   const free = S.plots.filter(p => !p.seed).length;
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
     <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div><button class="btn ghost sm" data-act="close">Fermer</button></div>
-    <div class="list">${PICK.order.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
+    ${(() => { const nb = PICK.order.filter(k => !PLANTS[k].hybrid).length, nh = PICK.order.filter(k => PLANTS[k].hybrid).length;
+      return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
+    ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
+    <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
       <div class="item">${seedArt(k)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
