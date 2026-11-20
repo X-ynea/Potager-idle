@@ -279,7 +279,7 @@ function avatar(v) {
   return `<svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="${v.color}" opacity=".22"/><circle cx="12" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="34" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="23" cy="25" r="15" fill="${vol(v.color)}"/><ellipse cx="23" cy="31" rx="7" ry="5" fill="#fff" opacity=".55"/><circle cx="23" cy="29" r="2.2" fill="${INK}"/>${face(23, 23, 3.2)}</svg>`;
 }
 
-const DROP = `<img src="assets/img/ui-watering-can.webp" alt="">`;
+const DROP = `<svg viewBox="0 0 16 16"><path d="M8 1.5C6 5 3.5 7.5 3.5 10a4.5 4.5 0 0 0 9 0C12.5 7.5 10 5 8 1.5z" fill="${vol("#3f9bdc")}"/><ellipse cx="6.4" cy="9.6" rx="1" ry="1.6" fill="#fff" opacity=".6"/></svg>`;
 const STAR = `<svg viewBox="0 0 16 16"><path d="M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2 4 13.5l1-4.4-3.4-3 4.5-.5z" fill="${vol("#f4c03e")}"/></svg>`;
 const WEED = `<g>${leaf(17, 61, -20, 15, 3, "#6e9a3a")}${leaf(21, 61, 8, 18, 3.2, "#5d8a30")}${leaf(25, 61, 30, 13, 2.8, "#7aa845")}` +
   `<ellipse cx="45" cy="56" rx="10" ry="4.5" fill="${vol("#d9bf94")}"/><circle cx="47" cy="50.5" r="6.5" fill="${vol("#b07a48")}"/>` +
