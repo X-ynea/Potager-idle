@@ -408,3 +408,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .sheet-head { margin-left: -40px; margin-right: -40px; padding-left: 40px; padding-right: 40px; }
 }
 .sheet > p { max-width: 42ch; justify-self: center; }
+/* Pastilles : légume plus discret, goutte et étoile plus visibles */
+.plot .kind { width: 22%; }
+.plot .tag { width: 22%; height: auto; aspect-ratio: 1; min-width: 26px; }
+.plot .tag svg { width: 66%; height: 66%; }
