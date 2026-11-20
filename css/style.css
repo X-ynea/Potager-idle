@@ -412,3 +412,9 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot .kind { width: 22%; }
 .plot .tag { width: 22%; height: auto; aspect-ratio: 1; min-width: 26px; }
 .plot .tag svg { width: 66%; height: 66%; }
+/* Halo rouge autour de l'escargot, synchronisé avec le cadre */
+.pest.snail { animation: snail-glow 1.4s ease-in-out infinite alternate; }
+@keyframes snail-glow {
+  from { filter: drop-shadow(0 0 3px rgba(226,71,59,.7)) drop-shadow(0 0 1px rgba(226,71,59,.9)); }
+  to { filter: drop-shadow(0 0 8px rgba(226,71,59,.95)) drop-shadow(0 0 2px rgba(226,71,59,1)); }
+}
