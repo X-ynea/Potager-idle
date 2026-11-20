@@ -1,6 +1,6 @@
 /* Service worker de potager-idle : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v37";
+const VERSION = "potager-v38";
 const FILES = [
   "./",
   "index.html",
