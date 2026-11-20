@@ -1,4 +1,7 @@
 "use strict";
+/* Numéro de version affiché dans les Paramètres.
+   À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
+const APP_VERSION = "0.6.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -32,7 +35,7 @@ function fresh() {
   const t = now();
   const P = () => ({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
   const s = {
-    v: 1, coins: 25, xp: 0, level: 1,
+    v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [],
     upg: { water: 0, hose: 0, fert: 0, stove: 0, auto: 0 },
@@ -49,7 +52,7 @@ function load() {
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return migrate(JSON.parse(raw)); } catch (e) {}
   return null;
 }
-function migrate(s) { const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; return s; }
+function migrate(s) { const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ---------------- Simulation ---------------- */
@@ -226,6 +229,17 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
+  setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
+  toggleVibrate() { S.settings.vibrate = !S.settings.vibrate; if (S.settings.vibrate) buzz(15); commit(); },
+  async checkUpdate() {
+    const reg = await navigator.serviceWorker?.getRegistration?.().catch(() => null);
+    if (!reg) { toast("Mises à jour automatiques indisponibles ici. Recharge la page."); return; }
+    toast("Recherche d’une mise à jour…");
+    try { await reg.update(); } catch (e) {}
+    if (reg.installing || reg.waiting) toast("Nouvelle version trouvée, le jeu va redémarrer.");
+    else { toast(`Tu as la dernière version (${APP_VERSION}).`); }
+  },
   sel(arg) {
     const i = arg.indexOf(":"), ctx = arg.slice(0, i); UI.sel[ctx] = arg.slice(i + 1); render(true);
     const d = document.getElementById("detail-" + ctx);
@@ -251,12 +265,12 @@ const A = {
     if (!navigator.clipboard) ta.select();
   },
   importSave() {
-    try { const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0; S = migrate(s); commit(); toast("Sauvegarde chargée !"); }
+    try { const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0; S = migrate(s); applyTheme(); commit(); toast("Sauvegarde chargée !"); }
     catch (e) { toast("Ce code de sauvegarde n’est pas valide. Vérifie qu’il est complet."); }
   },
   reset() {
-    if (!resetArmed) { resetArmed = true; render(true); setTimeout(() => { resetArmed = false; if (tab === "garden") render(true); }, 5000); return; }
-    resetArmed = false; S = fresh(); S.orders = [genOrder(), genOrder()]; commit(); toast("Nouveau jardin. Bonne pousse !");
+    if (!resetArmed) { resetArmed = true; render(true); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
+    resetArmed = false; const keepSettings = S.settings; S = fresh(); S.settings = keepSettings; S.orders = [genOrder(), genOrder()]; closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
   },
 };
 function harvest(i, x, y) {
@@ -275,7 +289,46 @@ function pos(ev) {
   return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: innerWidth / 2, y: innerHeight / 2 };
 }
 function commit() { save(); render(true); }
-function buzz(p) { try { navigator.vibrate?.(p); } catch (e) {} }
+function buzz(p) { if (!S.settings.vibrate) return; try { navigator.vibrate?.(p); } catch (e) {} }
+
+/* ---------------- Paramètres ---------------- */
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme() {
+  const th = S.settings.theme;
+  document.documentElement.dataset.theme = th;
+  const dark = th === "dark" || (th === "system" && darkQuery.matches);
+  document.getElementById("theme-color")?.setAttribute("content", dark ? "#172016" : "#f2f9e6");
+}
+darkQuery.addEventListener?.("change", () => S && applyTheme());
+function viewSettings() {
+  const th = S.settings.theme;
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Paramètres">
+    <div class="row spread"><h2>Paramètres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    ${installPrompt ? `<div class="install"><p>Installe le jeu sur ton téléphone pour y jouer comme une vraie appli.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
+    <div class="set-group"><h3>Apparence</h3>
+      <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
+      <p class="small muted" style="margin:0">« Auto » suit le réglage de ton téléphone. Le jardin reste ensoleillé dans tous les cas.</p>
+    </div>
+    <div class="set-group"><h3>Confort</h3>
+      <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
+    </div>
+    <div class="set-group"><h3>Sauvegarde</h3>
+      <p class="small muted" style="margin:0">Ta partie est enregistrée automatiquement sur cet appareil. Pour changer d’appareil, copie ton code de sauvegarde puis colle-le de l’autre côté.</p>
+      <button class="btn ghost" data-act="copySave">Copier ma sauvegarde</button>
+      <textarea id="save-out" readonly placeholder="Ton code de sauvegarde apparaîtra ici"></textarea>
+      <textarea id="save-in" placeholder="Colle un code de sauvegarde ici"></textarea>
+      <div class="d-acts"><button class="btn ghost" data-act="importSave">Charger ce code</button>
+      <button class="btn ${resetArmed ? "peach" : "ghost"}" data-act="reset">${resetArmed ? "Confirmer : tout effacer" : "Recommencer à zéro"}</button></div>
+    </div>
+    <div class="set-group"><h3>Statistiques</h3>
+      <div class="stats">${mi("Récoltes", fmt(S.stats.harvest))}${mi("Plats cuisinés", fmt(S.stats.cooked))}${mi("Commandes", fmt(S.stats.orders))}${mi("Papillons", fmt(S.stats.butterflies))}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Escargots", fmt(S.stats.weeds))}</div>
+    </div>
+    <div class="set-group"><h3>À propos</h3>
+      <button class="btn ghost" data-act="checkUpdate">Vérifier les mises à jour</button>
+      <p class="version">Petit Potager · version ${APP_VERSION}</p>
+    </div>
+  </div>`;
+}
 
 /* ---------------- Views ---------------- */
 function views_garden() {
@@ -303,15 +356,7 @@ function views_garden() {
     <div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
     ${basketKeys.length ? `<div class="tiles mini">${basketKeys.slice(0, 10).map(k => tile(itemArt(k), { act: "openInv", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
-  <details class="panel opts"><summary>Sauvegarde et options</summary>
-    <p class="small muted" style="margin:0">Ta partie est enregistrée automatiquement sur cet appareil. Tes plantes continuent de pousser quand l’appli est fermée, tant que la terre est humide. Pour changer d’appareil, copie ton code de sauvegarde puis colle-le de l’autre côté.</p>
-    <div class="row"><button class="btn ghost sm" data-act="copySave">Copier ma sauvegarde</button></div>
-    <textarea id="save-out" readonly placeholder="Ton code de sauvegarde apparaîtra ici"></textarea>
-    <textarea id="save-in" placeholder="Colle un code de sauvegarde ici"></textarea>
-    <div class="row"><button class="btn ghost sm" data-act="importSave">Charger ce code</button>
-    <button class="btn sm ${resetArmed ? "peach" : "ghost"}" data-act="reset">${resetArmed ? "Confirmer : tout effacer" : "Recommencer à zéro"}</button></div>
-    <p class="small muted" style="margin:0">Récoltes : ${fmt(S.stats.harvest)} · Plats : ${fmt(S.stats.cooked)} · Commandes : ${fmt(S.stats.orders)} · Papillons : ${fmt(S.stats.butterflies)}</p>
-  </details>`;
+`;
 }
 function plotHTML(p, i, t) {
   const st = plotState(p, t);
@@ -536,14 +581,13 @@ function render(force) {
   const t = now();
   const s = sig(t);
   if (force || s !== lastSig) {
-    const keepOpen = tab === "garden" && $("details.opts")?.open;
-    const sOut = $("#save-out")?.value, sIn = $("#save-in")?.value;
     $("#view").innerHTML = VIEWS[tab]();
-    if (keepOpen) { $("details.opts").open = true; if (sOut) $("#save-out").value = sOut; if (sIn) $("#save-in").value = sIn; }
     lastSig = s;
     if (modalView && !$("#modal").hidden) {
       const sc = $("#modal .sheet")?.scrollTop || 0;
+      const kept = [...document.querySelectorAll("#modal textarea")].map(t => [t.id, t.value]);
       $("#modal").innerHTML = modalView();
+      for (const [id, v] of kept) { const t = document.getElementById(id); if (t) t.value = v; }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
     }
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
@@ -648,6 +692,7 @@ function start() {
   const loaded = load();
   S = loaded ? migrate(loaded) : fresh();
   if (!loaded) S.orders = [genOrder(), genOrder()];
+  applyTheme();
   const t = now(), away = t - (S.last || t);
   const before = S.plots.filter(p => plotState(p, t - away) === "ripe").length;
   tick(t);
