@@ -218,6 +218,15 @@ function plantArt(k, stage, inPlot) {
   return `<svg class="art" viewBox="${vb}" aria-hidden="true">${g}</svg>`;
 }
 
+/* Sachet de graines : papier kraft, bandeau de couleur, la plante dessinée dessus. */
+function packetArt(k) {
+  const inner = plantArt(k, 3).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+  const c = PLANTS[k].color, kraft = "#f1dfb8";
+  return `<svg viewBox="0 0 64 64" aria-hidden="true">${shadow(32, 58, 19, 3.5)}<path d="M13 9h38l-2.2 47.5H15.2z" fill="${vol(kraft)}"/>` +
+    `<path d="M13 9h38v8.5H13z" fill="${vol(lighten(c, .12))}"/><path d="M13 17.5h38" stroke="${darken(kraft, .3)}" stroke-width=".8" stroke-dasharray="1.6 1.4"/>` +
+    `<path d="M13 9h38" stroke="${darken(kraft, .2)}" stroke-width="1.2"/><svg x="15" y="19" width="34" height="35" viewBox="7 9 50 50">${inner}</svg></svg>`;
+}
+
 /* ---- Plats ---- */
 const CERAMIC = "#fbf5ea";
 function dishArt(r) {
@@ -244,7 +253,7 @@ function dishArt(r) {
       g += `<ellipse cx="32" cy="51" rx="23" ry="4.5" fill="${vol(CERAMIC)}"/><path d="M13 29h38v20H13z" fill="${vol("#f3d6a2")}"/><path d="M13 29h38v6H13z" fill="${vol(c)}"/>` +
         `<path d="M13 35c3 4 6 0 9.5 3s6-1 9.5 2 6-1 9.5 1 6-2 9.5-2" stroke="${c}" stroke-width="3" fill="none"/><circle cx="32" cy="23.5" r="5" fill="${vol("#e8414f")}"/>${stem("M32 18.5v-4", STEM, 2)}`; break;
   }
-  return `<svg viewBox="0 0 64 64" aria-hidden="true">${g}</svg>`;
+  return `<svg viewBox="5 7 54 54" aria-hidden="true">${g}</svg>`;
 }
 
 /* ---- Voisins (eux gardent leur frimousse) ---- */

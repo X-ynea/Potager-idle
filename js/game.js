@@ -226,6 +226,24 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  sel(arg) {
+    const i = arg.indexOf(":"), ctx = arg.slice(0, i); UI.sel[ctx] = arg.slice(i + 1); render(true);
+    const d = document.getElementById("detail-" + ctx);
+    if (d) { const r = d.getBoundingClientRect(); if (r.top < 60 || r.top > innerHeight * .45) d.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  },
+  invCat(c) { UI.invCat = c; render(true); },
+  sellCat(c) { UI.sellCat = c; render(true); },
+  openInv(k) {
+    if (k) { UI.invCat = PLANTS[k] ? "crops" : "dishes"; UI.sel.inv = k; }
+    modalView = viewInv; $("#modal").innerHTML = viewInv(); openModal();
+  },
+  plantFromInv(k) {
+    const i = S.plots.findIndex(p => !p.seed);
+    if (i < 0) { toast("Toutes les parcelles sont occupées. Récolte d’abord !"); return; }
+    closeModal(); tab = "garden"; A.plant(`${i}:${k}`);
+  },
+  goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
+  cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
   copySave(_, ev) {
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(S))));
     const ta = $("#save-out"); ta.value = code;
@@ -282,8 +300,8 @@ function views_garden() {
     <p class="small muted" style="margin:0">Touche une parcelle pour planter, arroser ou récolter. Une plante assoiffée arrête de pousser (sans jamais faner). Garde un œil sur les papillons et les escargots !</p>
   </section>
   <section class="panel">
-    <div class="row spread"><h2>Panier</h2><button class="btn ghost sm" data-act="tab" data-arg="market">Vendre au marché</button></div>
-    ${basketKeys.length ? `<div class="basket">${basketKeys.map(k => `<span class="chip" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}</span>`).join("")}</div>` : `<p class="muted small" style="margin:0">Ton panier est vide. Récolte tes premiers radis !</p>`}
+    <div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
+    ${basketKeys.length ? `<div class="tiles mini">${basketKeys.slice(0, 10).map(k => tile(itemArt(k), { act: "openInv", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
   <details class="panel opts"><summary>Sauvegarde et options</summary>
     <p class="small muted" style="margin:0">Ta partie est enregistrée automatiquement sur cet appareil. Tes plantes continuent de pousser quand l’appli est fermée, tant que la terre est humide. Pour changer d’appareil, copie ton code de sauvegarde puis colle-le de l’autre côté.</p>
@@ -331,24 +349,104 @@ function updateGarden(t) {
   });
 }
 
-function views_market() {
-  const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["upgrades", "Améliorations"], ["sell", "Vendre"]];
-  let body = "";
-  if (msub === "seeds") {
-    const avail = ORDER.filter(seedAvailable);
-    const locked = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl > S.level).slice(0, 2);
-    const hidden = ORDER.filter(k => PLANTS[k].hybrid && !S.hybrids.includes(k)).length;
-    body = `<div class="list">${avail.map(k => { const d = PLANTS[k]; return `
-      <div class="item">${plantArt(k, 3)}<div class="t"><b>${d.name}${d.hybrid ? ' <small class="muted">· hybride</small>' : ""}</b><span>Pousse en ${dur(d.time * 1000)} · se vend ${fmt(d.sell)} · stock ${cnt(S.seeds, k)}</span></div>
-      <div class="acts"><button class="btn sm" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>${coin}${fmt(d.cost)}</button><button class="btn ghost sm" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5</button></div></div>`; }).join("")}
-      ${locked.map(k => `<div class="item locked">${plantArt(k, 3)}<div class="t"><b>${PLANTS[k].name}</b><span>Disponible au niveau ${PLANTS[k].lvl}</span></div><div class="acts"></div></div>`).join("")}
-      </div>${hidden ? `<p class="small muted" style="margin:0">${hidden} variétés hybrides restent à découvrir dans la Serre. Une fois trouvées, leurs graines sont vendues ici.</p>` : ""}`;
-  } else if (msub === "recipes") {
-    const shown = RORDER.filter(r => RECIPES[r].lvl <= S.level + 1);
-    body = `<div class="list">${shown.map(r => { const d = RECIPES[r]; const own = S.recipes.includes(r), lock = d.lvl > S.level; return `
-      <div class="item ${lock ? "locked" : ""}">${dishArt(r)}<div class="t"><b>${d.name}</b><span>${Object.entries(d.need).map(([k, n]) => `${n} ${PLANTS[k].name.toLowerCase()}`).join(" + ")} · se vend ${fmt(d.sell)}</span></div>
-      <div class="acts">${own ? `<span class="small muted"><b>Apprise</b></span>` : lock ? `<span class="small muted">Niveau ${d.lvl}</span>` : `<button class="btn sm" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>${coin}${fmt(d.price)}</button>`}</div></div>`; }).join("")}</div>`;
-  } else if (msub === "upgrades") {
+/* ---------------- Composants : cases, fiche détaillée, ingrédients ---------------- */
+const UI = { sel: {}, invCat: "crops", sellCat: "crops" };
+const CHECK = `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3fae49"/><path d="M4.5 8.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const LOCK = `<svg viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="7" rx="1.6" fill="#8a9a80"/><path d="M5.5 7V5.5a2.5 2.5 0 0 1 5 0V7" stroke="#8a9a80" stroke-width="1.6" fill="none"/></svg>`;
+const priceTag = n => `${coin}<span class="num">${fmt(n)}</span>`;
+const canCook = r => Object.entries(RECIPES[r].need).every(([k, q]) => cnt(S.crops, k) >= q);
+const mystery = k => `<div class="sil">${plantArt(k, 3)}</div>`;
+
+function tile(art, o) {
+  return `<div class="tile-wrap"><button class="tile${o.sel ? " sel" : ""}${o.locked ? " locked" : ""}" data-act="${o.act}" data-arg="${o.arg || ""}" aria-pressed="${!!o.sel}" aria-label="${o.label}">${art}` +
+    (o.count ? `<span class="cnt num">${fmt(o.count)}</span>` : "") +
+    (o.check ? `<span class="tb">${CHECK}</span>` : o.locked ? `<span class="tb">${LOCK}</span>` : o.dot ? `<span class="dot"></span>` : "") +
+    `</button>${o.under != null ? `<span class="under">${o.under}</span>` : ""}</div>`;
+}
+const emptyTiles = n => Array.from({ length: Math.max(0, n) }, () => `<div class="tile-wrap"><div class="tile empty"></div></div>`).join("");
+function detail(ctx, art, title, desc, meta, body = "", actions = "") {
+  return `<div class="detail" id="detail-${ctx}"><div class="d-head"><div class="d-art">${art}</div><div class="d-txt"><h3>${title}</h3><p>${desc}</p></div></div>` +
+    (meta ? `<div class="meta">${meta}</div>` : "") + body + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
+}
+const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="num">${val}</b></span>`;
+function ingList(need) {
+  return `<div class="ings"><h4>Ingrédients</h4>${Object.entries(need).map(([k, q]) => {
+    const h = cnt(S.crops, k), known = !PLANTS[k].hybrid || S.hybrids.includes(k);
+    return `<div class="ing ${h >= q ? "ok" : "miss"}">${known ? plantArt(k, 3) : mystery(k)}<span>${known ? PLANTS[k].name : "Hybride à découvrir"}</span><b class="num">${h}/${q}</b></div>`;
+  }).join("")}</div>`;
+}
+
+/* ---------------- Inventaire (récoltes, graines, plats) ---------------- */
+const CATS = [["crops", "Récoltes"], ["seeds", "Graines"], ["dishes", "Plats"]];
+const catBag = c => c === "seeds" ? S.seeds : c === "dishes" ? S.dishes : S.crops;
+const catCount = c => Object.values(catBag(c)).reduce((a, b) => a + b, 0);
+function catTabs(cats, cur, act) {
+  return `<div class="subtabs" style="grid-template-columns:repeat(${cats.length},1fr)">${cats.map(([c, l]) => `<button data-act="${act}" data-arg="${c}" aria-pressed="${cur === c}">${l} <span class="num">${catCount(c)}</span></button>`).join("")}</div>`;
+}
+function invBody(ctx, cat) {
+  const bag = catBag(cat);
+  const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0);
+  let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
+  let det;
+  if (!k) {
+    det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
+  } else if (cat === "seeds") {
+    const d = PLANTS[k];
+    det = detail(ctx, packetArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)),
+      "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
+  } else {
+    const n = cnt(bag, k), v = itemVal(k);
+    const uses = cat === "crops" ? RORDER.filter(r => RECIPES[r].need[k]) : [];
+    det = detail(ctx, itemArt(k), itemName(k), (PLANTS[k] || RECIPES[k]).desc, mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
+      uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
+      `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Tout · ${priceTag(n * v)}</button>`);
+  }
+  const grid = keys.map(x => tile(cat === "seeds" ? packetArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(bag, x) })).join("");
+  const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
+  return det + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
+}
+function viewInv() {
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
+}
+
+/* ---------------- Marché ---------------- */
+function marketSeeds() {
+  let k = UI.sel.seeds; if (!PLANTS[k]) k = ORDER.find(seedAvailable);
+  const d = PLANTS[k], av = seedAvailable(k), myst = d.hybrid && !av;
+  const det = myst
+    ? detail("seeds", mystery(k), "Variété mystère", `Indice : ${d.hint}`, mi("Où la trouver", "Serre"), "", `<button class="btn big ghost" data-act="tab" data-arg="lab">Essayer un croisement</button>`)
+    : detail("seeds", packetArt(k), d.name + (d.hybrid ? ` <small class="hy">Hybride</small>` : ""), d.desc,
+      mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
+      av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter · ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5 · ${priceTag(d.cost * 5)}</button>`
+        : `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`);
+  const grid = ORDER.map(x => {
+    const p = PLANTS[x], a = seedAvailable(x), m = p.hybrid && !a;
+    return tile(m ? mystery(x) : packetArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), under: a ? priceTag(p.cost) : m ? "???" : `Niv. ${p.lvl}` });
+  }).join("");
+  return det + `<div class="tiles">${grid}</div>`;
+}
+function marketRecipes() {
+  let r = UI.sel.recipes;
+  if (!RECIPES[r]) r = RORDER.find(x => !S.recipes.includes(x) && RECIPES[x].lvl <= S.level) || RORDER[0];
+  const d = RECIPES[r], own = S.recipes.includes(r), lock = d.lvl > S.level;
+  const act = own ? `<button class="btn big ghost" data-act="cookGo" data-arg="${r}">Déjà apprise · aller en cuisine</button>`
+    : lock ? `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`
+    : `<button class="btn big" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>Apprendre · ${priceTag(d.price)}</button>`;
+  const det = detail("recipes", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp), ingList(d.need), act);
+  const grid = RORDER.map(x => {
+    const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level;
+    return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l, check: o, under: o ? "Apprise" : l ? `Niv. ${e.lvl}` : priceTag(e.price) });
+  }).join("");
+  return det + `<div class="tiles">${grid}</div>`;
+}
+function marketSell() {
+  const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
+  return `${catTabs([["crops", "Récoltes"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
+    ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte · ${priceTag(tot)}</button>` : ""}
+    ${invBody("sell", UI.sellCat)}
+    <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
+}
+function marketUpgrades() {
     const plotStep = PLOT_STEPS[S.plots.length - 6];
     const rows = [];
     rows.push(`<div class="item">${plantArt("laitue", 1)}<div class="t"><b>Nouvelle parcelle</b><span>${S.plots.length} / ${MAX_PLOTS} parcelles</span></div><div class="acts">${plotStep ? (S.level < plotStep.lvl ? `<span class="small muted">Niveau ${plotStep.lvl}</span>` : `<button class="btn sm" data-act="buyPlot" ${S.coins < plotStep.cost ? "disabled" : ""}>${coin}${fmt(plotStep.cost)}</button>`) : `<span class="small muted"><b>Complet</b></span>`}</div></div>`);
@@ -358,19 +456,16 @@ function views_market() {
       rows.push(`<div class="item"><svg viewBox="0 0 16 16" aria-hidden="true">${icon.replace(/<\/?svg[^>]*>/g, "")}</svg><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step ? ` → ${U.desc(nxt)}` : ""}</span></div>
       <div class="acts">${!step ? `<span class="small muted"><b>Acquis</b></span>` : S.level < step.lvl ? `<span class="small muted">Niveau ${step.lvl}</span>` : `<button class="btn sm" data-act="buyUpg" data-arg="${u}" ${S.coins < step.cost ? "disabled" : ""}>${coin}${fmt(step.cost)}</button>`}</div></div>`);
     }
-    body = `<div class="list">${rows.join("")}</div>`;
-  } else {
-    const keys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
-    const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
-    body = keys.length ? `<div class="row spread"><span class="small muted">Pense à garder des ingrédients pour la Cuisine et les commandes du Village : elles paient mieux.</span>${tot ? `<button class="btn peach sm" data-act="sellCrops">Vendre toute la récolte · ${fmt(tot)}</button>` : ""}</div>
-      <div class="list">${keys.map(k => `<div class="item">${itemArt(k)}<div class="t"><b>${itemName(k)}</b><span>${cnt(itemBag(k), k)} en stock · ${fmt(itemVal(k))} pièce${itemVal(k) > 1 ? "s" : ""} l’unité</span></div>
-      <div class="acts"><button class="btn ghost sm" data-act="sell" data-arg="${k}:one">Vendre 1</button><button class="btn sm" data-act="sell" data-arg="${k}:all">Tout · ${fmt(itemVal(k) * cnt(itemBag(k), k))}</button></div></div>`).join("")}</div>`
-      : `<div class="empty-note">${plantArt("radis", 2)}<span>Rien à vendre pour l’instant. Les récoltes et les plats apparaîtront ici.</span></div>`;
-  }
+  return `<div class="list">${rows.join("")}</div>`;
+}
+function views_market() {
+  const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["upgrades", "Bonus"], ["sell", "Vendre"]];
+  const body = { seeds: marketSeeds, recipes: marketRecipes, upgrades: marketUpgrades, sell: marketSell }[msub]();
   return `<section class="panel"><div class="row spread"><h2>Marché</h2><span class="pill">${coin}<span class="num">${fmt(S.coins)}</span></span></div>
     <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
 }
 
+/* ---------------- Cuisine ---------------- */
 function views_kitchen() {
   const t = now(), n = stoves();
   const slots = [];
@@ -380,13 +475,15 @@ function views_kitchen() {
     else if (c.end <= t) slots.push(`<div class="stove done">${dishArt(c.r)}<b class="small">${RECIPES[c.r].name}</b><button class="btn sm" data-act="serve" data-arg="${i}">Récupérer</button></div>`);
     else slots.push(`<div class="stove busy">${dishArt(c.r)}<b class="small">${RECIPES[c.r].name}</b><div class="pbar"><i data-pb="${c.end}" data-pd="${RECIPES[c.r].time * 1000}"></i></div><span class="small muted num" data-left="${c.end}"></span></div>`);
   }
-  const free = S.cooking.length < n;
-  const rec = S.recipes.length ? `<div class="list">${S.recipes.map(r => { const d = RECIPES[r]; const ok = Object.entries(d.need).every(([k, q]) => cnt(S.crops, k) >= q); return `
-    <div class="item">${dishArt(r)}<div class="t"><b>${d.name}</b><div class="need">${Object.entries(d.need).map(([k, q]) => `<span class="chip ${cnt(S.crops, k) < q ? "miss" : ""}">${plantArt(k, 3)}${cnt(S.crops, k)}/${q}</span>`).join("")}</div><span>${dur(d.time * 1000)} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
-    <div class="acts"><button class="btn peach sm" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>Cuisiner</button></div></div>`; }).join("")}</div>`
-    : `<div class="empty-note">${dishArt("salade")}<span>${S.level >= 2 ? "Achète ta première recette au Marché, onglet Recettes." : "La cuisine ouvre au niveau 2 avec la Salade croquante."}</span>${S.level >= 2 ? `<button class="btn sm" data-act="tab" data-arg="market">Aller au marché</button>` : ""}</div>`;
-  return `<section class="panel"><div class="row spread"><h2>Cuisine</h2><span class="small muted">${n} fourneau${n > 1 ? "x" : ""}</span></div><div class="stoves">${slots.join("")}</div></section>
-    <section class="panel"><h2>Mes recettes</h2>${rec}</section>`;
+  const head = `<section class="panel"><div class="row spread"><h2>Cuisine</h2><span class="small muted">${n} fourneau${n > 1 ? "x" : ""}</span></div><div class="stoves">${slots.join("")}</div></section>`;
+  if (!S.recipes.length) return head + `<section class="panel"><div class="empty-note">${dishArt("salade")}<span>${S.level >= 2 ? "Apprends ta première recette au Marché." : "La cuisine ouvre au niveau 2 avec la Salade croquante."}</span>${S.level >= 2 ? `<button class="btn" data-act="goRecipes">Voir les recettes</button>` : ""}</div></section>`;
+  let r = UI.sel.kitchen; if (!S.recipes.includes(r)) r = S.recipes.find(canCook) || S.recipes[0];
+  const d = RECIPES[r], ok = canCook(r), free = S.cooking.length < n;
+  const btn = `<button class="btn big peach" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>${!ok ? "Il manque des ingrédients" : !free ? "Fourneaux occupés" : `Cuisiner · ${dur(d.time * 1000)}`}</button>`;
+  const det = detail("kitchen", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.dishes, r)), ingList(d.need), btn);
+  const grid = S.recipes.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
+    `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
+  return head + `<section class="panel">${det}<div class="tiles">${grid}</div></section>`;
 }
 
 function views_lab() {
@@ -426,11 +523,11 @@ function views_village() {
 const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
 let lastSig = "";
 function sig(t) {
-  const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(",")].join("|");
+  const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
     case "garden": return base + JSON.stringify([S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
-    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.cooking.map(c => c.r + (c.end <= t))]);
+    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < 3]);
   }
@@ -444,6 +541,11 @@ function render(force) {
     $("#view").innerHTML = VIEWS[tab]();
     if (keepOpen) { $("details.opts").open = true; if (sOut) $("#save-out").value = sOut; if (sIn) $("#save-in").value = sIn; }
     lastSig = s;
+    if (modalView && !$("#modal").hidden) {
+      const sc = $("#modal .sheet")?.scrollTop || 0;
+      $("#modal").innerHTML = modalView();
+      const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
+    }
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
   }
   live(t);
@@ -495,7 +597,9 @@ function openModal() {
   $("#modal").hidden = false;
   if (!wasOpen) history.pushState({ modal: 1 }, "");
 }
+let modalView = null;
 function closeModal(fromBack) {
+  modalView = null;
   if ($("#modal").hidden) return;
   $("#modal").hidden = true; $("#modal").innerHTML = "";
   if (!fromBack && history.state && history.state.modal) history.back();
