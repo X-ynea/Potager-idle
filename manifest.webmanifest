@@ -1,0 +1,19 @@
+{
+  "name": "Petit Potager",
+  "short_name": "Potager",
+  "description": "Un petit jeu idle de potager : plante, arrose, récolte, cuisine et découvre des variétés hybrides.",
+  "lang": "fr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e9f2df",
+  "theme_color": "#4f9a4a",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

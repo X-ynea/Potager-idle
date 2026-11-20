@@ -1,0 +1,587 @@
+"use strict";
+/* ---------------- Helpers ---------------- */
+const $ = s => document.querySelector(s);
+const now = () => Date.now();
+const fmt = n => Math.floor(n).toLocaleString("fr-FR");
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const coin = '<span class="coin" aria-hidden="true"></span>';
+function dur(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  if (s < 60) return s + " s";
+  const m = Math.floor(s / 60), r = s % 60;
+  if (m < 60) return r ? `${m} min ${String(r).padStart(2, "0")}` : `${m} min`;
+  return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
+}
+const xpNeed = l => Math.round(15 * Math.pow(l, 1.6));
+const waterMs = () => UPG.water.values[S.upg.water] * 60000;
+const speed = () => UPG.fert.values[S.upg.fert];
+const stoves = () => UPG.stove.values[S.upg.stove];
+const cnt = (bag, k) => bag[k] || 0;
+const itemName = k => PLANTS[k] ? PLANTS[k].name : RECIPES[k].name;
+const itemArt = k => PLANTS[k] ? plantArt(k, 3) : dishArt(k);
+const itemBag = k => PLANTS[k] ? S.crops : S.dishes;
+const itemVal = k => PLANTS[k] ? PLANTS[k].sell : RECIPES[k].sell;
+const itemXp = k => PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
+const seedAvailable = k => { const d = PLANTS[k]; return d.hybrid ? S.hybrids.includes(k) : d.lvl <= S.level; };
+
+/* ---------------- State ---------------- */
+const SAVE_KEY = "petit-potager-v1";
+let S;
+function fresh() {
+  const t = now();
+  const P = () => ({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
+  const s = {
+    v: 1, coins: 25, xp: 0, level: 1,
+    plots: Array.from({ length: 6 }, P),
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [],
+    upg: { water: 0, hose: 0, fert: 0, stove: 0, auto: 0 },
+    cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
+    stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
+  };
+  // Un jardin déjà commencé pour la première visite
+  Object.assign(s.plots[0], { seed: "radis", grown: 60000, waterUntil: t + 240000 });
+  Object.assign(s.plots[1], { seed: "laitue", grown: 50000, waterUntil: t + 240000 });
+  Object.assign(s.plots[2], { seed: "radis", grown: 20000, waterUntil: t + 240000 });
+  return s;
+}
+function load() {
+  try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return migrate(JSON.parse(raw)); } catch (e) {}
+  return null;
+}
+function migrate(s) { const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; return s; }
+function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------------- Simulation ---------------- */
+function tick(t) {
+  const sp = speed();
+  for (const p of S.plots) {
+    if (p.seed) {
+      const need = PLANTS[p.seed].time * 1000;
+      if (p.grown < need && !p.weed) {
+        const end = S.upg.auto ? t : Math.min(t, p.waterUntil);
+        const d = end - p.last;
+        if (d > 0) p.grown = Math.min(need, p.grown + d * sp);
+      }
+    }
+    p.last = t;
+  }
+  if (S.orders.length < 3 && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
+}
+function plotState(p, t) {
+  if (!p.seed) return "empty";
+  if (p.weed) return "weed";
+  if (p.grown >= PLANTS[p.seed].time * 1000) return "ripe";
+  if (!S.upg.auto && t >= p.waterUntil) return "dry";
+  return "growing";
+}
+function plotStage(p) { const f = p.grown / (PLANTS[p.seed].time * 1000); return f >= 1 ? 3 : f >= .55 ? 2 : f >= .2 ? 1 : 0; }
+
+function addXp(n) {
+  S.xp += n;
+  while (S.xp >= xpNeed(S.level)) {
+    S.xp -= xpNeed(S.level); S.level++;
+    const un = unlocksAt(S.level);
+    toast(`<b>Niveau ${S.level} !</b> ${un.length ? "Nouveau : " + un.join(", ") : "Ta main verte s’affirme."}`, 5200);
+  }
+}
+function unlocksAt(L) {
+  const out = [];
+  for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push(`graines de ${PLANTS[k].name.toLowerCase()}`);
+  for (const r of RORDER) if (RECIPES[r].lvl === L) out.push(`recette « ${RECIPES[r].name} »`);
+  for (const u in UPG) if (UPG[u].steps.some(s => s.lvl === L)) out.push(UPG[u].name.toLowerCase());
+  if (PLOT_STEPS.some(s => s.lvl === L)) out.push("une parcelle");
+  if (L === 3) out.push("la Serre à hybrides");
+  return out;
+}
+function earn(n, x, y, xp) {
+  S.coins += n;
+  if (xp) addXp(xp);
+  if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, true);
+}
+
+function genOrder() {
+  const pool = [];
+  for (const k of ORDER) if (seedAvailable(k)) pool.push(k);
+  for (const r of S.recipes) pool.push(r, r);
+  const n = S.level >= 3 && Math.random() < .55 ? 2 : 1;
+  const items = {};
+  while (Object.keys(items).length < n && Object.keys(items).length < new Set(pool).size) {
+    const k = pick(pool); if (items[k]) continue;
+    if (PLANTS[k]) { const t = PLANTS[k].time; items[k] = Math.max(1, Math.min(5, Math.round(rand(1, 5.5 - t / 300)))); }
+    else items[k] = Math.random() < .7 ? 1 : 2;
+  }
+  let val = 0, xp = 0;
+  for (const k in items) { val += itemVal(k) * items[k]; xp += itemXp(k) * items[k]; }
+  const v = Math.floor(Math.random() * VILLAGERS.length);
+  return { id: Math.random().toString(36).slice(2, 9), v, line: Math.floor(Math.random() * 2), items, coins: Math.round(val * 1.6 + 5), xp: Math.round(xp * 1.4 + 3) };
+}
+
+/* ---------------- Actions ---------------- */
+let tab = "garden", msub = "seeds", labSel = [null, null], resetArmed = false;
+const A = {
+  tab(arg) { tab = arg; render(true); window.scrollTo({ top: 0 }); },
+  plot(i, ev) {
+    const t = now(); tick(t);
+    const p = S.plots[+i]; const st = plotState(p, t);
+    const { x, y } = pos(ev);
+    if (st === "empty") return openPicker(+i);
+    if (st === "weed") { p.weed = false; S.stats.weeds++; earn(1, x, y, 2); toast("Mauvaise herbe et escargot délogés. La plante repart."); }
+    else if (st === "ripe") harvest(+i, x, y);
+    else { p.waterUntil = t + waterMs(); floatText("Arrosé !", x, y); }
+    commit();
+  },
+  plant(arg) {
+    const [i, k] = arg.split(":"); const p = S.plots[+i]; const d = PLANTS[k];
+    if (!cnt(S.seeds, k)) { if (S.coins < d.cost) return; S.coins -= d.cost; S.seeds[k] = 1; }
+    S.seeds[k]--; const t = now();
+    Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k });
+    S.lastPick = k; closeModal(); commit();
+  },
+  replantAll() {
+    const t = now(); let n = 0, cost = 0;
+    for (const p of S.plots) {
+      if (p.seed) continue;
+      const k = p.lastSeed || S.lastPick; if (!k || !seedAvailable(k) && !cnt(S.seeds, k)) continue;
+      if (!cnt(S.seeds, k)) { if (S.coins < PLANTS[k].cost) continue; S.coins -= PLANTS[k].cost; cost += PLANTS[k].cost; S.seeds[k] = 1; }
+      S.seeds[k]--; Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k }); n++;
+    }
+    toast(n ? `${n} parcelle${n > 1 ? "s" : ""} replantée${n > 1 ? "s" : ""}${cost ? ` (${fmt(cost)} pièces de graines)` : ""}.` : "Rien à replanter : il manque des graines ou des pièces.");
+    commit();
+  },
+  harvestAll(_, ev) {
+    const t = now(); tick(t); let n = 0;
+    S.plots.forEach((p, i) => { if (plotState(p, t) === "ripe") { harvest(i); n++; } });
+    if (n) { const { x, y } = pos(ev); floatText(`${n} récolte${n > 1 ? "s" : ""}`, x, y); }
+    commit();
+  },
+  waterAll(_, ev) {
+    const t = now(); tick(t); let n = 0;
+    for (const p of S.plots) { const st = plotState(p, t); if (st === "dry" || st === "growing") { p.waterUntil = t + waterMs(); n++; } }
+    const { x, y } = pos(ev); floatText(n ? "Tout est arrosé !" : "Rien à arroser", x, y); commit();
+  },
+  msub(arg) { msub = arg; render(true); },
+  buySeed(arg) { const [k, q] = arg.split(":"); const n = +q, c = PLANTS[k].cost * n; if (S.coins < c) return; S.coins -= c; S.seeds[k] = cnt(S.seeds, k) + n; commit(); },
+  sell(arg, ev) {
+    const [k, mode] = arg.split(":"); const bag = itemBag(k); const n = mode === "all" ? cnt(bag, k) : Math.min(1, cnt(bag, k));
+    if (!n) return; bag[k] -= n; const { x, y } = pos(ev); earn(itemVal(k) * n, x, y); commit();
+  },
+  sellCrops(_, ev) {
+    let tot = 0; for (const k in S.crops) { tot += S.crops[k] * PLANTS[k].sell; S.crops[k] = 0; }
+    if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
+  },
+  buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
+  buyUpg(u) { const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> amélioré.`); commit(); },
+  buyPlot() {
+    const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
+    S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
+    toast("Nouvelle parcelle bêchée !"); commit();
+  },
+  cook(r) {
+    const d = RECIPES[r]; if (S.cooking.length >= stoves()) return;
+    for (const k in d.need) if (cnt(S.crops, k) < d.need[k]) return;
+    for (const k in d.need) S.crops[k] -= d.need[k];
+    S.cooking.push({ r, end: now() + d.time * 1000 }); commit();
+  },
+  serve(i, ev) {
+    const c = S.cooking[+i]; if (!c || c.end > now()) return;
+    S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++;
+    const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
+  },
+  labPick(k) {
+    if (S.lab) return;
+    if (labSel[0] === k) labSel[0] = null; else if (labSel[1] === k) labSel[1] = null;
+    else if (!labSel[0]) labSel[0] = k; else labSel[1] = k;
+    render(true);
+  },
+  labClear(i) { labSel[+i] = null; render(true); },
+  labStart() {
+    const [a, b] = labSel; if (!a || !b || a === b || S.lab) return;
+    if (!cnt(S.crops, a) || !cnt(S.crops, b)) return;
+    S.crops[a]--; S.crops[b]--; S.lab = { a, b, end: now() + LAB_TIME * 1000 }; labSel = [null, null]; commit();
+  },
+  labCollect() {
+    const L = S.lab; if (!L || L.end > now()) return; S.lab = null;
+    const h = HYBRID_BY_PAIR[pairKey(L.a, L.b)];
+    if (h) {
+      S.seeds[h] = cnt(S.seeds, h) + 2;
+      if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); }
+      else { addXp(6); openReveal(h, false); }
+    } else {
+      const back = pick([L.a, L.b]); S.seeds[back] = cnt(S.seeds, back) + 1; addXp(3);
+      const promising = [L.a, L.b].find(k => ORDER.some(x => PLANTS[x].hybrid && !S.hybrids.includes(x) && PLANTS[x].parents.includes(k)));
+      toast(`Pas de nouvelle variété cette fois. Tu récupères 1 graine de ${PLANTS[back].name.toLowerCase()}.${promising ? ` Le ${PLANTS[promising].name.toLowerCase()} semble prometteur avec un autre partenaire…` : ""}`, 6000);
+    }
+    commit();
+  },
+  deliver(id, ev) {
+    const o = S.orders.find(o => o.id === id); if (!o) return;
+    for (const k in o.items) if (cnt(itemBag(k), k) < o.items[k]) return;
+    for (const k in o.items) itemBag(k)[k] -= o.items[k];
+    S.orders = S.orders.filter(x => x !== o); S.stats.orders++;
+    const { x, y } = pos(ev); earn(o.coins, x, y, o.xp);
+    toast(`${VILLAGERS[o.v].name} te remercie chaleureusement !`);
+    if (S.orders.length < 3) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
+    commit();
+  },
+  dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
+  close() { closeModal(); },
+  copySave(_, ev) {
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+    const ta = $("#save-out"); ta.value = code;
+    navigator.clipboard?.writeText(code).then(() => toast("Sauvegarde copiée."), () => { ta.select(); toast("Sélectionne et copie le texte."); });
+    if (!navigator.clipboard) ta.select();
+  },
+  importSave() {
+    try { const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0; S = migrate(s); commit(); toast("Sauvegarde chargée !"); }
+    catch (e) { toast("Ce code de sauvegarde n’est pas valide. Vérifie qu’il est complet."); }
+  },
+  reset() {
+    if (!resetArmed) { resetArmed = true; render(true); setTimeout(() => { resetArmed = false; if (tab === "garden") render(true); }, 5000); return; }
+    resetArmed = false; S = fresh(); S.orders = [genOrder(), genOrder()]; commit(); toast("Nouveau jardin. Bonne pousse !");
+  },
+};
+function harvest(i, x, y) {
+  const p = S.plots[i], k = p.seed, d = PLANTS[k];
+  const n = Math.random() < .15 ? 2 : 1;
+  S.crops[k] = cnt(S.crops, k) + n; S.stats.harvest++;
+  if (!S.discovered.includes(k)) S.discovered.push(k);
+  addXp(d.xp);
+  Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k });
+  buzz(n > 1 ? [12, 40, 12] : 12);
+  if (x != null) floatText(n > 1 ? `Récolte double ! +${d.xp} XP` : `+1 ${d.name} · +${d.xp} XP`, x, y);
+}
+function pos(ev) {
+  if (ev && ev.clientX) return { x: ev.clientX, y: ev.clientY };
+  const r = ev && ev.target && ev.target.getBoundingClientRect ? ev.target.getBoundingClientRect() : null;
+  return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: innerWidth / 2, y: innerHeight / 2 };
+}
+function commit() { save(); render(true); }
+function buzz(p) { try { navigator.vibrate?.(p); } catch (e) {} }
+
+/* ---------------- Views ---------------- */
+function views_garden() {
+  const t = now();
+  const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
+  const empty = S.plots.filter(p => !p.seed).length;
+  const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
+  const nextStep = PLOT_STEPS[S.plots.length - 6];
+  const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
+  return `${installPrompt ? `<div class="install"><p>Installe le Petit Potager sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
+  <section class="panel">
+    <div class="garden-tools">
+      <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
+      ${S.upg.hose ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
+      <button class="btn ghost" data-act="replantAll" ${empty ? "" : "disabled"}>Replanter</button>
+    </div>
+    <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}</p>
+    <div class="garden"><div class="plots">
+      ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
+      ${nextStep ? `<button class="plot locked empty" data-act="tab" data-arg="market" title="Acheter au Marché"><span><b>+</b>Parcelle<small class="num">${fmt(nextStep.cost)} pièces</small></span></button>` : ""}
+    </div></div>
+    <p class="small muted" style="margin:0">Touche une parcelle pour planter, arroser ou récolter. Une plante assoiffée arrête de pousser (sans jamais faner). Garde un œil sur les papillons et les escargots !</p>
+  </section>
+  <section class="panel">
+    <div class="row spread"><h2>Panier</h2><button class="btn ghost sm" data-act="tab" data-arg="market">Vendre au marché</button></div>
+    ${basketKeys.length ? `<div class="basket">${basketKeys.map(k => `<span class="chip" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}</span>`).join("")}</div>` : `<p class="muted small" style="margin:0">Ton panier est vide. Récolte tes premiers radis !</p>`}
+  </section>
+  <details class="panel opts"><summary>Sauvegarde et options</summary>
+    <p class="small muted" style="margin:0">Ta partie est enregistrée automatiquement sur cet appareil. Tes plantes continuent de pousser quand l’appli est fermée, tant que la terre est humide. Pour changer d’appareil, copie ton code de sauvegarde puis colle-le de l’autre côté.</p>
+    <div class="row"><button class="btn ghost sm" data-act="copySave">Copier ma sauvegarde</button></div>
+    <textarea id="save-out" readonly placeholder="Ton code de sauvegarde apparaîtra ici"></textarea>
+    <textarea id="save-in" placeholder="Colle un code de sauvegarde ici"></textarea>
+    <div class="row"><button class="btn ghost sm" data-act="importSave">Charger ce code</button>
+    <button class="btn sm ${resetArmed ? "peach" : "ghost"}" data-act="reset">${resetArmed ? "Confirmer : tout effacer" : "Recommencer à zéro"}</button></div>
+    <p class="small muted" style="margin:0">Récoltes : ${fmt(S.stats.harvest)} · Plats : ${fmt(S.stats.cooked)} · Commandes : ${fmt(S.stats.orders)} · Papillons : ${fmt(S.stats.butterflies)}</p>
+  </details>`;
+}
+function plotHTML(p, i, t) {
+  const st = plotState(p, t);
+  if (st === "empty") return `<span><b>+</b>Planter</span>`;
+  const d = PLANTS[p.seed], need = d.time * 1000;
+  const stage = plotStage(p);
+  let inner = plantArt(p.seed, stage);
+  if (st === "weed") inner += `<svg class="art" viewBox="0 0 64 64" aria-hidden="true">${WEED}</svg>`;
+  if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
+  else {
+    if (st === "dry") inner += `<span class="tag">${DROP}</span>`;
+    inner += `<span class="gt" data-gt="${i}"></span><span class="gbar"><i data-gb="${i}"></i></span>`;
+  }
+  return inner;
+}
+function plotLabel(p, t) {
+  const st = plotState(p, t); if (st === "empty") return "Parcelle vide : planter";
+  const n = PLANTS[p.seed].name;
+  return { ripe: `${n} prêt à récolter`, dry: `${n} a soif : arroser`, weed: `${n} envahi : désherber`, growing: `${n} en train de pousser : arroser` }[st];
+}
+function updateGarden(t) {
+  document.querySelectorAll("[data-plot]").forEach(el => {
+    const i = +el.dataset.plot, p = S.plots[i]; if (!p) return;
+    const st = plotState(p, t);
+    const sig = st + (p.seed || "") + (p.seed ? plotStage(p) : "");
+    if (el.dataset.sig !== sig) {
+      el.dataset.sig = sig; el.className = "plot " + st; el.innerHTML = plotHTML(p, i, t);
+      el.setAttribute("aria-label", plotLabel(p, t));
+    }
+    if (p.seed && st !== "ripe") {
+      const need = PLANTS[p.seed].time * 1000;
+      const gb = el.querySelector("[data-gb]"); if (gb) gb.style.width = (p.grown / need * 100).toFixed(1) + "%";
+      const gt = el.querySelector("[data-gt]"); if (gt) gt.textContent = st === "dry" ? "soif" : st === "weed" ? "bloqué" : dur((need - p.grown) / speed());
+    }
+  });
+}
+
+function views_market() {
+  const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["upgrades", "Améliorations"], ["sell", "Vendre"]];
+  let body = "";
+  if (msub === "seeds") {
+    const avail = ORDER.filter(seedAvailable);
+    const locked = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl > S.level).slice(0, 2);
+    const hidden = ORDER.filter(k => PLANTS[k].hybrid && !S.hybrids.includes(k)).length;
+    body = `<div class="list">${avail.map(k => { const d = PLANTS[k]; return `
+      <div class="item">${plantArt(k, 3)}<div class="t"><b>${d.name}${d.hybrid ? ' <small class="muted">· hybride</small>' : ""}</b><span>Pousse en ${dur(d.time * 1000)} · se vend ${fmt(d.sell)} · stock ${cnt(S.seeds, k)}</span></div>
+      <div class="acts"><button class="btn sm" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>${coin}${fmt(d.cost)}</button><button class="btn ghost sm" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5</button></div></div>`; }).join("")}
+      ${locked.map(k => `<div class="item locked">${plantArt(k, 3)}<div class="t"><b>${PLANTS[k].name}</b><span>Disponible au niveau ${PLANTS[k].lvl}</span></div><div class="acts"></div></div>`).join("")}
+      </div>${hidden ? `<p class="small muted" style="margin:0">${hidden} variétés hybrides restent à découvrir dans la Serre. Une fois trouvées, leurs graines sont vendues ici.</p>` : ""}`;
+  } else if (msub === "recipes") {
+    const shown = RORDER.filter(r => RECIPES[r].lvl <= S.level + 1);
+    body = `<div class="list">${shown.map(r => { const d = RECIPES[r]; const own = S.recipes.includes(r), lock = d.lvl > S.level; return `
+      <div class="item ${lock ? "locked" : ""}">${dishArt(r)}<div class="t"><b>${d.name}</b><span>${Object.entries(d.need).map(([k, n]) => `${n} ${PLANTS[k].name.toLowerCase()}`).join(" + ")} · se vend ${fmt(d.sell)}</span></div>
+      <div class="acts">${own ? `<span class="small muted"><b>Apprise</b></span>` : lock ? `<span class="small muted">Niveau ${d.lvl}</span>` : `<button class="btn sm" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>${coin}${fmt(d.price)}</button>`}</div></div>`; }).join("")}</div>`;
+  } else if (msub === "upgrades") {
+    const plotStep = PLOT_STEPS[S.plots.length - 6];
+    const rows = [];
+    rows.push(`<div class="item">${plantArt("laitue", 1)}<div class="t"><b>Nouvelle parcelle</b><span>${S.plots.length} / ${MAX_PLOTS} parcelles</span></div><div class="acts">${plotStep ? (S.level < plotStep.lvl ? `<span class="small muted">Niveau ${plotStep.lvl}</span>` : `<button class="btn sm" data-act="buyPlot" ${S.coins < plotStep.cost ? "disabled" : ""}>${coin}${fmt(plotStep.cost)}</button>`) : `<span class="small muted"><b>Complet</b></span>`}</div></div>`);
+    for (const u in UPG) {
+      const U = UPG[u], lv = S.upg[u], step = U.steps[lv], cur = U.values[lv], nxt = U.values[lv + 1];
+      const icon = { water: DROP, hose: DROP, fert: STAR, stove: STAR, auto: DROP }[u];
+      rows.push(`<div class="item"><svg viewBox="0 0 16 16" aria-hidden="true">${icon.replace(/<\/?svg[^>]*>/g, "")}</svg><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step ? ` → ${U.desc(nxt)}` : ""}</span></div>
+      <div class="acts">${!step ? `<span class="small muted"><b>Acquis</b></span>` : S.level < step.lvl ? `<span class="small muted">Niveau ${step.lvl}</span>` : `<button class="btn sm" data-act="buyUpg" data-arg="${u}" ${S.coins < step.cost ? "disabled" : ""}>${coin}${fmt(step.cost)}</button>`}</div></div>`);
+    }
+    body = `<div class="list">${rows.join("")}</div>`;
+  } else {
+    const keys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
+    const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
+    body = keys.length ? `<div class="row spread"><span class="small muted">Pense à garder des ingrédients pour la Cuisine et les commandes du Village : elles paient mieux.</span>${tot ? `<button class="btn peach sm" data-act="sellCrops">Vendre toute la récolte · ${fmt(tot)}</button>` : ""}</div>
+      <div class="list">${keys.map(k => `<div class="item">${itemArt(k)}<div class="t"><b>${itemName(k)}</b><span>${cnt(itemBag(k), k)} en stock · ${fmt(itemVal(k))} pièce${itemVal(k) > 1 ? "s" : ""} l’unité</span></div>
+      <div class="acts"><button class="btn ghost sm" data-act="sell" data-arg="${k}:one">Vendre 1</button><button class="btn sm" data-act="sell" data-arg="${k}:all">Tout · ${fmt(itemVal(k) * cnt(itemBag(k), k))}</button></div></div>`).join("")}</div>`
+      : `<div class="empty-note">${plantArt("radis", 2)}<span>Rien à vendre pour l’instant. Les récoltes et les plats apparaîtront ici.</span></div>`;
+  }
+  return `<section class="panel"><div class="row spread"><h2>Marché</h2><span class="pill">${coin}<span class="num">${fmt(S.coins)}</span></span></div>
+    <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
+}
+
+function views_kitchen() {
+  const t = now(), n = stoves();
+  const slots = [];
+  for (let i = 0; i < n; i++) {
+    const c = S.cooking[i];
+    if (!c) slots.push(`<div class="stove"><span class="muted small">Fourneau libre</span></div>`);
+    else if (c.end <= t) slots.push(`<div class="stove done">${dishArt(c.r)}<b class="small">${RECIPES[c.r].name}</b><button class="btn sm" data-act="serve" data-arg="${i}">Récupérer</button></div>`);
+    else slots.push(`<div class="stove busy">${dishArt(c.r)}<b class="small">${RECIPES[c.r].name}</b><div class="pbar"><i data-pb="${c.end}" data-pd="${RECIPES[c.r].time * 1000}"></i></div><span class="small muted num" data-left="${c.end}"></span></div>`);
+  }
+  const free = S.cooking.length < n;
+  const rec = S.recipes.length ? `<div class="list">${S.recipes.map(r => { const d = RECIPES[r]; const ok = Object.entries(d.need).every(([k, q]) => cnt(S.crops, k) >= q); return `
+    <div class="item">${dishArt(r)}<div class="t"><b>${d.name}</b><div class="need">${Object.entries(d.need).map(([k, q]) => `<span class="chip ${cnt(S.crops, k) < q ? "miss" : ""}">${plantArt(k, 3)}${cnt(S.crops, k)}/${q}</span>`).join("")}</div><span>${dur(d.time * 1000)} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+    <div class="acts"><button class="btn peach sm" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>Cuisiner</button></div></div>`; }).join("")}</div>`
+    : `<div class="empty-note">${dishArt("salade")}<span>${S.level >= 2 ? "Achète ta première recette au Marché, onglet Recettes." : "La cuisine ouvre au niveau 2 avec la Salade croquante."}</span>${S.level >= 2 ? `<button class="btn sm" data-act="tab" data-arg="market">Aller au marché</button>` : ""}</div>`;
+  return `<section class="panel"><div class="row spread"><h2>Cuisine</h2><span class="small muted">${n} fourneau${n > 1 ? "x" : ""}</span></div><div class="stoves">${slots.join("")}</div></section>
+    <section class="panel"><h2>Mes recettes</h2>${rec}</section>`;
+}
+
+function views_lab() {
+  const t = now();
+  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${new Set([...S.discovered, ...S.hybrids]).size} / ${ORDER.length}</span></div>
+    <div class="herbier">${ORDER.map(k => { const d = PLANTS[k]; const known = S.discovered.includes(k) || S.hybrids.includes(k); return `
+      <div class="herb ${known ? "" : "unknown"}">${plantArt(k, 3)}${d.hybrid ? `<span class="hy">Hybride</span>` : ""}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></div>`; }).join("")}</div></section>`;
+  if (S.level < 3) return `<section class="panel"><h2>Serre</h2><div class="empty-note">${plantArt("fraise", 2)}<span>La Serre ouvre au niveau 3. Tu pourras y croiser deux récoltes pour découvrir des variétés hybrides.</span></div></section>${herb}`;
+  let top;
+  if (S.lab) {
+    const done = S.lab.end <= t;
+    top = `<div class="lab-slots"><div class="slot filled">${plantArt(S.lab.a, 3)}</div><span class="plus">+</span><div class="slot filled">${plantArt(S.lab.b, 3)}</div></div>
+      ${done ? `<button class="btn peach" data-act="labCollect">Découvrir le résultat</button>` : `<div class="pbar"><i data-pb="${S.lab.end}" data-pd="${LAB_TIME * 1000}"></i></div><span class="small muted num" data-left="${S.lab.end}"></span>`}`;
+  } else {
+    const have = ORDER.filter(k => cnt(S.crops, k) > 0);
+    const [a, b] = labSel;
+    top = `<div class="lab-slots">${[a, b].map((k, i) => k ? `<button class="slot filled" data-act="labClear" data-arg="${i}" aria-label="Retirer ${PLANTS[k].name}">${plantArt(k, 3)}<small>${PLANTS[k].name}</small></button>` : `<div class="slot"><span class="small muted">Choisis une récolte</span></div>`).join('<span class="plus">+</span>')}</div>
+      ${have.length ? `<div class="basket">${have.map(k => `<button class="chip" data-act="labPick" data-arg="${k}" aria-pressed="${labSel.includes(k)}">${plantArt(k, 3)}${PLANTS[k].name} · ${cnt(S.crops, k)}</button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Il te faut des récoltes en stock pour faire un croisement.</p>`}
+      <div class="row"><button class="btn" data-act="labStart" ${a && b ? "" : "disabled"}>Croiser · ${dur(LAB_TIME * 1000)}</button><span class="small muted">Consomme 1 de chaque. Bonne combinaison : 2 graines hybrides.</span></div>`;
+  }
+  return `<section class="panel"><h2>Serre à hybrides</h2>${top}</section>${herb}`;
+}
+
+function views_village() {
+  const t = now();
+  const cards = S.orders.map(o => { const v = VILLAGERS[o.v]; const ok = Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q); return `
+    <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}</div><div class="say">« ${v.say[o.line]} »</div>
+      <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<span class="chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</span>`).join("")}</div>
+      <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
+  return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / 3</span></div>
+    <p class="small muted" style="margin:0">Les voisins paient environ 60 % de plus qu’au marché et donnent un bonus d’XP.</p>
+    ${cards || `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}
+    ${S.orders.length < 3 ? `<p class="small muted num" style="margin:0">Prochaine visite dans <span data-left="${S.nextOrderAt}"></span></p>` : ""}</section>`;
+}
+
+/* ---------------- Render loop ---------------- */
+const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
+let lastSig = "";
+function sig(t) {
+  const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(",")].join("|");
+  switch (tab) {
+    case "garden": return base + JSON.stringify([S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
+    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.cooking.map(c => c.r + (c.end <= t))]);
+    case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
+    case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < 3]);
+  }
+}
+function render(force) {
+  const t = now();
+  const s = sig(t);
+  if (force || s !== lastSig) {
+    const keepOpen = tab === "garden" && $("details.opts")?.open;
+    const sOut = $("#save-out")?.value, sIn = $("#save-in")?.value;
+    $("#view").innerHTML = VIEWS[tab]();
+    if (keepOpen) { $("details.opts").open = true; if (sOut) $("#save-out").value = sOut; if (sIn) $("#save-in").value = sIn; }
+    lastSig = s;
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
+  }
+  live(t);
+}
+function live(t) {
+  $("#coins").textContent = fmt(S.coins);
+  $("#lvl").textContent = "Niveau " + S.level;
+  $("#xpt").textContent = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP`;
+  $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
+  if (tab === "garden") updateGarden(t);
+  document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });
+  document.querySelectorAll("[data-left]").forEach(el => { el.textContent = dur(+el.dataset.left - t); });
+  // Badges & tab title
+  const gN = S.plots.filter(p => { const st = plotState(p, t); return st === "ripe" || st === "dry" || st === "weed"; }).length;
+  const kN = S.cooking.filter(c => c.end <= t).length;
+  const lN = S.lab && S.lab.end <= t ? 1 : 0;
+  const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
+  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN);
+  const total = gN + kN + lN;
+  const title = total ? `(${total}) Petit Potager` : "Petit Potager";
+  if (document.title !== title) document.title = title;
+}
+function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
+
+/* ---------------- Modal, toasts, fx ---------------- */
+function openPicker(i) {
+  const keys = ORDER.filter(k => seedAvailable(k) || cnt(S.seeds, k) > 0);
+  keys.sort((a, b) => (b === S.lastPick) - (a === S.lastPick) || (cnt(S.seeds, b) > 0) - (cnt(S.seeds, a) > 0));
+  $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
+    <div class="row spread"><h2>Que planter ?</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="list">${keys.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
+      <div class="item">${plantArt(k, 3)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+      <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${i}:${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${i}:${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
+  openModal();
+  $("#modal .sheet button")?.focus();
+}
+function openReveal(h, isNew) {
+  const d = PLANTS[h];
+  $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Résultat du croisement" style="justify-items:center;text-align:center">
+    <div style="width:120px;height:120px">${plantArt(h, 3).replace('class="art"', 'style="width:100%;height:100%"')}</div>
+    <h2>${isNew ? "Nouvelle variété : " : ""}${d.name}</h2>
+    <p class="muted" style="margin:0">${isNew ? `Tu as découvert un hybride ! 2 graines t’attendent, +25 XP, et ses graines sont maintenant vendues au marché.` : `Encore un joli croisement : +2 graines de ${d.name.toLowerCase()}.`}<br>Pousse en ${dur(d.time * 1000)} · se vend ${fmt(d.sell)} pièces.</p>
+    <button class="btn" data-act="close">Super !</button></div>`;
+  openModal();
+}
+// Le bouton retour d’Android ferme la fenêtre au lieu de quitter l’appli.
+function openModal() {
+  const wasOpen = !$("#modal").hidden;
+  $("#modal").hidden = false;
+  if (!wasOpen) history.pushState({ modal: 1 }, "");
+}
+function closeModal(fromBack) {
+  if ($("#modal").hidden) return;
+  $("#modal").hidden = true; $("#modal").innerHTML = "";
+  if (!fromBack && history.state && history.state.modal) history.back();
+}
+addEventListener("popstate", () => closeModal(true));
+function toast(html, ms = 3500) {
+  const el = document.createElement("div"); el.className = "toast"; el.innerHTML = html;
+  $("#toasts").appendChild(el); setTimeout(() => el.remove(), ms);
+  while ($("#toasts").children.length > 3) $("#toasts").firstChild.remove();
+}
+function floatText(txt, x, y, gold) {
+  const el = document.createElement("span"); el.className = "float" + (gold ? " gold" : "");
+  el.textContent = txt; el.style.left = x + "px"; el.style.top = y + "px";
+  $("#fx").appendChild(el); setTimeout(() => el.remove(), 1200);
+}
+const BCOL = [["#ff9fc0", "#ff6f9a"], ["#ffd36b", "#f4a52a"], ["#9fd0ff", "#5aa7ee"], ["#c9a5ff", "#9a6cf0"]];
+function spawnButterfly() {
+  const [a, b] = pick(BCOL);
+  const el = document.createElement("button");
+  el.className = "butterfly"; el.setAttribute("aria-label", "Attraper le papillon");
+  el.style.top = rand(22, 70) + "vh"; el.style.left = "0"; el.style.animationDuration = rand(11, 16) + "s";
+  el.innerHTML = `<svg viewBox="0 0 40 40"><ellipse cx="13" cy="14" rx="10" ry="9" fill="${a}"/><ellipse cx="27" cy="14" rx="10" ry="9" fill="${a}"/><ellipse cx="14" cy="27" rx="7" ry="6" fill="${b}"/><ellipse cx="26" cy="27" rx="7" ry="6" fill="${b}"/><rect x="18.5" y="10" width="3" height="22" rx="1.5" fill="${INK}"/><path d="M19 10l-4-6M21 10l4-6" stroke="${INK}" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  el.addEventListener("click", ev => {
+    ev.stopPropagation(); el.remove(); S.stats.butterflies++;
+    const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3);
+    toast(`Papillon attrapé ! <b>+${gain} pièces</b>`); commit();
+  });
+  el.addEventListener("animationend", () => el.remove());
+  $("#fx").appendChild(el);
+}
+
+/* ---------------- Events ---------------- */
+document.addEventListener("click", ev => {
+  const el = ev.target.closest("[data-act]");
+  if (!el) { if (ev.target.id === "modal") closeModal(); return; }
+  if (el.disabled) return;
+  const fn = A[el.dataset.act]; if (fn) fn(el.dataset.arg, ev);
+});
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#modal").hidden) closeModal(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
+addEventListener("pagehide", save);
+
+/* ---------------- Boot ---------------- */
+let nextButterfly = 0, nextWeed = 0;
+function start() {
+  const loaded = load();
+  S = loaded ? migrate(loaded) : fresh();
+  if (!loaded) S.orders = [genOrder(), genOrder()];
+  const t = now(), away = t - (S.last || t);
+  const before = S.plots.filter(p => plotState(p, t - away) === "ripe").length;
+  tick(t);
+  const ready = S.plots.filter(p => plotState(p, t) === "ripe").length;
+  if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
+  else if (!loaded) toast("Bienvenue au <b>Petit Potager</b> ! Ton premier radis est prêt : touche-le pour le récolter.", 6000);
+  nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
+  render(true);
+  let saveCount = 0;
+  setInterval(() => {
+    const t = now(); tick(t);
+    if (!document.hidden && tab === "garden" && t >= nextButterfly) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
+    if (t >= nextWeed) {
+      const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
+      if (cand.length) pick(cand).weed = true;
+      nextWeed = t + rand(80, 170) * 1000;
+    }
+    render();
+    if (++saveCount % 5 === 0) save();
+  }, 1000);
+}
+/* ---------------- Appli installable (PWA) ---------------- */
+let installPrompt = null;
+addEventListener("beforeinstallprompt", ev => { ev.preventDefault(); installPrompt = ev; if (tab === "garden") render(true); });
+addEventListener("appinstalled", () => { installPrompt = null; render(true); toast("Petit Potager est installé sur ton téléphone !"); });
+A.install = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  try { await installPrompt.userChoice; } catch (e) {}
+  installPrompt = null; render(true);
+};
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+  // Nouvelle version déployée : on sauvegarde puis on recharge une seule fois.
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!hadController || reloaded) return; reloaded = true; save(); location.reload(); });
+}
+navigator.storage?.persist?.().catch(() => {});
+
+start();
