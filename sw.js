@@ -1,6 +1,6 @@
 /* Service worker du Petit Potager : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v4";
+const VERSION = "potager-v5";
 const FILES = [
   "./",
   "index.html",
@@ -32,11 +32,12 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
-  // Page : réseau d'abord (pour voir les mises à jour), cache si hors-ligne.
-  if (req.mode === "navigate") {
-    event.respondWith(fetch(req).catch(() => caches.match("index.html")));
-    return;
-  }
-  // Fichiers du jeu : cache d'abord, réseau sinon.
-  event.respondWith(caches.match(req).then(hit => hit || fetch(req)));
+  // Réseau d'abord : on a toujours la dernière version quand on est en ligne.
+  // Hors-ligne seulement, on se rabat sur la copie en cache.
+  event.respondWith(
+    fetch(req).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("index.html")))
+  );
 });

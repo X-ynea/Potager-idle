@@ -28,7 +28,7 @@ python3 -m http.server 8000
 | `js/data.js` | Plantes, hybrides, recettes, améliorations, voisins : **l'équilibrage se fait ici** |
 | `js/art.js` | Dessins SVG des plantes, plats et voisins |
 | `js/game.js` | Logique du jeu, écrans, sauvegarde, installation |
-| `sw.js` | Mode hors-ligne. **Augmenter `VERSION` à chaque mise à jour** pour que les téléphones la reçoivent |
+| `sw.js` | Mode hors-ligne (réseau d'abord, cache si pas de connexion). À chaque mise à jour, augmenter `VERSION` ici **et** le `?v=` des fichiers dans `index.html` |
 | `manifest.webmanifest`, `icons/` | Nom, icône et couleurs de l'appli installée |
 | `fonts/` | Polices Fredoka et Nunito (licence SIL OFL), embarquées pour le hors-ligne |
 
