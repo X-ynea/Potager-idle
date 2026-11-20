@@ -7,6 +7,8 @@
   -> assets/img/<plante>-0..3.webp (stades), <plante>-crop.webp, <plante>-seeds.webp
 - dish-<recette>.png, ui-<nom>.png : une image par fichier
   -> assets/img/dish-<recette>.webp, ui-<nom>.webp
+- override-<plante>-<0..3|crop|seeds>.png : remplace une image d'une planche
+  (ex. override-ble-3.png pour le blé mûr)
 - Écrit assets/img/manifest.js pour que le jeu sache quelles images existent.
 
 Usage : python3 tools/process_images.py  (nécessite Pillow, numpy et scipy)
@@ -94,7 +96,7 @@ LAYOUT = {
 }
 
 
-def split_sheet(sheet):
+def split_sheet(sheet, rows=2):
     """Repère les objets de la planche et les renvoie dans l'ordre de lecture.
     Chaque gros objet est une vignette ; les petits morceaux détachés (graines,
     feuilles tombées…) sont rattachés au gros objet le plus proche."""
@@ -117,7 +119,7 @@ def split_sheet(sheet):
             dx = max(sl[1].start - cx, 0, cx - sl[1].stop)
             return dx * dx + dy * dy
         groups[min(big, key=gap)].append(i)
-    order = sorted(big, key=lambda i: (centers[i - 1][0] >= H / 2, centers[i - 1][1]))
+    order = sorted(big, key=lambda i: (min(rows - 1, int(centers[i - 1][0] // (H / rows))), centers[i - 1][1]))
     cells = []
     for i in order:
         out = arr.copy()
@@ -125,6 +127,32 @@ def split_sheet(sheet):
         im = Image.fromarray(out, "RGBA")
         cells.append(im.crop(bbox(im)))
     return cells
+
+
+def drop_border_pieces(im):
+    """Retire les morceaux coupés qui touchent le bord (bouts d'objets voisins sur une capture)."""
+    arr = np.array(im)
+    labels, _ = ndimage.label(arr[:, :, 3] > 0, structure=np.ones((3, 3)))
+    border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
+    arr[:, :, 3] = np.where(np.isin(labels, border[border > 0]), 0, arr[:, :, 3])
+    return Image.fromarray(arr, "RGBA")
+
+
+STAGE3_HEIGHT = {}  # hauteur du stade mûr de chaque planche, pour caler les remplacements
+
+
+def process_override(path, target):
+    """override-<plante>-<0..3|crop|seeds>.png : remplace une seule image d'une planche."""
+    im = drop_border_pieces(clean(load(path)))
+    obj = im.crop(bbox(im))
+    key, part = target.rsplit("-", 1)
+    if part.isdigit():
+        h = STAGE3_HEIGHT.get(key, SIZE * 0.94)
+        scale = min(h / obj.height, SIZE * 0.94 / max(obj.size))
+        save(place(obj, scale, anchor_bottom=True), f"{target}.webp")
+    else:
+        save(icon(obj), f"{target}.webp")
+    print(f"Remplacé : {target}")
 
 
 def process_sheet(path, key):
@@ -141,6 +169,7 @@ def process_sheet(path, key):
     scale = min(SIZE * 0.94 / max(o.size) for o in objs)
     for i, o in enumerate(objs):
         save(place(o, scale, anchor_bottom=True), f"{key}-{i}.webp")
+    STAGE3_HEIGHT[key] = objs[3].height * scale
     save(icon(cells[lay["crop"]]), f"{key}-crop.webp")
     save(icon(cells[lay["seeds"]]), f"{key}-seeds.webp")
     return True
@@ -161,8 +190,12 @@ def main():
         elif name.startswith("ui-"):
             save(icon(clean(load(path))), f"{name}.webp")
             found["ui"].append(name[3:])
+        elif name.startswith("override-"):
+            continue  # traité après les planches
         else:
             print(f"Ignoré (nom non reconnu) : {path.name}")
+    for path in sorted(RAW.glob("override-*.png")):
+        process_override(path, path.stem[len("override-"):])
     (OUT / "manifest.js").write_text(
         "/* Généré par tools/process_images.py : liste des images disponibles. */\n"
         f"window.IMG = {json.dumps(found, ensure_ascii=False)};\n", encoding="utf-8")
