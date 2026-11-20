@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.7.7";
+const APP_VERSION = "0.7.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -341,7 +341,7 @@ function viewSettings() {
     </div>
     <div class="set-group"><h3>À propos</h3>
       <button class="btn ghost" data-act="checkUpdate">Vérifier les mises à jour</button>
-      <p class="version">Petit Potager · version ${APP_VERSION}</p>
+      <p class="version">potager-idle · version ${APP_VERSION}</p>
     </div>
   </div>`;
 }
@@ -354,7 +354,7 @@ function views_garden() {
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const nextStep = PLOT_STEPS[S.plots.length - 6];
   const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
-  return `${installPrompt ? `<div class="install"><p>Installe le Petit Potager sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
+  return `${installPrompt ? `<div class="install"><p>Installe potager-idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
       <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
@@ -625,7 +625,7 @@ function live(t) {
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
   badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN);
   const total = gN + kN + lN;
-  const title = total ? `(${total}) Petit Potager` : "Petit Potager";
+  const title = total ? `(${total}) potager-idle` : "potager-idle";
   if (document.title !== title) document.title = title;
 }
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
@@ -714,7 +714,7 @@ function start() {
   tick(t);
   const ready = S.plots.filter(p => plotState(p, t) === "ripe").length;
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
-  else if (!loaded) toast("Bienvenue au <b>Petit Potager</b> ! Ton premier radis est prêt : touche-le pour le récolter.", 6000);
+  else if (!loaded) toast("Bienvenue dans <b>potager-idle</b> ! Ton premier radis est prêt : touche-le pour le récolter.", 6000);
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);
   let saveCount = 0;
@@ -733,7 +733,7 @@ function start() {
 /* ---------------- Appli installable (PWA) ---------------- */
 let installPrompt = null;
 addEventListener("beforeinstallprompt", ev => { ev.preventDefault(); installPrompt = ev; if (tab === "garden") render(true); });
-addEventListener("appinstalled", () => { installPrompt = null; render(true); toast("Petit Potager est installé sur ton téléphone !"); });
+addEventListener("appinstalled", () => { installPrompt = null; render(true); toast("potager-idle est installé sur ton téléphone !"); });
 A.install = async () => {
   if (!installPrompt) return;
   installPrompt.prompt();

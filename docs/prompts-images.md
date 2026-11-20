@@ -1,4 +1,4 @@
-# Pack de prompts : images du Petit Potager
+# Pack de prompts : images de potager-idle
 
 Les prompts sont en anglais, parce que les générateurs d'images le comprennent mieux.
 Chaque prompt = **le bloc de style commun** + **le sujet**. Tout est déjà assemblé : il suffit de copier un bloc.

@@ -1,6 +1,6 @@
 {
-  "name": "Petit Potager",
-  "short_name": "Potager",
+  "name": "potager-idle",
+  "short_name": "potager-idle",
   "description": "Un petit jeu idle de potager : plante, arrose, récolte, cuisine et découvre des variétés hybrides.",
   "lang": "fr",
   "id": "./",

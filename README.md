@@ -1,4 +1,4 @@
-# Petit Potager
+# potager-idle
 
 Un petit jeu idle de potager, pensé pour le téléphone (Android) et installable comme une appli (PWA).
 
