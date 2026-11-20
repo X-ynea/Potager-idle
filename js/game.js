@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.11.1";
+const APP_VERSION = "0.11.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -393,6 +393,7 @@ function plotHTML(p, i, t) {
   const d = PLANTS[p.seed], need = d.time * 1000;
   const stage = plotStage(p);
   let inner = plantArt(p.seed, stage, true);
+  if (st !== "ripe") inner += `<span class="kind" title="${d.name}">${cropArt(p.seed)}</span>`; // ce qui est planté
   if (st === "weed") inner += `<img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
   if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
   else {
