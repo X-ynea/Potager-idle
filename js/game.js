@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.0";
+const APP_VERSION = "0.10.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -380,7 +380,7 @@ function plotHTML(p, i, t) {
   const d = PLANTS[p.seed], need = d.time * 1000;
   const stage = plotStage(p);
   let inner = plantArt(p.seed, stage, true);
-  if (st === "weed") inner += `<svg class="art" viewBox="0 0 64 64" aria-hidden="true">${WEED}</svg>`;
+  if (st === "weed") inner += `<img class="pest weed" src="assets/img/ui-weed.webp" alt=""><img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
   if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
   else {
     if (st === "dry") inner += `<span class="tag">${DROP}</span>`;
@@ -680,7 +680,7 @@ function spawnButterfly() {
   const el = document.createElement("button");
   el.className = "butterfly"; el.setAttribute("aria-label", "Attraper le papillon");
   el.style.top = rand(22, 70) + "vh"; el.style.left = "0"; el.style.animationDuration = rand(11, 16) + "s";
-  el.innerHTML = `<svg viewBox="0 0 40 40"><ellipse cx="13" cy="14" rx="10" ry="9" fill="${a}"/><ellipse cx="27" cy="14" rx="10" ry="9" fill="${a}"/><ellipse cx="14" cy="27" rx="7" ry="6" fill="${b}"/><ellipse cx="26" cy="27" rx="7" ry="6" fill="${b}"/><rect x="18.5" y="10" width="3" height="22" rx="1.5" fill="${INK}"/><path d="M19 10l-4-6M21 10l4-6" stroke="${INK}" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  el.innerHTML = `<img src="assets/img/ui-butterfly.webp" alt="">`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
     const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3);

@@ -89,7 +89,7 @@ svg { display: block; }
 .brand svg { width: 26px; height: 26px; }
 @media (max-width: 460px) { .brand span { display: none; } }
 .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 6px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.coin { display: inline-block; width: 1.05em; height: 1.05em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe58a, #f4c03e 55%, #d99a1e); box-shadow: inset 0 0 0 1.5px #c98a16; vertical-align: -0.15em; flex: none; }
+.coin { display: inline-block; width: 1.25em; height: 1.25em; background: url("../assets/img/ui-coin.webp") center / contain no-repeat; vertical-align: -0.15em; flex: none; }
 .lvl { display: grid; gap: 3px; flex: 1; min-width: 0; }
 .lvl-top { display: flex; justify-content: space-between; gap: 6px; font-size: .75rem; color: var(--muted); font-weight: 700; white-space: nowrap; }
 .lvl-top b { color: var(--ink); font-family: var(--f-display); font-weight: 600; font-size: .9rem; }
@@ -230,7 +230,7 @@ button.chip[aria-pressed="true"] { background: var(--sun-soft); border-color: va
 .float.gold { color: #b07800; }
 @keyframes floatUp { to { transform: translate(-50%, -190%); opacity: 0; } }
 .butterfly { position: absolute; left: 0; pointer-events: auto; width: 56px; height: 56px; border: 0; background: transparent; padding: 5px; animation: fly linear forwards; }
-.butterfly svg { width: 100%; height: 100%; animation: flap .35s ease-in-out infinite alternate; transform-origin: center; }
+.butterfly img { width: 100%; height: 100%; animation: flap .35s ease-in-out infinite alternate; transform-origin: center; }
 @keyframes flap { to { transform: scaleX(.55); } }
 @keyframes fly {
   0% { transform: translate(-60px, 0); }
@@ -367,3 +367,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .cauldron { width: 64px; height: 64px; object-fit: contain; }
 .cauldron.bubbling { animation: bob 1.6s ease-in-out infinite; }
 .banner-img { width: 120px; height: 120px; object-fit: contain; }
+.plot .tag img { width: 20px; height: 20px; object-fit: contain; }
+.pest { position: absolute; z-index: 1; object-fit: contain; pointer-events: none; }
+.pest.weed { width: 46%; left: 4%; bottom: 14%; }
+.pest.snail { width: 40%; right: 2%; bottom: 10%; }
