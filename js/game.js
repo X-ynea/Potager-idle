@@ -300,7 +300,7 @@ function plotHTML(p, i, t) {
   if (st === "empty") return `<span><b>+</b>Planter</span>`;
   const d = PLANTS[p.seed], need = d.time * 1000;
   const stage = plotStage(p);
-  let inner = plantArt(p.seed, stage);
+  let inner = plantArt(p.seed, stage, true);
   if (st === "weed") inner += `<svg class="art" viewBox="0 0 64 64" aria-hidden="true">${WEED}</svg>`;
   if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
   else {
