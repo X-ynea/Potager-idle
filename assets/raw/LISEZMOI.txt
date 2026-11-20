@@ -1,0 +1,1 @@
+Dépose ici les images générées, avec les noms indiqués dans docs/prompts-images.md.
