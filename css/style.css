@@ -129,15 +129,15 @@ main { display: grid; gap: 12px; padding-top: 4px; }
 .install p { margin: 0; flex: 1; font-size: .85rem; font-weight: 700; }
 
 /* Jardin : pelouse illustrée et bacs en bois */
-.garden { position: relative; border-radius: 22px; padding: 14px 12px 18px; overflow: hidden; border: 1px solid rgba(60,120,30,.25);
+.garden { --g: clamp(12px, 3.5vw, 22px); position: relative; border-radius: 22px; padding: var(--g); overflow: hidden; border: 1px solid rgba(60,120,30,.25);
   background: #8fcf52 url("../assets/img/bg-garden.webp") center / cover; }
-.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px 10px; padding-top: 8%; }
+.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--g); }
 @media (min-width: 620px) { .plots { grid-template-columns: repeat(4, minmax(0,1fr)); } }
 /* Le bac occupe le bas de la case ; la plante dépasse au-dessus. */
 .plot { position: relative; aspect-ratio: 360 / 372; max-width: 100%; padding: 0; border: 0; background: url("../assets/img/plot-wet.webp") center / 100% 100% no-repeat; overflow: visible; }
 .plot.dry, .plot.empty { background-image: url("../assets/img/plot-dry.webp"); }
 .plot:active { transform: scale(.97); }
-.plot svg.art { position: absolute; left: 7%; width: 86%; height: 84%; bottom: 20%; top: auto; }
+.plot svg.art { position: absolute; left: 13%; width: 74%; height: 72%; bottom: 22%; top: auto; }
 .plot.empty { display: grid; place-items: center; color: #fff; font-weight: 800; font-size: .8rem; text-shadow: 0 1px 2px rgba(60,30,10,.7); }
 .plot.empty span { display: grid; justify-items: center; gap: 0; padding-bottom: 12%; }
 .plot.empty b { font-family: var(--f-display); font-size: 1.5rem; line-height: 1; }
@@ -370,8 +370,8 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .pest { position: absolute; z-index: 1; object-fit: contain; pointer-events: none; }
 .pest.snail { width: 46%; right: 4%; bottom: 14%; z-index: 2; }
 .plot svg.art.grain { left: 34%; width: 32%; height: 32%; bottom: 36%; }
-.plot svg.art.sprout { left: 22%; width: 56%; height: 56%; bottom: 30%; }
-.plot svg.art.young { left: 14%; width: 72%; height: 72%; bottom: 25%; }
+.plot svg.art.sprout { left: 26%; width: 48%; height: 48%; bottom: 30%; }
+.plot svg.art.young { left: 19%; width: 62%; height: 62%; bottom: 26%; }
 /* Sur grand écran, la fenêtre du bas monte jusqu'à environ la moitié de l'écran. */
 @media (min-width: 600px) { .sheet { min-height: 46dvh; align-content: start; } }
 
