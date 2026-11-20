@@ -202,7 +202,7 @@ button.chip[aria-pressed="true"] { background: var(--sun-soft); border-color: va
 .herb b { font-family: var(--f-display); font-weight: 600; font-size: .85rem; }
 .herb.unknown svg { filter: brightness(0) opacity(.18); }
 .herb.unknown b { color: var(--muted); }
-.herb .hy { font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--peach); }
+.herb .hy { font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
 
 /* Commandes */
 .order { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
