@@ -128,28 +128,42 @@ main { display: grid; gap: 12px; padding-top: 4px; }
 .install { display: flex; align-items: center; gap: 10px; background: var(--sun-soft); border: 1px solid var(--sun); border-radius: 16px; padding: 10px 12px; }
 .install p { margin: 0; flex: 1; font-size: .85rem; font-weight: 700; }
 
-/* Jardin : pelouse illustrée et bacs en bois */
-.garden { position: relative; border-radius: 22px; padding: 14px 12px 18px; overflow: hidden; border: 1px solid rgba(60,120,30,.25);
-  background: #8fcf52 url("../assets/img/bg-garden.webp") center / cover; }
-.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px 10px; padding-top: 8%; }
+/* Jardin : scène toujours en plein soleil, même en thème sombre */
+.garden { position: relative; border-radius: 22px; padding: 14px; overflow: hidden; border: 1px solid rgba(60,120,30,.25);
+  --sand: #f0dcb0; --sand-wet: #cfac76;
+  background:
+    radial-gradient(ellipse 70% 55% at 12% 0%, rgba(255,251,210,.75), transparent 70%),
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,.22) 0 1.5px, transparent 2.5px) 0 0 / 22px 22px,
+    radial-gradient(circle at 70% 75%, rgba(40,110,20,.12) 0 2px, transparent 3px) 0 0 / 30px 30px,
+    linear-gradient(170deg, #b4ee7c 0%, #8bdb5c 45%, #6cc84a 100%);
+  box-shadow: inset 0 -20px 40px rgba(30,90,10,.12); }
+.plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 @media (min-width: 620px) { .plots { grid-template-columns: repeat(4, minmax(0,1fr)); } }
-/* Le bac occupe le bas de la case ; la plante dépasse au-dessus. */
-.plot { position: relative; aspect-ratio: 360 / 372; max-width: 100%; padding: 0; border: 0; background: url("../assets/img/plot-wet.webp") center / 100% 100% no-repeat; overflow: visible; }
-.plot.dry, .plot.empty { background-image: url("../assets/img/plot-dry.webp"); }
+/* Bac en bois rempli de terre sableuse. Terre humide = plus foncée. */
+.plot { --soil-fill: var(--sand-wet);
+  position: relative; aspect-ratio: 1; max-width: 100%; padding: 0; border-radius: 13px; overflow: hidden;
+  border: 5px solid transparent;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255,255,255,.38), transparent 70%) padding-box,
+    radial-gradient(rgba(110,70,25,.07) .8px, transparent 1.3px) 0 0 / 6px 6px padding-box,
+    linear-gradient(var(--soil-fill), var(--soil-fill)) padding-box,
+    linear-gradient(165deg, #d7a46b 0%, #b07a45 45%, #8a5a32 100%) border-box;
+  box-shadow: inset 0 4px 7px rgba(90,55,20,.28), 0 3px 0 #6e4626, 0 7px 12px rgba(40,80,15,.22);
+}
+.plot.dry, .plot.empty, .plot.ripe, .plot.weed { --soil-fill: var(--sand); }
 .plot:active { transform: scale(.97); }
-.plot svg.art { position: absolute; left: 7%; width: 86%; height: 84%; bottom: 20%; top: auto; }
-.plot.empty { display: grid; place-items: center; color: #fff; font-weight: 800; font-size: .8rem; text-shadow: 0 1px 2px rgba(60,30,10,.7); }
-.plot.empty span { display: grid; justify-items: center; gap: 0; padding-bottom: 12%; }
-.plot.empty b { font-family: var(--f-display); font-size: 1.5rem; line-height: 1; }
-.plot.locked { background-image: url("../assets/img/plot-locked.webp"); display: grid; align-items: end; justify-items: center; }
-.plot.locked .price { margin-bottom: 2%; background: var(--panel); color: var(--ink); border-radius: 99px; padding: 2px 9px 2px 5px; font-size: .78rem; font-weight: 800; display: inline-flex; gap: 4px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
-.plot .tag { position: absolute; top: 2px; right: 2px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.plot svg.art { position: absolute; left: -10%; top: -14%; width: 120%; height: 120%; }
+.plot.empty { display: grid; place-items: center; color: #8a6638; font-weight: 800; font-size: .85rem; }
+.plot.empty span { display: grid; justify-items: center; gap: 2px; }
+.plot.empty b { font-family: var(--f-display); font-size: 1.6rem; line-height: 1; }
+.plot.locked { border: 2px dashed rgba(255,255,255,.75); background: rgba(255,255,255,.22); box-shadow: none; color: #2c5a1c; }
+.plot .tag { position: absolute; top: 6px; right: 6px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
 .plot .tag svg { width: 16px; height: 16px; }
-.plot .gbar { position: absolute; left: 20%; right: 20%; bottom: 7%; z-index: 2; height: 6px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
+.plot .gbar { position: absolute; left: 10%; right: 10%; bottom: 5px; z-index: 2; height: 6px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
 .plot .gbar i { display: block; height: 100%; background: #7fe04f; border-radius: 99px; }
 .plot.dry .gbar i { background: #ffd27a; }
-.plot .gt { position: absolute; left: 2px; top: 2px; z-index: 2; font-size: .7rem; font-weight: 800; color: #fff; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 99px; font-variant-numeric: tabular-nums; }
-.plot.ripe svg.art { filter: drop-shadow(0 0 6px rgba(255,226,90,.95)); }
+.plot .gt { position: absolute; left: 6px; top: 6px; z-index: 2; font-size: .7rem; font-weight: 800; color: #fff; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+.plot.ripe { box-shadow: inset 0 4px 7px rgba(90,55,20,.28), 0 0 0 3px #ffd94a, 0 0 18px rgba(255,217,74,.7); }
 .plot.ripe svg.art { animation: bob 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
 .plot.dry svg.art { filter: saturate(.7); }
 @keyframes bob { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05, .97); } }
@@ -390,3 +404,9 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot.weed::before { content: ""; position: absolute; inset: 3%; z-index: 1; border: 3px solid #e2473b; border-radius: 12%; pointer-events: none;
   box-shadow: 0 0 14px rgba(226,71,59,.75), inset 0 0 14px rgba(226,71,59,.45); animation: blocked 1.4s ease-in-out infinite alternate; }
 @keyframes blocked { from { box-shadow: 0 0 10px 2px rgba(226,71,59,.6), inset 0 0 10px rgba(226,71,59,.35); } to { box-shadow: 0 0 22px 5px rgba(226,71,59,.9), inset 0 0 18px rgba(226,71,59,.55); } }
+
+/* Branche de test vectorielle : parcelle à vendre et cadre de blocage adaptés aux bacs dessinés */
+.plot.locked { display: grid; place-items: center; }
+.plot.locked .price { background: var(--panel); color: var(--ink); border-radius: 99px; padding: 2px 9px 2px 5px; font-size: .78rem; font-weight: 800; display: inline-flex; gap: 4px; align-items: center; }
+.plot.locked .price::before { content: "+ Parcelle"; margin-right: 4px; color: var(--muted); }
+.plot.weed::before { inset: 0; border-radius: 13px; }
