@@ -418,3 +418,17 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   from { filter: drop-shadow(0 0 3px rgba(226,71,59,.7)) drop-shadow(0 0 1px rgba(226,71,59,.9)); }
   to { filter: drop-shadow(0 0 8px rgba(226,71,59,.95)) drop-shadow(0 0 2px rgba(226,71,59,1)); }
 }
+/* Pastille unique : légume + anneau de pousse (orange) + anneau d'eau (bleu) */
+.plot .ring { position: absolute; left: 1px; top: 1px; z-index: 3; width: 38%; aspect-ratio: 1; pointer-events: none; }
+.plot .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.plot .ring circle { fill: none; stroke-width: 3.4; stroke-linecap: round; }
+.plot .ring .ring-bg { stroke: rgba(255,255,255,.55); }
+.plot .ring .ring-water { stroke: #3f9bdc; stroke-dasharray: 100; transition: stroke-dashoffset .9s linear; }
+.plot .ring .ring-grow { stroke: #f39a2b; stroke-dasharray: 100; transition: stroke-dashoffset .9s linear; }
+.plot .ring-ico { position: absolute; inset: 19%; border-radius: 50%; background: var(--panel); box-shadow: 0 1px 3px rgba(0,0,0,.25); display: grid; place-items: center; padding: 8%; }
+.plot .ring-ico svg { width: 100%; height: 100%; transform: none; position: static; }
+/* Soif : l'anneau bleu vide clignote doucement */
+.plot.dry .ring .ring-bg:first-child { stroke: #3f9bdc; animation: thirst 1.1s ease-in-out infinite alternate; }
+@keyframes thirst { from { opacity: .25; } to { opacity: .9; } }
+/* Prête : pastille dorée */
+.plot.ripe .ring-ico { box-shadow: 0 0 0 2px #ffd94a, 0 0 12px rgba(255,217,74,.9); }

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.11.17";
+const APP_VERSION = "0.12.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -385,19 +385,17 @@ function views_garden() {
   </section>
 `;
 }
+/* Une seule pastille par parcelle : le légume au centre, l'anneau orange = pousse, l'anneau bleu = eau. */
 function plotHTML(p, i, t) {
   const st = plotState(p, t);
   if (st === "empty") return `<span><b>+</b>Planter</span>`;
-  const d = PLANTS[p.seed], need = d.time * 1000;
-  const stage = plotStage(p);
-  let inner = plantArt(p.seed, stage, true);
-  if (st !== "ripe") inner += `<span class="kind" title="${d.name}">${cropArt(p.seed)}</span>`; // ce qui est planté
+  const d = PLANTS[p.seed];
+  let inner = plantArt(p.seed, plotStage(p), true);
   if (st === "weed") inner += `<img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
-  if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
-  else {
-    if (st === "dry") inner += `<span class="tag">${DROP}</span>`;
-    inner += `<span class="gt" data-gt="${i}"></span><span class="gbar"><i data-gb="${i}"></i></span>`;
-  }
+  inner += `<span class="ring" title="${d.name}"><svg viewBox="0 0 40 40" aria-hidden="true">
+      <circle class="ring-bg" cx="20" cy="20" r="18"/><circle class="ring-water" cx="20" cy="20" r="18" pathLength="100" data-rw="${i}"/>
+      <circle class="ring-bg" cx="20" cy="20" r="14"/><circle class="ring-grow" cx="20" cy="20" r="14" pathLength="100" data-rg="${i}"/>
+    </svg><span class="ring-ico">${cropArt(p.seed)}</span></span>`;
   return inner;
 }
 function plotLabel(p, t) {
@@ -414,10 +412,14 @@ function updateGarden(t) {
       el.dataset.sig = sig; el.className = "plot " + st; el.innerHTML = plotHTML(p, i, t);
       el.setAttribute("aria-label", plotLabel(p, t));
     }
-    if (p.seed && st !== "ripe") {
+    if (p.seed) {
       const need = PLANTS[p.seed].time * 1000;
-      const gb = el.querySelector("[data-gb]"); if (gb) gb.style.width = (p.grown / need * 100).toFixed(1) + "%";
-      const gt = el.querySelector("[data-gt]"); if (gt) gt.textContent = st === "dry" ? "soif" : st === "weed" ? "bloqué" : dur((need - p.grown) / speed());
+      const grow = Math.min(1, p.grown / need);
+      const water = st === "ripe" || S.upg.auto ? 1 : Math.max(0, Math.min(1, (p.waterUntil - t) / waterMs()));
+      const rg = el.querySelector("[data-rg]"); if (rg) rg.style.strokeDashoffset = (100 - grow * 100).toFixed(1);
+      const rw = el.querySelector("[data-rw]"); if (rw) rw.style.strokeDashoffset = (100 - water * 100).toFixed(1);
+      const ring = el.querySelector(".ring");
+      if (ring) ring.title = st === "ripe" ? `${PLANTS[p.seed].name} : prêt !` : st === "dry" ? `${PLANTS[p.seed].name} : a soif` : st === "weed" ? `${PLANTS[p.seed].name} : bloqué par un escargot` : `${PLANTS[p.seed].name} : prêt dans ${dur((need - p.grown) / speed())}`;
     }
   });
 }
