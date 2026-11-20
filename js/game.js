@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.8";
+const APP_VERSION = "0.10.9";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -471,7 +471,7 @@ function invBody(ctx, cat) {
     const uses = cat === "crops" ? RORDER.filter(r => RECIPES[r].need[k]) : [];
     det = detail(ctx, itemArt(k), itemName(k), (PLANTS[k] || RECIPES[k]).desc, mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
-      `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Tout · ${priceTag(n * v)}</button>`);
+      `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout · ${priceTag(n * v)}</button>`);
   }
   const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(bag, x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
