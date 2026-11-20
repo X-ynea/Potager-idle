@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.12";
+const APP_VERSION = "0.10.13";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -130,7 +130,7 @@ const A = {
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
     if (st === "empty") return openPicker(+i);
-    if (st === "weed") { p.weed = false; S.stats.weeds++; earn(1, x, y, 2); toast("Mauvaise herbe et escargot délogés. La plante repart."); }
+    if (st === "weed") { p.weed = false; S.stats.weeds++; earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
     else if (st === "ripe") harvest(+i, x, y);
     else { p.waterUntil = t + waterMs(); floatText("Arrosé !", x, y); }
     commit();
@@ -393,7 +393,7 @@ function plotHTML(p, i, t) {
   const d = PLANTS[p.seed], need = d.time * 1000;
   const stage = plotStage(p);
   let inner = plantArt(p.seed, stage, true);
-  if (st === "weed") inner += `<img class="pest weed" src="assets/img/ui-weed.webp" alt=""><img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
+  if (st === "weed") inner += `<img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
   if (st === "ripe") inner += `<span class="tag">${STAR}</span>`;
   else {
     if (st === "dry") inner += `<span class="tag">${DROP}</span>`;
@@ -710,8 +710,9 @@ function spawnButterfly() {
   const [a, b] = pick(BCOL);
   const el = document.createElement("button");
   el.className = "butterfly"; el.setAttribute("aria-label", "Attraper le papillon");
-  el.style.top = rand(22, 70) + "vh"; el.style.left = "0"; el.style.animationDuration = rand(11, 16) + "s";
-  el.innerHTML = `<img src="assets/img/ui-butterfly.webp" alt="">`;
+  el.style.top = rand(22, 70) + "vh"; el.style.left = "0";
+  if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux el.style.animationDuration = rand(11, 16) + "s";
+  el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
     const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3);
