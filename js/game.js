@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.4";
+const APP_VERSION = "0.10.5";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -135,12 +135,21 @@ const A = {
     else { p.waterUntil = t + waterMs(); floatText("Arrosé !", x, y); }
     commit();
   },
-  plant(arg) {
-    const [i, k] = arg.split(":"); const p = S.plots[+i]; const d = PLANTS[k];
+  plant(arg, ev) {
+    // arg = "graine" (bac choisi au départ, puis le prochain bac vide) ou "bac:graine".
+    let [i, k] = arg.includes(":") ? arg.split(":") : [null, arg];
+    if (i == null) i = PICK.plot != null && !S.plots[PICK.plot]?.seed ? PICK.plot : S.plots.findIndex(p => !p.seed);
+    const p = S.plots[+i]; const d = PLANTS[k];
+    if (!p || p.seed) return;
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
     Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k });
-    S.lastPick = k; closeModal(); commit();
+    S.lastPick = k; PICK.plot = null;
+    if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
+    buzz(8);
+    // La fenêtre reste ouverte tant qu'il reste des bacs vides.
+    if (!S.plots.some(q => !q.seed)) { closeModal(); toast("Tous les bacs sont plantés !"); }
+    commit();
   },
   replantAll() {
     const t = now(); let n = 0, cost = 0;
@@ -630,16 +639,22 @@ function live(t) {
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
 /* ---------------- Modal, toasts, fx ---------------- */
+const PICK = { plot: null, order: [] };
 function openPicker(i) {
+  PICK.plot = i;
   const keys = ORDER.filter(k => seedAvailable(k) || cnt(S.seeds, k) > 0);
   keys.sort((a, b) => (b === S.lastPick) - (a === S.lastPick) || (cnt(S.seeds, b) > 0) - (cnt(S.seeds, a) > 0));
-  $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
-    <div class="sheet-head"><h2>Que planter ?</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
-    <div class="list">${keys.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
-      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
-      <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${i}:${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${i}:${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
-  openModal();
+  PICK.order = keys; // ordre figé tant que la fenêtre est ouverte, pour ne pas faire bouger les boutons
+  modalView = viewPicker; $("#modal").innerHTML = viewPicker(); openModal();
   $("#modal .sheet button")?.focus();
+}
+function viewPicker() {
+  const free = S.plots.filter(p => !p.seed).length;
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
+    <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="list">${PICK.order.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
+      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+      <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
 function openReveal(h, isNew) {
   const d = PLANTS[h];
