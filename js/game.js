@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.7";
+const APP_VERSION = "0.10.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -188,8 +188,10 @@ const A = {
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
+    if (modalView === viewPlotShop) closeModal();
     toast("Nouvelle parcelle bêchée !"); commit();
   },
+  openPlotShop() { modalView = viewPlotShop; $("#modal").innerHTML = viewPlotShop(); openModal(); },
   cook(r) {
     const d = RECIPES[r]; if (S.cooking.length >= stoves()) return;
     for (const k in d.need) if (cnt(S.crops, k) < d.need[k]) return;
@@ -373,7 +375,7 @@ function views_garden() {
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}</p>
     <div class="garden"><div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-      ${nextStep ? `<button class="plot locked" data-act="tab" data-arg="market" title="Acheter au Marché"><span class="price num">${coin}${fmt(nextStep.cost)}</span></button>` : ""}
+      ${nextStep ? `<button class="plot locked" data-act="openPlotShop" aria-label="Acheter une nouvelle parcelle"><span class="price num">${coin}${fmt(nextStep.cost)}</span></button>` : ""}
     </div></div>
     <p class="small muted" style="margin:0">Touche une parcelle pour planter, arroser ou récolter. Une plante assoiffée arrête de pousser (sans jamais faner). Garde un œil sur les papillons et les escargots !</p>
   </section>
@@ -647,6 +649,18 @@ function openPicker(i) {
   PICK.order = keys; // ordre figé tant que la fenêtre est ouverte, pour ne pas faire bouger les boutons
   modalView = viewPicker; $("#modal").innerHTML = viewPicker(); openModal();
   $("#modal .sheet button")?.focus();
+}
+function viewPlotShop() {
+  const step = PLOT_STEPS[S.plots.length - 6];
+  if (!step) return "";
+  const lock = S.level < step.lvl, poor = S.coins < step.cost;
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Nouvelle parcelle">
+    <div class="sheet-head"><h2>Nouvelle parcelle</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="detail"><div class="d-head"><div class="d-art"><img src="assets/img/upg-plot.webp" alt="" style="width:100%;height:100%;object-fit:contain"></div>
+      <div class="d-txt"><h3>Un bac de plus</h3><p>Une parcelle supplémentaire pour faire pousser plus de plantes en même temps.</p></div></div>
+      <div class="meta">${mi("Parcelles", `${S.plots.length} → ${S.plots.length + 1}`)}${mi("Prix", fmt(step.cost))}${mi("Tes pièces", fmt(S.coins))}</div>
+      <div class="d-acts"><button class="btn big" data-act="buyPlot" ${lock || poor ? "disabled" : ""}>${lock ? `Disponible au niveau ${step.lvl}` : poor ? `Il te manque ${fmt(step.cost - S.coins)} pièces` : `Acheter · ${coin}${fmt(step.cost)}`}</button></div>
+    </div></div>`;
 }
 function viewPicker() {
   const free = S.plots.filter(p => !p.seed).length;
