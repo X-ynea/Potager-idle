@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.12.2";
+const APP_VERSION = "0.12.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -385,6 +385,11 @@ function views_garden() {
   </section>
 `;
 }
+function ringValues(p, st, t) {
+  const grow = Math.min(1, p.grown / (PLANTS[p.seed].time * 1000));
+  const water = st === "ripe" || S.upg.auto ? 1 : Math.max(0, Math.min(1, (p.waterUntil - t) / waterMs()));
+  return { g: (100 - grow * 100).toFixed(1), w: (100 - water * 100).toFixed(1) };
+}
 /* Une seule pastille par parcelle : le légume au centre, l'anneau vert = pousse, l'anneau bleu = eau. */
 function plotHTML(p, i, t) {
   const st = plotState(p, t);
@@ -392,9 +397,10 @@ function plotHTML(p, i, t) {
   const d = PLANTS[p.seed];
   let inner = plantArt(p.seed, plotStage(p), true);
   if (st === "weed") inner += `<img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
+  const r = ringValues(p, st, t); // valeurs posées dès la création, sans animation depuis zéro
   inner += `<span class="ring" title="${d.name}"><svg viewBox="0 0 40 40" aria-hidden="true">
-      <circle class="ring-bg" cx="20" cy="20" r="18"/><circle class="ring-water" cx="20" cy="20" r="18" pathLength="100" data-rw="${i}"/>
-      <circle class="ring-bg" cx="20" cy="20" r="14"/><circle class="ring-grow" cx="20" cy="20" r="14" pathLength="100" data-rg="${i}"/>
+      <circle class="ring-bg" cx="20" cy="20" r="18"/><circle class="ring-water" cx="20" cy="20" r="18" pathLength="100" data-rw="${i}" style="stroke-dashoffset:${r.w}"/>
+      <circle class="ring-bg" cx="20" cy="20" r="14"/><circle class="ring-grow" cx="20" cy="20" r="14" pathLength="100" data-rg="${i}" style="stroke-dashoffset:${r.g}"/>
     </svg><span class="ring-ico">${cropArt(p.seed)}</span></span>`;
   return inner;
 }
@@ -414,10 +420,9 @@ function updateGarden(t) {
     }
     if (p.seed) {
       const need = PLANTS[p.seed].time * 1000;
-      const grow = Math.min(1, p.grown / need);
-      const water = st === "ripe" || S.upg.auto ? 1 : Math.max(0, Math.min(1, (p.waterUntil - t) / waterMs()));
-      const rg = el.querySelector("[data-rg]"); if (rg) rg.style.strokeDashoffset = (100 - grow * 100).toFixed(1);
-      const rw = el.querySelector("[data-rw]"); if (rw) rw.style.strokeDashoffset = (100 - water * 100).toFixed(1);
+      const r = ringValues(p, st, t);
+      const rg = el.querySelector("[data-rg]"); if (rg) rg.style.strokeDashoffset = r.g;
+      const rw = el.querySelector("[data-rw]"); if (rw) rw.style.strokeDashoffset = r.w;
       const ring = el.querySelector(".ring");
       if (ring) ring.title = st === "ripe" ? `${PLANTS[p.seed].name} : prêt !` : st === "dry" ? `${PLANTS[p.seed].name} : a soif` : st === "weed" ? `${PLANTS[p.seed].name} : bloqué par un escargot` : `${PLANTS[p.seed].name} : prêt dans ${dur((need - p.grown) / speed())}`;
     }
@@ -609,7 +614,14 @@ function render(force) {
   const t = now();
   const s = sig(t);
   if (force || s !== lastSig) {
+    // Le jardin garde ses parcelles existantes : seules celles qui changent sont redessinées,
+    // pour que les anneaux et le halo ne repartent pas de zéro à chaque action.
+    const oldGarden = tab === "garden" ? $("#view .garden") : null;
     $("#view").innerHTML = VIEWS[tab]();
+    if (oldGarden) {
+      const fresh = $("#view .garden");
+      if (fresh && fresh.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) fresh.replaceWith(oldGarden);
+    }
     lastSig = s;
     if (modalView && !$("#modal").hidden) {
       const sc = $("#modal .sheet")?.scrollTop || 0;
