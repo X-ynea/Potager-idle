@@ -432,3 +432,10 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 @keyframes thirst { from { opacity: .25; } to { opacity: .9; } }
 /* Prête : pastille dorée */
 .plot.ripe .ring-ico { box-shadow: 0 0 0 2px #ffd94a, 0 0 12px rgba(255,217,74,.9); }
+/* Pastille opaque */
+.plot .ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--panel); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+.plot .ring .ring-bg { stroke: #e6e0d2; }
+.plot .ring-ico { box-shadow: none; }
+.plot.dry .ring .ring-bg:first-child { stroke: #a9d4f2; animation: none; }
+.plot.ripe .ring-ico { box-shadow: none; }
+.plot.ripe .ring::before { box-shadow: 0 0 0 2px #ffd94a, 0 0 12px rgba(255,217,74,.9); }
