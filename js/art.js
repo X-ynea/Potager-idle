@@ -210,7 +210,7 @@ function cropArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.
 function seedArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 function plantArt(k, stage, inPlot) {
-  if (hasImg("plants", k)) return imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
+  if (hasImg("plants", k)) return stage === 0 ? imgSvg(`assets/img/${k}-grain.webp`, "art img grain") : imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
   const d = PLANTS[k];
   let g;
   if (stage === 0) {

@@ -109,12 +109,16 @@ LAYOUT = {
 }
 
 
-def split_sheet(sheet, rows=2):
+def split_sheet(sheet, rows=2, merge=0):
     """Repère les objets de la planche et les renvoie dans l'ordre de lecture.
     Chaque gros objet est une vignette ; les petits morceaux détachés (graines,
     feuilles tombées…) sont rattachés au gros objet le plus proche."""
     arr = np.array(sheet)
-    labels, n = ndimage.label(arr[:, :, 3] > 0, structure=np.ones((3, 3)))
+    mask = arr[:, :, 3] > 0
+    # merge > 0 : les morceaux proches de moins de `merge` px forment un seul objet (ex. 3 graines)
+    grow = ndimage.binary_dilation(mask, iterations=merge) if merge else mask
+    labels, n = ndimage.label(grow, structure=np.ones((3, 3)))
+    labels = np.where(mask, labels, 0)
     H, W = labels.shape
     ids = np.arange(1, n + 1)
     sizes = ndimage.sum(np.ones_like(labels), labels, ids)
