@@ -18,6 +18,26 @@ Inutile de tout faire d'un coup : la **priorité 1** suffit pour un premier rend
 
 ---
 
+## Format recommandé pour les plantes : une planche par plante
+
+**Validé avec le radis.** Une seule image par plante, avec ses 6 vignettes. Nom du fichier : `sheet-<plante>.png` (ex. `sheet-tomate.png`).
+Elle remplace, pour cette plante, les fichiers `stage-…`, `plant-…` et `crop-…` listés plus bas.
+
+Grille obligatoire, 3 colonnes × 2 lignes, format 3:2 (1536 × 1024) :
+- ligne 1 : graine, pousse, jeune plant ;
+- ligne 2 : plante mûre dans la terre, récolte, sac de graines.
+
+Remplace `[PLANTE]` par le nom anglais, `[MÛRE]` par le sujet de la table « Plantes dans la terre » et `[RÉCOLTE]` par celui de la table « Récoltes ».
+
+```
+A sprite sheet of 6 separate game assets for a cozy farming game, showing the growth of a [PLANTE], arranged in a strict grid of 3 columns and 2 rows with generous empty space between items. Row 1: a small mound of sandy soil with two seeds; a tiny seedling with two round leaves in a soil mound; a young [PLANTE] plant with leaves but no fruit yet, in a soil mound. Row 2: [MÛRE]; [RÉCOLTE]; a small cream cloth seed bag tied with an orange rope, with a [PLANTE] drawn on it and a few seeds next to it. Stylized 3D render, soft rounded shapes, slightly cartoonish with realistic proportions and textures, soft warm light from the top-left, saturated but natural colors, no outlines, no face, no text. Transparent background, only a small soft contact shadow under each object.
+```
+
+Noms anglais : radish, lettuce, carrot, wheat, strawberry, basil, tomato, blueberry, lavender, pumpkin, sunflower.
+Pour les hybrides, mets le nom de l'hybride décrit (ex. « fantasy ruby radish »).
+
+---
+
 ## Test de style (à faire en premier)
 
 `plant-radis.png`

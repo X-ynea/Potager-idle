@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.6.1";
+const APP_VERSION = "0.7.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -22,7 +22,7 @@ const speed = () => UPG.fert.values[S.upg.fert];
 const stoves = () => UPG.stove.values[S.upg.stove];
 const cnt = (bag, k) => bag[k] || 0;
 const itemName = k => PLANTS[k] ? PLANTS[k].name : RECIPES[k].name;
-const itemArt = k => PLANTS[k] ? plantArt(k, 3) : dishArt(k);
+const itemArt = k => PLANTS[k] ? cropArt(k) : dishArt(k);
 const itemBag = k => PLANTS[k] ? S.crops : S.dishes;
 const itemVal = k => PLANTS[k] ? PLANTS[k].sell : RECIPES[k].sell;
 const itemXp = k => PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
@@ -433,7 +433,7 @@ const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="nu
 function ingList(need) {
   return `<div class="ings"><h4>Ingrédients</h4>${Object.entries(need).map(([k, q]) => {
     const h = cnt(S.crops, k), known = !PLANTS[k].hybrid || S.hybrids.includes(k);
-    return `<div class="ing ${h >= q ? "ok" : "miss"}">${known ? plantArt(k, 3) : mystery(k)}<span>${known ? PLANTS[k].name : "Hybride à découvrir"}</span><b class="num">${h}/${q}</b></div>`;
+    return `<div class="ing ${h >= q ? "ok" : "miss"}">${known ? cropArt(k) : mystery(k)}<span>${known ? PLANTS[k].name : "Hybride à découvrir"}</span><b class="num">${h}/${q}</b></div>`;
   }).join("")}</div>`;
 }
 
@@ -453,7 +453,7 @@ function invBody(ctx, cat) {
     det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
   } else if (cat === "seeds") {
     const d = PLANTS[k];
-    det = detail(ctx, packetArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)),
+    det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)),
       "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
   } else {
     const n = cnt(bag, k), v = itemVal(k);
@@ -462,7 +462,7 @@ function invBody(ctx, cat) {
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
       `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Tout · ${priceTag(n * v)}</button>`);
   }
-  const grid = keys.map(x => tile(cat === "seeds" ? packetArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(bag, x) })).join("");
+  const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(bag, x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
   return det + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
@@ -476,13 +476,13 @@ function marketSeeds() {
   const d = PLANTS[k], av = seedAvailable(k), myst = d.hybrid && !av;
   const det = myst
     ? detail("seeds", mystery(k), "Variété mystère", `Indice : ${d.hint}`, mi("Où la trouver", "Serre"), "", `<button class="btn big ghost" data-act="tab" data-arg="lab">Essayer un croisement</button>`)
-    : detail("seeds", packetArt(k), d.name + (d.hybrid ? ` <small class="hy">Hybride</small>` : ""), d.desc,
+    : detail("seeds", seedArt(k), d.name + (d.hybrid ? ` <small class="hy">Hybride</small>` : ""), d.desc,
       mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
       av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter · ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5 · ${priceTag(d.cost * 5)}</button>`
         : `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`);
   const grid = ORDER.map(x => {
     const p = PLANTS[x], a = seedAvailable(x), m = p.hybrid && !a;
-    return tile(m ? mystery(x) : packetArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), under: a ? priceTag(p.cost) : m ? "???" : `Niv. ${p.lvl}` });
+    return tile(m ? mystery(x) : seedArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), under: a ? priceTag(p.cost) : m ? "???" : `Niv. ${p.lvl}` });
   }).join("");
   return det + `<div class="tiles">${grid}</div>`;
 }
@@ -556,13 +556,13 @@ function views_lab() {
   let top;
   if (S.lab) {
     const done = S.lab.end <= t;
-    top = `<div class="lab-slots"><div class="slot filled">${plantArt(S.lab.a, 3)}</div><span class="plus">+</span><div class="slot filled">${plantArt(S.lab.b, 3)}</div></div>
+    top = `<div class="lab-slots"><div class="slot filled">${cropArt(S.lab.a)}</div><span class="plus">+</span><div class="slot filled">${cropArt(S.lab.b)}</div></div>
       ${done ? `<button class="btn peach" data-act="labCollect">Découvrir le résultat</button>` : `<div class="pbar"><i data-pb="${S.lab.end}" data-pd="${LAB_TIME * 1000}"></i></div><span class="small muted num" data-left="${S.lab.end}"></span>`}`;
   } else {
     const have = ORDER.filter(k => cnt(S.crops, k) > 0);
     const [a, b] = labSel;
-    top = `<div class="lab-slots">${[a, b].map((k, i) => k ? `<button class="slot filled" data-act="labClear" data-arg="${i}" aria-label="Retirer ${PLANTS[k].name}">${plantArt(k, 3)}<small>${PLANTS[k].name}</small></button>` : `<div class="slot"><span class="small muted">Choisis une récolte</span></div>`).join('<span class="plus">+</span>')}</div>
-      ${have.length ? `<div class="basket">${have.map(k => `<button class="chip" data-act="labPick" data-arg="${k}" aria-pressed="${labSel.includes(k)}">${plantArt(k, 3)}${PLANTS[k].name} · ${cnt(S.crops, k)}</button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Il te faut des récoltes en stock pour faire un croisement.</p>`}
+    top = `<div class="lab-slots">${[a, b].map((k, i) => k ? `<button class="slot filled" data-act="labClear" data-arg="${i}" aria-label="Retirer ${PLANTS[k].name}">${cropArt(k)}<small>${PLANTS[k].name}</small></button>` : `<div class="slot"><span class="small muted">Choisis une récolte</span></div>`).join('<span class="plus">+</span>')}</div>
+      ${have.length ? `<div class="basket">${have.map(k => `<button class="chip" data-act="labPick" data-arg="${k}" aria-pressed="${labSel.includes(k)}">${cropArt(k)}${PLANTS[k].name} · ${cnt(S.crops, k)}</button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Il te faut des récoltes en stock pour faire un croisement.</p>`}
       <div class="row"><button class="btn" data-act="labStart" ${a && b ? "" : "disabled"}>Croiser · ${dur(LAB_TIME * 1000)}</button><span class="small muted">Consomme 1 de chaque. Bonne combinaison : 2 graines hybrides.</span></div>`;
   }
   return `<section class="panel"><h2>Serre à hybrides</h2>${top}</section>${herb}`;
@@ -637,7 +637,7 @@ function openPicker(i) {
   $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
     <div class="sheet-head"><h2>Que planter ?</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
     <div class="list">${keys.map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
-      <div class="item">${plantArt(k, 3)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${i}:${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${i}:${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
   openModal();
   $("#modal .sheet button")?.focus();
@@ -645,7 +645,7 @@ function openPicker(i) {
 function openReveal(h, isNew) {
   const d = PLANTS[h];
   $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Résultat du croisement" style="justify-items:center;text-align:center">
-    <div style="width:120px;height:120px">${plantArt(h, 3).replace('class="art"', 'style="width:100%;height:100%"')}</div>
+    <div class="reveal-art">${plantArt(h, 3)}</div>
     <h2>${isNew ? "Nouvelle variété : " : ""}${d.name}</h2>
     <p class="muted" style="margin:0">${isNew ? `Tu as découvert un hybride ! 2 graines t’attendent, +25 XP, et ses graines sont maintenant vendues au marché.` : `Encore un joli croisement : +2 graines de ${d.name.toLowerCase()}.`}<br>Pousse en ${dur(d.time * 1000)} · se vend ${fmt(d.sell)} pièces.</p>
     <button class="btn" data-act="close">Super !</button></div>`;

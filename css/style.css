@@ -361,3 +361,8 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .danger .set-link .ico { color: var(--bad); }
 .danger .set-link.armed { background: var(--bad); color: #fff; }
 .danger .set-link.armed small, .danger .set-link.armed .ico { color: #fff; background: transparent; border-color: rgba(255,255,255,.5); }
+
+/* Images détaillées */
+.plot svg.art.img { left: 2%; top: -1%; width: 96%; height: 96%; }
+.reveal-art { width: 140px; height: 140px; }
+.reveal-art svg { width: 100%; height: 100%; }

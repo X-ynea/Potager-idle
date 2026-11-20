@@ -32,6 +32,14 @@ python3 -m http.server 8000
 | `manifest.webmanifest`, `icons/` | Nom, icône et couleurs de l'appli installée |
 | `fonts/` | Polices Fredoka et Nunito (licence SIL OFL), embarquées pour le hors-ligne |
 
+## Ajouter des images
+
+1. Déposer les images générées dans `assets/raw/` (noms dans `docs/prompts-images.md`) :
+   `sheet-<plante>.png` (planche 3×2), `dish-<recette>.png`, `ui-<nom>.png`.
+2. Lancer `python3 tools/process_images.py` (nécessite Pillow) : il découpe, nettoie la transparence,
+   compresse en WebP dans `assets/img/` et met à jour `assets/img/manifest.js`.
+3. Le jeu utilise automatiquement les images présentes ; les dessins vectoriels servent de secours.
+
 ## Mettre en ligne avec GitHub Pages
 
 Dans le dépôt : **Settings → Pages → Build and deployment → Source : Deploy from a branch**, choisir la branche et le dossier `/ (root)`, puis enregistrer. Le site est publié au bout d'une minute environ.

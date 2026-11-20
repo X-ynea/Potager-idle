@@ -201,7 +201,16 @@ function young(d) { // jeune plant, avec un indice de la couleur finale
   return g;
 }
 
+/* ---- Images détaillées (assets/img), utilisées dès qu'elles existent ---- */
+const IMG = Object.assign({ plants: [], dishes: [], ui: [] }, window.IMG || {});
+const hasImg = (kind, k) => IMG[kind].includes(k);
+/* Une image dans un <svg> : elle se place exactement comme les dessins vectoriels. */
+const imgSvg = (src, cls = "") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><image href="${src}" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></svg>`;
+function cropArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
+function seedArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
+
 function plantArt(k, stage, inPlot) {
+  if (hasImg("plants", k)) return imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
   const d = PLANTS[k];
   let g;
   if (stage === 0) {
@@ -230,6 +239,7 @@ function packetArt(k) {
 /* ---- Plats ---- */
 const CERAMIC = "#fbf5ea";
 function dishArt(r) {
+  if (hasImg("dishes", r)) return imgSvg(`assets/img/dish-${r}.webp`);
   const d = RECIPES[r], c = d.color;
   const steam = (x) => `<path d="M${x} 16c-2 3 2 5 0 8M${x + 6} 14c-2 3 2 5 0 8" stroke="#b9c4c0" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/>`;
   let g = shadow(32, 54, 22, 5);
