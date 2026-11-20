@@ -24,6 +24,33 @@ SIZE = 320          # taille de sortie (px), suffisant pour un téléphone
 GROUND = 0.97       # ligne de sol commune aux stades (part de la hauteur)
 
 
+def remove_white_bg(im):
+    """Pour les images sur fond blanc uni : retire le blanc relié aux bords
+    (pas le blanc à l'intérieur des objets, comme des fleurs) et adoucit les contours."""
+    arr = np.array(im.convert("RGB")).astype(np.float32)
+    lo = arr.min(axis=2)
+    near_white = lo >= 236
+    labels, _ = ndimage.label(near_white)
+    border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
+    bg = np.isin(labels, border[border > 0])
+    # Bande de contour : transparence progressive selon la « blancheur », couleur décontaminée.
+    band = ndimage.binary_dilation(bg, iterations=2) & ~bg
+    alpha = np.where(bg, 0.0, 1.0)
+    a_band = np.clip((255 - lo) / 45.0, 0, 1)
+    alpha = np.where(band, np.minimum(alpha, a_band), alpha)
+    safe = np.maximum(alpha, 1e-3)[..., None]
+    rgb = np.where(band[..., None], np.clip((arr - (1 - alpha[..., None]) * 255) / safe, 0, 255), arr)
+    out = np.dstack([rgb, alpha * 255]).astype(np.uint8)
+    return Image.fromarray(out, "RGBA")
+
+
+def load(path):
+    im = Image.open(path).convert("RGBA")
+    if im.getchannel("A").getextrema()[0] == 255:  # aucun pixel transparent : fond blanc à retirer
+        im = remove_white_bg(im)
+    return im
+
+
 def clean(im):
     """Supprime les halos presque transparents et rend les objets opaques."""
     im = im.convert("RGBA")
@@ -80,7 +107,7 @@ def split_sheet(sheet, cols=3, rows=2):
 
 
 def process_sheet(path, key):
-    cells = split_sheet(clean(Image.open(path)))
+    cells = split_sheet(clean(load(path)))
     objs = cells[:4]
     # Même échelle pour les 4 stades : le tas de terre garde la même taille en grandissant.
     scale = min(SIZE * 0.94 / max(o.size) for o in objs)
@@ -100,10 +127,10 @@ def main():
             process_sheet(path, key)
             found["plants"].append(key)
         elif name.startswith("dish-"):
-            save(icon(clean(Image.open(path))), f"{name}.webp")
+            save(icon(clean(load(path))), f"{name}.webp")
             found["dishes"].append(name[5:])
         elif name.startswith("ui-"):
-            save(icon(clean(Image.open(path))), f"{name}.webp")
+            save(icon(clean(load(path))), f"{name}.webp")
             found["ui"].append(name[3:])
         else:
             print(f"Ignoré (nom non reconnu) : {path.name}")
