@@ -424,7 +424,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot .ring circle { fill: none; stroke-width: 3.4; stroke-linecap: round; }
 .plot .ring .ring-bg { stroke: rgba(255,255,255,.55); }
 .plot .ring .ring-water { stroke: #3f9bdc; stroke-dasharray: 100; transition: stroke-dashoffset .9s linear; }
-.plot .ring .ring-grow { stroke: #f39a2b; stroke-dasharray: 100; transition: stroke-dashoffset .9s linear; }
+.plot .ring .ring-grow { stroke: #4cb944; stroke-dasharray: 100; transition: stroke-dashoffset .9s linear; }
 .plot .ring-ico { position: absolute; inset: 19%; border-radius: 50%; background: var(--panel); box-shadow: 0 1px 3px rgba(0,0,0,.25); display: grid; place-items: center; padding: 8%; }
 .plot .ring-ico svg { width: 100%; height: 100%; transform: none; position: static; }
 /* Soif : l'anneau bleu vide clignote doucement */

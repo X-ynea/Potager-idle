@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.12.1";
+const APP_VERSION = "0.12.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -385,7 +385,7 @@ function views_garden() {
   </section>
 `;
 }
-/* Une seule pastille par parcelle : le légume au centre, l'anneau orange = pousse, l'anneau bleu = eau. */
+/* Une seule pastille par parcelle : le légume au centre, l'anneau vert = pousse, l'anneau bleu = eau. */
 function plotHTML(p, i, t) {
   const st = plotState(p, t);
   if (st === "empty") return `<span><b>+</b>Planter</span>`;
