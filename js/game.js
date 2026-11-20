@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.11.3";
+const APP_VERSION = "0.11.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -365,7 +365,6 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const empty = S.plots.filter(p => !p.seed).length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
-  const nextStep = PLOT_STEPS[S.plots.length - 6];
   const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe potager-idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
@@ -377,7 +376,6 @@ function views_garden() {
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}</p>
     <div class="garden"><div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-      ${nextStep ? `<button class="plot locked" data-act="openPlotShop" aria-label="Acheter une nouvelle parcelle"><span class="price num">${coin}${fmt(nextStep.cost)}</span></button>` : ""}
     </div></div>
     <p class="small muted" style="margin:0">Touche une parcelle pour planter, arroser ou récolter. Une plante assoiffée arrête de pousser (sans jamais faner). Garde un œil sur les papillons et les escargots !</p>
   </section>
