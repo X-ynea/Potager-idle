@@ -9,11 +9,14 @@
   -> assets/img/dish-<recette>.webp, ui-<nom>.webp
 - Écrit assets/img/manifest.js pour que le jeu sache quelles images existent.
 
-Usage : python3 tools/process_images.py
+Usage : python3 tools/process_images.py  (nécessite Pillow, numpy et scipy)
 """
 import json
 import pathlib
+
+import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW, OUT = ROOT / "assets" / "raw", ROOT / "assets" / "img"
@@ -51,13 +54,34 @@ def save(im, name):
     im.save(OUT / name, "WEBP", quality=86, method=6)
 
 
+def split_sheet(sheet, cols=3, rows=2):
+    """Repère chaque objet (zone opaque d'un seul tenant) et le range dans la case
+    où se trouve son centre. Un objet qui déborde sur la case voisine reste entier,
+    et les morceaux qui dépassent ne polluent pas la case d'à côté."""
+    arr = np.array(sheet)
+    labels, n = ndimage.label(arr[:, :, 3] > 0, structure=np.ones((3, 3)))
+    H, W = labels.shape
+    sizes = ndimage.sum(np.ones_like(labels), labels, range(1, n + 1))
+    centers = ndimage.center_of_mass(np.ones_like(labels), labels, range(1, n + 1))
+    groups = [[] for _ in range(cols * rows)]
+    for i, (size, (cy, cx)) in enumerate(zip(sizes, centers), start=1):
+        if size < 40:  # poussières
+            continue
+        c = min(cols - 1, int(cx // (W / cols))) + cols * min(rows - 1, int(cy // (H / rows)))
+        groups[c].append(i)
+    cells = []
+    for ids in groups:
+        keep = np.isin(labels, ids)
+        out = arr.copy()
+        out[:, :, 3] = np.where(keep, arr[:, :, 3], 0)
+        im = Image.fromarray(out, "RGBA")
+        cells.append(im.crop(bbox(im)))
+    return cells
+
+
 def process_sheet(path, key):
-    sheet = clean(Image.open(path))
-    W, H = sheet.size
-    cw, ch = W / 3, H / 2
-    cells = [sheet.crop((round(c * cw), round(r * ch), round((c + 1) * cw), round((r + 1) * ch))) for r in range(2) for c in range(3)]
-    stages = [cells[0], cells[1], cells[2], cells[3]]
-    objs = [s.crop(bbox(s)) for s in stages]
+    cells = split_sheet(clean(Image.open(path)))
+    objs = cells[:4]
     # Même échelle pour les 4 stades : le tas de terre garde la même taille en grandissant.
     scale = min(SIZE * 0.94 / max(o.size) for o in objs)
     for i, o in enumerate(objs):

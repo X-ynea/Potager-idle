@@ -1,2 +1,2 @@
 /* Généré par tools/process_images.py : liste des images disponibles. */
-window.IMG = {"plants": ["radis"], "dishes": [], "ui": []};
+window.IMG = {"plants": ["carotte", "radis"], "dishes": [], "ui": []};
