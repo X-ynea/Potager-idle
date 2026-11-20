@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.10.10";
+const APP_VERSION = "0.10.11";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -323,6 +323,8 @@ function savedAgo() {
   const s = Math.round((now() - (lastSaveAt || S.last || now())) / 1000);
   return s < 10 ? "à l’instant" : s < 60 ? `il y a ${s} s` : `il y a ${Math.round(s / 60)} min`;
 }
+/* Téléphone ou tablette : écran tactile comme pointeur principal (pas de souris). */
+const isPhone = () => matchMedia("(pointer: coarse)").matches;
 function viewSettings() {
   const th = S.settings.theme;
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Paramètres">
@@ -365,7 +367,7 @@ function views_garden() {
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const nextStep = PLOT_STEPS[S.plots.length - 6];
   const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
-  return `${installPrompt ? `<div class="install"><p>Installe potager-idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
+  return `${installPrompt && isPhone() ? `<div class="install"><p>Installe potager-idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
       <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
