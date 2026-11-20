@@ -373,3 +373,5 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot svg.art.grain { left: 34%; width: 32%; height: 32%; bottom: 36%; }
 .plot svg.art.sprout { left: 22%; width: 56%; height: 56%; bottom: 30%; }
 .plot svg.art.young { left: 14%; width: 72%; height: 72%; bottom: 25%; }
+/* Sur grand écran, la fenêtre du bas monte jusqu'à environ la moitié de l'écran. */
+@media (min-width: 600px) { .sheet { min-height: 46dvh; align-content: start; } }
