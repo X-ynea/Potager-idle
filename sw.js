@@ -1,6 +1,6 @@
 /* Service worker du Petit Potager : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v10";
+const VERSION = "potager-v11";
 const FILES = [
   "./",
   "index.html",
