@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.19.7";
+const APP_VERSION = "0.20.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -193,7 +193,7 @@ function genOrder() {
   const v = free.length ? pick(free) : Math.floor(Math.random() * VILLAGERS.length);
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
-  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, coins: Math.round(val * 1.6 + 5), xp: Math.round(xp * 1.4 + 3) };
+  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, coins: Math.round(val * 1.3 + 3), xp: Math.round(xp * 1.4 + 3) };
 }
 
 /* ---------------- Actions ---------------- */
@@ -363,7 +363,7 @@ const A = {
 };
 function harvest(i, x, y) {
   const p = S.plots[i], k = p.seed, d = PLANTS[k];
-  const n = Math.random() < .15 ? 2 : 1;
+  const n = Math.random() < .08 ? 2 : 1;
   S.crops[k] = cnt(S.crops, k) + n; S.stats.harvest++;
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
@@ -836,7 +836,7 @@ function spawnButterfly() {
   el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
-    const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
+    const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
     toast(`Papillon attrapé ! <b>+${gain} pièces · +3 XP</b>`); commit();
   });
   el.addEventListener("animationend", () => el.remove());
