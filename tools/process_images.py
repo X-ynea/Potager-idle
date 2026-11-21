@@ -24,6 +24,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW, OUT = ROOT / "assets" / "raw", ROOT / "assets" / "img"
 SIZE = 320          # taille de sortie (px), suffisant pour un téléphone
 GROUND = 0.97       # ligne de sol commune aux stades (part de la hauteur)
+POCKET_MIN = 20     # taille mini (px) d’une poche de damier enfermée à retirer
 
 
 def remove_flat_bg(im):
@@ -50,7 +51,7 @@ def remove_flat_bg(im):
         has_white = ndimage.maximum(lo >= 248, labels, ids)
         has_grey = ndimage.maximum((lo >= 170) & (lo <= 236), labels, ids)
         size = ndimage.sum(np.ones_like(lo), labels, ids)
-        checker = ids[(has_white > 0) & (has_grey > 0) & (size >= 300)]
+        checker = ids[(has_white > 0) & (has_grey > 0) & (size >= POCKET_MIN)]
         bg |= np.isin(labels, checker)
     # Bande de contour : transparence progressive, couleur débarrassée du fond.
     band = ndimage.binary_dilation(bg, iterations=2) & ~bg
