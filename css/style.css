@@ -530,3 +530,5 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
   from { box-shadow: 0 0 0 3px #f2a900, 0 0 10px 3px rgba(255,220,60,.6); }
   to { box-shadow: 0 0 0 3px #f2a900, 0 0 22px 9px rgba(255,230,80,.95); }
 }
+/* Plante prête : pas de cadre, seulement l’étoile */
+.plot.ripe::before { content: none; }
