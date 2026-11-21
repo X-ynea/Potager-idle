@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.13.0";
+const APP_VERSION = "0.14.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -95,7 +95,7 @@ function unlockItems(L) {
   const out = [];
   for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push({ art: seedArt(k), name: PLANTS[k].name, kind: "Nouvelle graine au marché" });
   for (const r of RORDER) if (RECIPES[r].lvl === L) out.push({ art: dishArt(r), name: RECIPES[r].name, kind: "Nouvelle recette au marché" });
-  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/upg-${u}.webp" alt="">`, name: UPG[u].name + (UPG[u].steps.length > 1 ? ` (niveau ${i + 1})` : ""), kind: "Nouvelle amélioration" }); }
+  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/upg-${u}.webp" alt="">`, name: UPG[u].name, kind: `Amélioration : ${UPG[u].desc(UPG[u].values[i + 1])}` }); }
   if (PLOT_STEPS.some(s => s.lvl === L)) out.push({ art: `<img src="assets/img/upg-plot.webp" alt="">`, name: "Nouvelle parcelle", kind: "À acheter dans Marché › Bonus" });
   if (L === 3) out.push({ art: `<img src="assets/img/greenhouse.webp" alt="">`, name: "La Serre à hybrides", kind: "Croise tes récoltes" });
   return out;
@@ -105,7 +105,9 @@ function showLevelUp() {
   const levels = LEVEL_QUEUE.splice(0);
   const items = levels.flatMap(unlockItems);
   const L = levels[levels.length - 1];
-  modalView = () => `<div class="sheet levelup" role="dialog" aria-modal="true" aria-label="Niveau ${L}">
+  const big = levels.some(l => l % 3 === 0); // grand palier tous les 3 niveaux
+  modalView = () => `<div class="sheet levelup${big ? " big" : ""}" role="dialog" aria-modal="true" aria-label="Niveau ${L}">
+    ${big ? `<span class="lv-tag">Grand palier</span>` : ""}
     <div class="lv-badge"><img src="assets/img/xp-leaf.webp" alt=""><span class="num">${L}</span></div>
     <h2>Niveau ${L} !</h2>
     ${items.length ? `<p class="muted" style="margin:0">Tu as maintenant accès à :</p>
