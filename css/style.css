@@ -507,3 +507,4 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .pest.snail { animation: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 .plot .thirst.pest-alert { padding: 4%; }
 .btn.danger { background: #e2473b; color: #fff; }
+.cat-title { font-size: 1rem; display: flex; align-items: baseline; gap: 8px; margin-top: 4px; } .cat-title .num { font-family: var(--f-body); font-size: .8rem; font-weight: 700; }

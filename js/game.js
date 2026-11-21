@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.9";
+const APP_VERSION = "0.16.10";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -523,11 +523,14 @@ function marketSeeds() {
       mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
       av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter · ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5 · ${priceTag(d.cost * 5)}</button>`
         : `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`);
-  const grid = ORDER.map(x => {
+  const tileFor = x => {
     const p = PLANTS[x], a = seedAvailable(x), m = p.hybrid && !a;
     return tile(m ? mystery(x) : seedArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), under: a ? priceTag(p.cost) : m ? "???" : `Niv. ${p.lvl}` });
-  }).join("");
-  return det + `<div class="tiles">${grid}</div>`;
+  };
+  const base = ORDER.filter(x => !PLANTS[x].hybrid), hyb = ORDER.filter(x => PLANTS[x].hybrid);
+  const found = hyb.filter(seedAvailable).length;
+  return det + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
+    <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
 }
 function marketRecipes() {
   let r = UI.sel.recipes;
