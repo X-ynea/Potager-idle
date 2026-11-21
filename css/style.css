@@ -544,3 +544,4 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 .diff.d1 { background: #e6f5dc; color: #3d7a2c; }
 .diff.d2 { background: #fff1c9; color: #8a5a00; }
 .diff.d3 { background: #fde0dc; color: #a83a2c; }
+.tab .badge { background: #d9675a; color: #fff; }
