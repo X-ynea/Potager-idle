@@ -134,7 +134,7 @@ main { display: grid; gap: 12px; padding-top: 4px; }
 .plots { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--g); }
 @media (min-width: 620px) { .plots { grid-template-columns: repeat(4, minmax(0,1fr)); } }
 /* Le bac occupe le bas de la case ; la plante dépasse au-dessus. */
-.plot { position: relative; aspect-ratio: 360 / 372; max-width: 100%; padding: 0; border: 0; background: url("../assets/img/plot-wet.webp") center / 100% 100% no-repeat; overflow: visible; }
+.plot { position: relative; aspect-ratio: 360 / 363; max-width: 100%; padding: 0; border: 0; background: url("../assets/img/plot-wet.webp") center / 100% 100% no-repeat; overflow: visible; }
 .plot.dry, .plot.empty { background-image: url("../assets/img/plot-dry.webp"); }
 .plot:active { transform: scale(.97); }
 .plot svg.art { position: absolute; left: 13%; width: 74%; height: 72%; bottom: 22%; top: auto; }
@@ -522,3 +522,4 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 .h-ico { display: flex; align-items: center; gap: 8px; }
 .bag-ico { width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); color: var(--leaf-deep); display: grid; place-items: center; flex: none; }
 .bag-ico svg { width: 18px; height: 18px; }
+.bag-ico { border: 0; background: none; width: 24px; height: 24px; } .bag-ico svg { width: 22px; height: 22px; }
