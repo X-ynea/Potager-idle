@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.17.3";
+const APP_VERSION = "0.18.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -134,21 +134,53 @@ function earn(n, x, y, xp, cls) {
   if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, cls || true);
 }
 
+/* Commandes des voisins : variées, faisables, et sans répétitions trop rapprochées. */
+const ORDER_LINES = [
+  "Tu aurais ça pour moi ?", "J’en rêve depuis ce matin !", "C’est pour un repas entre voisins.",
+  "Je te paierai bien, promis !", "Mon panier est tout vide…", "Une petite douceur pour aujourd’hui ?",
+];
+function dishFeasible(r) {
+  return Object.keys(RECIPES[r].need).every(k => seedAvailable(k) || cnt(S.crops, k) > 0);
+}
+function weightedPick(items, weight) {
+  const w = items.map(weight), tot = w.reduce((a, b) => a + b, 0);
+  if (tot <= 0) return pick(items);
+  let r = Math.random() * tot;
+  for (let i = 0; i < items.length; i++) { r -= w[i]; if (r <= 0) return items[i]; }
+  return items[items.length - 1];
+}
 function genOrder() {
-  const pool = [];
-  for (const k of ORDER) if (seedAvailable(k)) pool.push(k);
-  for (const r of S.recipes) pool.push(r, r);
-  const n = S.level >= 3 && Math.random() < .55 ? 2 : 1;
+  const hist = S.orderHist || [];
+  const busy = new Set(S.orders.flatMap(o => Object.keys(o.items)));
+  // Plus un objet a été demandé récemment (ou est déjà demandé), moins il a de chances de revenir.
+  const freshness = k => { if (busy.has(k)) return .05; const i = hist.lastIndexOf(k); return i < 0 ? 1 : .15 + .85 * (hist.length - 1 - i) / Math.max(1, hist.length); };
+  const crops = ORDER.filter(seedAvailable);
+  const dishes = S.recipes.filter(dishFeasible);
+  const kind = !dishes.length ? "crops" : weightedPick(["crops", "dish", "mix"], k => ({ crops: 5, dish: 3, mix: 2 })[k]);
   const items = {};
-  while (Object.keys(items).length < n && Object.keys(items).length < new Set(pool).size) {
-    const k = pick(pool); if (items[k]) continue;
-    if (PLANTS[k]) { const t = PLANTS[k].time; items[k] = Math.max(1, Math.min(5, Math.round(rand(1, 5.5 - t / 300)))); }
-    else items[k] = Math.random() < .7 ? 1 : 2;
-  }
+  const addCrop = () => {
+    const k = weightedPick(crops.filter(c => !items[c]), c => freshness(c) * (PLANTS[c].hybrid ? 1.3 : 1));
+    if (!k) return;
+    const t = PLANTS[k].time; // pousses courtes : on en demande plus
+    items[k] = Math.max(1, Math.min(5, Math.round(rand(.7, 1.3) * 900 / t)));
+  };
+  const addDish = () => {
+    const r = weightedPick(dishes.filter(d => !items[d]), d => freshness(d));
+    if (r) items[r] = Math.random() < .75 ? 1 : 2;
+  };
+  if (kind === "dish") addDish();
+  else if (kind === "mix") { addDish(); addCrop(); }
+  else { addCrop(); if (S.level >= 3 && Math.random() < .5 && crops.length > 1) addCrop(); }
+  if (!Object.keys(items).length) addCrop();
+  S.orderHist = hist.concat(Object.keys(items)).slice(-10);
   let val = 0, xp = 0;
   for (const k in items) { val += itemVal(k) * items[k]; xp += itemXp(k) * items[k]; }
-  const v = Math.floor(Math.random() * VILLAGERS.length);
-  return { id: Math.random().toString(36).slice(2, 9), v, line: Math.floor(Math.random() * 2), items, coins: Math.round(val * 1.6 + 5), xp: Math.round(xp * 1.4 + 3) };
+  const used = new Set(S.orders.map(o => o.v));
+  const free = VILLAGERS.map((_, i) => i).filter(i => !used.has(i) && i !== S.lastVillager);
+  const v = free.length ? pick(free) : Math.floor(Math.random() * VILLAGERS.length);
+  S.lastVillager = v;
+  const lines = VILLAGERS[v].say.concat(ORDER_LINES);
+  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, coins: Math.round(val * 1.6 + 5), xp: Math.round(xp * 1.4 + 3) };
 }
 
 /* ---------------- Actions ---------------- */
@@ -621,7 +653,7 @@ function views_lab() {
 function views_village() {
   const t = now();
   const cards = S.orders.map(o => { const v = VILLAGERS[o.v]; const ok = Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q); return `
-    <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}</div><div class="say">« ${v.say[o.line]} »</div>
+    <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
       <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<span class="chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</span>`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
   return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / 3</span></div>
