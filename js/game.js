@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.6";
+const APP_VERSION = "0.16.7";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -182,6 +182,12 @@ const A = {
     const t = now(); tick(t); let n = 0;
     S.plots.forEach((p, i) => { if (plotState(p, t) === "ripe") { harvest(i); n++; } });
     if (n) { const { x, y } = pos(ev); floatText(`${n} récolte${n > 1 ? "s" : ""}`, x, y); }
+    commit();
+  },
+  snailsAll(_, ev) {
+    const t = now(); tick(t); let n = 0;
+    for (const p of S.plots) if (plotState(p, t) === "weed") { p.weed = false; S.stats.weeds++; n++; }
+    if (n) { const { x, y } = pos(ev); earn(n, x, y, 2 * n); toast(n > 1 ? `${n} escargots délogés. Les plantes repartent.` : "Escargot délogé. La plante repart."); }
     commit();
   },
   waterAll(_, ev) {
@@ -381,11 +387,13 @@ function views_garden() {
   const t = now();
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
+  const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
   const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
       <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
+      ${snails ? `<button class="btn danger" data-act="snailsAll">Retirer les escargots (${snails})</button>` : ""}
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>
@@ -619,7 +627,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
