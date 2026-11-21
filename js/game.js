@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.15.1";
+const APP_VERSION = "0.15.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -645,6 +645,7 @@ function render(force) {
     // Le jardin garde ses parcelles existantes : seules celles qui changent sont redessinées,
     // pour que les anneaux et le halo ne repartent pas de zéro à chaque action.
     const oldGarden = tab === "garden" ? $("#view .garden") : null;
+    $("#view").dataset.tab = tab;
     $("#view").innerHTML = VIEWS[tab]();
     if (oldGarden) {
       const fresh = $("#view .garden");
