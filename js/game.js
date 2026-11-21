@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.24.3";
+const APP_VERSION = "0.25.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -400,6 +400,11 @@ const A = {
   },
   invCat(c) { UI.invCat = c; render(true); },
   sellCat(c) { UI.sellCat = c; render(true); },
+  invGo(arg) {
+    if (arg.startsWith("seed:")) { msub = "seeds"; UI.sel.seeds = arg.slice(5); }
+    else { msub = "sell"; UI.sellCat = PLANTS[arg] ? "crops" : "dishes"; UI.sel.sell = arg; }
+    tab = "market"; render(true); window.scrollTo({ top: 0 });
+  },
   openInv(k) {
     if (k) { UI.invCat = PLANTS[k] ? "crops" : "dishes"; UI.sel.inv = k; }
     modalView = viewInv; $("#modal").innerHTML = viewInv(); openModal();
@@ -519,8 +524,10 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
-  const cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0);
-  const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "openInv", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>`;
+  const cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
+  const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>`;
+  const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k) })).join("")}</div>`;
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
@@ -534,8 +541,8 @@ function views_garden() {
     </div></div>
   </section>
   <section class="panel">
-    <div class="row spread"><h2 class="h-ico"><span class="bag-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6V5a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 9a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" fill="currentColor"/><path d="M8.5 13h7" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round"/></svg></span>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
-    ${cropKeys.length || dishKeys.length ? `${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    <h2>Inventaire</h2>
+    ${cropKeys.length || dishKeys.length || seedKeys.length ? `${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
 }
