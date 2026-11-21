@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.0";
+const APP_VERSION = "0.16.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -125,10 +125,10 @@ function unlocksAt(L) {
   if (L === 3) out.push("la Serre à hybrides");
   return out;
 }
-function earn(n, x, y, xp) {
+function earn(n, x, y, xp, cls) {
   S.coins += n;
   if (xp) addXp(xp);
-  if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, true);
+  if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, cls || true);
 }
 
 function genOrder() {
@@ -735,7 +735,7 @@ function toast(html, ms = 3500) {
   while ($("#toasts").children.length > 3) $("#toasts").firstChild.remove();
 }
 function floatText(txt, x, y, gold) {
-  const el = document.createElement("span"); el.className = "float" + (gold ? " gold" : "");
+  const el = document.createElement("span"); el.className = "float" + (gold === true ? " gold" : gold ? " " + gold : "");
   el.textContent = txt; el.style.left = x + "px"; el.style.top = y + "px";
   $("#fx").appendChild(el); setTimeout(() => el.remove(), 1200);
 }
@@ -750,7 +750,7 @@ function spawnButterfly() {
   el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
-    const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3);
+    const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
     toast(`Papillon attrapé ! <b>+${gain} pièces</b>`); commit();
   });
   el.addEventListener("animationend", () => el.remove());
