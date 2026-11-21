@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.24.0";
+const APP_VERSION = "0.24.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -726,9 +726,13 @@ function views_kitchen() {
 
 function views_lab() {
   const t = now();
-  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${new Set([...S.discovered, ...S.hybrids]).size} / ${ORDER.length}</span></div>
-    <div class="herbier">${ORDER.map(k => { const d = PLANTS[k]; const known = S.discovered.includes(k) || S.hybrids.includes(k); return `
-      <div class="herb ${known ? "" : "unknown"}">${plantArt(k, 3)}${d.hybrid ? `<span class="hy">Hybride</span>` : ""}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></div>`; }).join("")}</div></section>`;
+  const isKnown = k => S.discovered.includes(k) || S.hybrids.includes(k);
+  const herbCard = k => { const d = PLANTS[k], known = isKnown(k); return `
+      <div class="herb ${known ? "" : "unknown"}">${plantArt(k, 3)}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></div>`; };
+  const baseK = ORDER.filter(k => !PLANTS[k].hybrid), hybK = ORDER.filter(k => PLANTS[k].hybrid);
+  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length}</span></div>
+    <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
+    <h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3><div class="herbier">${hybK.map(herbCard).join("")}</div></section>`;
   if (S.level < 3) return `<section class="panel"><h2>Serre</h2><div class="empty-note"><img class="banner-img" src="assets/img/greenhouse.webp" alt=""><span>La Serre ouvre au niveau 3. Tu pourras y croiser deux récoltes pour découvrir des variétés hybrides.</span></div></section>${herb}`;
   let top;
   if (S.lab) {
