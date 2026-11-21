@@ -73,5 +73,7 @@ const VILLAGERS = [
   { name: "Pip le Moineau", color: "#d9a066", ear: "#9b6b3c", say: ["Juste un petit en-cas !", "Cuicui, merci d’avance !"] },
   { name: "Tante Grenouille", color: "#7fbf6a", ear: "#4d8a3c", say: ["Pour ma fête de la mare !", "Croâ, j’en rêve depuis hier."] },
   { name: "Basile l’Écureuil", color: "#d07a3c", ear: "#9a5222", say: ["Pour mes réserves d’hiver !", "Je paie bien, promis !"] },
+  { name: "Mamie Lapine", color: "#e8d9c8", ear: "#c9a98c", say: ["Pour mon potage du soir, ma belle !", "Rien ne vaut les légumes du jardin."] },
+  { name: "Gaston la Taupe", color: "#6e6070", ear: "#4c4150", say: ["J’ai creusé jusqu’ici rien que pour ça !", "Ça me changera des vers de terre."] },
 ];
 
