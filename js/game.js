@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.27.1";
+const APP_VERSION = "0.27.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -743,9 +743,11 @@ function marketRecipes() {
     : lock ? `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`
     : `<button class="btn big" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>Apprendre · ${priceTag(d.price)}</button>`;
   const det = detail("recipes", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp), ingList(d.need), act);
-  const grid = RORDER.map(x => {
+  // Disponibles d'abord, recettes bloquées (niveau trop bas) en bas, par niveau croissant.
+  const sorted = [...RORDER].sort((x, y) => (RECIPES[x].lvl > S.level) - (RECIPES[y].lvl > S.level) || (RECIPES[x].lvl > S.level ? RECIPES[x].lvl - RECIPES[y].lvl : 0));
+  const grid = sorted.map(x => {
     const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level;
-    return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l, check: o, under: o ? "Apprise" : l ? `Niv. ${e.lvl}` : priceTag(e.price) });
+    return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : priceTag(e.price) });
   }).join("");
   return det + `<div class="tiles">${grid}</div>`;
 }

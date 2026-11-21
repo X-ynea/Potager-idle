@@ -644,3 +644,6 @@ button.herb:active { transform: scale(.97); }
 .set-row > span { display: grid; }
 .set-sub { font-size: .74rem; font-weight: 600; color: var(--muted); }
 .set-row input[type="range"] { width: 50%; accent-color: var(--leaf); }
+.under-name { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .7rem; }
+.tile-wrap .under:has(.under-name) { width: 100%; justify-content: center; }
+.tile-wrap .under { max-width: 100%; min-width: 0; overflow: hidden; }
