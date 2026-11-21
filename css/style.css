@@ -638,3 +638,6 @@ button.herb:active { transform: scale(.97); }
 .ach-toast { display: flex; align-items: center; gap: 10px; }
 .ach-toast svg { width: 28px; height: 28px; color: #f4c03e; flex: none; }
 .ach-rew { display: block !important; line-height: 1.5; } .ach-rew .coin { margin-right: 2px; }
+/* Icônes illustrées : pièce, goutte, étoile */
+.coin { background: url("../assets/img/ui-coin.webp") center / contain no-repeat !important; box-shadow: none !important; border-radius: 0 !important; width: 1.2em; height: 1.2em; }
+.ico-img { width: 100%; height: 100%; object-fit: contain; display: block; }
