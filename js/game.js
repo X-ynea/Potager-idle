@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.14.3";
+const APP_VERSION = "0.14.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -664,7 +664,7 @@ function render(force) {
 function live(t) {
   $("#coins").textContent = fmt(S.coins);
   $("#lvl").textContent = "Niveau " + S.level;
-  $("#xpt").textContent = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP`;
+  $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
   document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });

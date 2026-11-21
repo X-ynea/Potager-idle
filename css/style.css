@@ -455,3 +455,23 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .sheet.levelup .btn.big { width: 100%; max-width: 420px; }
 .lv-tag { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #7a5200; background: linear-gradient(90deg, #ffe9a8, #ffd24a); border-radius: 99px; padding: 4px 12px; }
 .sheet.levelup.big .lv-item { border-color: #f4c03e; background: linear-gradient(160deg, #fffaf0, #fff1c9); }
+/* Barre du haut sur petit écran : tout tient sur une ligne sans se chevaucher */
+.top > * { flex-shrink: 0; }
+.top > .lvl { flex-shrink: 1; overflow: hidden; }
+@media (max-width: 480px) {
+  .top { gap: 8px; }
+  .brand img { width: 26px; height: 26px; }
+  .bag { width: 36px; height: 36px; border-radius: 11px; }
+  .bag svg { width: 20px; height: 20px; }
+  .top .pill { padding: 3px 10px 3px 5px; }
+  .lvl-top b { font-size: .85rem; }
+  .lvl-top span { font-size: .7rem; }
+}
+@media (max-width: 400px) { .xp-unit { display: none; } }
+@media (max-width: 400px) {
+  .lvl { gap: 2px; }
+  .lvl-top { display: contents; }
+  .lvl-top b { order: 1; }
+  .xpbar { order: 2; }
+  .lvl-top span { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
+}
