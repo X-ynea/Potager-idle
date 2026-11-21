@@ -210,10 +210,13 @@ function cropArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.
 function seedArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */
-const SPROUTS = new Set(["rubis", "lilas", "citrouillotte", "bledor", "fraisille", "basilomate", "lune", "poivree"]);
+const SPROUTS = new Set(["rubis", "lilas", "citrouillotte", "bledor", "fraisille", "basilomate", "lune", "poivree", "radis", "laitue", "patate", "carotte", "ble", "fraise"]);
+/* Plantes mûres dessinées sans terre (posées directement dans le bac). */
+const RIPE_NO_SOIL = new Set(["radis", "laitue", "patate", "carotte", "ble", "fraise"]);
 function plantArt(k, stage, inPlot) {
   if (stage === 1 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
   if (stage === 2 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-young.webp`, "art img young");
+  if (stage === 3 && RIPE_NO_SOIL.has(k) && hasImg("plants", k)) return imgSvg(`assets/img/${k}-3.webp`, "art img ripe");
   if (hasImg("plants", k)) return stage === 0 ? imgSvg(`assets/img/${k}-grain.webp`, "art img grain") : imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
   const d = PLANTS[k];
   let g;
