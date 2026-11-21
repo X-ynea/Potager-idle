@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.2";
+const APP_VERSION = "0.16.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -412,6 +412,7 @@ function plotHTML(p, i, t) {
   let inner = plantArt(p.seed, plotStage(p), true);
   if (st === "weed") inner += `<img class="pest snail" src="assets/img/ui-snail.webp" alt="">`;
   if (st === "dry") inner += `<span class="thirst">${DROP}</span>`; // goutte : la plante a soif
+  if (st === "weed") inner += `<span class="thirst pest-alert"><img src="assets/img/ui-snail.webp" alt=""></span>`; // bulle : escargot à retirer
   if (st === "ripe") return inner + `<span class="thirst ready">${STAR}</span>`; // étoile : prête à récolter (pas de jauges)
   const r = ringValues(p, st, t); // valeurs posées dès la création, sans animation depuis zéro
   inner += `<span class="ring" title="${d.name}"><svg viewBox="0 0 40 40" aria-hidden="true">

@@ -500,3 +500,6 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot.ripe .ring { display: none; }
 .plot .thirst.ready { box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #f4c03e; }
 .float.butterfly-gain { color: #2f8fd6; }
+/* Escargot : bulle d'alerte rouge, comme la goutte et l'étoile */
+.plot .thirst.pest-alert { box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #e2473b; padding: 3%; }
+.plot .thirst.pest-alert img { width: 100%; height: 100%; object-fit: contain; }
