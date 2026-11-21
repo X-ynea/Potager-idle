@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.27.4";
+const APP_VERSION = "0.28.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -157,6 +157,58 @@ function showDaily() {
 }
 const GIFT = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="10" y="26" width="44" height="32" rx="5" fill="#ff8f78"/><rect x="6" y="18" width="52" height="12" rx="4" fill="#ffa68f"/><rect x="28" y="18" width="8" height="40" fill="#f4c03e"/><path d="M32 18c-6-10-18-8-14 0zM32 18c6-10 18-8 14 0z" fill="none" stroke="#f4c03e" stroke-width="5" stroke-linecap="round"/></svg>`;
 
+/* ---------------- Objectifs du jour ---------------- */
+// Chaque jour, 3 petites quêtes de types différents, adaptées au niveau.
+const QUEST_TYPES = [
+  { id: "harvestK", w: 5, make: () => { const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level); const k = pick(pool);
+      const n = Math.max(3, Math.min(15, Math.round(2400 / PLANTS[k].time * (1 + S.level / 10)))); return { k, n, text: `Récolter ${n} ${PLANTS[k].name.toLowerCase()}${n > 1 && !/s$/.test(PLANTS[k].name) ? "s" : ""}`, base: PLANTS[k].sell * n }; } },
+  { id: "harvest", w: 3, make: () => { const n = 10 + S.level * 2; return { n, text: `Faire ${n} récoltes`, base: n * 8 }; } },
+  { id: "cook", w: 4, lvl: 2, make: () => { const n = 2 + Math.floor(S.level / 4); return { n, text: `Cuisiner ${n} plats`, base: n * 45 }; } },
+  { id: "deliver", w: 4, make: () => { const n = 1 + Math.floor(S.level / 5); return { n, text: `Livrer ${n} commande${n > 1 ? "s" : ""} au village`, base: n * 60 }; } },
+  { id: "water", w: 3, make: () => { const n = 10 + S.level; return { n, text: `Arroser ${n} fois`, base: n * 5 }; } },
+  { id: "butterfly", w: 2, make: () => { const n = 2 + Math.floor(S.level / 6); return { n, text: `Attraper ${n} papillon${n > 1 ? "s" : ""}`, base: n * 30 }; } },
+  { id: "snail", w: 2, make: () => { const n = 3 + Math.floor(S.level / 5); return { n, text: `Déloger ${n} escargots`, base: n * 15 }; } },
+  { id: "cross", w: 3, lvl: 3, make: () => { const n = 1 + Math.floor(S.level / 7); return { n, text: `Faire ${n} croisement${n > 1 ? "s" : ""} dans la serre`, base: n * 70 }; } },
+  { id: "sell", w: 3, make: () => { const n = Math.round((60 + S.level * 40) / 10) * 10; return { n, text: `Gagner ${fmt(n)} pièces au marché`, base: n * .4 }; } },
+];
+function dailyQuests() {
+  const today = dayKey();
+  if (S.quests && S.quests.day === today) return S.quests;
+  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
+  while (list.length < 3) {
+    const t = weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w);
+    const q = t.make();
+    list.push({ type: t.id, k: q.k || null, n: q.n, text: q.text, prog: 0, claimed: false, coins: Math.round(q.base * .6 + 20 + S.level * 4), xp: Math.round(8 + S.level * 3) });
+  }
+  S.quests = { day: today, list, bonus: false };
+  return S.quests;
+}
+function questProgress(type, amount = 1, k = null) {
+  const Q = dailyQuests();
+  for (const q of Q.list) if (!q.claimed && q.type === type && (!q.k || q.k === k) && q.prog < q.n) q.prog = Math.min(q.n, q.prog + amount);
+  if (type === "harvestK") questProgress("harvest", amount);
+}
+function questsHTML() {
+  const Q = dailyQuests();
+  const doneAll = Q.list.every(q => q.claimed);
+  return `<section class="panel quests"><div class="row spread"><h2>Objectifs du jour</h2><span class="small muted num">${Q.list.filter(q => q.claimed).length} / 3</span></div>
+    ${Q.list.map((q, i) => { const ok = q.prog >= q.n; return `<div class="quest ${q.claimed ? "claimed" : ok ? "ready" : ""}">
+      <div class="q-ico">${q.k ? cropArt(q.k) : QUEST_ICONS[q.type]}</div>
+      <div class="q-txt"><b>${q.text}</b><div class="pbar"><i style="width:${(q.prog / q.n * 100).toFixed(1)}%"></i></div>
+        <span class="small muted num">${fmt(q.prog)} / ${fmt(q.n)} · ${coin}${fmt(q.coins)} · +${q.xp} XP</span></div>
+      ${q.claimed ? `<span class="q-done">✓</span>` : `<button class="btn sm" data-act="claimQuest" data-arg="${i}" ${ok ? "" : "disabled"}>Récupérer</button>`}
+    </div>`; }).join("")}
+    ${doneAll && !Q.bonus ? `<button class="btn big peach" data-act="claimQuestBonus">Bonus des 3 objectifs · ${coin}${fmt(50 + S.level * 15)}</button>` : ""}
+    ${Q.bonus ? `<p class="small muted" style="margin:0;text-align:center">Tous les objectifs sont faits. Nouveaux objectifs demain !</p>` : ""}
+  </section>`;
+}
+const QUEST_ICONS = {
+  harvest: `<img src="assets/img/upg-basket.webp" alt="">`, cook: `<img src="assets/img/stove-on.webp" alt="">`,
+  deliver: `<img src="assets/img/villager-0.webp" alt="">`, water: `<img src="assets/img/upg-water.webp" alt="">`,
+  butterfly: `<img src="assets/img/ui-butterfly.webp" alt="">`, snail: `<img src="assets/img/ui-snail.webp" alt="">`,
+  cross: `<img src="assets/img/cauldron.webp" alt="">`, sell: `<img src="assets/img/ui-coin.webp" alt="">`,
+};
+
 function showLevelUp() {
   if (!LEVEL_QUEUE.length || !$("#modal").hidden) return;
   const levels = LEVEL_QUEUE.splice(0);
@@ -273,9 +325,9 @@ const A = {
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
     if (st === "empty") return openPicker(+i);
-    if (st === "weed") { p.weed = false; S.stats.weeds++; SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
+    if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
     else if (st === "ripe") harvest(+i, x, y);
-    else { p.waterUntil = t + waterMs(); SFX.play("water"); floatText("Arrosé !", x, y); }
+    else { p.waterUntil = t + waterMs(); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
   },
   plant(arg, ev) {
@@ -303,24 +355,25 @@ const A = {
   snailsAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) if (plotState(p, t) === "weed") { p.weed = false; S.stats.weeds++; n++; }
-    if (n) { SFX.play("snail"); const { x, y } = pos(ev); earn(n, x, y, 2 * n); toast(n > 1 ? `${n} escargots délogés. Les plantes repartent.` : "Escargot délogé. La plante repart."); }
+    if (n) { SFX.play("snail"); questProgress("snail", n); const { x, y } = pos(ev); earn(n, x, y, 2 * n); toast(n > 1 ? `${n} escargots délogés. Les plantes repartent.` : "Escargot délogé. La plante repart."); }
     commit();
   },
   waterAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) { const st = plotState(p, t); if (st === "dry" || st === "growing") { p.waterUntil = t + waterMs(); n++; } }
-    if (n) SFX.play("water");
+    if (n) { SFX.play("water"); questProgress("water", n); }
     const { x, y } = pos(ev); floatText(n ? "Tout est arrosé !" : "Rien à arroser", x, y); commit();
   },
   msub(arg) { msub = arg; render(true); },
   buySeed(arg) { const [k, q] = arg.split(":"); const n = +q, c = PLANTS[k].cost * n; if (S.coins < c) return; S.coins -= c; S.seeds[k] = cnt(S.seeds, k) + n; commit(); },
   sell(arg, ev) {
     const [k, mode] = arg.split(":"); const bag = itemBag(k); const n = mode === "all" ? cnt(bag, k) : Math.min(1, cnt(bag, k));
-    if (!n) return; bag[k] -= n; const { x, y } = pos(ev); earn(itemVal(k) * n, x, y); commit();
+    if (!n) return; bag[k] -= n; questProgress("sell", itemVal(k) * n); const { x, y } = pos(ev); earn(itemVal(k) * n, x, y); commit();
   },
   sellCrops(_, ev) {
     let tot = 0; for (const k in S.crops) { tot += S.crops[k] * PLANTS[k].sell; S.crops[k] = 0; }
     if (tot >= 1000) S.stats.bigSale = 1;
+    if (tot) questProgress("sell", tot);
     if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
@@ -341,7 +394,7 @@ const A = {
   },
   serve(i, ev) {
     const c = S.cooking[+i]; if (!c || c.end > now()) return;
-    SFX.play("cook"); S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
+    SFX.play("cook"); questProgress("cook"); S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
     const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
   },
   labPick(k) {
@@ -361,7 +414,7 @@ const A = {
     S.crops[a]--; S.crops[b]--; S.lab = { a, b, end: now() + LAB_TIME * 1000 }; labSel = [null, null]; commit();
   },
   labCollect() {
-    const L = S.lab; if (!L || L.end > now()) return; S.lab = null; S.stats.crosses = st("crosses") + 1;
+    const L = S.lab; if (!L || L.end > now()) return; S.lab = null; S.stats.crosses = st("crosses") + 1; questProgress("cross");
     const h = HYBRID_BY_PAIR[pairKey(L.a, L.b)];
     if (h) {
       S.seeds[h] = cnt(S.seeds, h) + 2;
@@ -381,7 +434,7 @@ const A = {
     const o = S.orders.find(o => o.id === id); if (!o) return;
     for (const k in o.items) if (cnt(itemBag(k), k) < o.items[k]) return;
     for (const k in o.items) itemBag(k)[k] -= o.items[k];
-    S.orders = S.orders.filter(x => x !== o); S.stats.orders++;
+    S.orders = S.orders.filter(x => x !== o); S.stats.orders++; questProgress("deliver");
     S.stats.served = [...new Set([...(S.stats.served || []), o.v])]; if (o.coins >= 500) S.stats.bigOrder = 1;
     const { x, y } = pos(ev); earn(o.coins, x, y, o.xp);
     toast(`${VILLAGERS[o.v].name} te remercie chaleureusement !`);
@@ -390,6 +443,16 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  claimQuest(i, ev) {
+    const q = dailyQuests().list[+i]; if (!q || q.claimed || q.prog < q.n) return;
+    q.claimed = true; S.stats.quests = (S.stats.quests || 0) + 1;
+    const { x, y } = pos(ev); earn(q.coins, x, y, q.xp); SFX.play("success"); commit();
+  },
+  claimQuestBonus(_, ev) {
+    const Q = dailyQuests(); if (Q.bonus || !Q.list.every(q => q.claimed)) return;
+    Q.bonus = true; const { x, y } = pos(ev); earn(50 + S.level * 15, x, y, 10 + S.level * 2); SFX.play("level");
+    toast("<b>Objectifs du jour terminés !</b> Reviens demain pour de nouveaux défis."); commit();
+  },
   openAch() { modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal(); },
   setTitle(t) { S.title = t || ""; commit(); },
   achTab(t) { UI.achTab = t; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
@@ -477,6 +540,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], k = p.seed, d = PLANTS[k];
   const n = Math.random() < .08 ? 2 : 1;
   S.crops[k] = cnt(S.crops, k) + n; S.stats.harvest++;
+  questProgress("harvestK", n, k);
   if (n > 1) S.stats.doubles = st("doubles") + 1;
   if (!p.wasDry) S.stats.neverDry = st("neverDry") + 1;
   const hr = new Date().getHours(); if (hr < 8) S.stats.early = 1; if (hr >= 22) S.stats.night = 1;
@@ -584,6 +648,7 @@ function views_garden() {
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
     </div></div>
   </section>
+  ${questsHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
     ${cropKeys.length || dishKeys.length || seedKeys.length ? `${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
@@ -837,7 +902,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1023,7 +1088,7 @@ function spawnButterfly() {
   if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
-    ev.stopPropagation(); el.remove(); S.stats.butterflies++; SFX.play("butterfly");
+    ev.stopPropagation(); el.remove(); S.stats.butterflies++; questProgress("butterfly"); SFX.play("butterfly");
     const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
     toast(`Papillon attrapé ! <b>+${gain} pièces · +3 XP</b>`); commit();
   });
