@@ -537,3 +537,10 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 .tab .tab-prog i { display: block; height: 100%; background: var(--peach); border-radius: 99px; transition: width .9s linear; }
 .tab[aria-selected="true"] .tab-prog { background: rgba(255,255,255,.35); }
 .tab[aria-selected="true"] .tab-prog i { background: #fff; }
+/* Difficulté des commandes */
+.order .who { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.diff { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-body); font-size: .72rem; font-weight: 800; border-radius: 99px; padding: 1px 8px; letter-spacing: .02em; }
+.diff span { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; }
+.diff.d1 { background: #e6f5dc; color: #3d7a2c; }
+.diff.d2 { background: #fff1c9; color: #8a5a00; }
+.diff.d3 { background: #fde0dc; color: #a83a2c; }
