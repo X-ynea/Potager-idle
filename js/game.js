@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.23.1";
+const APP_VERSION = "0.23.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -393,8 +393,20 @@ function harvest(i, x, y) {
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k });
-  buzz(n > 1 ? [12, 40, 12] : 12);
-  if (x != null) floatText(n > 1 ? `Récolte double ! +${d.xp} XP` : `+1 ${d.name} · +${d.xp} XP`, x, y);
+  buzz(n > 1 ? [15, 50, 15, 50, 30] : 12);
+  if (n > 1) { doubleBurst(i, k); toast(`<b>Récolte double !</b> 2 × ${d.name.toLowerCase()}`); }
+  else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
+}
+/* Récolte double : « ×2 » doré, deux récoltes qui jaillissent et des étincelles au-dessus du bac. */
+function doubleBurst(i, k) {
+  const el = document.querySelector(`[data-plot="${i}"]`); if (!el) return;
+  const r = el.getBoundingClientRect();
+  const b = document.createElement("div");
+  b.className = "double-burst";
+  b.style.left = r.left + r.width / 2 + "px"; b.style.top = r.top + r.height * .45 + "px";
+  b.innerHTML = `<span class="db-x2">×2</span><span class="db-crop a">${cropArt(k)}</span><span class="db-crop b">${cropArt(k)}</span>` +
+    Array.from({ length: 8 }, (_, j) => `<i class="db-spark" style="--a:${j * 45}deg"></i>`).join("");
+  $("#fx").appendChild(b); setTimeout(() => b.remove(), 1700);
 }
 function pos(ev) {
   if (ev && ev.clientX) return { x: ev.clientX, y: ev.clientY };
