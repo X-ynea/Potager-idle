@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.25.2";
+const APP_VERSION = "0.25.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -372,6 +372,12 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  chipName(_, ev) {
+    const el = ev.target.closest(".need-chip"); if (!el) return;
+    document.querySelectorAll(".need-chip.show").forEach(c => c !== el && c.classList.remove("show"));
+    el.classList.toggle("show");
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2200);
+  },
   plantInfo(k) { openPlantInfo(k); },
   claimDaily(_, ev) {
     const o = dailyOffer(); if (!o) return closeModal();
@@ -761,7 +767,7 @@ function views_village() {
   const t = now();
   const cards = S.orders.map(o => { const v = VILLAGERS[o.v]; const ok = Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q); return `
     <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}${o.stars ? `<span class="diff d${o.stars}">${"★".repeat(o.stars)}<span>${o.label}</span></span>` : ""}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
-      <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<span class="chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</span>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
+      <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<button class="chip need-chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" data-name="${itemName(k)}" data-act="chipName" aria-label="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</button>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
   return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / 3</span></div>
     ${cards || `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}

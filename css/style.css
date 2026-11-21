@@ -601,3 +601,12 @@ button.herb:active { transform: scale(.97); }
 .hi-uses { width: 100%; max-width: 420px; display: grid; gap: 6px; text-align: left; }
 .hi-uses h4 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
 .hi-uses .chip svg { width: 30px; height: 30px; }
+/* Nom de l'objet demandé : au survol (ordinateur) ou au toucher (téléphone) */
+.need-chip { position: relative; font: inherit; color: inherit; cursor: pointer; }
+.need-chip::after { content: attr(data-name); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 4px); white-space: nowrap;
+  background: var(--ink); color: var(--panel); font-size: .78rem; font-weight: 800; padding: 4px 10px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; z-index: 5; }
+.need-chip::before { content: ""; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--ink); opacity: 0; transition: opacity .15s; z-index: 5; }
+.need-chip.show::after, .need-chip.show::before { opacity: 1; transform: translate(-50%, 0); }
+.need-chip.show::before { transform: translateX(-50%); }
+@media (hover: hover) { .need-chip:hover::after, .need-chip:hover::before { opacity: 1; } .need-chip:hover::after { transform: translate(-50%, 0); } }
+.order .need .need-chip { font-weight: 800; font-family: var(--f-body); }
