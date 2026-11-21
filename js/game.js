@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.25.3";
+const APP_VERSION = "0.25.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -336,14 +336,18 @@ const A = {
   },
   labPick(k) {
     if (S.lab) return;
-    if (labSel[0] === k) labSel[0] = null; else if (labSel[1] === k) labSel[1] = null;
-    else if (!labSel[0]) labSel[0] = k; else labSel[1] = k;
+    // On peut choisir deux fois la même récolte si on en a au moins deux (ça ne donne rien… mais on peut essayer).
+    const room = k2 => cnt(S.crops, k2) - labSel.filter(x => x === k2).length;
+    if (!labSel[0]) labSel[0] = k;
+    else if (!labSel[1]) { if (labSel[0] === k && room(k) < 1) labSel[0] = null; else labSel[1] = k; }
+    else if (labSel.includes(k)) labSel[labSel.lastIndexOf(k)] = null;
+    else labSel[1] = k;
     render(true);
   },
   labClear(i) { labSel[+i] = null; render(true); },
   labStart() {
-    const [a, b] = labSel; if (!a || !b || a === b || S.lab) return;
-    if (!cnt(S.crops, a) || !cnt(S.crops, b)) return;
+    const [a, b] = labSel; if (!a || !b || S.lab) return;
+    if (a === b ? cnt(S.crops, a) < 2 : (!cnt(S.crops, a) || !cnt(S.crops, b))) return;
     S.crops[a]--; S.crops[b]--; S.lab = { a, b, end: now() + LAB_TIME * 1000 }; labSel = [null, null]; commit();
   },
   labCollect() {
@@ -353,6 +357,9 @@ const A = {
       S.seeds[h] = cnt(S.seeds, h) + 2;
       if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); }
       else { addXp(6); openReveal(h, false); }
+    } else if (L.a === L.b) {
+      S.seeds[L.a] = cnt(S.seeds, L.a) + 1; addXp(1); S.stats.selfCross = (S.stats.selfCross || 0) + 1;
+      toast(`Une ${PLANTS[L.a].name.toLowerCase()} avec une ${PLANTS[L.a].name.toLowerCase()}… ça donne une ${PLANTS[L.a].name.toLowerCase()}. Qui l’eût cru ? Tu récupères 1 graine.`, 6000);
     } else {
       const back = pick([L.a, L.b]); S.seeds[back] = cnt(S.seeds, back) + 1; addXp(3);
       const promising = [L.a, L.b].find(k => ORDER.some(x => PLANTS[x].hybrid && !S.hybrids.includes(x) && PLANTS[x].parents.includes(k)));
