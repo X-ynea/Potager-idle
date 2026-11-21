@@ -484,3 +484,5 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 @keyframes thirst-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14%); } }
 .plot.dry .ring .ring-bg:first-child { stroke: #3f9bdc; animation: ring-blink 1.2s ease-in-out infinite; }
 @keyframes ring-blink { 0%, 100% { stroke: #a9d4f2; } 50% { stroke: #2f8fd6; } }
+/* Goutte : cercle serré, centré à la même hauteur que la pastille du légume */
+.plot .thirst { width: 24%; top: calc(1px + 7%); right: 1px; padding: 2.5%; box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #3f9bdc; }
