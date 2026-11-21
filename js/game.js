@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.12";
+const APP_VERSION = "0.17.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -38,7 +38,7 @@ function fresh() {
     v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [],
-    upg: { water: 0, hose: 0, fert: 0, stove: 0, auto: 0 },
+    upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
   };
@@ -52,7 +52,10 @@ function load() {
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return migrate(JSON.parse(raw)); } catch (e) {}
   return null;
 }
-function migrate(s) { const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
+function migrate(s) {
+  // Parties commencées avant l'arrivée du panier et des gants : on les offre pour ne pas retirer des boutons déjà utilisés.
+  if (s.upg && !("basket" in s.upg)) { s.upg.basket = s.level >= 2 ? 1 : 0; s.upg.gloves = s.level >= 4 ? 1 : 0; }
+  const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 let lastSaveAt = 0;
 function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); lastSaveAt = S.last; } catch (e) {} }
 
@@ -206,7 +209,7 @@ const A = {
     if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
-  buyUpg(u) { const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> amélioré.`); commit(); },
+  buyUpg(u) { const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> ${UPG[u].steps.length > 1 ? "amélioré" : "acheté"} !`); commit(); },
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
@@ -392,8 +395,8 @@ function views_garden() {
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
-      <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
-      <button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>Retirer les escargots${snails ? ` (${snails})` : ""}</button>
+      ${S.upg.basket ? `<button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>` : ""}
+      ${S.upg.gloves ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>Retirer les escargots${snails ? ` (${snails})` : ""}</button>` : ""}
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>

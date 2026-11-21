@@ -54,7 +54,9 @@ const RORDER = Object.keys(RECIPES);
 const UPG = {
   water: { name: "Arrosoir", steps: [{ cost: 60, lvl: 4 }, { cost: 220, lvl: 7 }, { cost: 650, lvl: 9 }], values: [5, 8, 15, 30],
            desc: v => `L’eau tient ${v} min dans la terre` },
+  basket:{ name: "Panier en osier", steps: [{ cost: 40, lvl: 2 }], values: [0, 1], desc: () => "Débloque le bouton « Tout récolter »" },
   hose:  { name: "Tuyau d’arrosage", steps: [{ cost: 120, lvl: 3 }], values: [0, 1], desc: () => "Débloque le bouton « Tout arroser »" },
+  gloves:{ name: "Gants de jardinage", steps: [{ cost: 80, lvl: 4 }], values: [0, 1], desc: () => "Débloque le bouton « Retirer les escargots »" },
   fert:  { name: "Compost maison", steps: [{ cost: 150, lvl: 5 }, { cost: 450, lvl: 10 }, { cost: 1200, lvl: 13 }], values: [1, 1.15, 1.3, 1.5],
            desc: v => v === 1 ? "Vitesse de pousse normale" : `Les plantes poussent ${Math.round((v - 1) * 100)} % plus vite` },
   stove: { name: "Fourneau", steps: [{ cost: 250, lvl: 6 }, { cost: 1500, lvl: 15 }], values: [1, 2, 3], desc: v => `${v} plat${v > 1 ? "s" : ""} en même temps` },
