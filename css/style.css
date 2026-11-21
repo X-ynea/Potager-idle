@@ -519,3 +519,6 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .tiles.mini .tile { border-radius: 12px; padding: 9%; }
 .tiles.mini .tile .cnt { font-size: .8rem; left: 4px; bottom: 1px; }
 main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
+.h-ico { display: flex; align-items: center; gap: 8px; }
+.bag-ico { width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); color: var(--leaf-deep); display: grid; place-items: center; flex: none; }
+.bag-ico svg { width: 18px; height: 18px; }

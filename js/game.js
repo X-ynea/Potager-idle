@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.19.2";
+const APP_VERSION = "0.19.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -453,7 +453,7 @@ function views_garden() {
     </div></div>
   </section>
   <section class="panel">
-    <div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
+    <div class="row spread"><h2 class="h-ico"><span class="bag-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6V5a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 9a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" fill="currentColor"/><path d="M8.5 13h7" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round"/></svg></span>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
     ${cropKeys.length || dishKeys.length ? `${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
