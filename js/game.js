@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.19.6";
+const APP_VERSION = "0.19.7";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -741,9 +741,19 @@ function live(t) {
   const lN = S.lab && S.lab.end <= t ? 1 : 0;
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
   badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN);
+  // Barre de progression sur les onglets Cuisine et Serre pendant une préparation.
+  const running = S.cooking.filter(c => c.end > t).map(c => ({ end: c.end, d: RECIPES[c.r].time * 1000 }));
+  const next = running.sort((a, b) => a.end - b.end)[0];
+  tabProg("p-kitchen", next ? 1 - (next.end - t) / next.d : null);
+  tabProg("p-lab", S.lab && S.lab.end > t ? 1 - (S.lab.end - t) / (LAB_TIME * 1000) : null);
   const total = gN + kN + lN;
   const title = total ? `(${total}) Potager idle` : "Potager idle";
   if (document.title !== title) document.title = title;
+}
+function tabProg(id, f) {
+  const el = document.getElementById(id); if (!el) return;
+  el.hidden = f == null;
+  if (f != null) el.firstElementChild.style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(1) + "%";
 }
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 

@@ -532,3 +532,8 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 }
 /* Plante prête : pas de cadre, seulement l’étoile */
 .plot.ripe::before { content: none; }
+/* Barre de progression dans les onglets Cuisine et Serre */
+.tab .tab-prog { position: absolute; left: 18%; right: 18%; bottom: 3px; height: 4px; border-radius: 99px; background: rgba(0,0,0,.12); overflow: hidden; }
+.tab .tab-prog i { display: block; height: 100%; background: var(--peach); border-radius: 99px; transition: width .9s linear; }
+.tab[aria-selected="true"] .tab-prog { background: rgba(255,255,255,.35); }
+.tab[aria-selected="true"] .tab-prog i { background: #fff; }
