@@ -93,6 +93,15 @@ function viewAch() {
   const done = ACHIEVEMENTS.reduce((t, a) => t + (S.ach[a.id] || 0), 0);
   const titles = ACHIEVEMENTS.flatMap(a => a.tiers.map((t, i) => ({ t, i, a }))).filter(o => o.t.title && (S.ach[o.a.id] || 0) > o.i).map(o => o.t.title);
   const bonuses = ACHIEVEMENTS.flatMap(a => a.tiers.map((t, i) => ({ t, i, a }))).filter(o => o.t.bonus && (S.ach[o.a.id] || 0) > o.i).map(o => BONUS_TEXT[o.t.bonus]);
+  const tabAch = UI.achTab || "todo";
+  // Obtenus : dernier palier atteint ; En cours : prochain palier à atteindre.
+  const cardDone = a => {
+    const lv = S.ach[a.id] || 0, max = a.tiers.length, t = a.tiers[lv - 1];
+    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : ""].filter(Boolean).join(" · ");
+    return `<div class="ach done">
+      <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
+      <div class="ach-txt"><b>${a.name}${max > 1 ? " " + ROMAN[lv] : ""}</b><span>${achDesc(a, t.n)}</span><span class="ach-rew ok">Obtenu${rew ? " · " + rew : ""}</span></div></div>`;
+  };
   const card = a => {
     const lv = S.ach[a.id] || 0, max = a.tiers.length, doneAll = lv >= max;
     const hiddenNow = a.hidden && !lv;
@@ -115,6 +124,12 @@ function viewAch() {
         : `<p class="small muted" style="margin:0">Certains succès débloquent un titre à afficher à côté de ton niveau.</p>`}
       ${bonuses.length ? `<p class="small" style="margin:0"><b>Bonus actifs :</b> ${bonuses.join(" · ")}</p>` : ""}
     </div>
-    ${ACH_CATS.map(([c, l]) => `<div class="set-group"><h3>${l}</h3>${ACHIEVEMENTS.filter(a => a.cat === c).map(card).join("")}</div>`).join("")}
+    ${(() => {
+      const todo = ACHIEVEMENTS.filter(a => (S.ach[a.id] || 0) < a.tiers.length), got = ACHIEVEMENTS.filter(a => (S.ach[a.id] || 0) > 0);
+      const list = tabAch === "done" ? got : todo, render1 = tabAch === "done" ? cardDone : card;
+      return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["todo", "En cours", todo.length], ["done", "Obtenus", got.length]].map(([k, l, n]) => `<button data-act="achTab" data-arg="${k}" aria-pressed="${tabAch === k}">${l} <span class="num">${n}</span></button>`).join("")}</div>`
+        + (list.length ? ACH_CATS.map(([c, l]) => { const items = list.filter(a => a.cat === c); return items.length ? `<div class="set-group"><h3>${l}</h3>${items.map(render1).join("")}</div>` : ""; }).join("")
+          : `<div class="empty-note"><span>${tabAch === "done" ? "Aucun succès obtenu pour l’instant. Ta première récolte t’en rapportera un !" : "Bravo, tu as tout obtenu !"}</span></div>`);
+    })()}
   </div>`;
 }

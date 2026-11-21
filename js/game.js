@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.26.2";
+const APP_VERSION = "0.26.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -390,6 +390,7 @@ const A = {
   close() { closeModal(); },
   openAch() { modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal(); },
   setTitle(t) { S.title = t || ""; commit(); },
+  achTab(t) { UI.achTab = t; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
   chipName(_, ev) {
     const el = ev.target.closest(".need-chip"); if (!el) return;
     document.querySelectorAll(".need-chip.show").forEach(c => c !== el && c.classList.remove("show"));
