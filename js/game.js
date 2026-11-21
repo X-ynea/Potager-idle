@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.17.1";
+const APP_VERSION = "0.17.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -392,7 +392,8 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
-  const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
+  const cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0);
+  const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "openInv", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>`;
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
@@ -407,7 +408,7 @@ function views_garden() {
   </section>
   <section class="panel">
     <div class="row spread"><h2>Inventaire</h2><button class="btn ghost sm" data-act="openInv">Tout voir</button></div>
-    ${basketKeys.length ? `<div class="tiles mini">${basketKeys.slice(0, 10).map(k => tile(itemArt(k), { act: "openInv", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    ${cropKeys.length || dishKeys.length ? `${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
 }
