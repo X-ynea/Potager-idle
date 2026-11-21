@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.23.3";
+const APP_VERSION = "0.24.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -116,6 +116,41 @@ function unlockItems(L) {
   if (L === 3) out.push({ art: `<img src="assets/img/greenhouse.webp" alt="">`, name: "La Serre à hybrides", kind: "Croise tes récoltes" });
   return out;
 }
+/* ---------------- Cadeau du jour ---------------- */
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function dailyOffer() {
+  const today = dayKey();
+  S.daily = S.daily || { last: null, streak: 0, offer: null };
+  if (S.daily.last === today) return null;               // déjà récupéré aujourd'hui
+  if (S.daily.offer && S.daily.offer.day === today) return S.daily.offer;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const streak = S.daily.last === dayKey(y) ? Math.min(7, S.daily.streak + 1) : 1; // jours d'affilée (max 7)
+  const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level);
+  const seeds = {};
+  const nb = Math.random() < .5 ? 1 : 2;
+  while (Object.keys(seeds).length < Math.min(nb, pool.length)) { const k = pick(pool); if (!seeds[k]) seeds[k] = 2 + Math.floor(Math.random() * 3); }
+  const boost = 1 + (streak - 1) * .15;
+  S.daily.offer = { day: today, streak, seeds, coins: Math.round((15 + S.level * 8) * boost), xp: Math.round((5 + S.level * 2) * boost) };
+  return S.daily.offer;
+}
+function showDaily() {
+  const o = dailyOffer();
+  if (!o || !$("#modal").hidden || LEVEL_QUEUE.length) return;
+  modalView = () => `<div class="sheet levelup" role="dialog" aria-modal="true" aria-label="Cadeau du jour">
+    <div class="lv-badge daily-gift">${GIFT}</div>
+    <h2>Cadeau du jour</h2>
+    <p class="muted" style="margin:0">${o.streak > 1 ? `${o.streak} jours d’affilée : ton cadeau grossit !` : "Reviens chaque jour pour un cadeau plus gros."}</p>
+    <div class="daily-streak">${Array.from({ length: 7 }, (_, i) => `<span class="${i < o.streak ? "on" : ""}">${i + 1}</span>`).join("")}</div>
+    <div class="lv-list">
+      ${Object.entries(o.seeds).map(([k, n]) => `<div class="lv-item"><div class="lv-art">${seedArt(k)}</div><div><b>${n} graines de ${PLANTS[k].name.toLowerCase()}</b><span>Directement dans ton inventaire</span></div></div>`).join("")}
+      <div class="lv-item"><div class="lv-art"><span class="coin" style="width:100%;height:100%"></span></div><div><b class="num">${fmt(o.coins)} pièces</b><span>Pour le marché</span></div></div>
+      <div class="lv-item"><div class="lv-art"><img src="assets/img/xp-leaf.webp" alt=""></div><div><b class="num">+${o.xp} XP</b><span>Pour monter de niveau</span></div></div>
+    </div>
+    <button class="btn big" data-act="claimDaily">Récupérer</button></div>`;
+  $("#modal").innerHTML = modalView(); openModal();
+}
+const GIFT = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="10" y="26" width="44" height="32" rx="5" fill="#ff8f78"/><rect x="6" y="18" width="52" height="12" rx="4" fill="#ffa68f"/><rect x="28" y="18" width="8" height="40" fill="#f4c03e"/><path d="M32 18c-6-10-18-8-14 0zM32 18c6-10 18-8 14 0z" fill="none" stroke="#f4c03e" stroke-width="5" stroke-linecap="round"/></svg>`;
+
 function showLevelUp() {
   if (!LEVEL_QUEUE.length || !$("#modal").hidden) return;
   const levels = LEVEL_QUEUE.splice(0);
@@ -337,6 +372,15 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  claimDaily(_, ev) {
+    const o = dailyOffer(); if (!o) return closeModal();
+    for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
+    S.coins += o.coins;
+    S.daily.last = o.day; S.daily.streak = o.streak; S.daily.offer = null;
+    closeModal(); addXp(o.xp); buzz([15, 40, 15]);
+    toast(`<b>Cadeau récupéré !</b> +${fmt(o.coins)} pièces, +${o.xp} XP et des graines`);
+    commit();
+  },
   pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
@@ -850,6 +894,7 @@ function closeModal(fromBack) {
   $("#modal").hidden = true; $("#modal").innerHTML = "";
   if (!fromBack && history.state && history.state.modal) history.back();
   if (LEVEL_QUEUE.length) setTimeout(showLevelUp, 250);
+  else setTimeout(showDaily, 400);
 }
 addEventListener("popstate", () => closeModal(true));
 function toast(html, ms = 3500) {
@@ -916,6 +961,7 @@ function start() {
       nextWeed = t + rand(80, 170) * 1000;
     }
     render();
+    if (saveCount % 10 === 3) showDaily(); // nouveau jour : cadeau
     if (++saveCount % 5 === 0) save();
   }, 1000);
 }

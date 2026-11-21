@@ -560,3 +560,8 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 .db-spark { position: absolute; left: 0; top: 0; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle, #fff 0 30%, #ffd84a 60%, transparent 70%);
   transform: rotate(var(--a)) translateY(0); animation: db-spark .9s ease-out forwards; }
 @keyframes db-spark { 0% { transform: rotate(var(--a)) translateY(0) scale(.5); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-70px) scale(1); opacity: 0; } }
+/* Cadeau du jour */
+.daily-gift svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 10px rgba(255,143,120,.45)); }
+.daily-streak { display: flex; gap: 6px; justify-content: center; }
+.daily-streak span { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .8rem; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); }
+.daily-streak span.on { background: var(--leaf); border-color: var(--leaf); color: #fff; }
