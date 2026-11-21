@@ -149,7 +149,6 @@ main { display: grid; gap: 12px; padding-top: 4px; }
 .plot .gbar i { display: block; height: 100%; background: #7fe04f; border-radius: 99px; }
 .plot.dry .gbar i { background: #ffd27a; }
 .plot .gt { position: absolute; left: 2px; top: 2px; z-index: 2; font-size: .7rem; font-weight: 800; color: #fff; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 99px; font-variant-numeric: tabular-nums; }
-.plot.ripe svg.art { filter: drop-shadow(0 0 6px rgba(255,226,90,.95)); }
 .plot.ripe svg.art { animation: bob 1.8s ease-in-out infinite; transform-origin: 50% 100%; }
 .plot.dry svg.art { filter: saturate(.7); }
 @keyframes bob { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05, .97); } }
@@ -497,3 +496,6 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   main[data-tab="garden"] { min-height: calc(100dvh - 76px - var(--nav-h) - 40px); align-content: center; }
   main[data-tab="garden"] .panel { padding: 20px; gap: 16px; }
 }
+/* Prête à récolter : étoile qui rebondit, sans halo ni jauges */
+.plot.ripe .ring { display: none; }
+.plot .thirst.ready { box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #f4c03e; }
