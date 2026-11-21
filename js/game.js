@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.15.3";
+const APP_VERSION = "0.15.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -176,17 +176,6 @@ const A = {
     buzz(8);
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
     if (!S.plots.some(q => !q.seed)) { closeModal(); toast("Tous les bacs sont plantés !"); }
-    commit();
-  },
-  replantAll() {
-    const t = now(); let n = 0, cost = 0;
-    for (const p of S.plots) {
-      if (p.seed) continue;
-      const k = p.lastSeed || S.lastPick; if (!k || !seedAvailable(k) && !cnt(S.seeds, k)) continue;
-      if (!cnt(S.seeds, k)) { if (S.coins < PLANTS[k].cost) continue; S.coins -= PLANTS[k].cost; cost += PLANTS[k].cost; S.seeds[k] = 1; }
-      S.seeds[k]--; Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k }); n++;
-    }
-    toast(n ? `${n} parcelle${n > 1 ? "s" : ""} replantée${n > 1 ? "s" : ""}${cost ? ` (${fmt(cost)} pièces de graines)` : ""}.` : "Rien à replanter : il manque des graines ou des pièces.");
     commit();
   },
   harvestAll(_, ev) {
@@ -391,15 +380,13 @@ function viewSettings() {
 function views_garden() {
   const t = now();
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
-  const empty = S.plots.filter(p => !p.seed).length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const basketKeys = ORDER.filter(k => cnt(S.crops, k) > 0).concat(RORDER.filter(r => cnt(S.dishes, r) > 0));
   return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
       <button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
-      ${S.upg.hose ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
-      <button class="btn ghost" data-act="replantAll" ${empty ? "" : "disabled"}>Replanter</button>
+      ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>
     <div class="garden"><div class="plots">
