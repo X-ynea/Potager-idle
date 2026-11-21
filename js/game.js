@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.18.0";
+const APP_VERSION = "0.18.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -155,7 +155,8 @@ function genOrder() {
   // Plus un objet a été demandé récemment (ou est déjà demandé), moins il a de chances de revenir.
   const freshness = k => { if (busy.has(k)) return .05; const i = hist.lastIndexOf(k); return i < 0 ? 1 : .15 + .85 * (hist.length - 1 - i) / Math.max(1, hist.length); };
   const crops = ORDER.filter(seedAvailable);
-  const dishes = S.recipes.filter(dishFeasible);
+  // Toutes les recettes accessibles à ce niveau (apprises ou non) : ça donne envie d’acheter celles qui manquent.
+  const dishes = RORDER.filter(r => RECIPES[r].lvl <= S.level && dishFeasible(r));
   const kind = !dishes.length ? "crops" : weightedPick(["crops", "dish", "mix"], k => ({ crops: 5, dish: 3, mix: 2 })[k]);
   const items = {};
   const addCrop = () => {
@@ -327,6 +328,7 @@ const A = {
     if (i < 0) { toast("Toutes les parcelles sont occupées. Récolte d’abord !"); return; }
     closeModal(); tab = "garden"; A.plant(`${i}:${k}`);
   },
+  goRecipe(r) { UI.sel.recipes = r; A.goRecipes(); },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
   cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
   exportSave() {
@@ -654,7 +656,7 @@ function views_village() {
   const t = now();
   const cards = S.orders.map(o => { const v = VILLAGERS[o.v]; const ok = Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q); return `
     <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
-      <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<span class="chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</span>`).join("")}</div>
+      <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<span class="chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" title="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</span>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
   return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / 3</span></div>
     ${cards || `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}
