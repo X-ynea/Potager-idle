@@ -641,3 +641,6 @@ button.herb:active { transform: scale(.97); }
 /* Icônes illustrées : pièce, goutte, étoile */
 .coin { background: url("../assets/img/ui-coin.webp") center / contain no-repeat !important; box-shadow: none !important; border-radius: 0 !important; width: 1.2em; height: 1.2em; }
 .ico-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.set-row > span { display: grid; }
+.set-sub { font-size: .74rem; font-weight: 600; color: var(--muted); }
+.set-row input[type="range"] { width: 50%; accent-color: var(--leaf); }

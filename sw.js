@@ -1,6 +1,6 @@
 /* Service worker de Potager idle : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v123";
+const VERSION = "potager-v124";
 const FILES = [
   "./",
   "index.html",
@@ -9,6 +9,7 @@ const FILES = [
   "js/data.js",
   "js/art.js",
   "js/achievements.js",
+  "js/sound.js",
   "js/game.js",
   "fonts/fredoka-latin.woff2",
   "fonts/nunito-latin.woff2",
@@ -42,4 +43,13 @@ self.addEventListener("fetch", event => {
       return res;
     }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("index.html")))
   );
+});
+
+// Toucher une notification ouvre (ou ramène au premier plan) le jeu.
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) if ("focus" in c) return c.focus();
+    return self.clients.openWindow("./");
+  }));
 });

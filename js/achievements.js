@@ -82,7 +82,7 @@ function showAchToasts() {
     const name = a.name + (a.tiers.length > 1 ? " " + ROMAN[lv] : "");
     const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : ""].filter(Boolean).join(" · ");
     toast(`<span class="ach-toast">${TROPHY}<span><b>Succès : ${name}</b><br>${rew}</span></span>`, 5500);
-    buzz([10, 40, 10]);
+    buzz([10, 40, 10]); SFX.play("success");
   }
 }
 const TROPHY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10 13h4l-.5 4h-3z" fill="currentColor"/><rect x="7.5" y="17" width="9" height="3" rx="1" fill="currentColor"/></svg>`;

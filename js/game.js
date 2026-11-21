@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.26.4";
+const APP_VERSION = "0.27.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -35,7 +35,7 @@ function fresh() {
   const t = now();
   const P = () => ({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
   const s = {
-    v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true },
+    v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0 },
@@ -171,7 +171,7 @@ function showLevelUp() {
       <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy">À acheter dans Marché › Bonus · ${coin}${fmt(it.buy)}</span>` : ""}</div></div>`).join("")}</div>`
       : `<p class="muted" style="margin:0">Ta main verte s’affirme. Continue comme ça !</p>`}
     <button class="btn big" data-act="close">Super !</button></div>`;
-  $("#modal").innerHTML = modalView(); openModal(); buzz([15, 50, 15]);
+  $("#modal").innerHTML = modalView(); openModal(); buzz([15, 50, 15]); SFX.play("level");
 }
 function unlocksAt(L) {
   const out = [];
@@ -184,6 +184,7 @@ function unlocksAt(L) {
 }
 function earn(n, x, y, xp, cls) {
   n = Math.round(n * coinMult());
+  if (n > 0) SFX.play("coin");
   S.coins += n;
   if (xp) addXp(xp);
   if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, cls || true);
@@ -272,9 +273,9 @@ const A = {
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
     if (st === "empty") return openPicker(+i);
-    if (st === "weed") { p.weed = false; S.stats.weeds++; earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
+    if (st === "weed") { p.weed = false; S.stats.weeds++; SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
     else if (st === "ripe") harvest(+i, x, y);
-    else { p.waterUntil = t + waterMs(); floatText("Arrosé !", x, y); }
+    else { p.waterUntil = t + waterMs(); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
   },
   plant(arg, ev) {
@@ -288,7 +289,7 @@ const A = {
     Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
     S.lastPick = k; PICK.plot = null;
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
-    buzz(8);
+    buzz(8); SFX.play("plant");
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
     if (!S.plots.some(q => !q.seed)) { closeModal(); toast("Tous les bacs sont plantés !"); }
     commit();
@@ -302,12 +303,13 @@ const A = {
   snailsAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) if (plotState(p, t) === "weed") { p.weed = false; S.stats.weeds++; n++; }
-    if (n) { const { x, y } = pos(ev); earn(n, x, y, 2 * n); toast(n > 1 ? `${n} escargots délogés. Les plantes repartent.` : "Escargot délogé. La plante repart."); }
+    if (n) { SFX.play("snail"); const { x, y } = pos(ev); earn(n, x, y, 2 * n); toast(n > 1 ? `${n} escargots délogés. Les plantes repartent.` : "Escargot délogé. La plante repart."); }
     commit();
   },
   waterAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) { const st = plotState(p, t); if (st === "dry" || st === "growing") { p.waterUntil = t + waterMs(); n++; } }
+    if (n) SFX.play("water");
     const { x, y } = pos(ev); floatText(n ? "Tout est arrosé !" : "Rien à arroser", x, y); commit();
   },
   msub(arg) { msub = arg; render(true); },
@@ -339,7 +341,7 @@ const A = {
   },
   serve(i, ev) {
     const c = S.cooking[+i]; if (!c || c.end > now()) return;
-    S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
+    SFX.play("cook"); S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
     const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
   },
   labPick(k) {
@@ -410,6 +412,16 @@ const A = {
   pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
+  toggleSound() { S.settings.sound = !S.settings.sound; commit(); SFX.play("success"); },
+  setVolume(v) { S.settings.volume = +v; SFX.play("coin"); save(); },
+  async toggleNotif() {
+    if (S.settings.notif) { S.settings.notif = false; return commit(); }
+    const r = await NOTIF.enable();
+    if (r === "granted") { S.settings.notif = true; toast("Notifications activées."); }
+    else if (r === "unsupported") toast("Ton navigateur ne permet pas les notifications.");
+    else toast("Notifications refusées. Tu peux les autoriser dans les réglages du navigateur.");
+    commit();
+  },
   toggleVibrate() { S.settings.vibrate = !S.settings.vibrate; if (S.settings.vibrate) buzz(15); commit(); },
   async checkUpdate() {
     const reg = await navigator.serviceWorker?.getRegistration?.().catch(() => null);
@@ -472,7 +484,7 @@ function harvest(i, x, y) {
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
-  buzz(n > 1 ? [15, 50, 15, 50, 30] : 12);
+  buzz(n > 1 ? [15, 50, 15, 50, 30] : 12); SFX.play(n > 1 ? "double" : "harvest");
   if (n > 1) { doubleBurst(i, k); toast(`<b>Récolte double !</b> 2 × ${d.name.toLowerCase()}`); }
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
 }
@@ -524,7 +536,11 @@ function viewSettings() {
       <p class="small muted" style="margin:0">« Auto » suit le réglage de ton téléphone. Le jardin reste ensoleillé dans tous les cas.</p>
     </div>
     <div class="set-group"><h3>Confort</h3>
+      <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
+      ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
+      <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
+      ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
     </div>
     <div class="set-group"><h3>Sauvegarde</h3>
       <div class="save-status"><span class="ok-dot"></span><div><b>Partie sauvegardée</b><span>${savedAgo()} · sur cet appareil</span></div></div>
@@ -575,6 +591,24 @@ function views_garden() {
     ${cropKeys.length || dishKeys.length || seedKeys.length ? `${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
+}
+/* Notifications : on prévient quand quelque chose change pendant que le jeu est en arrière-plan. */
+let notifPrev = null;
+function watchNotifs(t) {
+  const snap = {
+    ripe: S.plots.filter(p => plotState(p, t) === "ripe").length,
+    dry: S.plots.filter(p => plotState(p, t) === "dry").length,
+    weed: S.plots.filter(p => plotState(p, t) === "weed").length,
+    cook: S.cooking.filter(c => c.end <= t).length,
+    lab: S.lab && S.lab.end <= t ? 1 : 0,
+  };
+  const p = notifPrev; notifPrev = snap;
+  if (!p || !document.hidden) return;
+  if (snap.ripe > p.ripe) NOTIF.show("ripe", "Récolte prête !", snap.ripe > 1 ? `${snap.ripe} plantes t’attendent au potager.` : "Une plante t’attend au potager.");
+  if (snap.dry > p.dry) NOTIF.show("dry", "Tes plantes ont soif", snap.dry > 1 ? `${snap.dry} bacs à arroser.` : "Un bac à arroser.");
+  if (snap.weed > p.weed) NOTIF.show("weed", "Un escargot !", "Il bloque une plante. Viens le déloger.");
+  if (snap.cook > p.cook) NOTIF.show("cook", "C’est prêt !", "Un plat t’attend en cuisine.");
+  if (snap.lab > p.lab) NOTIF.show("lab", "Croisement terminé", "Viens voir ce qui a poussé dans la serre…");
 }
 function ringValues(p, st, t) {
   const grow = Math.min(1, p.grown / (PLANTS[p.seed].time * 1000));
@@ -951,7 +985,7 @@ function openReveal(h, isNew) {
     <div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / speed()))}${mi("Vente", `${fmt(d.sell)}`)}${mi("XP récolte", "+" + d.xp)}</div>
     ${uses.length ? `<p class="small muted" style="margin:0">Sert pour : ${uses.join(", ")}</p>` : ""}
     <button class="btn big" data-act="close">Super !</button></div>`;
-  $("#modal").innerHTML = modalView(); openModal(); if (isNew) buzz([20, 60, 20, 60, 40]);
+  $("#modal").innerHTML = modalView(); openModal(); SFX.play(isNew ? "discover" : "success"); if (isNew) buzz([20, 60, 20, 60, 40]);
 }
 // Le bouton retour d’Android ferme la fenêtre au lieu de quitter l’appli.
 function openModal() {
@@ -989,7 +1023,7 @@ function spawnButterfly() {
   if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
-    ev.stopPropagation(); el.remove(); S.stats.butterflies++;
+    ev.stopPropagation(); el.remove(); S.stats.butterflies++; SFX.play("butterfly");
     const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
     toast(`Papillon attrapé ! <b>+${gain} pièces · +3 XP</b>`); commit();
   });
@@ -1003,6 +1037,9 @@ document.addEventListener("click", ev => {
   if (!el) { if (ev.target.id === "modal") closeModal(); return; }
   if (el.disabled) return;
   const fn = A[el.dataset.act]; if (fn) fn(el.dataset.arg, ev);
+});
+document.addEventListener("change", ev => {
+  const el = ev.target.closest("[data-input]"); if (el && A[el.dataset.input]) A[el.dataset.input](el.value, ev);
 });
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#modal").hidden) closeModal(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
@@ -1035,6 +1072,7 @@ function start() {
     }
     render();
     checkAch();
+    watchNotifs(t);
     if (saveCount % 10 === 3) showDaily(); // nouveau jour : cadeau
     if (++saveCount % 5 === 0) save();
   }, 1000);
