@@ -281,7 +281,7 @@ function face(cx, cy, s) {
     `<circle cx="${cx - s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/><circle cx="${cx + s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/>`;
 }
 /* Nombre de voisins qui ont déjà leur portrait illustré (les suivants ont un dessin simple). */
-const VILLAGER_IMAGES = 6;
+const VILLAGER_IMAGES = 8;
 function avatar(v) {
   const i = VILLAGERS.indexOf(v);
   if (i >= 0 && i < VILLAGER_IMAGES) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;
