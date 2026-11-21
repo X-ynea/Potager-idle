@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.25.0";
+const APP_VERSION = "0.25.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -885,12 +885,23 @@ function viewPicker() {
 }
 function openReveal(h, isNew) {
   const d = PLANTS[h];
-  $("#modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Résultat du croisement" style="justify-items:center;text-align:center">
-    <div class="reveal-art">${plantArt(h, 3)}</div>
-    <h2>${isNew ? "Nouvelle variété : " : ""}${d.name}</h2>
-    <p class="muted" style="margin:0">${isNew ? `Tu as découvert un hybride ! 2 graines t’attendent, +25 XP, et ses graines sont maintenant vendues au marché.` : `Encore un joli croisement : +2 graines de ${d.name.toLowerCase()}.`}<br>Pousse en ${dur(d.time * 1000)} · se vend ${fmt(d.sell)} pièces.</p>
-    <button class="btn" data-act="close">Super !</button></div>`;
-  openModal();
+  const [pa, pb] = d.parents;
+  const uses = RORDER.filter(r => RECIPES[r].need[h]).map(r => RECIPES[r].name);
+  modalView = () => `<div class="sheet reveal${isNew ? " new" : ""}" role="dialog" aria-modal="true" aria-label="Résultat du croisement">
+    ${isNew ? `<span class="lv-tag">Nouvelle variété</span>` : `<span class="rv-tag">Croisement réussi</span>`}
+    <div class="rv-stage"><div class="rv-glow"></div><div class="reveal-art">${plantArt(h, 3)}</div></div>
+    <h2>${d.name}</h2>
+    <div class="rv-cross"><span>${cropArt(pa)}${PLANTS[pa].name}</span><b>+</b><span>${cropArt(pb)}${PLANTS[pb].name}</span></div>
+    <p class="rv-desc">«&nbsp;${d.desc}&nbsp;»</p>
+    <div class="rv-rewards">
+      <div class="rv-reward"><div class="lv-art">${seedArt(h)}</div><b class="num">+2</b><span>graines</span></div>
+      <div class="rv-reward"><div class="lv-art"><img src="assets/img/xp-leaf.webp" alt=""></div><b class="num">+${isNew ? 25 : 6}</b><span>XP</span></div>
+      ${isNew ? `<div class="rv-reward"><div class="lv-art rv-shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z" fill="currentColor"/><path d="M5 13v7h14v-7" stroke="currentColor" stroke-width="2" fill="none"/></svg></div><b>Marché</b><span>graines en vente</span></div>` : ""}
+    </div>
+    <div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / speed()))}${mi("Vente", `${fmt(d.sell)}`)}${mi("XP récolte", "+" + d.xp)}</div>
+    ${uses.length ? `<p class="small muted" style="margin:0">Sert pour : ${uses.join(", ")}</p>` : ""}
+    <button class="btn big" data-act="close">Super !</button></div>`;
+  $("#modal").innerHTML = modalView(); openModal(); if (isNew) buzz([20, 60, 20, 60, 40]);
 }
 // Le bouton retour d’Android ferme la fenêtre au lieu de quitter l’appli.
 function openModal() {
