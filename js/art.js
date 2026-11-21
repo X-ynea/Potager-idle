@@ -1,5 +1,5 @@
 "use strict";
-/* Dessins SVG de potager-idle.
+/* Dessins SVG de Potager idle.
    Style « volume doux » : dégradés pour le relief, lumière venant du haut à gauche,
    ombre de contact au pied des plantes. Pas de visage sur les légumes. */
 

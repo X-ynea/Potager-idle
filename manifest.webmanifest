@@ -1,6 +1,6 @@
 {
-  "name": "potager-idle",
-  "short_name": "potager-idle",
+  "name": "Potager idle",
+  "short_name": "Potager idle",
   "description": "Un petit jeu idle de potager : plante, arrose, récolte, cuisine et découvre des variétés hybrides.",
   "lang": "fr",
   "id": "./",
@@ -8,7 +8,7 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f2f9e6",
+  "background_color": "#d6ecbe",
   "theme_color": "#3fae49",
   "categories": ["games", "entertainment"],
   "icons": [
