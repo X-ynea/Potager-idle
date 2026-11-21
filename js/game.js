@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.1";
+const APP_VERSION = "0.16.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -626,18 +626,32 @@ function sig(t) {
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < 3]);
   }
 }
+/* Remplace les enfants de « live » par ceux de « fresh », sauf « keep » qui reste en place. */
+function swapAround(live, fresh, keep, freshKeep) {
+  [...live.childNodes].forEach(n => { if (n !== keep) n.remove(); });
+  let after = false;
+  for (const n of [...fresh.childNodes]) {
+    if (n === freshKeep) { after = true; continue; }
+    if (after) live.appendChild(n); else live.insertBefore(n, keep);
+  }
+}
 function render(force) {
   const t = now();
   const s = sig(t);
   if (force || s !== lastSig) {
     // Le jardin garde ses parcelles existantes : seules celles qui changent sont redessinées,
     // pour que les anneaux et le halo ne repartent pas de zéro à chaque action.
-    const oldGarden = tab === "garden" ? $("#view .garden") : null;
     $("#view").dataset.tab = tab;
-    $("#view").innerHTML = VIEWS[tab]();
-    if (oldGarden) {
-      const fresh = $("#view .garden");
-      if (fresh && fresh.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) fresh.replaceWith(oldGarden);
+    const oldGarden = tab === "garden" ? $("#view .garden") : null;
+    const tmp = document.createElement("div"); tmp.innerHTML = VIEWS[tab]();
+    const freshGarden = tmp.querySelector(".garden");
+    if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
+      // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
+      // repartent de zéro. On remplace seulement ce qui l'entoure.
+      swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);
+      swapAround($("#view"), tmp, oldGarden.parentElement, freshGarden.parentElement);
+    } else {
+      $("#view").replaceChildren(...tmp.childNodes);
     }
     lastSig = s;
     if (modalView && !$("#modal").hidden) {
