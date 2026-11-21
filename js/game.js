@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.18.1";
+const APP_VERSION = "0.19.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -53,6 +53,18 @@ function load() {
   return null;
 }
 function migrate(s) {
+  // Hybrides remplacés (0.19.0) : on convertit graines, récoltes, découvertes et parcelles.
+  const HYB_MAP = { rubis: "coeur", basilomate: "lanterne", bledor: "azur", citrouillotte: "amethyste" };
+  const DISH_MAP = { confiture: "gnocchis", pesto: "lanterne_soupe" };
+  const remap = (bag, map) => { if (!bag) return; for (const [o, n] of Object.entries(map)) if (bag[o]) { bag[n] = (bag[n] || 0) + bag[o]; delete bag[o]; } };
+  remap(s.seeds, HYB_MAP); remap(s.crops, HYB_MAP); remap(s.dishes, DISH_MAP);
+  if (s.hybrids) s.hybrids = [...new Set(s.hybrids.map(k => HYB_MAP[k] || k))];
+  if (s.discovered) s.discovered = [...new Set(s.discovered.map(k => HYB_MAP[k] || k))];
+  if (s.recipes) s.recipes = [...new Set(s.recipes.map(r => DISH_MAP[r] || r))];
+  for (const p of s.plots || []) { if (HYB_MAP[p.seed]) p.seed = HYB_MAP[p.seed]; if (HYB_MAP[p.lastSeed]) p.lastSeed = HYB_MAP[p.lastSeed]; }
+  if (s.cooking) for (const c of s.cooking) if (DISH_MAP[c.r]) c.r = DISH_MAP[c.r];
+  if (s.lab) { if (HYB_MAP[s.lab.a]) s.lab.a = HYB_MAP[s.lab.a]; if (HYB_MAP[s.lab.b]) s.lab.b = HYB_MAP[s.lab.b]; }
+  if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (s.upg && !s.upgBought017) { s.upg.basket = 0; s.upg.gloves = 0; s.upgBought017 = true; }
   const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
