@@ -503,6 +503,6 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 /* Escargot : bulle d'alerte rouge, comme la goutte et l'étoile */
 .plot .thirst.pest-alert { box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #e2473b; padding: 3%; }
 .plot .thirst.pest-alert img { width: 100%; height: 100%; object-fit: contain; }
-/* Escargot dans le bac : contour blanc façon autocollant (plus de halo rouge) */
-.pest.snail { animation: none; filter: drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff) drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+/* Escargot dans le bac : simple ombre portée, sans halo */
+.pest.snail { animation: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 .plot .thirst.pest-alert { padding: 4%; }
