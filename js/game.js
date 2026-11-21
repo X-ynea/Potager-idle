@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.14.7";
+const APP_VERSION = "0.14.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -756,7 +756,8 @@ function spawnButterfly() {
   const el = document.createElement("button");
   el.className = "butterfly"; el.setAttribute("aria-label", "Attraper le papillon");
   el.style.top = rand(22, 70) + "vh"; el.style.left = "0";
-  if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux el.style.animationDuration = rand(11, 16) + "s";
+  el.style.animationDuration = rand(11, 16) + "s";
+  if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf"><img src="assets/img/ui-butterfly.webp" alt=""></span>`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
