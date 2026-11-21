@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.21.0";
+const APP_VERSION = "0.21.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -85,6 +85,7 @@ function tick(t) {
     }
     p.last = t;
   }
+  S.orders = S.orders.filter(o => Object.keys(o.items).every(k => (PLANTS[k] || RECIPES[k]) && knownItem(k)));
   if (S.orders.length < 3 && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
 }
 function plotState(p, t) {
@@ -151,8 +152,10 @@ const ORDER_LINES = [
   "Tu aurais ça pour moi ?", "J’en rêve depuis ce matin !", "C’est pour un repas entre voisins.",
   "Je te paierai bien, promis !", "Mon panier est tout vide…", "Une petite douceur pour aujourd’hui ?",
 ];
+/* Un hybride encore inconnu ne doit jamais apparaître (pas de spoiler), même via une recette. */
+const knownItem = k => PLANTS[k] ? (!PLANTS[k].hybrid || S.hybrids.includes(k)) : Object.keys(RECIPES[k].need).every(knownItem);
 function dishFeasible(r) {
-  return Object.keys(RECIPES[r].need).every(k => seedAvailable(k) || cnt(S.crops, k) > 0);
+  return knownItem(r) && Object.keys(RECIPES[r].need).every(k => seedAvailable(k) || cnt(S.crops, k) > 0);
 }
 function weightedPick(items, weight) {
   const w = items.map(weight), tot = w.reduce((a, b) => a + b, 0);
