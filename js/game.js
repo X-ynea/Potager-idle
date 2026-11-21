@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.25.1";
+const APP_VERSION = "0.25.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -372,6 +372,7 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  plantInfo(k) { openPlantInfo(k); },
   claimDaily(_, ev) {
     const o = dailyOffer(); if (!o) return closeModal();
     for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
@@ -735,7 +736,7 @@ function views_lab() {
   const t = now();
   const isKnown = k => S.discovered.includes(k) || S.hybrids.includes(k);
   const herbCard = k => { const d = PLANTS[k], known = isKnown(k); return `
-      <div class="herb ${known ? "" : "unknown"}">${plantArt(k, 3)}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></div>`; };
+      <button class="herb ${known ? "" : "unknown"}" data-act="plantInfo" data-arg="${k}" aria-label="${known || !d.hybrid ? d.name : "Variété mystère"}">${cropArt(k)}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></button>`; };
   const baseK = ORDER.filter(k => !PLANTS[k].hybrid), hybK = ORDER.filter(k => PLANTS[k].hybrid);
   const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length}</span></div>
     <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
@@ -882,6 +883,26 @@ function viewPicker() {
     <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
       <div class="item">${seedArt(k)}<div class="t"><b>${d.name}</b><span>${dur(d.time * 1000 / speed())} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
+}
+/* Fiche d'une plante depuis l'herbier. */
+function openPlantInfo(k) {
+  const d = PLANTS[k];
+  const known = S.discovered.includes(k) || S.hybrids.includes(k);
+  const uses = RORDER.filter(r => RECIPES[r].need[k]);
+  const usedIn = ORDER.filter(h => PLANTS[h].hybrid && PLANTS[h].parents.includes(k) && S.hybrids.includes(h));
+  const title = known || !d.hybrid ? d.name : "Variété mystère";
+  const desc = known ? d.desc : d.hybrid ? `Indice : ${d.hint}` : `Une plante encore jamais récoltée. Ses graines se débloquent au niveau ${d.lvl}.`;
+  modalView = () => `<div class="sheet reveal info" role="dialog" aria-modal="true" aria-label="${title}">
+    <span class="rv-tag">${d.hybrid ? "Hybride" : "Plante"}${known ? "" : " · à découvrir"}</span>
+    <div class="rv-stage"><div class="rv-glow"></div><div class="reveal-art${known ? "" : " sil"}">${cropArt(k)}</div></div>
+    <h2>${title}</h2>
+    ${d.hybrid && known ? `<div class="rv-cross"><span>${cropArt(d.parents[0])}${PLANTS[d.parents[0]].name}</span><b>+</b><span>${cropArt(d.parents[1])}${PLANTS[d.parents[1]].name}</span></div>` : ""}
+    <p class="rv-desc">${known ? `«&nbsp;${desc}&nbsp;»` : desc}</p>
+    ${known ? `<div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / speed()))}${mi("Vente", fmt(d.sell))}${mi("XP récolte", "+" + d.xp)}${mi("En stock", fmt(cnt(S.crops, k)))}</div>` : ""}
+    ${known && uses.length ? `<div class="hi-uses"><h4>Recettes</h4><div class="basket">${uses.map(r => `<span class="chip">${dishArt(r)}${RECIPES[r].name}</span>`).join("")}</div></div>` : ""}
+    ${known && usedIn.length ? `<div class="hi-uses"><h4>Hybrides obtenus</h4><div class="basket">${usedIn.map(h => `<span class="chip">${cropArt(h)}${PLANTS[h].name}</span>`).join("")}</div></div>` : ""}
+    <button class="btn big ghost" data-act="close">Fermer</button></div>`;
+  $("#modal").innerHTML = modalView(); openModal();
 }
 function openReveal(h, isNew) {
   const d = PLANTS[h];

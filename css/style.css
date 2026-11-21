@@ -589,3 +589,15 @@ main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
 .rv-desc { text-wrap: balance; }
 .rv-shop { color: var(--leaf-deep); }
 .rv-shop svg { width: 100%; height: 100%; }
+/* Herbier : icônes cliquables et fiche de plante */
+button.herb { font: inherit; color: inherit; cursor: pointer; }
+button.herb:active { transform: scale(.97); }
+.herb svg { width: 54px; height: 54px; }
+.herb.unknown svg { filter: brightness(0) opacity(.18); }
+.sheet.info .reveal-art { width: 120px; height: 120px; }
+.sheet.info .rv-stage { width: 140px; height: 140px; margin-top: 8px; }
+.sheet.info .rv-glow { background: radial-gradient(circle, rgba(160,220,130,.5), rgba(160,220,130,0) 68%); }
+.reveal-art.sil svg { filter: brightness(0) opacity(.2); }
+.hi-uses { width: 100%; max-width: 420px; display: grid; gap: 6px; text-align: left; }
+.hi-uses h4 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
+.hi-uses .chip svg { width: 30px; height: 30px; }
