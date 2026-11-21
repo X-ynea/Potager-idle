@@ -439,3 +439,17 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .plot.dry .ring .ring-bg:first-child { stroke: #a9d4f2; animation: none; }
 .plot.ripe .ring-ico { box-shadow: none; }
 .plot.ripe .ring::before { box-shadow: 0 0 0 2px #ffd94a, 0 0 12px rgba(255,217,74,.9); }
+/* Fenêtre de montée de niveau */
+.sheet.levelup { justify-items: center; text-align: center; }
+.lv-badge { position: relative; width: 96px; height: 96px; animation: lv-pop .5s cubic-bezier(.2,1.6,.4,1); }
+.lv-badge img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(244,192,62,.6)); }
+.lv-badge span { position: absolute; right: -4px; bottom: 2px; min-width: 34px; height: 34px; padding: 0 6px; border-radius: 99px; background: var(--leaf); color: #fff; font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; display: grid; place-items: center; box-shadow: 0 0 0 3px var(--panel); }
+@keyframes lv-pop { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+.sheet.levelup h2 { font-size: 1.5rem; color: var(--leaf-deep); }
+.lv-list { display: grid; gap: 8px; width: 100%; max-width: 420px; text-align: left; }
+.lv-item { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 12px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px 8px 8px; }
+.lv-item b { display: block; font-family: var(--f-display); font-weight: 600; }
+.lv-item span { font-size: .8rem; color: var(--muted); }
+.lv-art { width: 52px; height: 52px; }
+.lv-art svg, .lv-art img { width: 100%; height: 100%; object-fit: contain; }
+.sheet.levelup .btn.big { width: 100%; max-width: 420px; }
