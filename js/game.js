@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.16.7";
+const APP_VERSION = "0.16.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -773,7 +773,7 @@ function spawnButterfly() {
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++;
     const gain = 4 + S.level * 3; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
-    toast(`Papillon attrapé ! <b>+${gain} pièces</b>`); commit();
+    toast(`Papillon attrapé ! <b>+${gain} pièces · +3 XP</b>`); commit();
   });
   el.addEventListener("animationend", () => el.remove());
   $("#fx").appendChild(el);
