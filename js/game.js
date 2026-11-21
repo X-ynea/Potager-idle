@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.25.4";
+const APP_VERSION = "0.26.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -80,11 +80,16 @@ function tick(t) {
       if (p.grown < need && !p.weed) {
         const end = S.upg.auto ? t : Math.min(t, p.waterUntil);
         const d = end - p.last;
+        const g0 = p.grown;
         if (d > 0) p.grown = Math.min(need, p.grown + d * sp);
+        if (g0 < need && p.grown >= need) p.ripeAt = p.last + (need - g0) / sp; // moment où la plante a mûri
+        if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
       }
     }
     p.last = t;
   }
+  if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
+  S.stats.maxCoins = Math.max(st("maxCoins"), S.coins);
   S.orders = S.orders.filter(o => Object.keys(o.items).every(k => (PLANTS[k] || RECIPES[k]) && knownItem(k)));
   if (S.orders.length < 3 && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
 }
@@ -98,6 +103,7 @@ function plotState(p, t) {
 function plotStage(p) { const f = p.grown / (PLANTS[p.seed].time * 1000); return f >= 1 ? 3 : f >= .55 ? 2 : f >= .2 ? 1 : 0; }
 
 function addXp(n) {
+  n = Math.round(n * xpMult());
   S.xp += n;
   while (S.xp >= xpNeed(S.level)) {
     S.xp -= xpNeed(S.level); S.level++;
@@ -177,6 +183,7 @@ function unlocksAt(L) {
   return out;
 }
 function earn(n, x, y, xp, cls) {
+  n = Math.round(n * coinMult());
   S.coins += n;
   if (xp) addXp(xp);
   if (x != null) floatText(`+${fmt(n)}${xp ? ` · +${xp} XP` : ""}`, x, y, cls || true);
@@ -278,7 +285,7 @@ const A = {
     if (!p || p.seed) return;
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
-    Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k });
+    Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
     S.lastPick = k; PICK.plot = null;
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
     buzz(8);
@@ -311,6 +318,7 @@ const A = {
   },
   sellCrops(_, ev) {
     let tot = 0; for (const k in S.crops) { tot += S.crops[k] * PLANTS[k].sell; S.crops[k] = 0; }
+    if (tot >= 1000) S.stats.bigSale = 1;
     if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
@@ -327,11 +335,11 @@ const A = {
     const d = RECIPES[r]; if (S.cooking.length >= stoves()) return;
     for (const k in d.need) if (cnt(S.crops, k) < d.need[k]) return;
     for (const k in d.need) S.crops[k] -= d.need[k];
-    S.cooking.push({ r, end: now() + d.time * 1000 }); commit();
+    S.cooking.push({ r, end: now() + d.time * 1000 * cookMult() }); commit();
   },
   serve(i, ev) {
     const c = S.cooking[+i]; if (!c || c.end > now()) return;
-    S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++;
+    S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
     const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
   },
   labPick(k) {
@@ -351,7 +359,7 @@ const A = {
     S.crops[a]--; S.crops[b]--; S.lab = { a, b, end: now() + LAB_TIME * 1000 }; labSel = [null, null]; commit();
   },
   labCollect() {
-    const L = S.lab; if (!L || L.end > now()) return; S.lab = null;
+    const L = S.lab; if (!L || L.end > now()) return; S.lab = null; S.stats.crosses = st("crosses") + 1;
     const h = HYBRID_BY_PAIR[pairKey(L.a, L.b)];
     if (h) {
       S.seeds[h] = cnt(S.seeds, h) + 2;
@@ -372,6 +380,7 @@ const A = {
     for (const k in o.items) if (cnt(itemBag(k), k) < o.items[k]) return;
     for (const k in o.items) itemBag(k)[k] -= o.items[k];
     S.orders = S.orders.filter(x => x !== o); S.stats.orders++;
+    S.stats.served = [...new Set([...(S.stats.served || []), o.v])]; if (o.coins >= 500) S.stats.bigOrder = 1;
     const { x, y } = pos(ev); earn(o.coins, x, y, o.xp);
     toast(`${VILLAGERS[o.v].name} te remercie chaleureusement !`);
     if (S.orders.length < 3) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
@@ -379,6 +388,8 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  openAch() { modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal(); },
+  setTitle(t) { S.title = t || ""; commit(); },
   chipName(_, ev) {
     const el = ev.target.closest(".need-chip"); if (!el) return;
     document.querySelectorAll(".need-chip.show").forEach(c => c !== el && c.classList.remove("show"));
@@ -390,7 +401,7 @@ const A = {
     const o = dailyOffer(); if (!o) return closeModal();
     for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
     S.coins += o.coins;
-    S.daily.last = o.day; S.daily.streak = o.streak; S.daily.offer = null;
+    S.daily.last = o.day; S.daily.streak = o.streak; S.daily.offer = null; S.stats.bestStreak = Math.max(st("bestStreak"), o.streak);
     closeModal(); addXp(o.xp); buzz([15, 40, 15]);
     toast(`<b>Cadeau récupéré !</b> +${fmt(o.coins)} pièces, +${o.xp} XP et des graines`);
     commit();
@@ -453,9 +464,13 @@ function harvest(i, x, y) {
   const p = S.plots[i], k = p.seed, d = PLANTS[k];
   const n = Math.random() < .08 ? 2 : 1;
   S.crops[k] = cnt(S.crops, k) + n; S.stats.harvest++;
+  if (n > 1) S.stats.doubles = st("doubles") + 1;
+  if (!p.wasDry) S.stats.neverDry = st("neverDry") + 1;
+  const hr = new Date().getHours(); if (hr < 8) S.stats.early = 1; if (hr >= 22) S.stats.night = 1;
+  if (p.ripeAt && now() - p.ripeAt > 24 * 3600000) S.stats.patience = 1;
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
-  Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k });
+  Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
   buzz(n > 1 ? [15, 50, 15, 50, 30] : 12);
   if (n > 1) { doubleBurst(i, k); toast(`<b>Récolte double !</b> 2 × ${d.name.toLowerCase()}`); }
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
@@ -835,7 +850,7 @@ function render(force) {
 }
 function live(t) {
   $("#coins").textContent = fmt(S.coins);
-  $("#lvl").textContent = "Niveau " + S.level;
+  $("#lvl").innerHTML = "Niveau " + S.level + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
@@ -1003,6 +1018,7 @@ function start() {
   const before = S.plots.filter(p => plotState(p, t - away) === "ripe").length;
   tick(t);
   const ready = S.plots.filter(p => plotState(p, t) === "ripe").length;
+  if (away > 8 * 3600000 && loaded) S.stats.comeback = 1;
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
   else if (!loaded) toast("Bienvenue dans <b>Potager idle</b> ! Ton premier radis est prêt : touche-le pour le récolter.", 6000);
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
@@ -1017,6 +1033,7 @@ function start() {
       nextWeed = t + rand(80, 170) * 1000;
     }
     render();
+    checkAch();
     if (saveCount % 10 === 3) showDaily(); // nouveau jour : cadeau
     if (++saveCount % 5 === 0) save();
   }, 1000);
