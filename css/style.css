@@ -487,3 +487,6 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 /* Goutte : cercle serré, centré à la même hauteur que la pastille du légume */
 .plot .thirst { width: 24%; top: calc(1px + 7%); right: 1px; padding: 2.5%; box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 2px #3f9bdc; }
 .plot svg.art.ripe { left: 14%; width: 72%; height: 72%; bottom: 22%; }
+/* Pousses et jeunes plants : la tige part du milieu du bac */
+.plot svg.art.sprout { left: 29%; width: 42%; height: 42%; bottom: 40%; }
+.plot svg.art.young { left: 20%; width: 60%; height: 60%; bottom: 34%; }
