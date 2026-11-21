@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.17.0";
+const APP_VERSION = "0.17.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -53,8 +53,8 @@ function load() {
   return null;
 }
 function migrate(s) {
-  // Parties commencées avant l'arrivée du panier et des gants : on les offre pour ne pas retirer des boutons déjà utilisés.
-  if (s.upg && !("basket" in s.upg)) { s.upg.basket = s.level >= 2 ? 1 : 0; s.upg.gloves = s.level >= 4 ? 1 : 0; }
+  // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
+  if (s.upg && !s.upgBought017) { s.upg.basket = 0; s.upg.gloves = 0; s.upgBought017 = true; }
   const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 let lastSaveAt = 0;
 function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); lastSaveAt = S.last; } catch (e) {} }
@@ -209,7 +209,8 @@ const A = {
     if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
-  buyUpg(u) { const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> ${UPG[u].steps.length > 1 ? "amélioré" : "acheté"} !`); commit(); },
+  buyUpg(u) {
+    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> ${UPG[u].steps.length > 1 ? "amélioré" : "acheté"} !`); commit(); },
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
