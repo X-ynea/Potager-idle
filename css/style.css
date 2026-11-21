@@ -475,3 +475,5 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .xpbar { order: 2; }
   .lvl-top span { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
 }
+.lv-item .lv-buy { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: .74rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 1px 8px; }
+.lv-item > div:last-child { display: grid; justify-items: start; }

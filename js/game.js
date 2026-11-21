@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.14.4";
+const APP_VERSION = "0.14.5";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -95,8 +95,8 @@ function unlockItems(L) {
   const out = [];
   for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push({ art: seedArt(k), name: PLANTS[k].name, kind: "Nouvelle graine au marché" });
   for (const r of RORDER) if (RECIPES[r].lvl === L) out.push({ art: dishArt(r), name: RECIPES[r].name, kind: "Nouvelle recette au marché" });
-  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/upg-${u}.webp" alt="">`, name: UPG[u].name, kind: `Amélioration : ${UPG[u].desc(UPG[u].values[i + 1])}` }); }
-  if (PLOT_STEPS.some(s => s.lvl === L)) out.push({ art: `<img src="assets/img/upg-plot.webp" alt="">`, name: "Nouvelle parcelle", kind: "À acheter dans Marché › Bonus" });
+  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/upg-${u}.webp" alt="">`, name: UPG[u].name, kind: `${UPG[u].desc(UPG[u].values[i + 1])}`, buy: UPG[u].steps[i].cost }); }
+  PLOT_STEPS.forEach(s => { if (s.lvl === L) out.push({ art: `<img src="assets/img/upg-plot.webp" alt="">`, name: "Nouvelle parcelle", kind: "Un bac de plus dans le jardin", buy: s.cost }); });
   if (L === 3) out.push({ art: `<img src="assets/img/greenhouse.webp" alt="">`, name: "La Serre à hybrides", kind: "Croise tes récoltes" });
   return out;
 }
@@ -111,7 +111,7 @@ function showLevelUp() {
     <div class="lv-badge"><img src="assets/img/xp-leaf.webp" alt=""><span class="num">${L}</span></div>
     <h2>Niveau ${L} !</h2>
     ${items.length ? `<p class="muted" style="margin:0">Tu as maintenant accès à :</p>
-      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span></div></div>`).join("")}</div>`
+      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy">À acheter dans Marché › Bonus · ${coin}${fmt(it.buy)}</span>` : ""}</div></div>`).join("")}</div>`
       : `<p class="muted" style="margin:0">Ta main verte s’affirme. Continue comme ça !</p>`}
     <button class="btn big" data-act="close">Super !</button></div>`;
   $("#modal").innerHTML = modalView(); openModal(); buzz([15, 50, 15]);
