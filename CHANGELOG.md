@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 2.1.0
+
+- 4 nouveaux succès de saison : « Le tour de l’année » (jouer pendant les 4 saisons), « Amis de passage » (livrer chacun des 4 voisins de saison), « Cuisine de saison » (cuisiner les 8 recettes de saison) et « Carnet d’observation » (attraper papillon, libellule, coccinelle et rouge-gorge).
+
 ## Version 2.0.1
 
 - 3 nouveaux succès dorés : « Ruée vers l’or » (10 puis 50 légumes dorés récoltés au total), « Trésor de saison » (une récolte dorée d’une plante de chaque saison) et « Tout l’or du jardin » (les 28 plantes en version dorée).

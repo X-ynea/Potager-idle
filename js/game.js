@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.1.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -90,6 +90,7 @@ function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stri
 /* ---------------- Simulation ---------------- */
 const DRY_RATE = .25; // vitesse de pousse quand la terre est sèche
 function tick(t) {
+  const sz = season(); if (!(S.stats.seasonsSeen || []).includes(sz)) S.stats.seasonsSeen = [...(S.stats.seasonsSeen || []), sz];
   for (const p of S.plots) {
     if (p.seed) {
       const sp = plantSpeed(p.seed);
@@ -418,7 +419,7 @@ const A = {
   },
   serve(i, ev) {
     const c = S.cooking[+i]; if (!c || c.end > now()) return;
-    SFX.play("cook"); questProgress("cook"); S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
+    SFX.play("cook"); questProgress("cook"); S.cooking.splice(+i, 1); S.dishes[c.r] = cnt(S.dishes, c.r) + 1; S.stats.cooked++; S.stats.cookedSet = [...new Set([...(S.stats.cookedSet || []), c.r])]; if (c.r === "gateau") S.stats.gateau = st("gateau") + 1;
     const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
   },
   labPick(k) {
@@ -1283,7 +1284,7 @@ function spawnButterfly() {
   if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf">${visitorArt(vis.key)}</span>`;
   el.addEventListener("click", ev => {
-    ev.stopPropagation(); el.remove(); S.stats.butterflies++; questProgress("butterfly"); SFX.play("butterfly");
+    ev.stopPropagation(); el.remove(); S.stats.butterflies++; S.stats.visitors = [...new Set([...(S.stats.visitors || []), vis.key])]; questProgress("butterfly"); SFX.play("butterfly");
     const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain gain-" + vis.key);
     commit();
   });
