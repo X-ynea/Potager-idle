@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.2.1
+- Serre : les hybrides ne sont plus proposés dans les récoltes à croiser (ils ne se croisent pas).
+
 ### 2.2.0
 - Une fois tous les hybrides découverts, la Serre se replie en un bandeau « terminé ». Un toucher la rouvre (pour continuer à croiser et obtenir des graines), « Réduire » la referme, et elle se rouvre d’elle-même si de nouveaux hybrides arrivent.
 

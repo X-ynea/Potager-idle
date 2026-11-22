@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.2.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -423,6 +423,7 @@ const A = {
     const { x, y } = pos(ev); addXp(RECIPES[c.r].xp); floatText(`+${RECIPES[c.r].xp} XP`, x, y); commit();
   },
   labPick(k) {
+    if (PLANTS[k]?.hybrid) return;
     if (S.lab) return;
     // On peut choisir deux fois la même récolte si on en a au moins deux (ça ne donne rien… mais on peut essayer).
     const room = k2 => cnt(S.crops, k2) - labSel.filter(x => x === k2).length;
@@ -1056,7 +1057,7 @@ function views_lab() {
     top = `<div class="lab-slots"><div class="slot filled">${cropArt(S.lab.a)}</div><img class="cauldron bubbling" src="assets/img/cauldron.webp" alt=""><div class="slot filled">${cropArt(S.lab.b)}</div></div>
       ${done ? `<button class="btn peach" data-act="labCollect">Découvrir le résultat</button>` : `<div class="pbar"><i data-pb="${S.lab.end}" data-pd="${LAB_TIME * 1000}"></i></div><span class="small muted num" data-left="${S.lab.end}"></span>`}`;
   } else {
-    const have = ORDER.filter(k => cnt(S.crops, k) > 0);
+    const have = ORDER.filter(k => cnt(S.crops, k) > 0 && !PLANTS[k].hybrid); // les hybrides ne se croisent pas
     const [a, b] = labSel;
     top = `<div class="lab-slots">${[a, b].map((k, i) => k ? `<button class="slot filled" data-act="labClear" data-arg="${i}" aria-label="Retirer ${PLANTS[k].name}">${cropArt(k)}<small>${PLANTS[k].name}</small></button>` : `<div class="slot"><span class="small muted">Choisis une récolte</span></div>`).join('<img class="cauldron" src="assets/img/cauldron.webp" alt="">')}</div>
       ${have.length ? `<div class="basket">${have.map(k => `<button class="chip" data-act="labPick" data-arg="${k}" aria-pressed="${labSel.includes(k)}">${cropArt(k)}${PLANTS[k].name} · ${cnt(S.crops, k)}</button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Il te faut des récoltes en stock pour faire un croisement.</p>`}
