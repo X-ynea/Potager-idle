@@ -990,3 +990,7 @@ img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: dro
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] .season-bar, :root[data-theme="system"] .ss-facts > div { background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
 }
+/* Éléments bloquants plus petits, posés dans un coin comme l'escargot, sans cacher la plante */
+img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: auto; bottom: 14%; }
+.pest.pest-weeds { width: 42%; left: auto; right: 4%; bottom: 13%; }
+.pest.pest-leaves { width: 46%; left: auto; right: 3%; bottom: 12%; }
