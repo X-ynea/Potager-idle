@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.31.3";
+const APP_VERSION = "0.31.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -462,7 +462,11 @@ const A = {
     decoRefresh(+i);
   },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
-  decoPick(i) { if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal(); },
+  decoPick(i) {
+    if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal();
+    // Garder le jardin visible au-dessus de la fenêtre.
+    $(".garden")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  },
   decoSlots(d) { modalView = () => viewDecoSlots(d); $("#modal").innerHTML = modalView(); openModal(); },
   decoPlace(arg) {
     const [i, d] = arg.split(":"); const slot = +i;
@@ -736,11 +740,11 @@ function decoAdjustHTML(slot) {
 // Choisir la décoration d'un emplacement.
 function viewDecoPick(slot) {
   const cur = S.decoSlots[slot];
-  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Décorations">
+  return `<div class="sheet deco-sheet" role="dialog" aria-modal="true" aria-label="Décorations" data-deco-sheet>
     <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
     ${cur ? decoAdjustHTML(slot) : ""}
     <p class="small muted" style="margin:0;max-width:none;justify-self:stretch">Choisis une décoration. Elle remplace celle déjà en place.</p>
-    <div class="deco-grid">${DECO_ORDER.map(d => { const ok = decoUnlocked(d), src = decoSource(d);
+    <div class="deco-grid strip">${[...DECO_ORDER].sort((a, b) => decoUnlocked(b) - decoUnlocked(a)).map(d => { const ok = decoUnlocked(d), src = decoSource(d);
       return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}"` : "disabled"}>
         <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
     ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
