@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.1.2";
+const APP_VERSION = "2.1.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -703,10 +703,10 @@ function viewSettings() {
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
       ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
-      <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
       <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
+      <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
     <div class="set-group"><h3>Sauvegarde</h3>
       <div class="set-list">
