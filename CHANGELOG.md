@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 1.6.0
+
+- Sur ordinateur, passer la souris sur un bac affiche une bulle avec le temps restant avant la récolte (en comptant l'eau qui reste et le ralenti en terre sèche), ou ce qu'il faut faire : récolter, libérer, planter.
+
 ## Version 1.5.0
 
 - Nouvelle amélioration au Marché, rayon Bonus : le **Banc des voisins**. Il ouvre une 4ᵉ place au village (niveau 7), puis une 5ᵉ (niveau 11) : plus de voisins peuvent attendre une commande en même temps.

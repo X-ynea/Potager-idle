@@ -828,3 +828,8 @@ button.herb:active { transform: scale(.97); }
 @keyframes gp-float { 50% { transform: translateY(-6px) rotate(-3deg); } }
 @keyframes gp-spark { 0%, 100% { opacity: 0; transform: rotate(var(--a)) translateY(-50px) scale(.4); } 50% { opacity: 1; transform: rotate(var(--a)) translateY(-66px) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .gp-rays, .gp-art, .gp-spark { animation: none; } }
+/* Bulle au survol d'un bac (ordinateur) */
+.plot-tip { position: fixed; z-index: 30; transform: translate(-50%, -100%); pointer-events: none; white-space: nowrap; text-align: center;
+  background: rgba(30,40,28,.92); color: #fff; font-size: .8rem; line-height: 1.35; padding: 5px 10px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.plot-tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: rgba(30,40,28,.92); }
+.plot-tip .tip-dry { color: #9fd3ff; font-size: .74rem; }
