@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.17";
+const APP_VERSION = "2.0.0-beta.18";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -834,7 +834,7 @@ function plotHTML(p, i, t) {
   const d = PLANTS[p.seed];
   let inner = plantArt(p.seed, plotStage(p), true);
   if (st === "dry") inner += `<span class="thirst">${DROP}</span>`; // goutte : la plante a soif
-  if (st === "weed") inner += `${PEST().key === "frost" ? `<span class="frost-cover"></span>` : ""}${pestArt(PEST().key)}<span class="thirst pest-alert"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="#e2473b" stroke-width="2.6" stroke-linecap="round"/></svg></span>`; // escargot + bulle à croix rouge
+  if (st === "weed") inner += `${pestArt(PEST().key)}<span class="thirst pest-alert"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="#e2473b" stroke-width="2.6" stroke-linecap="round"/></svg></span>`; // escargot + bulle à croix rouge
   if (st === "ripe") return inner + `<span class="thirst ready">${STAR}</span>`; // étoile : prête à récolter (pas de jauges)
   const r = ringValues(p, st, t); // valeurs posées dès la création, sans animation depuis zéro
   inner += `<span class="ring" title="${d.name}"><svg viewBox="0 0 40 40" aria-hidden="true">
