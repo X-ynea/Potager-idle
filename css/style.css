@@ -728,3 +728,8 @@ button.herb:active { transform: scale(.97); }
 .deco-edit { width: 26px; height: 26px; top: 6px; right: 6px; font-size: .8rem; }
 .deco-edit svg { width: 14px; height: 14px; }
 .garden .deco-row .deco-slot.full img { transform: scale(calc(var(--ds, 1) * var(--fx, 1)), var(--ds, 1)); }
+/* Marges latérales réduites : les décos peuvent déborder légèrement du jardin */
+.garden { --side: 9%; }
+.garden.decorated { overflow: clip; overflow-clip-margin: 18px; }
+.garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: -2.5%; }
+.garden .deco-row .deco-slot.s1 { right: -2.5%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .82 / var(--cols) * 1.008 - 8cqw); }
