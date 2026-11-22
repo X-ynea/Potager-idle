@@ -953,3 +953,6 @@ button.herb:active { transform: scale(.97); }
 /* Visiteurs dessinés de profil : petit vol sautillant au lieu du battement d'ailes du papillon */
 .butterfly.v-robin .bf img, .butterfly.v-ladybug .bf img, .butterfly.v-dragonfly .bf img { animation: hop .45s ease-in-out infinite alternate; }
 .butterfly.v-dragonfly .bf img { animation-duration: .25s; }
+/* Gel : bloc de glace posé sur le bac, voile givré plus léger */
+img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: drop-shadow(0 2px 4px rgba(60,120,190,.45)); }
+.frost-cover { background: linear-gradient(135deg, rgba(235,248,255,.55), rgba(190,225,250,.4)); }

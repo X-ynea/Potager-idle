@@ -42,7 +42,7 @@ const SEASONS = {
   },
 };
 // Images déjà fournies (les autres sont dessinées en attendant : voir docs/prompts-images.md).
-const SEASON_IMG = new Set(["ui-snail", "ui-butterfly", "ui-weeds", "ui-leaves", "ui-ladybug", "ui-dragonfly", "ui-robin"]);
+const SEASON_IMG = new Set(["ui-snail", "ui-butterfly", "ui-weeds", "ui-leaves", "ui-ladybug", "ui-dragonfly", "ui-robin", "ui-frost"]);
 
 /* Lundi 16 novembre 2026 : début d'une semaine d'automne. */
 const SEASON_ANCHOR_DAY = Date.UTC(2026, 10, 16) / 864e5;
