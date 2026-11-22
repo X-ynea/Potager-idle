@@ -210,9 +210,10 @@ function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgS
 function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */
-const SPROUTS = new Set(Object.keys(PLANTS));
+// Seulement les plantes qui ont déjà leurs images (les nouvelles gardent leur dessin de secours).
+const SPROUTS = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 /* Plantes mûres dessinées sans terre (posées directement dans le bac). */
-const RIPE_NO_SOIL = new Set(Object.keys(PLANTS));
+const RIPE_NO_SOIL = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 function plantArt(k, stage, inPlot) {
   k = PLANTS[k]?.img || k; // la plante du tutoriel emprunte les images du radis
   if (stage === 1 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
