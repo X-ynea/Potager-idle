@@ -1,5 +1,10 @@
 # Notes de version
 
+## Version 1.4.0
+
+- Une plante qui a soif continue de pousser, mais quatre fois moins vite (25 % de sa vitesse). Arroser fait toujours pousser à pleine vitesse, mais un oubli ou une longue absence ne bloquent plus le jardin.
+- Les conseils de Mamie Lapine sur l'arrosage expliquent cette nouvelle règle.
+
 ## Version 1.3.0
 
 - Sons plus doux : tous les sons descendent d'une octave, les aigus sont filtrés plus fortement (la zone perçante autour de 3 kHz est atténuée), les attaques sont plus rondes, les clochettes ont moins d'harmoniques aiguës, et le volume général est un peu plus bas.

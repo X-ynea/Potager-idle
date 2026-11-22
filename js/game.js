@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.4.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -79,17 +79,20 @@ let lastSaveAt = 0;
 function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); lastSaveAt = S.last; } catch (e) {} }
 
 /* ---------------- Simulation ---------------- */
+const DRY_RATE = .25; // vitesse de pousse quand la terre est sèche
 function tick(t) {
   const sp = speed();
   for (const p of S.plots) {
     if (p.seed) {
       const need = PLANTS[p.seed].time * 1000;
       if (p.grown < need && !p.weed) {
-        const end = S.upg.auto ? t : Math.min(t, p.waterUntil);
-        const d = end - p.last;
-        const g0 = p.grown;
-        if (d > 0) p.grown = Math.min(need, p.grown + d * sp);
-        if (g0 < need && p.grown >= need) p.ripeAt = p.last + (need - g0) / sp; // moment où la plante a mûri
+        // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
+        const wu = S.upg.auto ? Infinity : p.waterUntil;
+        const wet = Math.max(0, Math.min(t, wu) - p.last), dry = Math.max(0, t - Math.max(p.last, wu));
+        const g0 = p.grown, gWet = wet * sp;
+        p.grown = Math.min(need, g0 + gWet + dry * sp * DRY_RATE);
+        if (g0 < need && p.grown >= need) // moment où la plante a mûri
+          p.ripeAt = g0 + gWet >= need ? p.last + (need - g0) / sp : Math.max(p.last, wu) + (need - g0 - gWet) / (sp * DRY_RATE);
         if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
       }
     }
