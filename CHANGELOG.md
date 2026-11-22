@@ -1,5 +1,10 @@
 # Notes de version
 
+## Version 1.0.1
+
+- Changer de décoration dans un emplacement remet à zéro sa position, sa taille et son sens.
+- La fenêtre de choix reste ouverte quand on change de décoration, pour enchaîner les réglages.
+
 ## Version 1.0 : « Premières récoltes »
 
 *22 novembre 2026*

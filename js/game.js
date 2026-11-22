@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -469,10 +469,15 @@ const A = {
   },
   decoSlots(d) { modalView = () => viewDecoSlots(d); $("#modal").innerHTML = modalView(); openModal(); },
   decoPlace(arg) {
-    const [i, d] = arg.split(":"); const slot = +i;
-    if (d) S.decoSlots = S.decoSlots.map(x => x === d ? null : x); // une déco n'occupe qu'un emplacement
-    S.decoSlots[slot] = d || null;
-    closeModal(); SFX.play("plant"); if (d) toast(`${DECOS[d]} installé${["e"].includes(DECOS[d].slice(-1)) ? "" : ""} dans le jardin.`);
+    // arg = "emplacement:déco[:keep]" ; keep = depuis la fenêtre de choix, qui reste ouverte.
+    const [i, d, keep] = arg.split(":"); const slot = +i;
+    if (d && S.decoSlots[slot] === d) return;
+    // Nouvelle déco : position, taille et sens repartent de zéro.
+    const fresh = j => { if (S.decoOff) S.decoOff[j] = null; if (S.decoFlip) S.decoFlip[j] = false; };
+    S.decoSlots.forEach((x, j) => { if (d && x === d && j !== slot) { S.decoSlots[j] = null; fresh(j); } }); // une déco n'occupe qu'un emplacement
+    S.decoSlots[slot] = d || null; fresh(slot);
+    SFX.play("plant");
+    if (!keep || !d) { closeModal(); if (d) toast(`${DECOS[d]} installé dans le jardin.`); }
     commit();
   },
   claimQuest(i, ev) {
@@ -747,7 +752,7 @@ function viewDecoPick(slot) {
     ${cur ? decoAdjustHTML(slot) : ""}
     <p class="small muted" style="margin:0;max-width:none;justify-self:stretch">Choisis une décoration. Elle remplace celle déjà en place.</p>
     <div class="deco-grid strip">${[...DECO_ORDER].sort((a, b) => decoUnlocked(b) - decoUnlocked(a)).map(d => { const ok = decoUnlocked(d), src = decoSource(d);
-      return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}"` : "disabled"}>
+      return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}:keep"` : "disabled"}>
         <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
     ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
   </div>`;
@@ -1030,7 +1035,15 @@ function render(force) {
     if (modalView && !$("#modal").hidden) {
       const sc = $("#modal .sheet")?.scrollTop || 0;
       const kept = [...document.querySelectorAll("#modal textarea")].map(t => [t.id, t.value]);
-      $("#modal").innerHTML = modalView();
+      // Même fenêtre : on remplace son contenu sans la recréer (pas d'animation d'ouverture rejouée).
+      const box = document.createElement("div"); box.innerHTML = modalView();
+      const ns = box.firstElementChild, os = $("#modal .sheet");
+      const strip = [...document.querySelectorAll("#modal .strip")].map(e => e.scrollLeft);
+      if (os && ns && box.children.length === 1 && os.className === ns.className) {
+        for (const a of ns.attributes) os.setAttribute(a.name, a.value);
+        os.innerHTML = ns.innerHTML;
+        document.querySelectorAll("#modal .strip").forEach((e, k) => { e.scrollLeft = strip[k] || 0; });
+      } else $("#modal").innerHTML = box.innerHTML;
       for (const [id, v] of kept) { const t = document.getElementById(id); if (t) t.value = v; }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
     }
