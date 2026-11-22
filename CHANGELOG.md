@@ -1,5 +1,10 @@
 # Notes de version
 
+## Version 1.5.0
+
+- Nouvelle amélioration au Marché, rayon Bonus : le **Banc des voisins**. Il ouvre une 4ᵉ place au village (niveau 7), puis une 5ᵉ (niveau 11) : plus de voisins peuvent attendre une commande en même temps.
+- Un même voisin n'a jamais deux commandes en même temps.
+
 ## Version 1.4.0
 
 - Une plante qui a soif continue de pousser, mais quatre fois moins vite (25 % de sa vitesse). Arroser fait toujours pousser à pleine vitesse, mais un oubli ou une longue absence ne bloquent plus le jardin.
