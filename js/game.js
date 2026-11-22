@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.2.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1104,7 +1104,7 @@ const PICK = { plot: null, order: [], cat: "base" };
 function openPicker(i) {
   PICK.plot = i;
   const keys = ORDER.filter(k => seedAvailable(k) || cnt(S.seeds, k) > 0);
-  keys.sort((a, b) => (b === S.lastPick) - (a === S.lastPick) || (cnt(S.seeds, b) > 0) - (cnt(S.seeds, a) > 0));
+  keys.sort((a, b) => PLANTS[a].name.localeCompare(PLANTS[b].name, "fr", { sensitivity: "base" })); // ordre alphabétique
   if (PICK.cat === "hybrid" && !keys.some(k => PLANTS[k].hybrid)) PICK.cat = "base";
   PICK.order = keys; // ordre figé tant que la fenêtre est ouverte, pour ne pas faire bouger les boutons
   modalView = viewPicker; $("#modal").innerHTML = viewPicker(); openModal();

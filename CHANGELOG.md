@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 1.2.1
+
+- Les graines proposées quand on touche un bac vide sont rangées par ordre alphabétique.
+
 ## Version 1.2.0
 
 - Récolte dorée : une petite fenêtre s'ouvre au centre de l'écran avec la récolte d'or, un halo de rayons qui tourne et des étincelles. Elle indique si c'est une première trouvaille et ce que vaut la récolte, et se ferme d'un toucher ou toute seule.
