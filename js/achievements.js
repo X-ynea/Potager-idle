@@ -62,7 +62,7 @@ const DECOS = {
 };
 const DECO_ORDER = Object.keys(DECOS);
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, can: .55, birdhouse: 1.1, hive: .85, wheelbarrow: .9, bench: 1, mailbox: .95, lantern: 1.2, rabbit: .7, well: 1.25 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, can: .55, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, mailbox: .95, lantern: 1.2, rabbit: .7, well: 1.25 };
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
 const decoUnlocked = d => { const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };
