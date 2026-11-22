@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 2.1.1
+
+- Un fond de jardin dessiné pour chaque saison : pelouse fleurie au printemps, herbe dorée l’été, feuilles mortes en automne, neige l’hiver.
+
 ## Version 2.1.0
 
 - 4 nouveaux succès de saison : « Le tour de l’année » (jouer pendant les 4 saisons), « Amis de passage » (livrer chacun des 4 voisins de saison), « Cuisine de saison » (cuisiner les 8 recettes de saison) et « Carnet d’observation » (attraper papillon, libellule, coccinelle et rouge-gorge).

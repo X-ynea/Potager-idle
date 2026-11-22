@@ -830,10 +830,6 @@ button.herb:active { transform: scale(.97); }
 @media (prefers-reduced-motion: reduce) { .gp-rays, .gp-art, .gp-spark { animation: none; } }
 /* ================= Saisons ================= */
 /* Teinte du jardin (en attendant un fond dessiné pour chaque saison) */
-.garden[data-season="ete"] { background-image: linear-gradient(rgba(255,214,90,.22), rgba(255,190,60,.18)), url("../assets/img/bg-garden.webp"); background-blend-mode: soft-light, normal; }
-.garden[data-season="automne"] { background-image: linear-gradient(rgba(214,116,40,.42), rgba(170,80,30,.34)), url("../assets/img/bg-garden.webp"); background-blend-mode: color, normal; }
-.garden[data-season="hiver"] { background-image: linear-gradient(rgba(236,246,255,.46), rgba(205,226,248,.42)), url("../assets/img/bg-garden.webp"); background-blend-mode: normal, normal; }
-.garden[data-season="hiver"] .plots { filter: saturate(.85); }
 /* Particules */
 .season-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; border-radius: inherit; }
 .sfx { position: absolute; left: var(--x); top: -8%; animation: sfx-fall var(--d) linear var(--dl) infinite; }
@@ -1000,3 +996,8 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 .plot-tip .tip-dry { color: #9fd3ff; font-size: .74rem; }
 /* Escargot (printemps) : même taille et place qu'avant les saisons */
 .pest.pest-snail { width: 46%; right: 4%; bottom: 14%; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+/* Fonds du jardin selon la saison */
+.garden[data-season="printemps"] { background-image: url("../assets/img/bg-printemps.webp"); background-size: cover; background-position: center; }
+.garden[data-season="ete"] { background-image: url("../assets/img/bg-ete.webp"); background-size: cover; background-position: center; }
+.garden[data-season="automne"] { background-image: url("../assets/img/bg-automne.webp"); background-size: cover; background-position: center; }
+.garden[data-season="hiver"] { background-image: url("../assets/img/bg-hiver.webp"); background-size: cover; background-position: center; }
