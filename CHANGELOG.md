@@ -1,0 +1,64 @@
+# Notes de version
+
+## Version 1.0 : « Premières récoltes »
+
+*22 novembre 2026*
+
+Voici la première version complète de **Potager idle**, un petit jeu de jardinage tranquille à faire pousser à son rythme, sur téléphone comme sur ordinateur. Plante, arrose, récolte, cuisine, fais des croisements dans la Serre et rends service aux voisins du village. Tes plantes poussent même quand le jeu est fermé.
+
+### Le potager
+
+- **12 plantes**, des radis du premier jour jusqu'au potiron : laitue, pomme de terre, carotte, blé, fraise, basilic, tomate, tournesol, myrtille et lavande. Elles poussent en temps réel, de quelques minutes à une heure.
+- **Jusqu'à 12 bacs** à débloquer au fil des niveaux.
+- **L'arrosage** : quand une goutte apparaît, la terre a soif et la plante attend son eau pour continuer à pousser.
+- **Les escargots** viennent parfois grignoter une plante. Il suffit de les déloger.
+- **Les papillons** traversent le jardin : attrape-les pour une petite récompense.
+- **Récoltes doubles et dorées** : de temps en temps, une récolte donne deux légumes, et très rarement un légume doré, qui vaut beaucoup plus cher.
+
+### La Serre
+
+- Croise deux récoltes dans la Serre pour découvrir **8 variétés hybrides** que personne n'a encore jamais vues, comme le Radis lune, la Fraisille ou la Tomate lanterne.
+- Un **herbier** garde la trace de tes découvertes, avec une fiche pour chaque plante.
+
+### La cuisine
+
+- **21 recettes** à apprendre au Marché, de la salade croquante au grand Gâteau des moissons.
+- Les plats se vendent bien plus cher que les légumes qui les composent, et les voisins en raffolent.
+
+### Le village
+
+- **8 voisins**, dont Mme Hérisson, Papi Blaireau, Lou la Loutre et Mamie Lapine, passent régulièrement commander des récoltes ou des plats.
+- Les commandes rapportent plus que le Marché. Leur difficulté suit ta progression.
+
+### Le marché
+
+- Graines, recettes et **7 améliorations** : panier, gants, tuyau d'arrosage, compost, arrosoir, fourneau et arroseur automatique.
+- Vends tes récoltes à l'unité ou tout d'un coup.
+
+### La progression
+
+- **15 niveaux de déblocages**, avec une grande étape tous les 3 niveaux, puis une progression qui continue au-delà.
+- **Objectifs du jour** : trois petites missions chaque jour, avec un bonus quand tout est fait.
+- **Cadeau du jour**, plus généreux si tu reviens plusieurs jours de suite.
+- **Plus de 30 succès** sur plusieurs paliers, qui débloquent des titres, des bonus permanents et des décorations.
+
+### Les décorations
+
+- **12 décorations** à gagner grâce aux succès : nain de jardin, épouvantail, ruche, puits, lapin doré, etc.
+- **3 emplacements** dans le jardin. Pour chaque déco, tu règles la position, la taille et le sens.
+
+### Les conseils de Mamie Lapine
+
+- Ta voisine Mamie Lapine t'accompagne pour tes premiers pas au potager, puis passe te donner un conseil quand une situation se présente pour la première fois : premier escargot, première commande, première recette, ouverture de la Serre…
+- Tu peux la remercier d'un « Je me débrouille, merci » et la rappeler à tout moment depuis les réglages.
+
+### Confort
+
+- **S'installe comme une appli** sur Android depuis Chrome, et fonctionne hors-ligne.
+- **Sauvegarde automatique** sur l'appareil, avec export et import pour la transférer ailleurs.
+- **Sons doux**, réglables en volume, vibrations à la récolte et notifications quand tes plantes sont prêtes pendant que le jeu tourne en arrière-plan.
+- Thème clair par défaut, thème sombre au choix.
+
+### Merci
+
+Merci d'avoir fait pousser ce potager avec nous, graine après graine. Bonne récolte !

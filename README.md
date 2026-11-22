@@ -2,13 +2,15 @@
 
 Un petit jeu idle de potager, pensé pour le téléphone (Android) et installable comme une appli (PWA).
 
+**Version actuelle : 1.0** · voir les [notes de version](CHANGELOG.md).
+
 Plante, arrose, récolte, cuisine des plats, croise tes récoltes dans la Serre pour découvrir des variétés hybrides et livre les commandes des voisins du village. Les plantes poussent en temps réel (de 3 minutes à 1 heure), même quand le jeu est fermé.
 
 ## Jouer
 
 - **En ligne** : la page GitHub Pages du dépôt.
 - **Installer sur Android** : ouvre la page dans Chrome, puis touche « Installer » dans le jeu (ou menu ⋮ → « Installer l'application »). Le jeu marche ensuite hors-ligne.
-- La partie est sauvegardée sur l'appareil. « Sauvegarde et options », en bas du Jardin, permet de copier sa sauvegarde vers un autre appareil.
+- La partie est sauvegardée sur l'appareil. Les réglages (roue dentée en haut) permettent d'exporter et d'importer sa sauvegarde vers un autre appareil.
 
 ## Lancer en local
 
@@ -26,9 +28,13 @@ python3 -m http.server 8000
 | `index.html` | Structure de la page |
 | `css/style.css` | Styles (mobile d'abord, thème clair/sombre automatique) |
 | `js/data.js` | Plantes, hybrides, recettes, améliorations, voisins : **l'équilibrage se fait ici** |
-| `js/art.js` | Dessins SVG des plantes, plats et voisins |
+| `js/art.js` | Affichage des images (plantes, plats, voisins) et dessins de secours |
+| `js/achievements.js` | Succès, titres, bonus et décorations |
+| `js/tuto.js` | Conseils de Mamie Lapine (tutoriel intégré) |
+| `js/sound.js` | Sons doux synthétisés et notifications |
+| `js/typo.js` | Typographie française (espaces insécables) |
 | `js/game.js` | Logique du jeu, écrans, sauvegarde, installation |
-| `sw.js` | Mode hors-ligne (réseau d'abord, cache si pas de connexion). À chaque mise à jour, augmenter `VERSION` ici **et** le `?v=` des fichiers dans `index.html` |
+| `sw.js` | Mode hors-ligne (réseau d'abord, cache si pas de connexion). À chaque mise à jour, augmenter `VERSION` ici, le `?v=` des fichiers dans `index.html` **et** `APP_VERSION` dans `js/game.js` |
 | `manifest.webmanifest`, `icons/` | Nom, icône et couleurs de l'appli installée |
 | `fonts/` | Polices Fredoka et Nunito (licence SIL OFL), embarquées pour le hors-ligne |
 
