@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.1.1";
+const APP_VERSION = "1.2.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -593,10 +593,26 @@ function harvest(i, x, y) {
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
-  if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); toast(`<b>Récolte dorée !</b> ${d.name} d’or, une vraie rareté (vaut ${fmt(d.sell * 10)} pièces)`, 6000); return; }
+  if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); setTimeout(() => showGoldPop(k), 450); return; }
   buzz(n > 1 ? [15, 50, 15, 50, 30] : 12); SFX.play(n > 1 ? "double" : "harvest");
   if (n > 1) doubleBurst(i, k);
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
+}
+/* Récolte dorée : petite fenêtre au centre de l'écran, avec halo tournant et étincelles.
+   Elle se ferme d'un toucher, ou toute seule au bout de quelques secondes. */
+function showGoldPop(k) {
+  document.querySelector(".goldpop")?.remove();
+  const d = PLANTS[k], first = cnt(S.golden, "gold_" + k) <= 1;
+  const el = document.createElement("div"); el.className = "goldpop"; el.setAttribute("role", "status");
+  el.innerHTML = `<div class="gp-card">
+    <div class="gp-stage"><div class="gp-rays"></div>${Array.from({ length: 8 }, (_, j) => `<i class="gp-spark" style="--a:${j * 45}deg;--d:${(j % 3) * .25}s"></i>`).join("")}<div class="gp-art">${goldArt(k)}</div></div>
+    <b class="gp-title">Récolte dorée !</b>
+    <span class="gp-name">${d.name} d’or${first ? " · première trouvaille" : ""}</span>
+    <span class="gp-val">Vaut ${coin}${fmt(d.sell * 10)}</span>
+  </div>`;
+  const close = () => { el.classList.add("out"); setTimeout(() => el.remove(), 300); };
+  el.addEventListener("click", close); setTimeout(close, 4200);
+  document.body.appendChild(el);
 }
 /* Récolte double : « ×2 » doré, deux récoltes qui jaillissent et des étincelles au-dessus du bac. */
 function doubleBurst(i, k, gold) {

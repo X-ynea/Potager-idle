@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 1.2.0
+
+- Récolte dorée : une petite fenêtre s'ouvre au centre de l'écran avec la récolte d'or, un halo de rayons qui tourne et des étincelles. Elle indique si c'est une première trouvaille et ce que vaut la récolte, et se ferme d'un toucher ou toute seule.
+
 ## Version 1.1.1
 
 - Moins de messages en bas de l'écran : escargot délogé, récolte double, papillon, livraison, achat d'amélioration ou de parcelle, cadeau du jour, objectifs terminés et décoration installée n'affichent plus de message. Le gain apparaît déjà à l'endroit touché, avec un son.
