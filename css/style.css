@@ -999,3 +999,5 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
   background: rgba(30,40,28,.92); color: #fff; font-size: .8rem; line-height: 1.35; padding: 5px 10px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
 .plot-tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: rgba(30,40,28,.92); }
 .plot-tip .tip-dry { color: #9fd3ff; font-size: .74rem; }
+/* Escargot (printemps) : même taille et place qu'avant les saisons */
+.pest.pest-snail { width: 46%; right: 4%; bottom: 14%; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
