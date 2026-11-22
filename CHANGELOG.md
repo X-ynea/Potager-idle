@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.1.5
+- Toucher un plat dans une commande du village ouvre la Cuisine sur cette recette (ou le Marché si elle n’est pas encore apprise).
+
 ### 2.1.4
 - Nouveaux fonds de saison qui se raccordent sur tous les bords : le motif se répète sans miroir ni couture.
 
