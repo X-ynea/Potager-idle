@@ -753,3 +753,6 @@ button.herb:active { transform: scale(.97); }
 .dsize .dp { border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2, #f3f8ec); color: var(--leaf-d, #3f8a2a); display: grid; place-items: center; padding: 0; cursor: pointer; line-height: 1; }
 .dsize .dp:disabled { opacity: .35; cursor: default; }
 .dsize .dp:active:not(:disabled) { transform: scale(.92); }
+/* Bouton retourner, dans le coin de la croix de flèches */
+.dpad .flip { grid-area: 1 / 3; border-radius: 50%; }
+.dpad .flip.on { background: color-mix(in srgb, var(--leaf) 18%, var(--panel-2, #f3f8ec)); border-color: var(--leaf); }

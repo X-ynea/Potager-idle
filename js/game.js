@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.31.2";
+const APP_VERSION = "0.31.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -450,7 +450,7 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
-  decoFlip(i) { S.decoFlip = S.decoFlip || [false, false, false]; S.decoFlip[+i] = !S.decoFlip[+i]; closeModal(); SFX.play("click"); commit(); },
+  decoFlip(i) { S.decoFlip = S.decoFlip || [false, false, false]; S.decoFlip[+i] = !S.decoFlip[+i]; SFX.play("click"); save(); decoRefresh(+i); },
   decoNudge(arg) {
     const [i, dir] = arg.split(":"); S.decoOff = S.decoOff || [null, null, null];
     const o = { ...decoOff(+i) }, cl = v => Math.max(-DECO_MAX, Math.min(DECO_MAX, v));
@@ -459,9 +459,7 @@ const A = {
     else { o.x = cl(o.x + (dir === "left" ? -1 : dir === "right" ? 1 : 0)); o.y = cl(o.y + (dir === "up" ? -1 : dir === "down" ? 1 : 0)); }
     S.decoOff[+i] = o.x || o.y || o.s ? o : null; SFX.play("click"); save();
     // Mise à jour sur place : pas de re-rendu de la fenêtre (évite le clignotement).
-    const d = S.decoSlots[+i], g = document.querySelector(`.garden .deco-slot.s${i}`);
-    if (g && d) g.setAttribute("style", decoStyle(d, +i));
-    const a = document.querySelector("#modal .deco-adjust"); if (a) a.outerHTML = decoAdjustHTML(+i);
+    decoRefresh(+i);
   },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) { if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal(); },
@@ -725,10 +723,15 @@ function decoRowHTML() {
     ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}" style="${decoStyle(d, i)}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
     : `<button class="deco-slot empty s${i}" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
 }
+function decoRefresh(i) {
+  const d = S.decoSlots[i], g = document.querySelector(`.garden .deco-slot.s${i}`);
+  if (g && d) g.setAttribute("style", decoStyle(d, i));
+  const a = document.querySelector("#modal .deco-adjust"); if (a) a.outerHTML = decoAdjustHTML(i);
+}
 // Aperçu + flèches + taille, mis à jour sur place (sans redessiner la fenêtre).
 function decoAdjustHTML(slot) {
   const cur = S.decoSlots[slot], o = decoOff(slot);
-  return `<div class="deco-adjust"><div class="deco-prev"><span class="deco-slot full" style="${decoStyle(cur, slot)}"><img src="assets/img/deco-${cur}.webp" alt=""></span></div><div class="dpad"><button class="dp up" data-act="decoNudge" data-arg="${slot}:up" aria-label="Monter" ${o.y <= -DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(0deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp left" data-act="decoNudge" data-arg="${slot}:left" aria-label="Vers la gauche" ${o.x <= -DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(-90deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp mid" data-act="decoNudge" data-arg="${slot}:reset" aria-label="Réinitialiser" ${o.x || o.y || o.s ? "" : "disabled"}>⟲</button><button class="dp right" data-act="decoNudge" data-arg="${slot}:right" aria-label="Vers la droite" ${o.x >= DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(90deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp down" data-act="decoNudge" data-arg="${slot}:down" aria-label="Descendre" ${o.y >= DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(180deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button></div><div class="dsize"><button class="dp" data-act="decoNudge" data-arg="${slot}:bigger" aria-label="Plus grande" ${o.s >= DECO_SMAX ? "disabled" : ""}>+</button><small>Taille</small><button class="dp" data-act="decoNudge" data-arg="${slot}:smaller" aria-label="Plus petite" ${o.s <= -DECO_SMAX ? "disabled" : ""}>−</button></div></div>`;
+  return `<div class="deco-adjust"><div class="deco-prev"><span class="deco-slot full" style="${decoStyle(cur, slot)}"><img src="assets/img/deco-${cur}.webp" alt=""></span></div><div class="dpad"><button class="dp up" data-act="decoNudge" data-arg="${slot}:up" aria-label="Monter" ${o.y <= -DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(0deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp left" data-act="decoNudge" data-arg="${slot}:left" aria-label="Vers la gauche" ${o.x <= -DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(-90deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp mid" data-act="decoNudge" data-arg="${slot}:reset" aria-label="Réinitialiser" ${o.x || o.y || o.s ? "" : "disabled"}>⟲</button><button class="dp right" data-act="decoNudge" data-arg="${slot}:right" aria-label="Vers la droite" ${o.x >= DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(90deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp down" data-act="decoNudge" data-arg="${slot}:down" aria-label="Descendre" ${o.y >= DECO_MAX ? "disabled" : ""}><svg viewBox="0 0 24 24" style="transform:rotate(180deg)"><path d="M12 6l-7 9h14z" fill="currentColor"/></svg></button><button class="dp flip${(S.decoFlip || [])[slot] ? " on" : ""}" data-act="decoFlip" data-arg="${slot}" aria-label="Retourner l’image" title="Retourner l’image"><svg viewBox="0 0 24 24"><path d="M11 4v16L3 17z" fill="currentColor"/><path d="M13 4v16l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button></div><div class="dsize"><button class="dp" data-act="decoNudge" data-arg="${slot}:bigger" aria-label="Plus grande" ${o.s >= DECO_SMAX ? "disabled" : ""}>+</button><small>Taille</small><button class="dp" data-act="decoNudge" data-arg="${slot}:smaller" aria-label="Plus petite" ${o.s <= -DECO_SMAX ? "disabled" : ""}>−</button></div></div>`;
 }
 // Choisir la décoration d'un emplacement.
 function viewDecoPick(slot) {
@@ -740,7 +743,7 @@ function viewDecoPick(slot) {
     <div class="deco-grid">${DECO_ORDER.map(d => { const ok = decoUnlocked(d), src = decoSource(d);
       return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}"` : "disabled"}>
         <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
-    ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoFlip" data-arg="${slot}">⇋ Retourner l’image</button><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
+    ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
   </div>`;
 }
 // Choisir l'emplacement d'une décoration (depuis l'inventaire).
@@ -980,7 +983,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.decoFlip, S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
