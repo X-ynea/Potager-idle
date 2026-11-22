@@ -745,3 +745,11 @@ button.herb:active { transform: scale(.97); }
 .dpad .dp:active:not(:disabled) { transform: scale(.92); }
 .dpad .dp:disabled { opacity: .35; cursor: default; }
 .dpad .up { grid-area: 1 / 2; } .dpad .left { grid-area: 2 / 1; } .dpad .mid { grid-area: 2 / 2; border-radius: 50%; } .dpad .right { grid-area: 2 / 3; } .dpad .down { grid-area: 3 / 2; }
+/* Taille de la déco */
+.deco-adjust { gap: 16px; }
+.dsize { display: grid; grid-template-rows: 40px auto 40px; gap: 4px; justify-items: center; align-items: center; }
+.dsize .dp { width: 40px; height: 40px; font-size: 1.35rem; font-weight: 800; }
+.dsize small { font-weight: 700; color: var(--muted, #6b7d5c); font-size: .72rem; }
+.dsize .dp { border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2, #f3f8ec); color: var(--leaf-d, #3f8a2a); display: grid; place-items: center; padding: 0; cursor: pointer; line-height: 1; }
+.dsize .dp:disabled { opacity: .35; cursor: default; }
+.dsize .dp:active:not(:disabled) { transform: scale(.92); }
