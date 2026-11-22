@@ -1,5 +1,10 @@
 # Notes de version
 
+## Version 1.1.1
+
+- Moins de messages en bas de l'écran : escargot délogé, récolte double, papillon, livraison, achat d'amélioration ou de parcelle, cadeau du jour, objectifs terminés et décoration installée n'affichent plus de message. Le gain apparaît déjà à l'endroit touché, avec un son.
+- Les messages restent pour ce qui est rare ou important : succès, récolte dorée, résultat de la Serre, recette apprise, retour au jeu et réglages.
+
 ## Version 1.1.0
 
 - Tutoriel : Mamie Lapine offre une graine de **radis éclair**, qui pousse en 25 secondes. On voit enfin une plante pousser du semis à la récolte dès la première minute de jeu.

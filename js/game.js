@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -332,7 +332,7 @@ const A = {
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
     if (st === "empty") { if (cnt(S.seeds, "radis_eclair")) return A.plant(`${i}:radis_eclair`, ev); return openPicker(+i); }
-    if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
+    if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); }
     else if (st === "ripe") harvest(+i, x, y);
     else { p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
@@ -351,7 +351,7 @@ const A = {
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
     buzz(8); SFX.play("plant");
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
-    if (!S.plots.some(q => !q.seed)) { closeModal(); toast("Tous les bacs sont plantés !"); }
+    if (!S.plots.some(q => !q.seed)) closeModal();
     commit();
   },
   harvestAll(_, ev) {
@@ -386,12 +386,12 @@ const A = {
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
   buyUpg(u) {
-    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; toast(`<b>${UPG[u].name}</b> ${UPG[u].steps.length > 1 ? "amélioré" : "acheté"} !`); commit(); },
+    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; SFX.play("success"); commit(); },
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
     if (modalView === viewPlotShop) closeModal();
-    toast("Nouvelle parcelle bêchée !"); commit();
+    SFX.play("plant"); commit();
   },
   openPlotShop() { modalView = viewPlotShop; $("#modal").innerHTML = viewPlotShop(); openModal(); },
   cook(r) {
@@ -445,7 +445,6 @@ const A = {
     S.orders = S.orders.filter(x => x !== o); S.stats.orders++; questProgress("deliver");
     S.stats.served = [...new Set([...(S.stats.served || []), o.v])]; if (o.coins >= 500) S.stats.bigOrder = 1;
     const { x, y } = pos(ev); earn(o.coins, x, y, o.xp);
-    toast(`${VILLAGERS[o.v].name} te remercie chaleureusement !`);
     if (S.orders.length < 3) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
     commit();
   },
@@ -478,7 +477,7 @@ const A = {
     S.decoSlots.forEach((x, j) => { if (d && x === d && j !== slot) { S.decoSlots[j] = null; fresh(j); } }); // une déco n'occupe qu'un emplacement
     S.decoSlots[slot] = d || null; fresh(slot);
     SFX.play("plant");
-    if (!keep || !d) { closeModal(); if (d) toast(`${DECOS[d]} installé dans le jardin.`); }
+    if (!keep || !d) { closeModal(); }
     commit();
   },
   claimQuest(i, ev) {
@@ -489,7 +488,7 @@ const A = {
   claimQuestBonus(_, ev) {
     const Q = dailyQuests(); if (Q.bonus || !Q.list.every(q => q.claimed)) return;
     Q.bonus = true; const { x, y } = pos(ev); earn(50 + S.level * 15, x, y, 10 + S.level * 2); SFX.play("level");
-    toast("<b>Objectifs du jour terminés !</b> Reviens demain pour de nouveaux défis."); commit();
+    commit();
   },
   openAch() { modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal(); },
   setTitle(t) { S.title = t || ""; commit(); },
@@ -506,8 +505,8 @@ const A = {
     for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
     S.coins += o.coins;
     S.daily.last = o.day; S.daily.streak = o.streak; S.daily.offer = null; S.stats.bestStreak = Math.max(st("bestStreak"), o.streak);
-    closeModal(); addXp(o.xp); buzz([15, 40, 15]);
-    toast(`<b>Cadeau récupéré !</b> +${fmt(o.coins)} pièces, +${o.xp} XP et des graines`);
+    const { x, y } = pos(ev); closeModal(); addXp(o.xp); buzz([15, 40, 15]); SFX.play("success");
+    floatText(`+${fmt(o.coins)} pièces · +${o.xp} XP`, x, y, true);
     commit();
   },
   pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
@@ -596,7 +595,7 @@ function harvest(i, x, y) {
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
   if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); toast(`<b>Récolte dorée !</b> ${d.name} d’or, une vraie rareté (vaut ${fmt(d.sell * 10)} pièces)`, 6000); return; }
   buzz(n > 1 ? [15, 50, 15, 50, 30] : 12); SFX.play(n > 1 ? "double" : "harvest");
-  if (n > 1) { doubleBurst(i, k); toast(`<b>Récolte double !</b> 2 × ${d.name.toLowerCase()}`); }
+  if (n > 1) doubleBurst(i, k);
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
 }
 /* Récolte double : « ×2 » doré, deux récoltes qui jaillissent et des étincelles au-dessus du bac. */
@@ -1197,7 +1196,7 @@ function spawnButterfly() {
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++; questProgress("butterfly"); SFX.play("butterfly");
     const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
-    toast(`Papillon attrapé ! <b>+${gain} pièces · +3 XP</b>`); commit();
+    commit();
   });
   el.addEventListener("animationend", () => el.remove());
   $("#fx").appendChild(el);
