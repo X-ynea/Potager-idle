@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.30.8";
+const APP_VERSION = "0.31.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -451,6 +451,7 @@ const A = {
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
   decoFlip(i) { S.decoFlip = S.decoFlip || [false, false, false]; S.decoFlip[+i] = !S.decoFlip[+i]; closeModal(); SFX.play("click"); commit(); },
+  decoReset(i) { S.decoPos = S.decoPos || [null, null, null]; S.decoPos[+i] = null; closeModal(); SFX.play("click"); commit(); },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) { if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal(); },
   decoSlots(d) { modalView = () => viewDecoSlots(d); $("#modal").innerHTML = modalView(); openModal(); },
@@ -673,7 +674,7 @@ function views_garden() {
       <button class="deco-edit" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓" : PENCIL}</button>
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div>${decoRowHTML()}</div>
+    </div>${decoRowHTML()}${UI.editDeco ? `<p class="deco-tip">Fais glisser une décoration pour la déplacer</p>` : ""}</div>
   </section>
   ${questsHTML()}
   <section class="panel">
@@ -705,9 +706,10 @@ const PENCIL = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L1
 function decoRowHTML() {
   const slots = S.decoSlots || [null, null, null];
   if (!UI.editDeco && slots.every(d => !d)) return "";
+  const pos = i => { const q = (S.decoPos || [])[i]; return q ? `left:${q.x}%;top:${q.y}%;right:auto;bottom:auto;` : ""; };
   return `<div class="deco-row">${slots.map((d, i) => d
-    ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}" style="--ds:${DECO_SCALE[d] || 1};--fx:${(S.decoFlip || [])[i] ? -1 : 1}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
-    : `<button class="deco-slot empty s${i}" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
+    ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}" style="${pos(i)}--ds:${DECO_SCALE[d] || 1};--fx:${(S.decoFlip || [])[i] ? -1 : 1}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
+    : `<button class="deco-slot empty s${i}" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre" style="${pos(i)}"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
 }
 // Choisir la décoration d'un emplacement.
 function viewDecoPick(slot) {
@@ -718,7 +720,7 @@ function viewDecoPick(slot) {
     <div class="deco-grid">${DECO_ORDER.map(d => { const ok = decoUnlocked(d), src = decoSource(d);
       return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}"` : "disabled"}>
         <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
-    ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoFlip" data-arg="${slot}">⇋ Retourner l’image</button><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
+    ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoFlip" data-arg="${slot}">⇋ Retourner l’image</button><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button>${(S.decoPos || [])[slot] ? `<button class="btn ghost" data-act="decoReset" data-arg="${slot}">Remettre à sa place</button>` : ""}</div>` : ""}
   </div>`;
 }
 // Choisir l'emplacement d'une décoration (depuis l'inventaire).
@@ -958,7 +960,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.decoFlip, S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([S.decoPos, S.decoFlip, S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -987,7 +989,7 @@ function render(force) {
     if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
       // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
       // repartent de zéro. On remplace seulement ce qui l'entoure.
-      for (const sel of [".deco-row", ".deco-edit"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
+      for (const sel of [".deco-row", ".deco-edit", ".deco-tip"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
       oldGarden.classList.toggle("editing", !!UI.editDeco);
       oldGarden.classList.toggle("decorated", !!UI.editDeco || S.decoSlots.some(Boolean));
       swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);
@@ -1157,7 +1159,36 @@ function spawnButterfly() {
 }
 
 /* ---------------- Events ---------------- */
+/* Déplacer une décoration du jardin au doigt (mode édition uniquement). */
+let decoDrag = null, decoDragged = 0;
+document.addEventListener("pointerdown", ev => {
+  const el = ev.target.closest(".garden.editing .deco-slot.full"); if (!el || ev.button > 0) return;
+  const row = el.parentElement;
+  decoDrag = { el, i: +el.dataset.arg, x0: ev.clientX, y0: ev.clientY, l: el.offsetLeft, t: el.offsetTop, W: row.clientWidth, H: row.clientHeight, on: false, id: ev.pointerId };
+});
+document.addEventListener("pointermove", ev => {
+  const d = decoDrag; if (!d || ev.pointerId !== d.id) return;
+  const dx = ev.clientX - d.x0, dy = ev.clientY - d.y0;
+  if (!d.on) { if (Math.hypot(dx, dy) < 6) return; d.on = true; d.el.classList.add("dragging"); try { d.el.setPointerCapture(d.id); } catch (e) {} }
+  ev.preventDefault();
+  const w = d.el.offsetWidth / d.W * 100, h = d.el.offsetHeight / d.H * 100;
+  d.x = Math.min(100 - w + 4, Math.max(-4, (d.l + dx) / d.W * 100));
+  d.y = Math.min(100 - h + 3, Math.max(-6, (d.t + dy) / d.H * 100));
+  Object.assign(d.el.style, { left: d.x + "%", top: d.y + "%", right: "auto", bottom: "auto" });
+}, { passive: false });
+const endDecoDrag = ev => {
+  const d = decoDrag; if (!d || ev.pointerId !== d.id) return; decoDrag = null;
+  if (!d.on) return;
+  d.el.classList.remove("dragging"); decoDragged = Date.now();
+  if (ev.type === "pointercancel" || d.x == null) { render(true); return; }
+  S.decoPos = S.decoPos || [null, null, null];
+  S.decoPos[d.i] = { x: +d.x.toFixed(2), y: +d.y.toFixed(2) };
+  SFX.play("plant"); commit();
+};
+document.addEventListener("pointerup", endDecoDrag);
+document.addEventListener("pointercancel", endDecoDrag);
 document.addEventListener("click", ev => {
+  if (Date.now() - decoDragged < 400 && ev.target.closest(".deco-slot")) { ev.stopPropagation(); return; }
   const el = ev.target.closest("[data-act]");
   if (!el) { if (ev.target.id === "modal") closeModal(); return; }
   if (el.disabled) return;

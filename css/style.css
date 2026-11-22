@@ -733,3 +733,11 @@ button.herb:active { transform: scale(.97); }
 .garden.decorated { overflow: clip; overflow-clip-margin: 18px; }
 .garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: -2.5%; }
 .garden .deco-row .deco-slot.s1 { right: -2.5%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .82 / var(--cols) * 1.008 - 8cqw); }
+/* Décorations déplaçables en mode édition */
+.garden.editing .deco-row .deco-slot.full { touch-action: none; cursor: grab; }
+.garden.editing .deco-row .deco-slot.full.dragging { cursor: grabbing; z-index: 6; outline-color: var(--sun); }
+.garden.editing .deco-row .deco-slot.full.dragging img { filter: drop-shadow(0 10px 8px rgba(30,60,10,.45)); }
+.deco-tip { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); margin: 0; z-index: 5; pointer-events: none; white-space: nowrap;
+  background: rgba(255,255,255,.92); color: var(--ink); font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 6px rgba(30,60,10,.2); }
+/* Hors mode édition, les décos ne bloquent pas les taps sur les bacs */
+.garden:not(.editing) .deco-row .deco-slot { pointer-events: none; }
