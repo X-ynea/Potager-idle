@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.20";
+const APP_VERSION = "2.0.0-beta.21";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -21,6 +21,8 @@ const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
 // Vitesse d’une plante : compost, et +25 % pour une plante de saison pendant sa saison.
 const plantSpeed = k => speed() * (inSeason(k) ? SEASON_BONUS : 1);
+// Nombre de voisins qui peuvent attendre une commande en même temps (3, puis 4 et 5 avec le Banc des voisins).
+const maxOrders = () => UPG.village.values[S.upg.village || 0];
 const stoves = () => UPG.stove.values[S.upg.stove];
 const cnt = (bag, k) => bag[k] || 0;
 /* Récoltes dorées : clé "gold_<plante>", rangées à part, valent 10 fois plus. */
@@ -50,7 +52,7 @@ function fresh() {
     v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
-    upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0 },
+    upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
   };
@@ -107,7 +109,7 @@ function tick(t) {
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
   S.stats.maxCoins = Math.max(st("maxCoins"), S.coins);
   S.orders = S.orders.filter(o => Object.keys(o.items).every(k => (PLANTS[k] || RECIPES[k]) && knownItem(k)));
-  if (S.orders.length < 3 && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
+  if (S.orders.length < maxOrders() && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
 }
 function plotState(p, t) {
   if (!p.seed) return "empty";
@@ -133,7 +135,7 @@ function unlockItems(L) {
   const out = [];
   for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push({ art: seedArt(k), name: PLANTS[k].name, kind: PLANTS[k].only ? `Plante ${SEASONS[PLANTS[k].season].of}, en vente à sa saison` : "Nouvelle graine au marché" });
   for (const r of RORDER) if (RECIPES[r].lvl === L) out.push({ art: dishArt(r), name: RECIPES[r].name, kind: "Nouvelle recette au marché" });
-  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/upg-${u}.webp" alt="">`, name: UPG[u].name, kind: `${UPG[u].desc(UPG[u].values[i + 1])}`, buy: UPG[u].steps[i].cost }); }
+  for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/${UPG[u].img || "upg-" + u}.webp" alt="">`, name: UPG[u].name, kind: `${UPG[u].desc(UPG[u].values[i + 1])}`, buy: UPG[u].steps[i].cost }); }
   PLOT_STEPS.forEach(s => { if (s.lvl === L) out.push({ art: `<img src="assets/img/upg-plot.webp" alt="">`, name: "Nouvelle parcelle", kind: "Un bac de plus dans le jardin", buy: s.cost }); });
   if (L === 3) out.push({ art: `<img src="assets/img/greenhouse.webp" alt="">`, name: "La Serre à hybrides", kind: "Croise tes récoltes" });
   return out;
@@ -325,10 +327,11 @@ function genOrder() {
   for (const k in items) { effort += itemEffort(k, items[k]); xp += itemXp(k) * items[k]; }
   const used = new Set(S.orders.map(o => o.v));
   // Les voisins de saison ne passent que pendant leur saison, et demandent volontiers les plantes de saison.
+  // Jamais deux fois le même voisin en même temps.
   const here = VILLAGERS.map((_, i) => i).filter(i => !VILLAGERS[i].season || VILLAGERS[i].season === season());
   const free = here.filter(i => !used.has(i) && i !== S.lastVillager);
   const guest = free.find(i => VILLAGERS[i].season);
-  const v = guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here);
+  const v = guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here.filter(i => !used.has(i)));
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
   return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
@@ -457,7 +460,7 @@ const A = {
     S.orders = S.orders.filter(x => x !== o); S.stats.orders++; questProgress("deliver");
     S.stats.served = [...new Set([...(S.stats.served || []), o.v])]; if (o.coins >= 500) S.stats.bigOrder = 1;
     const { x, y } = pos(ev); earn(o.coins, x, y, o.xp);
-    if (S.orders.length < 3) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
+    if (S.orders.length < maxOrders()) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
     commit();
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
@@ -977,7 +980,7 @@ function marketUpgrades() {
     rows.push(`<div class="item"><img class="upg-img" src="assets/img/upg-plot.webp" alt=""><div class="t"><b>Nouvelle parcelle</b><span>${S.plots.length} / ${MAX_PLOTS} parcelles</span></div><div class="acts">${plotStep ? (S.level < plotStep.lvl ? `<span class="small muted">Niveau ${plotStep.lvl}</span>` : `<button class="btn sm" data-act="buyPlot" ${S.coins < plotStep.cost ? "disabled" : ""}>${coin}${fmt(plotStep.cost)}</button>`) : `<span class="small muted"><b>Complet</b></span>`}</div></div>`);
     for (const u in UPG) {
       const U = UPG[u], lv = S.upg[u], step = U.steps[lv], cur = U.values[lv], nxt = U.values[lv + 1];
-      rows.push(`<div class="item"><img class="upg-img" src="assets/img/upg-${u}.webp" alt=""><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step && U.desc(nxt) !== U.desc(cur) ? ` → ${U.desc(nxt)}` : ""}</span></div>
+      rows.push(`<div class="item"><img class="upg-img" src="assets/img/${U.img || "upg-" + u}.webp" alt=""><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step && U.desc(nxt) !== U.desc(cur) ? ` → ${U.desc(nxt)}` : ""}</span></div>
       <div class="acts">${!step ? `<span class="small muted"><b>Acquis</b></span>` : S.level < step.lvl ? `<span class="small muted">Niveau ${step.lvl}</span>` : `<button class="btn sm" data-act="buyUpg" data-arg="${u}" ${S.coins < step.cost ? "disabled" : ""}>${coin}${fmt(step.cost)}</button>`}</div></div>`);
     }
   return `<div class="list">${rows.join("")}</div>`;
@@ -1041,9 +1044,9 @@ function views_village() {
     <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}${o.stars ? `<span class="diff d${o.stars}">${"★".repeat(o.stars)}<span>${o.label}</span></span>` : ""}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
       <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<button class="chip need-chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" data-name="${itemName(k)}" data-act="chipName" aria-label="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</button>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
-  return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / 3</span></div>
+  return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / ${maxOrders()}</span></div>
     ${cards || `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}
-    ${S.orders.length < 3 ? `<p class="small muted num" style="margin:0">Prochaine visite dans <span data-left="${S.nextOrderAt}"></span></p>` : ""}</section>`;
+    ${S.orders.length < maxOrders() ? `<p class="small muted num" style="margin:0">Prochaine visite dans <span data-left="${S.nextOrderAt}"></span></p>` : ""}</section>`;
 }
 
 /* ---------------- Render loop ---------------- */
@@ -1056,7 +1059,7 @@ function sig(t) {
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
-    case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < 3]);
+    case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
   }
 }
 /* Remplace les enfants de « live » par ceux de « fresh », sauf « keep » qui reste en place. */

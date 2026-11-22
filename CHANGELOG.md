@@ -20,6 +20,10 @@
 - 8 nouvelles recettes de saison, du velouté de petits pois à la potée au chou.
 - 4 nouveaux voisins qui ne passent que pendant leur saison : Mlle Hirondelle, Léon le Lézard, Noisette la Souris et Edmond l'Ours.
 - Nouveau succès « Quatre saisons » : récolter les 8 plantes exclusives.
+## Version 1.5.0
+
+- Nouvelle amélioration au Marché, rayon Bonus : le **Banc des voisins**. Il ouvre une 4ᵉ place au village (niveau 7), puis une 5ᵉ (niveau 11) : plus de voisins peuvent attendre une commande en même temps.
+- Un même voisin n'a jamais deux commandes en même temps.
 
 ## Version 1.4.0
 
