@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 2.0.1
+
+- 3 nouveaux succès dorés : « Ruée vers l’or » (10 puis 50 légumes dorés récoltés au total), « Trésor de saison » (une récolte dorée d’une plante de chaque saison) et « Tout l’or du jardin » (les 28 plantes en version dorée).
+
 ## Version 2.0 « Les quatre saisons »
 
 *Novembre 2026*

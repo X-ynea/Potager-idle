@@ -20,6 +20,12 @@ const ACHIEVEMENTS = [
 
   { id: "gold", cat: "garden", name: "Chercheur d’or", desc: n => n === 1 ? "Trouver une récolte dorée" : `Trouver ${n} récoltes dorées différentes`, value: () => (S.goldenFound || []).length,
     tiers: [{ n: 1, c: 100, x: 30 }, { n: 5, c: 600, x: 150 }, { n: 20, c: 4000, x: 600, title: "Chercheur d’or" }] },
+  { id: "goldrush", cat: "garden", name: "Ruée vers l’or", desc: n => `Récolter ${n} légumes dorés au total`, value: () => st("golden"),
+    tiers: [{ n: 10, c: 800, x: 200 }, { n: 50, c: 5000, x: 800, title: "Orpailleur" }] },
+  { id: "goldseasons", cat: "garden", name: "Trésor de saison", desc: "Trouver une récolte dorée d’une plante de chaque saison", value: () => new Set((S.goldenFound || []).map(k => PLANTS[k]?.season).filter(Boolean)).size,
+    tiers: [{ n: 4, c: 2000, x: 400 }] },
+  { id: "goldall", cat: "garden", name: "Tout l’or du jardin", desc: n => `Trouver toutes les plantes en version dorée (${n})`, value: () => (S.goldenFound || []).filter(k => PLANTS[k] && !PLANTS[k].tuto).length,
+    tiers: [{ n: ORDER.length, c: 20000, x: 2000, title: "Roi Midas du potager" }] },
   { id: "first_cross", cat: "lab", name: "Apprenti botaniste", desc: "Réussir son premier croisement", value: () => S.hybrids.length, tiers: [{ n: 1, c: 100, x: 30, title: "Botaniste" }] },
   { id: "herbier", cat: "lab", name: "Herbier complet", desc: "Découvrir tous les hybrides", value: () => S.hybrids.length,
     tiers: [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins", deco: "hive" }] },
