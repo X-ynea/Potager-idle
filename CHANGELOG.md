@@ -1,39 +1,78 @@
 # Notes de version
 
-## Version 2.1.1
+## Version 2 : « Les quatre saisons »
 
-- Un fond de jardin dessiné pour chaque saison : pelouse fleurie au printemps, herbe dorée l’été, feuilles mortes en automne, neige l’hiver.
+*22 novembre 2026 · version 2.1.1*
 
-## Version 2.1.0
+Le potager vit maintenant au rythme des saisons. Chaque semaine, le jardin change de visage, de nouvelles plantes arrivent au marché et de nouveaux voisins passent te voir. Printemps, été, automne, hiver… et on recommence.
 
-- 4 nouveaux succès de saison : « Le tour de l’année » (jouer pendant les 4 saisons), « Amis de passage » (livrer chacun des 4 voisins de saison), « Cuisine de saison » (cuisiner les 8 recettes de saison) et « Carnet d’observation » (attraper papillon, libellule, coccinelle et rouge-gorge).
+### Une saison par semaine
 
-## Version 2.0.1
+- **Une saison par semaine**, du lundi au dimanche, la même pour tout le monde. Elle change dans la nuit de dimanche à lundi.
+- **Le jardin change de décor** : pelouse fleurie et pétales roses au printemps, herbe dorée et pollen scintillant l'été, feuilles mortes qui tombent en tourbillonnant à l'automne, neige et flocons l'hiver.
+- **L'interface prend les couleurs de la saison** : rose clair, vert, orange chaud ou bleu clair, en mode clair comme en mode sombre.
+- **Un bandeau en haut du jardin** indique la saison et les jours qui restent. En le touchant, on découvre la fiche de la saison : ses plantes, son visiteur et ce qui menace les bacs.
+- **Une annonce accueille chaque nouvelle saison.**
 
-- 3 nouveaux succès dorés : « Ruée vers l’or » (10 puis 50 légumes dorés récoltés au total), « Trésor de saison » (une récolte dorée d’une plante de chaque saison) et « Tout l’or du jardin » (les 28 plantes en version dorée).
+### Nouveaux visiteurs, nouveaux embêtements
 
-## Version 2.0 « Les quatre saisons »
-
-*Novembre 2026*
-
-### Les saisons
-- Une saison par semaine, du lundi au dimanche, la même pour tout le monde : printemps, été, automne, hiver, puis on recommence.
-- Le jardin change d'ambiance : pétales au printemps, pollen doré l'été, feuilles mortes qui tombent en automne, flocons l'hiver.
-- Un bandeau en haut du jardin indique la saison et les jours restants, et ouvre sa fiche. Une annonce accueille chaque nouvelle saison.
-- Le visiteur à attraper change : papillon, libellule, coccinelle, rouge-gorge.
-- Ce qui bloque les bacs change aussi, avec le même fonctionnement : escargots, herbes folles, feuilles mortes, gel.
-
-### Nouvelle couleur
-- Les couleurs de l'interface suivent la saison : rose clair au printemps, vert l'été, orange chaud en automne, bleu clair l'hiver (fonds, boutons, onglets, tags, encadrés, barre d'XP), en clair comme en sombre. Le jardin garde son herbe et ses couleurs naturelles.
-- Nouvelle icône d'appli sur fond orange pâle.
+- **Le visiteur à attraper change** : papillon au printemps, libellule l'été, coccinelle à l'automne, rouge-gorge l'hiver.
+- **Ce qui bloque les bacs change aussi**, avec le même geste pour s'en débarrasser : escargots, herbes folles, feuilles mortes, gel.
 
 ### Les plantes de saison
-- Chaque plante a sa saison. Les plantes de la saison en cours portent son icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché et l'inventaire ; la fiche de plante et le détail du marché indiquent la saison de chaque plante.
-- Pendant sa saison, une plante pousse 25 % plus vite.
-- 8 nouvelles plantes exclusives, dont les graines ne sont vendues que pendant leur saison : petits pois et asperge, courgette et melon, betterave et champignon des bois, poireau et chou d'hiver.
-- 8 nouvelles recettes de saison, du velouté de petits pois à la potée au chou.
-- 4 nouveaux voisins qui ne passent que pendant leur saison : Mlle Hirondelle, Léon le Lézard, Noisette la Souris et Edmond l'Ours.
-- Nouveau succès « Quatre saisons » : récolter les 8 plantes exclusives.
+
+- **Chaque plante a sa saison** : pendant celle-ci, elle pousse **25 % plus vite**. Une petite icône (fleur, soleil, feuille ou flocon) signale les plantes du moment dans l'herbier, le choix des graines, le marché et l'inventaire.
+- **8 plantes exclusives**, dont les graines ne sont vendues que pendant leur saison. Pense à faire des réserves !
+  - Printemps : petits pois, asperge
+  - Été : courgette, melon
+  - Automne : betterave, champignon des bois
+  - Hiver : poireau, chou d'hiver
+- **8 recettes de saison**, du velouté de petits pois à la potée au chou, en passant par la salade de melon et la tourte forestière.
+
+### Quatre nouveaux voisins
+
+Ils ne passent qu'à leur saison, et raffolent des plantes du moment :
+- **Mlle Hirondelle** au printemps, tout juste rentrée de voyage ;
+- **Léon le Lézard** l'été, toujours prêt pour l'aventure ;
+- **Noisette la Souris** à l'automne, qui fait ses provisions ;
+- **Edmond l'Ours** l'hiver, réveillé exprès de son hibernation.
+
+### Nouveaux succès
+
+- **Saisons** : « Quatre saisons » (récolter les 8 plantes exclusives), « Le tour de l'année », « Amis de passage », « Cuisine de saison » et « Carnet d'observation ».
+- **Or** : « Ruée vers l'or », « Trésor de saison » et « Tout l'or du jardin », pour les plus patients.
+- Au total, le jeu compte maintenant **38 succès**.
+
+### Et depuis la 1.0
+
+- **Mamie Lapine** offre un radis éclair pour apprendre à semer, arroser et récolter dès la première minute.
+- **Une plante qui a soif ne s'arrête plus** : elle pousse simplement quatre fois moins vite.
+- **Le Banc des voisins**, nouvelle amélioration, ouvre une 4ᵉ puis une 5ᵉ place au village. Un même voisin n'a jamais deux commandes à la fois.
+- **Récolte dorée** : elle s'annonce maintenant dans une petite fenêtre scintillante.
+- **Décorations** : on peut les décaler, les agrandir et les retourner dans leur emplacement.
+- **Sur ordinateur**, survoler un bac affiche le temps qu'il reste avant la récolte.
+- **Plus de douceur** : des sons moins perçants, moins de messages à l'écran, et les graines rangées par ordre alphabétique.
+
+### En chiffres
+
+**28 plantes** (dont 8 de saison et 8 hybrides) · **29 recettes** · **12 voisins** · **12 décorations** · **38 succès**
+
+Bonne saison au potager ! 🌸☀️🍂❄️
+
+## Détail des mises à jour
+
+### 2.1.1
+- Un fond de jardin dessiné pour chaque saison.
+
+### 2.1.0
+- 4 nouveaux succès de saison : « Le tour de l'année », « Amis de passage », « Cuisine de saison » et « Carnet d'observation ».
+
+### 2.0.1
+- 3 nouveaux succès dorés : « Ruée vers l'or », « Trésor de saison » et « Tout l'or du jardin ».
+
+### 2.0.0
+- Saisons hebdomadaires, plantes, recettes et voisins de saison, couleurs de l'interface selon la saison, nouvelle icône d'appli.
+
 ## Version 1.6.0
 
 - Sur ordinateur, passer la souris sur un bac affiche une bulle avec le temps restant avant la récolte (en comptant l'eau qui reste et le ralenti en terre sèche), ou ce qu'il faut faire : récolter, libérer, planter.

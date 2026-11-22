@@ -2,7 +2,7 @@
 
 Un petit jeu idle de potager, pensé pour le téléphone (Android) et installable comme une appli (PWA).
 
-**Version actuelle : 1.0** · voir les [notes de version](CHANGELOG.md).
+**Version actuelle : 2.1.1 « Les quatre saisons »** · voir les [notes de version](CHANGELOG.md).
 
 Plante, arrose, récolte, cuisine des plats, croise tes récoltes dans la Serre pour découvrir des variétés hybrides et livre les commandes des voisins du village. Les plantes poussent en temps réel (de 3 minutes à 1 heure), même quand le jeu est fermé.
 
