@@ -984,3 +984,9 @@ img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: dro
 :root[data-theme="system"] .gp-title { color: #f4c03e; }
 }
 .ss-plants .chip { padding: 5px 12px 5px 7px; gap: 6px; }
+/* Encarts de saison (bandeau, visiteur, élément bloquant) : teinte claire de la saison pour ressortir du fond */
+.season-bar, .ss-facts > div { background: color-mix(in srgb, var(--leaf) 12%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 28%, var(--line)); }
+:root[data-theme="dark"] .season-bar, :root[data-theme="dark"] .ss-facts > div { background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .season-bar, :root[data-theme="system"] .ss-facts > div { background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
+}
