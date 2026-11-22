@@ -724,3 +724,7 @@ button.herb:active { transform: scale(.97); }
 .garden .deco-row .deco-slot { width: 16%; height: 18.5cqw; }
 .garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: 7%; }
 .garden .deco-row .deco-slot.s1 { right: 7%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .7 / var(--cols) * 1.008 - 8cqw); }
+/* Crayon plus discret ; décos retournables */
+.deco-edit { width: 26px; height: 26px; top: 6px; right: 6px; font-size: .8rem; }
+.deco-edit svg { width: 14px; height: 14px; }
+.garden .deco-row .deco-slot.full img { transform: scale(calc(var(--ds, 1) * var(--fx, 1)), var(--ds, 1)); }
