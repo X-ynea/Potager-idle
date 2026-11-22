@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.6";
+const APP_VERSION = "2.0.0-beta.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -209,7 +209,7 @@ function questsHTML() {
   const doneAll = Q.list.every(q => q.claimed);
   return `<section class="panel quests"><div class="row spread"><h2>Objectifs du jour</h2><span class="small muted num">${Q.list.filter(q => q.claimed).length} / 3</span></div>
     ${Q.list.map((q, i) => { const ok = q.prog >= q.n; return `<div class="quest ${q.claimed ? "claimed" : ok ? "ready" : ""}">
-      <div class="q-ico">${q.k ? cropArt(q.k) : QUEST_ICONS[q.type]}</div>
+      <div class="q-ico">${q.k ? cropArt(q.k) : q.type === "butterfly" ? visitorArt(VISITOR().key) : q.type === "snail" ? pestIcon(PEST().key) : QUEST_ICONS[q.type]}</div>
       <div class="q-txt"><b>${q.text}</b><div class="pbar"><i style="width:${(q.prog / q.n * 100).toFixed(1)}%"></i></div>
         <span class="small muted num">${fmt(q.prog)} / ${fmt(q.n)} · ${coin}${fmt(q.coins)} · +${q.xp} XP</span></div>
       ${q.claimed ? `<span class="q-done">✓</span>` : `<button class="btn sm" data-act="claimQuest" data-arg="${i}" ${ok ? "" : "disabled"}>Récupérer</button>`}
@@ -622,7 +622,7 @@ function viewSeason(arrived) {
     <div class="ss-plants">${plants.map(k => { const ok = seedAvailable(k) || S.discovered.includes(k); return `<span class="chip${ok ? "" : " locked"}">${cropArt(k)}${ok ? PLANTS[k].name : `Niv. ${PLANTS[k].lvl}`}</span>`; }).join("")}</div>
     <div class="ss-facts">
       <div><span class="ss-ico">${visitorArt(z.visitor.key)}</span><span>Visiteur : <b>${z.visitor.name}</b></span></div>
-      <div><span class="ss-ico">${pestArt(z.pest.key).replace(/class="pest[^"]*"/, "")}</span><span>Bloque les bacs : <b>${z.pest.name}</b></span></div>
+      <div><span class="ss-ico">${pestIcon(z.pest.key)}</span><span>Bloque les bacs : <b>${z.pest.name}</b></span></div>
     </div>
     <button class="btn big" data-act="close">${arrived ? "C’est parti !" : "Fermer"}</button></div>`;
 }

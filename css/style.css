@@ -950,3 +950,6 @@ button.herb:active { transform: scale(.97); }
 }
 /* Bandeau et fiche de saison : teinte de la saison, lisible en clair comme en sombre */
 [class*="sz-bg-"] { background: linear-gradient(90deg, color-mix(in srgb, var(--leaf) 14%, var(--panel)), var(--panel)); }
+/* Visiteurs dessinés de profil : petit vol sautillant au lieu du battement d'ailes du papillon */
+.butterfly.v-robin .bf img, .butterfly.v-ladybug .bf img, .butterfly.v-dragonfly .bf img { animation: hop .45s ease-in-out infinite alternate; }
+.butterfly.v-dragonfly .bf img { animation-duration: .25s; }

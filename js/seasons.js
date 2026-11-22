@@ -42,7 +42,7 @@ const SEASONS = {
   },
 };
 // Images déjà fournies (les autres sont dessinées en attendant : voir docs/prompts-images.md).
-const SEASON_IMG = new Set(["ui-snail", "ui-butterfly"]);
+const SEASON_IMG = new Set(["ui-snail", "ui-butterfly", "ui-weeds", "ui-leaves", "ui-ladybug", "ui-dragonfly", "ui-robin"]);
 
 /* Lundi 16 novembre 2026 : début d'une semaine d'automne. */
 const SEASON_ANCHOR_DAY = Date.UTC(2026, 10, 16) / 864e5;
@@ -92,6 +92,8 @@ function pestArt(key) {
   return `<span class="pest pest-${key}">${PEST_SVG[key] || ""}</span>`;
 }
 
+// Même élément, en simple icône (objectifs du jour, fiche de saison).
+const pestIcon = key => SEASON_IMG.has("ui-" + key) ? `<img src="assets/img/ui-${key}.webp" alt="">` : PEST_SVG[key] || "";
 /* Visiteurs ailés : papillon, libellule, coccinelle, rouge-gorge. */
 const VISITOR_SVG = {
   dragonfly: `<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#bfe6ff" fill-opacity=".85" stroke="#6bb6e6" stroke-width="1.2">
