@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.29.1";
+const APP_VERSION = "0.30.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -43,7 +43,7 @@ function fresh() {
   const s = {
     v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
-    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [],
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
@@ -72,6 +72,7 @@ function migrate(s) {
   if (s.lab) { if (HYB_MAP[s.lab.a]) s.lab.a = HYB_MAP[s.lab.a]; if (HYB_MAP[s.lab.b]) s.lab.b = HYB_MAP[s.lab.b]; }
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
+  if (!s.decoSlots) s.decoSlots = [null, null, null];
   if (s.upg && !s.upgBought017) { s.upg.basket = 0; s.upg.gloves = 0; s.upgBought017 = true; }
   const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 let lastSaveAt = 0;
@@ -449,6 +450,16 @@ const A = {
   },
   dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
+  toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
+  decoPick(i) { if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal(); },
+  decoSlots(d) { modalView = () => viewDecoSlots(d); $("#modal").innerHTML = modalView(); openModal(); },
+  decoPlace(arg) {
+    const [i, d] = arg.split(":"); const slot = +i;
+    if (d) S.decoSlots = S.decoSlots.map(x => x === d ? null : x); // une déco n'occupe qu'un emplacement
+    S.decoSlots[slot] = d || null;
+    closeModal(); SFX.play("plant"); if (d) toast(`${DECOS[d]} installé${["e"].includes(DECOS[d].slice(-1)) ? "" : ""} dans le jardin.`);
+    commit();
+  },
   claimQuest(i, ev) {
     const q = dailyQuests().list[+i]; if (!q || q.claimed || q.prog < q.n) return;
     q.claimed = true; S.stats.quests = (S.stats.quests || 0) + 1;
@@ -645,7 +656,7 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
-  const goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  const decoKeys = DECO_ORDER.filter(decoUnlocked), goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k) })).join("")}</div>`;
@@ -657,14 +668,16 @@ function views_garden() {
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>
-    <div class="garden"><div class="plots">
+    <div class="garden${UI.editDeco ? " editing" : ""}">
+      <button class="deco-edit" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓" : PENCIL}</button>
+      <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div></div>
+    </div>${decoRowHTML()}</div>
   </section>
   ${questsHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
-    ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(`<img src="assets/img/deco-${d}.webp" alt="">`, { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
 }
@@ -685,6 +698,35 @@ function watchNotifs(t) {
   if (snap.weed > p.weed) NOTIF.show("weed", "Un escargot !", "Il bloque une plante. Viens le déloger.");
   if (snap.cook > p.cook) NOTIF.show("cook", "C’est prêt !", "Un plat t’attend en cuisine.");
   if (snap.lab > p.lab) NOTIF.show("lab", "Croisement terminé", "Viens voir ce qui a poussé dans la serre…");
+}
+/* ---------------- Décorations du jardin : 3 emplacements fixes ---------------- */
+const PENCIL = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z" fill="currentColor"/><path d="M14.5 6.5l3 3" stroke="var(--panel)" stroke-width="1.4"/></svg>`;
+function decoRowHTML() {
+  const slots = S.decoSlots || [null, null, null];
+  if (!UI.editDeco && slots.every(d => !d)) return "";
+  return `<div class="deco-row">${slots.map((d, i) => d
+    ? `<button class="deco-slot full" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
+    : `<button class="deco-slot empty" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
+}
+// Choisir la décoration d'un emplacement.
+function viewDecoPick(slot) {
+  const cur = S.decoSlots[slot];
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Décorations">
+    <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <p class="small muted" style="margin:0">Choisis une décoration. Elle remplace celle déjà en place.</p>
+    <div class="deco-grid">${DECO_ORDER.map(d => { const ok = decoUnlocked(d), src = decoSource(d);
+      return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}"` : "disabled"}>
+        <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
+    ${cur ? `<button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer la décoration</button>` : ""}
+  </div>`;
+}
+// Choisir l'emplacement d'une décoration (depuis l'inventaire).
+function viewDecoSlots(d) {
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-label="${DECOS[d]}">
+    <div class="sheet-head"><h2>${DECOS[d]}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <p class="small muted" style="margin:0">Où la placer dans le jardin ?</p>
+    <div class="deco-slots-pick">${S.decoSlots.map((c, i) => `<button class="deco-slot ${c ? "full" : "empty"}${c === d ? " sel" : ""}" data-act="decoPlace" data-arg="${i}:${d}">${c ? `<img src="assets/img/deco-${c}.webp" alt="">` : "<span>+</span>"}<small>Emplacement ${i + 1}</small></button>`).join("")}</div>
+  </div>`;
 }
 function ringValues(p, st, t) {
   const grow = Math.min(1, p.grown / (PLANTS[p.seed].time * 1000));
@@ -915,7 +957,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -944,6 +986,8 @@ function render(force) {
     if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
       // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
       // repartent de zéro. On remplace seulement ce qui l'entoure.
+      for (const sel of [".deco-row", ".deco-edit"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
+      oldGarden.classList.toggle("editing", !!UI.editDeco);
       swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);
       swapAround($("#view"), tmp, oldGarden.parentElement, freshGarden.parentElement);
     } else {

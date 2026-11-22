@@ -9,52 +9,60 @@ const st = k => (S.stats && S.stats[k]) || 0;
 const ACHIEVEMENTS = [
   { id: "first_harvest", cat: "garden", name: "Premier radis", desc: "Faire sa première récolte", value: () => st("harvest"), tiers: [{ n: 1, c: 20, x: 10 }] },
   { id: "green", cat: "garden", name: "Main verte", desc: n => `Récolter ${fmt(n)} plantes`, value: () => st("harvest"),
-    tiers: [{ n: 10, c: 50, x: 20 }, { n: 100, c: 300, x: 80 }, { n: 1000, c: 2000, x: 300, title: "Main verte", bonus: "xp" }] },
+    tiers: [{ n: 10, c: 50, x: 20 }, { n: 100, c: 300, x: 80, deco: "gnome" }, { n: 1000, c: 2000, x: 300, title: "Main verte", bonus: "xp" }] },
   { id: "double", cat: "garden", name: "Récolte double", desc: "Obtenir une récolte double", value: () => st("doubles"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "full", cat: "garden", name: "Jardin plein", desc: "Avoir toutes ses parcelles plantées en même temps", value: () => st("fullGarden"), tiers: [{ n: 1, c: 40, x: 15 }] },
-  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40 }] },
+  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "can" }] },
   { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && S.discovered.includes(k)).length,
-    tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur" }] },
+    tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur", deco: "scarecrow" }] },
 
   { id: "gold", cat: "garden", name: "Chercheur d’or", desc: n => n === 1 ? "Trouver une récolte dorée" : `Trouver ${n} récoltes dorées différentes`, value: () => (S.goldenFound || []).length,
     tiers: [{ n: 1, c: 100, x: 30 }, { n: 5, c: 600, x: 150 }, { n: 20, c: 4000, x: 600, title: "Chercheur d’or" }] },
   { id: "first_cross", cat: "lab", name: "Apprenti botaniste", desc: "Réussir son premier croisement", value: () => S.hybrids.length, tiers: [{ n: 1, c: 100, x: 30, title: "Botaniste" }] },
   { id: "herbier", cat: "lab", name: "Herbier complet", desc: "Découvrir tous les hybrides", value: () => S.hybrids.length,
-    tiers: [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins" }] },
+    tiers: [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins", deco: "hive" }] },
   { id: "experimenter", cat: "lab", name: "Expérimentateur", desc: n => `Faire ${n} croisements, même ratés`, value: () => st("crosses"), tiers: [{ n: 25, c: 300, x: 80 }] },
 
   { id: "first_dish", cat: "kitchen", name: "Premier plat", desc: "Cuisiner sa première recette", value: () => st("cooked"), tiers: [{ n: 1, c: 30, x: 10 }] },
   { id: "chef", cat: "kitchen", name: "Chef", desc: n => `Cuisiner ${fmt(n)} plats`, value: () => st("cooked"),
     tiers: [{ n: 10, c: 100, x: 30 }, { n: 50, c: 500, x: 120 }, { n: 200, c: 2500, x: 400, title: "Chef étoilé", bonus: "cook" }] },
   { id: "book", cat: "kitchen", name: "Livre de recettes", desc: "Connaître toutes les recettes", value: () => S.recipes.length, tiers: [{ n: RORDER.length, c: 1000, x: 200, title: "Gourmet" }] },
-  { id: "feast", cat: "kitchen", name: "Grand festin", desc: "Cuisiner le Gâteau des moissons", value: () => st("gateau"), tiers: [{ n: 1, c: 3000, x: 500, title: "Maître des moissons" }] },
+  { id: "feast", cat: "kitchen", name: "Grand festin", desc: "Cuisiner le Gâteau des moissons", value: () => st("gateau"), tiers: [{ n: 1, c: 3000, x: 500, title: "Maître des moissons", deco: "rabbit" }] },
 
   { id: "neighbor", cat: "village", name: "Bon voisin", desc: n => `Livrer ${n} commandes`, value: () => st("orders"),
-    tiers: [{ n: 10, c: 100, x: 30 }, { n: 50, c: 600, x: 150 }, { n: 150, c: 2000, x: 400, title: "Pilier du village" }] },
+    tiers: [{ n: 10, c: 100, x: 30 }, { n: 50, c: 600, x: 150, deco: "wheelbarrow" }, { n: 150, c: 2000, x: 400, title: "Pilier du village" }] },
   { id: "friends", cat: "village", name: "Ami de tous", desc: "Livrer une commande à chacun des voisins", value: () => (S.stats.served || []).length,
-    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village" }] },
+    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "mailbox" }] },
   { id: "bigdelivery", cat: "village", name: "Grosse livraison", desc: "Livrer une commande de 500 pièces ou plus", value: () => st("bigOrder"), tiers: [{ n: 1, c: 200, x: 50 }] },
 
   { id: "fortune", cat: "eco", name: "Petite fortune", desc: n => `Avoir ${fmt(n)} pièces en même temps`, value: () => st("maxCoins"),
-    tiers: [{ n: 1000, c: 0, x: 50 }, { n: 10000, c: 0, x: 200 }, { n: 100000, c: 0, x: 800, title: "Magnat du potager" }] },
+    tiers: [{ n: 1000, c: 0, x: 50 }, { n: 10000, c: 0, x: 200 }, { n: 100000, c: 0, x: 800, title: "Magnat du potager", deco: "well" }] },
   { id: "equipped", cat: "eco", name: "Bien équipé", desc: "Acheter toutes les améliorations", value: () => Object.keys(UPG).filter(u => S.upg[u] >= UPG[u].steps.length).length,
     tiers: [{ n: Object.keys(UPG).length, c: 2000, x: 300 }] },
-  { id: "domain", cat: "eco", name: "Domaine", desc: n => `Avoir les ${n} parcelles`, value: () => S.plots.length, tiers: [{ n: MAX_PLOTS, c: 1000, x: 200, title: "Propriétaire" }] },
+  { id: "domain", cat: "eco", name: "Domaine", desc: n => `Avoir les ${n} parcelles`, value: () => S.plots.length, tiers: [{ n: MAX_PLOTS, c: 1000, x: 200, title: "Propriétaire", deco: "fence" }] },
   { id: "levels", cat: "eco", name: "Jardinier confirmé", desc: n => `Atteindre le niveau ${n}`, value: () => S.level,
     tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }] },
 
   { id: "butterflies", cat: "daily", name: "Chasseur de papillons", desc: n => `Attraper ${n} papillons`, value: () => st("butterflies"),
-    tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60 }, { n: 200, c: 800, x: 200, title: "Chasseur de papillons" }] },
+    tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Chasseur de papillons" }] },
   { id: "snails", cat: "daily", name: "Anti-escargots", desc: n => `Retirer ${n} escargots`, value: () => st("weeds"), tiers: [{ n: 50, c: 300, x: 80 }] },
   { id: "comeback", cat: "daily", name: "Bon retour", desc: "Revenir après plus de 8 heures d’absence", value: () => st("comeback"), tiers: [{ n: 1, c: 50, x: 15 }] },
-  { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: "Récupérer le cadeau du jour 7 jours d’affilée", value: () => st("bestStreak"), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle" }] },
+  { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: "Récupérer le cadeau du jour 7 jours d’affilée", value: () => st("bestStreak"), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle", deco: "bench" }] },
   { id: "early", cat: "daily", name: "Lève-tôt", desc: "Récolter avant 8 h", value: () => st("early"), tiers: [{ n: 1, c: 50, x: 15 }] },
-  { id: "night", cat: "daily", name: "Oiseau de nuit", desc: "Récolter après 22 h", value: () => st("night"), tiers: [{ n: 1, c: 50, x: 15 }] },
+  { id: "night", cat: "daily", name: "Oiseau de nuit", desc: "Récolter après 22 h", value: () => st("night"), tiers: [{ n: 1, c: 50, x: 15, deco: "lantern" }] },
 
   { id: "whynot", cat: "hidden", hidden: true, name: "Pourquoi pas ?", desc: "Croiser une plante avec elle-même", value: () => st("selfCross"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "patience", cat: "hidden", hidden: true, name: "Patience", desc: "Laisser une plante mûre plus de 24 h avant de la récolter", value: () => st("patience"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "sellall", cat: "hidden", hidden: true, name: "Tout vendre", desc: "Vendre toute sa récolte d’un coup pour plus de 1 000 pièces", value: () => st("bigSale"), tiers: [{ n: 1, c: 200, x: 50 }] },
 ];
+const DECOS = {
+  gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", can: "Arrosoir fleuri", birdhouse: "Nichoir",
+  hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", mailbox: "Boîte aux lettres", lantern: "Lanterne",
+  rabbit: "Lapin doré", well: "Puits",
+};
+const DECO_ORDER = Object.keys(DECOS);
+const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
+const decoUnlocked = d => { const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };
 const hasBonus = b => ACHIEVEMENTS.some(a => a.tiers.some((t, i) => t.bonus === b && (S.ach || {})[a.id] > i));
 const xpMult = () => hasBonus("xp") ? 1.05 : 1;
@@ -82,7 +90,7 @@ function showAchToasts() {
   while (ACH_QUEUE.length) {
     const { a, lv, t } = ACH_QUEUE.shift();
     const name = a.name + (a.tiers.length > 1 ? " " + ROMAN[lv] : "");
-    const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     toast(`<span class="ach-toast">${TROPHY}<span><b>Succès : ${name}</b><br>${rew}</span></span>`, 5500);
     buzz([10, 40, 10]); SFX.play("success");
   }
@@ -99,7 +107,7 @@ function viewAch() {
   // Obtenus : dernier palier atteint ; En cours : prochain palier à atteindre.
   const cardDone = a => {
     const lv = S.ach[a.id] || 0, max = a.tiers.length, t = a.tiers[lv - 1];
-    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     return `<div class="ach done">
       <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
       <div class="ach-txt"><b>${a.name}${max > 1 ? " " + ROMAN[lv] : ""}</b><span>${achDesc(a, t.n)}</span><span class="ach-rew ok">Obtenu${rew ? " · " + rew : ""}</span></div></div>`;
@@ -111,7 +119,7 @@ function viewAch() {
     const v = Math.min(a.value(), t.n);
     const name = hiddenNow ? "???" : a.name + (max > 1 ? " " + ROMAN[Math.min(lv + (doneAll ? 0 : 1), max)] : "");
     const desc = hiddenNow ? "Succès caché" : achDesc(a, t.n);
-    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     return `<div class="ach ${doneAll ? "done" : lv ? "part" : ""} ${hiddenNow ? "secret" : ""}">
       <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
       <div class="ach-txt"><b>${name}</b><span>${desc}</span>

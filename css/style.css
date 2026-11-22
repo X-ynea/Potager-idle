@@ -673,3 +673,26 @@ button.herb:active { transform: scale(.97); }
 .hi-gold > span:first-child { width: 48px; height: 48px; }
 .hi-gold .sil svg { filter: brightness(0) opacity(.18); width: 48px; height: 48px; }
 .hi-gold b { color: var(--ink); }
+/* Décorations du jardin */
+.garden { position: relative; }
+.deco-edit { position: absolute; top: 8px; right: 8px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.85); color: var(--leaf-deep); display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.25); font-weight: 800; font-size: 1rem; }
+.deco-edit svg { width: 18px; height: 18px; }
+.garden.editing .deco-edit { background: var(--leaf); color: #fff; }
+.deco-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--g, 12px); margin-top: var(--g, 12px); }
+.deco-slot { position: relative; height: clamp(70px, 18vw, 110px); border: 0; padding: 0; background: none; display: grid; place-items: end center; }
+.deco-slot img { height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(40,70,10,.35)); }
+.deco-slot.empty { border: 2px dashed rgba(255,255,255,.85); border-radius: 16px; background: rgba(255,255,255,.18); place-items: center; color: #fff; font-family: var(--f-display); font-size: 1.6rem; }
+.garden.editing .deco-slot.full { outline: 2px dashed rgba(255,255,255,.9); outline-offset: 2px; border-radius: 14px; }
+.deco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.deco-card { display: grid; justify-items: center; gap: 2px; padding: 8px 6px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--panel-2); font: inherit; color: inherit; cursor: pointer; }
+.deco-card img { width: 72px; height: 72px; object-fit: contain; }
+.deco-card b { font-family: var(--f-display); font-weight: 600; font-size: .85rem; }
+.deco-card span { font-size: .68rem; color: var(--muted); text-align: center; }
+.deco-card.sel { border-color: var(--leaf); background: var(--tile-sel); }
+.deco-card.locked { cursor: default; }
+.deco-card.locked img { filter: brightness(0) opacity(.18); }
+.deco-slots-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.deco-slots-pick .deco-slot { height: 120px; border-radius: 16px; background: linear-gradient(180deg, #b4ee7c, #6cc84a); flex-direction: column; display: grid; place-items: center; padding: 6px; }
+.deco-slots-pick .deco-slot img { height: 80px; }
+.deco-slots-pick .deco-slot small { color: #fff; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.deco-slots-pick .deco-slot.sel { outline: 3px solid var(--sun); }
