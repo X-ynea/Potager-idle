@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 1.3.0
+
+- Sons plus doux : tous les sons descendent d'une octave, les aigus sont filtrés plus fortement (la zone perçante autour de 3 kHz est atténuée), les attaques sont plus rondes, les clochettes ont moins d'harmoniques aiguës, et le volume général est un peu plus bas.
+
 ## Version 1.2.1
 
 - Les graines proposées quand on touche un bac vide sont rangées par ordre alphabétique.
