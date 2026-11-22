@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.30.2";
+const APP_VERSION = "0.30.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -705,7 +705,7 @@ function decoRowHTML() {
   const slots = S.decoSlots || [null, null, null];
   if (!UI.editDeco && slots.every(d => !d)) return "";
   return `<div class="deco-row">${slots.map((d, i) => d
-    ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
+    ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}" style="--ds:${DECO_SCALE[d] || 1}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
     : `<button class="deco-slot empty s${i}" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
 }
 // Choisir la décoration d'un emplacement.

@@ -719,3 +719,8 @@ button.herb:active { transform: scale(.97); }
 .garden .deco-row .deco-slot img { filter: drop-shadow(0 5px 4px rgba(30,60,10,.45)) drop-shadow(0 1px 1px rgba(30,60,10,.3)); }
 .garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: 8.5%; }
 .garden .deco-row .deco-slot.s1 { right: 8.5%; }
+/* Proportions réalistes : la déco grandit ou rétrécit depuis sa base */
+.garden .deco-row .deco-slot.full img { transform: scale(var(--ds, 1)); transform-origin: 50% 100%; }
+.garden .deco-row .deco-slot { width: 16%; height: 18.5cqw; }
+.garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: 7%; }
+.garden .deco-row .deco-slot.s1 { right: 7%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .7 / var(--cols) * 1.008 - 8cqw); }
