@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.31.5";
+const APP_VERSION = "0.32.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -148,7 +148,7 @@ function dailyOffer() {
 }
 function showDaily() {
   const o = dailyOffer();
-  if (!o || !$("#modal").hidden || LEVEL_QUEUE.length) return;
+  if (!o || !$("#modal").hidden || LEVEL_QUEUE.length || tutoBasicsPending()) return;
   modalView = () => `<div class="sheet levelup" role="dialog" aria-modal="true" aria-label="Cadeau du jour">
     <div class="lv-badge daily-gift">${GIFT}</div>
     <h2>Cadeau du jour</h2>
@@ -326,7 +326,7 @@ function genOrder() {
 /* ---------------- Actions ---------------- */
 let tab = "garden", msub = "seeds", labSel = [null, null], resetArmed = false;
 const A = {
-  tab(arg) { tab = arg; render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) { tab = arg; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -334,7 +334,7 @@ const A = {
     if (st === "empty") return openPicker(+i);
     if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
     else if (st === "ripe") harvest(+i, x, y);
-    else { p.waterUntil = t + waterMs(); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
+    else { p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
   },
   plant(arg, ev) {
@@ -346,7 +346,7 @@ const A = {
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
     Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
-    S.lastPick = k; PICK.plot = null;
+    S.lastPick = k; PICK.plot = null; tutoFlag("planted");
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
     buzz(8); SFX.play("plant");
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
@@ -368,7 +368,7 @@ const A = {
   waterAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) { const st = plotState(p, t); if (st === "dry" || st === "growing") { p.waterUntil = t + waterMs(); n++; } }
-    if (n) { SFX.play("water"); questProgress("water", n); }
+    if (n) { SFX.play("water"); questProgress("water", n); tutoFlag("watered"); }
     const { x, y } = pos(ev); floatText(n ? "Tout est arrosé !" : "Rien à arroser", x, y); commit();
   },
   msub(arg) { msub = arg; render(true); },
@@ -640,6 +640,7 @@ function viewSettings() {
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
       ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
+      <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
       <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
@@ -1043,6 +1044,7 @@ function live(t) {
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
+  tutoUpdate();
   document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });
   document.querySelectorAll("[data-left]").forEach(el => { el.textContent = dur(+el.dataset.left - t); });
   // Badges & tab title
@@ -1200,6 +1202,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
+Object.assign(A, TUTO_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
