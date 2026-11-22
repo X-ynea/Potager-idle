@@ -993,7 +993,6 @@ img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: dro
 img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: auto; bottom: 14%; }
 .pest.pest-weeds { width: 42%; left: auto; right: 4%; bottom: 13%; }
 .pest.pest-leaves { width: 46%; left: auto; right: 3%; bottom: 12%; }
-=======
 /* Bulle au survol d'un bac (ordinateur) */
 .plot-tip { position: fixed; z-index: 30; transform: translate(-50%, -100%); pointer-events: none; white-space: nowrap; text-align: center;
   background: rgba(30,40,28,.92); color: #fff; font-size: .8rem; line-height: 1.35; padding: 5px 10px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
