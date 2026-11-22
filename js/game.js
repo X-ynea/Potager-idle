@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.3";
+const APP_VERSION = "2.0.0-beta.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1170,7 +1170,7 @@ function viewPicker() {
       return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
     <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
-      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${d.season ? " " + seasonIcon(d.season, inSeason(k) ? "now" : "") : ""}</b><span>${dur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${inSeason(k) ? " " + seasonIcon(d.season) : ""}</b><span>${dur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
 /* Fiche d'une plante depuis l'herbier. */

@@ -14,7 +14,7 @@
 - Nouvelle icône d'appli sur fond orange pâle.
 
 ### Les plantes de saison
-- Chaque plante a sa saison, signalée par une icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché, l'inventaire et la fiche de plante.
+- Chaque plante a sa saison. Les plantes de la saison en cours portent son icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché et l'inventaire ; la fiche de plante et le détail du marché indiquent la saison de chaque plante.
 - Pendant sa saison, une plante pousse 25 % plus vite.
 - 8 nouvelles plantes exclusives, dont les graines ne sont vendues que pendant leur saison : petits pois et asperge, courgette et melon, betterave et champignon des bois, poireau et chou d'hiver.
 - 8 nouvelles recettes de saison, du velouté de petits pois à la potée au chou.

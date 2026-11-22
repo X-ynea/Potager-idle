@@ -69,7 +69,8 @@ const SEASON_ICON = {
 };
 const seasonIcon = (s, cls = "") => `<span class="sz-ico sz-${s} ${cls}" title="Saison : ${SEASONS[s].name.toLowerCase()}">${SEASON_ICON[s]}</span>`;
 // Petite icône posée sur la vignette d'une plante de saison (herbier, graines, marché…).
-const seasonBadge = k => PLANTS[k]?.season ? seasonIcon(PLANTS[k].season, `sz-badge${inSeason(k) ? " now" : ""}`) : "";
+// Seulement pour les plantes de la saison en cours, pour ne pas surcharger les vignettes.
+const seasonBadge = k => inSeason(k) ? seasonIcon(PLANTS[k].season, "sz-badge") : "";
 
 /* Ce qui bloque un bac : même mécanique, élément différent selon la saison. */
 const PEST_SVG = {
