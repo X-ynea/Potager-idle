@@ -781,3 +781,18 @@ button.herb:active { transform: scale(.97); }
 .plot.tuto-hl { animation: tuto-glow-plot 1.6s ease-in-out infinite; }
 @keyframes tuto-glow { 50% { box-shadow: 0 0 0 4px rgba(255,214,90,.75), 0 0 18px rgba(255,200,60,.7); } }
 @keyframes tuto-glow-plot { 50% { filter: drop-shadow(0 0 10px rgba(255,220,90,.95)) brightness(1.06); } }
+/* Fiche de plante sur téléphone : pas de débordement latéral, plus compacte en hauteur */
+.sheet.info { overflow-x: hidden; max-height: 90dvh; gap: 10px; }
+.sheet.info .rv-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.sheet.info .rv-meta .mi { min-width: 0; padding: 6px 4px; text-align: center; }
+.sheet.info .rv-meta .mi small { font-size: .58rem; letter-spacing: .03em; line-height: 1.2; overflow-wrap: anywhere; }
+.sheet.info .rv-meta .mi b { white-space: normal; }
+.sheet.info .hi-gold, .sheet.info .hi-uses, .sheet.info .rv-cross { min-width: 0; max-width: 100%; }
+.sheet.info .rv-cross { flex-wrap: wrap; justify-content: center; }
+.sheet.info .basket { flex-wrap: wrap; }
+@media (max-height: 820px), (max-width: 420px) {
+  .sheet.info .rv-stage { width: 104px; height: 104px; margin-top: 4px; }
+  .sheet.info .reveal-art { width: 92px; height: 92px; }
+  .sheet.info h2 { font-size: 1.35rem; }
+  .sheet.info .btn.big { padding-block: 10px; }
+}

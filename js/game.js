@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.32.0";
+const APP_VERSION = "0.32.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1216,7 +1216,7 @@ function start() {
   const ready = S.plots.filter(p => plotState(p, t) === "ripe").length;
   if (away > 8 * 3600000 && loaded) S.stats.comeback = 1;
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
-  else if (!loaded) toast("Bienvenue dans <b>Potager idle</b> ! Ton premier radis est prêt : touche-le pour le récolter.", 6000);
+  // Première visite : c’est Mamie Lapine qui accueille (js/tuto.js).
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);
   let saveCount = 0;
