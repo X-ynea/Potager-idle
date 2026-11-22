@@ -711,3 +711,11 @@ button.herb:active { transform: scale(.97); }
 .garden .deco-row .deco-slot.empty { font-size: 1.3rem; }
 .garden .deco-row .deco-slot { width: 17%; height: 19.5cqw; }
 .garden .deco-row .deco-slot.s1 { top: calc(var(--g) + (100cqw - 2 * var(--g)) * .7 / var(--cols) * 1.008 - 8.8cqw); }
+/* Décos plus petites, qui empiètent un peu sur les bacs (effet de profondeur) */
+.garden .deco-row .deco-slot { width: 13%; height: 15cqw; }
+.garden .deco-row .deco-slot.s0 { left: 5.5%; top: .5%; }
+.garden .deco-row .deco-slot.s2 { left: 5.5%; bottom: .5%; }
+.garden .deco-row .deco-slot.s1 { right: 5.5%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .7 / var(--cols) * 1.008 - 6.5cqw); }
+.garden .deco-row .deco-slot img { filter: drop-shadow(0 5px 4px rgba(30,60,10,.45)) drop-shadow(0 1px 1px rgba(30,60,10,.3)); }
+.garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: 8.5%; }
+.garden .deco-row .deco-slot.s1 { right: 8.5%; }
