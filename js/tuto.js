@@ -31,7 +31,7 @@ const TUTO = [
   // Selon la situation
   { id: "snail", tab: "garden", hl: ".plot.weed",
     when: () => S.plots.some(p => p.weed),
-    text: "Oh non, un escargot grignote une de tes plantes ! Touche le bac pour le déloger, sinon elle arrête de pousser.",
+    text: () => PEST().tip,
     done: () => S.stats.weeds > 0 },
   { id: "order", tab: "garden", hl: '.tab[data-arg="village"]',
     when: () => S.orders.length > 0,

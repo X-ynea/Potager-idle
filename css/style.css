@@ -828,3 +828,74 @@ button.herb:active { transform: scale(.97); }
 @keyframes gp-float { 50% { transform: translateY(-6px) rotate(-3deg); } }
 @keyframes gp-spark { 0%, 100% { opacity: 0; transform: rotate(var(--a)) translateY(-50px) scale(.4); } 50% { opacity: 1; transform: rotate(var(--a)) translateY(-66px) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .gp-rays, .gp-art, .gp-spark { animation: none; } }
+/* ================= Saisons ================= */
+/* Teinte du jardin (en attendant un fond dessiné pour chaque saison) */
+.garden[data-season="ete"] { background-image: linear-gradient(rgba(255,214,90,.22), rgba(255,190,60,.18)), url("../assets/img/bg-garden.webp"); background-blend-mode: soft-light, normal; }
+.garden[data-season="automne"] { background-image: linear-gradient(rgba(214,116,40,.42), rgba(170,80,30,.34)), url("../assets/img/bg-garden.webp"); background-blend-mode: color, normal; }
+.garden[data-season="hiver"] { background-image: linear-gradient(rgba(236,246,255,.46), rgba(205,226,248,.42)), url("../assets/img/bg-garden.webp"); background-blend-mode: normal, normal; }
+.garden[data-season="hiver"] .plots { filter: saturate(.85); }
+/* Particules */
+.season-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; border-radius: inherit; }
+.sfx { position: absolute; left: var(--x); top: -8%; animation: sfx-fall var(--d) linear var(--dl) infinite; }
+.sfx i { display: block; transform: scale(var(--sc)) rotate(var(--r)); animation: sfx-sway calc(var(--d) / 3) ease-in-out var(--dl) infinite alternate; }
+@keyframes sfx-fall { to { transform: translateY(calc(100cqh + 60px)); } }
+@keyframes sfx-sway { from { translate: calc(var(--sw) * -1) 0; } to { translate: var(--sw) 0; } }
+.season-fx { container-type: size; }
+.fx-printemps .sfx i { width: 9px; height: 13px; background: var(--c); border-radius: 80% 10% 80% 10%; opacity: .9; }
+.fx-automne .sfx i { width: 15px; height: 15px; background: var(--c); border-radius: 0 85% 0 85%; box-shadow: inset -2px 2px 0 rgba(0,0,0,.12); }
+.fx-hiver .sfx i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 3px 1px rgba(110,160,210,.55), 0 0 6px rgba(255,255,255,.9); }
+/* Été : pollen doré qui flotte vers le haut en scintillant */
+.fx-ete .sfx { top: auto; bottom: -6%; animation-name: sfx-rise; }
+.fx-ete .sfx i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px 2px rgba(255,220,90,.75); animation-name: sfx-sway, sfx-glow; animation-duration: calc(var(--d) / 3), 2.2s; }
+@keyframes sfx-rise { to { transform: translateY(calc(-100cqh - 60px)); } }
+@keyframes sfx-glow { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .season-fx { display: none; } }
+
+/* Ce qui bloque un bac : herbes folles, feuilles mortes, gel (l'escargot garde son style) */
+.pest.pest-weeds, .pest.pest-leaves, .pest.pest-frost { display: block; }
+.pest.pest-weeds { width: 62%; left: 19%; bottom: 14%; z-index: 2; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
+.pest.pest-leaves { width: 70%; left: 15%; bottom: 12%; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.pest.pest-frost { width: 44%; left: 28%; top: 24%; z-index: 3; filter: drop-shadow(0 0 6px rgba(120,190,255,.8)); }
+.pest svg { width: 100%; height: auto; display: block; }
+.frost-cover { position: absolute; inset: 12% 10% 14%; z-index: 2; border-radius: 10%; pointer-events: none;
+  background: linear-gradient(135deg, rgba(235,248,255,.78), rgba(190,225,250,.6)); box-shadow: inset 0 0 12px rgba(255,255,255,.9); }
+
+/* Visiteurs dessinés (en attendant leurs images) */
+.butterfly .bf svg { width: 100%; height: 100%; animation: flap .35s ease-in-out infinite alternate; transform-origin: center; }
+.butterfly.v-robin .bf svg, .butterfly.v-ladybug .bf svg { animation: hop .5s ease-in-out infinite alternate; }
+@keyframes hop { to { transform: translateY(-4px) rotate(-4deg); } }
+
+/* Icônes de saison */
+.sz-ico { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; vertical-align: -3px; }
+.sz-ico svg { width: 100%; height: 100%; }
+.sz-badge { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; padding: 2px; border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 1px 3px rgba(0,0,0,.18); z-index: 2; }
+.sz-badge.now { box-shadow: 0 0 0 2px #7cc35a, 0 1px 3px rgba(0,0,0,.2); }
+/* Bandeau et fiche de saison */
+.season-bar { display: flex; align-items: center; gap: 6px; width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 7px 12px; font: inherit; font-size: .85rem; color: var(--ink); cursor: pointer; text-align: left; }
+.season-bar .sz-ico { width: 20px; height: 20px; }
+.season-bar .sb-more { margin-left: auto; font-size: .72rem; font-weight: 800; color: var(--leaf-deep); }
+.sz-bg-printemps { background: linear-gradient(90deg, #fff0f5, #fbf7ec); }
+.sz-bg-ete { background: linear-gradient(90deg, #fff6d6, #fbf7ec); }
+.sz-bg-automne { background: linear-gradient(90deg, #fde8d6, #fbf7ec); }
+.sz-bg-hiver { background: linear-gradient(90deg, #e8f3ff, #f6f9fc); }
+.season-sheet { gap: 12px; }
+.ss-head { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
+.ss-head h2 { margin: 0; }
+.sz-ico.big { width: 48px; height: 48px; padding: 6px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.ss-intro { margin: 0; font-style: italic; }
+.ss-plants { display: flex; flex-wrap: wrap; gap: 6px; }
+.ss-plants .chip svg { width: 28px; height: 28px; }
+.ss-plants .chip.locked { opacity: .55; }
+.ss-plants .chip.locked svg { filter: grayscale(1); }
+.ss-facts { display: grid; gap: 6px; }
+.ss-facts > div { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.7); border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px; font-size: .88rem; }
+.ss-ico { width: 34px; height: 34px; display: grid; place-items: center; flex: none; }
+.ss-ico svg, .ss-ico img { width: 100%; height: 100%; object-fit: contain; }
+.sz-bg-hiver .ss-ico svg g[stroke="#e9f6ff"] { stroke: #bfe0f7; }
+.sz-note { margin: 0; font-size: .8rem; color: var(--leaf-deep); font-weight: 700; }
+.tile, .herb { position: relative; }
+.herb .sz-badge { top: 6px; left: 6px; }
+.item .t b .sz-ico { width: 16px; height: 16px; margin-left: 2px; }
+.rv-tag .sz-ico { width: 15px; height: 15px; vertical-align: -3px; }
+.item .t b { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
+.item .t b .sz-ico { margin-left: 0; }

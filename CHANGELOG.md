@@ -1,5 +1,22 @@
 # Notes de version
 
+## Version 2.0 « Les quatre saisons » (en préparation, branche `v2-saisons`)
+
+### Les saisons
+- Une saison par semaine, du lundi au dimanche, la même pour tout le monde : printemps, été, automne, hiver, puis on recommence.
+- Le jardin change d'ambiance : pétales au printemps, pollen doré l'été, feuilles mortes qui tombent en automne, flocons l'hiver.
+- Un bandeau en haut du jardin indique la saison et les jours restants, et ouvre sa fiche. Une annonce accueille chaque nouvelle saison.
+- Le visiteur à attraper change : papillon, libellule, coccinelle, rouge-gorge.
+- Ce qui bloque les bacs change aussi, avec le même fonctionnement : escargots, herbes folles, feuilles mortes, gel.
+
+### Les plantes de saison
+- Chaque plante a sa saison, signalée par une icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché, l'inventaire et la fiche de plante.
+- Pendant sa saison, une plante pousse 25 % plus vite.
+- 8 nouvelles plantes exclusives, dont les graines ne sont vendues que pendant leur saison : petits pois et asperge, courgette et melon, betterave et champignon des bois, poireau et chou d'hiver.
+- 8 nouvelles recettes de saison, du velouté de petits pois à la potée au chou.
+- 4 nouveaux voisins qui ne passent que pendant leur saison : Mlle Hirondelle, Léon le Lézard, Noisette la Souris et Edmond l'Ours.
+- Nouveau succès « Quatre saisons » : récolter les 8 plantes exclusives.
+
 ## Version 1.4.0
 
 - Une plante qui a soif continue de pousser, mais quatre fois moins vite (25 % de sa vitesse). Arroser fait toujours pousser à pleine vitesse, mais un oubli ou une longue absence ne bloquent plus le jardin.
