@@ -16,6 +16,8 @@ const ACHIEVEMENTS = [
   { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && S.discovered.includes(k)).length,
     tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur" }] },
 
+  { id: "gold", cat: "garden", name: "Chercheur d’or", desc: n => n === 1 ? "Trouver une récolte dorée" : `Trouver ${n} récoltes dorées différentes`, value: () => (S.goldenFound || []).length,
+    tiers: [{ n: 1, c: 100, x: 30 }, { n: 5, c: 600, x: 150 }, { n: 20, c: 4000, x: 600, title: "Chercheur d’or" }] },
   { id: "first_cross", cat: "lab", name: "Apprenti botaniste", desc: "Réussir son premier croisement", value: () => S.hybrids.length, tiers: [{ n: 1, c: 100, x: 30, title: "Botaniste" }] },
   { id: "herbier", cat: "lab", name: "Herbier complet", desc: "Découvrir tous les hybrides", value: () => S.hybrids.length,
     tiers: [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins" }] },

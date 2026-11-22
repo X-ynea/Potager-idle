@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.28.0";
+const APP_VERSION = "0.29.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -21,11 +21,17 @@ const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
 const stoves = () => UPG.stove.values[S.upg.stove];
 const cnt = (bag, k) => bag[k] || 0;
-const itemName = k => PLANTS[k] ? PLANTS[k].name : RECIPES[k].name;
-const itemArt = k => PLANTS[k] ? cropArt(k) : dishArt(k);
-const itemBag = k => PLANTS[k] ? S.crops : S.dishes;
-const itemVal = k => PLANTS[k] ? PLANTS[k].sell : RECIPES[k].sell;
-const itemXp = k => PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
+/* Récoltes dorées : clé "gold_<plante>", rangées à part, valent 10 fois plus. */
+const GOLD_CHANCE = .02;
+const isGold = k => typeof k === "string" && k.startsWith("gold_");
+const goldBase = k => k.slice(5);
+const goldArt = k => `<span class="gold-art">${cropArt(k)}</span>`;
+const itemName = k => isGold(k) ? `${PLANTS[goldBase(k)].name} d’or` : PLANTS[k] ? PLANTS[k].name : RECIPES[k].name;
+const itemArt = k => isGold(k) ? goldArt(goldBase(k)) : PLANTS[k] ? cropArt(k) : dishArt(k);
+const itemBag = k => isGold(k) ? S.golden : PLANTS[k] ? S.crops : S.dishes;
+const itemVal = k => isGold(k) ? PLANTS[goldBase(k)].sell * 10 : PLANTS[k] ? PLANTS[k].sell : RECIPES[k].sell;
+const itemXp = k => isGold(k) ? PLANTS[goldBase(k)].xp * 3 : PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
+const itemDesc = k => isGold(k) ? `Une ${PLANTS[goldBase(k)].name.toLowerCase()} rarissime, qui brille comme un trésor. Elle vaut dix fois le prix normal.` : (PLANTS[k] || RECIPES[k]).desc;
 const seedAvailable = k => { const d = PLANTS[k]; return d.hybrid ? S.hybrids.includes(k) : d.lvl <= S.level; };
 
 /* ---------------- State ---------------- */
@@ -37,7 +43,7 @@ function fresh() {
   const s = {
     v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
-    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [],
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
@@ -503,7 +509,7 @@ const A = {
   sellCat(c) { UI.sellCat = c; render(true); },
   invGo(arg) {
     if (arg.startsWith("seed:")) { msub = "seeds"; UI.sel.seeds = arg.slice(5); }
-    else { msub = "sell"; UI.sellCat = PLANTS[arg] ? "crops" : "dishes"; UI.sel.sell = arg; }
+    else { msub = "sell"; UI.sellCat = PLANTS[arg] || isGold(arg) ? "crops" : "dishes"; UI.sel.sell = arg; }
     tab = "market"; render(true); window.scrollTo({ top: 0 });
   },
   openInv(k) {
@@ -538,8 +544,14 @@ const A = {
 };
 function harvest(i, x, y) {
   const p = S.plots[i], k = p.seed, d = PLANTS[k];
-  const n = Math.random() < .08 ? 2 : 1;
-  S.crops[k] = cnt(S.crops, k) + n; S.stats.harvest++;
+  const gold = Math.random() < GOLD_CHANCE;
+  const n = !gold && Math.random() < .08 ? 2 : 1;
+  if (gold) {
+    const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
+    if (!S.goldenFound.includes(k)) S.goldenFound.push(k);
+    S.stats.golden = st("golden") + 1;
+  } else S.crops[k] = cnt(S.crops, k) + n;
+  S.stats.harvest++;
   questProgress("harvestK", n, k);
   if (n > 1) S.stats.doubles = st("doubles") + 1;
   if (!p.wasDry) S.stats.neverDry = st("neverDry") + 1;
@@ -548,18 +560,19 @@ function harvest(i, x, y) {
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
+  if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); toast(`<b>Récolte dorée !</b> ${d.name} d’or, une vraie rareté (vaut ${fmt(d.sell * 10)} pièces)`, 6000); return; }
   buzz(n > 1 ? [15, 50, 15, 50, 30] : 12); SFX.play(n > 1 ? "double" : "harvest");
   if (n > 1) { doubleBurst(i, k); toast(`<b>Récolte double !</b> 2 × ${d.name.toLowerCase()}`); }
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
 }
 /* Récolte double : « ×2 » doré, deux récoltes qui jaillissent et des étincelles au-dessus du bac. */
-function doubleBurst(i, k) {
+function doubleBurst(i, k, gold) {
   const el = document.querySelector(`[data-plot="${i}"]`); if (!el) return;
   const r = el.getBoundingClientRect();
   const b = document.createElement("div");
-  b.className = "double-burst";
+  b.className = "double-burst" + (gold ? " gold" : "");
   b.style.left = r.left + r.width / 2 + "px"; b.style.top = r.top + r.height * .45 + "px";
-  b.innerHTML = `<span class="db-x2">×2</span><span class="db-crop a">${cropArt(k)}</span><span class="db-crop b">${cropArt(k)}</span>` +
+  b.innerHTML = gold ? `<span class="db-x2">Or !</span><span class="db-crop a solo">${goldArt(k)}</span>` + Array.from({ length: 12 }, (_, j) => `<i class="db-spark" style="--a:${j * 30}deg"></i>`).join("") : `<span class="db-x2">×2</span><span class="db-crop a">${cropArt(k)}</span><span class="db-crop b">${cropArt(k)}</span>` +
     Array.from({ length: 8 }, (_, j) => `<i class="db-spark" style="--a:${j * 45}deg"></i>`).join("");
   $("#fx").appendChild(b); setTimeout(() => b.remove(), 1700);
 }
@@ -632,7 +645,7 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
-  const cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  const goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k) })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k) })).join("")}</div>`;
@@ -651,7 +664,7 @@ function views_garden() {
   ${questsHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
-    ${cropKeys.length || dishKeys.length || seedKeys.length ? `${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
 `;
 }
@@ -755,7 +768,7 @@ function catTabs(cats, cur, act) {
 }
 function invBody(ctx, cat) {
   const bag = catBag(cat);
-  const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0);
+  const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
@@ -765,13 +778,13 @@ function invBody(ctx, cat) {
     det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", dur(d.time * 1000 / speed())) + mi("Vente", fmt(d.sell)),
       "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
   } else {
-    const n = cnt(bag, k), v = itemVal(k);
-    const uses = cat === "crops" ? RORDER.filter(r => RECIPES[r].need[k]) : [];
-    det = detail(ctx, itemArt(k), itemName(k), (PLANTS[k] || RECIPES[k]).desc, mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
+    const n = cnt(itemBag(k), k), v = itemVal(k);
+    const uses = cat === "crops" && !isGold(k) ? RORDER.filter(r => RECIPES[r].need[k]) : [];
+    det = detail(ctx, itemArt(k), itemName(k), itemDesc(k), mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
       `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout · ${priceTag(n * v)}</button>`);
   }
-  const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(bag, x) })).join("");
+  const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(cat === "seeds" ? bag : itemBag(x), x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
   return det + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
@@ -864,9 +877,9 @@ function views_lab() {
   const t = now();
   const isKnown = k => S.discovered.includes(k) || S.hybrids.includes(k);
   const herbCard = k => { const d = PLANTS[k], known = isKnown(k); return `
-      <button class="herb ${known ? "" : "unknown"}" data-act="plantInfo" data-arg="${k}" aria-label="${known || !d.hybrid ? d.name : "Variété mystère"}">${cropArt(k)}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></button>`; };
+      <button class="herb ${known ? "" : "unknown"} ${S.goldenFound.includes(k) ? "has-gold" : ""}" data-act="plantInfo" data-arg="${k}" aria-label="${known || !d.hybrid ? d.name : "Variété mystère"}">${cropArt(k)}<b>${known || !d.hybrid ? d.name : "???"}</b><span class="muted">${known ? `${fmt(d.sell)} pièces` : d.hybrid ? d.hint : `Niveau ${d.lvl}`}</span></button>`; };
   const baseK = ORDER.filter(k => !PLANTS[k].hybrid), hybK = ORDER.filter(k => PLANTS[k].hybrid);
-  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length}</span></div>
+  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
     <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3><div class="herbier">${hybK.map(herbCard).join("")}</div></section>`;
   if (S.level < 3) return `<section class="panel"><h2>Serre</h2><div class="empty-note"><img class="banner-img" src="assets/img/greenhouse.webp" alt=""><span>La Serre ouvre au niveau 3. Tu pourras y croiser deux récoltes pour découvrir des variétés hybrides.</span></div></section>${herb}`;
@@ -1027,6 +1040,7 @@ function openPlantInfo(k) {
     ${d.hybrid && known ? `<div class="rv-cross"><span>${cropArt(d.parents[0])}${PLANTS[d.parents[0]].name}</span><b>+</b><span>${cropArt(d.parents[1])}${PLANTS[d.parents[1]].name}</span></div>` : ""}
     <p class="rv-desc">${known ? `«&nbsp;${desc}&nbsp;»` : desc}</p>
     ${known ? `<div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / speed()))}${mi("Vente", fmt(d.sell))}${mi("XP récolte", "+" + d.xp)}${mi("En stock", fmt(cnt(S.crops, k)))}</div>` : ""}
+    ${known ? `<div class="hi-gold ${S.goldenFound.includes(k) ? "found" : ""}">${S.goldenFound.includes(k) ? `${goldArt(k)}<span><b>Version dorée trouvée</b><br>Elle vaut ${fmt(d.sell * 10)} pièces.</span>` : `<span class="sil">${cropArt(k)}</span><span><b>Version dorée : pas encore trouvée</b><br>Une récolte sur 50 environ est dorée.</span>`}</div>` : ""}
     ${known && uses.length ? `<div class="hi-uses"><h4>Recettes</h4><div class="basket">${uses.map(r => `<span class="chip">${dishArt(r)}${RECIPES[r].name}</span>`).join("")}</div></div>` : ""}
     ${known && usedIn.length ? `<div class="hi-uses"><h4>Hybrides obtenus</h4><div class="basket">${usedIn.map(h => `<span class="chip">${cropArt(h)}${PLANTS[h].name}</span>`).join("")}</div></div>` : ""}
     <button class="btn big ghost" data-act="close">Fermer</button></div>`;

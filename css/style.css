@@ -657,3 +657,19 @@ button.herb:active { transform: scale(.97); }
 .q-txt b { font-weight: 800; font-size: .92rem; }
 .q-txt .pbar i { background: var(--leaf); }
 .q-done { width: 30px; height: 30px; border-radius: 50%; background: var(--leaf); color: #fff; display: grid; place-items: center; font-weight: 800; }
+/* Récoltes dorées */
+.gold-art { display: block; width: 100%; height: 100%; position: relative; }
+.gold-art svg, .gold-art img { width: 100%; height: 100%; filter: sepia(1) saturate(5) hue-rotate(-12deg) brightness(1.12) contrast(1.05) drop-shadow(0 0 4px rgba(255,210,60,.9)); }
+.gold-art::after { content: "✦"; position: absolute; top: 2%; right: 4%; color: #fff6b0; font-size: .9em; text-shadow: 0 0 4px #f4c03e; animation: gold-twinkle 1.6s ease-in-out infinite; }
+@keyframes gold-twinkle { 0%, 100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.tile:has(.gold-art) { border-color: #f4c03e; background: radial-gradient(circle at 50% 38%, #fffbe6, #ffe9a8 75%); }
+.double-burst.gold .db-x2 { font-size: 2rem; }
+.db-crop.solo { width: 64px; height: 64px; }
+.herb.has-gold { position: relative; }
+.herb.has-gold::after { content: "★"; position: absolute; top: 6px; right: 8px; color: #f4c03e; font-size: 1rem; text-shadow: 0 0 4px rgba(244,192,62,.7); }
+.gold-count { color: #b07800; font-weight: 800; }
+.hi-gold { width: 100%; max-width: 420px; display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 10px; align-items: center; text-align: left; font-size: .82rem; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--line); border-radius: 14px; padding: 8px 12px; }
+.hi-gold.found { border: 1px solid #f4c03e; background: linear-gradient(160deg, #fffaf0, #fff1c9); color: #8a5a00; }
+.hi-gold > span:first-child { width: 48px; height: 48px; }
+.hi-gold .sil svg { filter: brightness(0) opacity(.18); width: 48px; height: 48px; }
+.hi-gold b { color: var(--ink); }
