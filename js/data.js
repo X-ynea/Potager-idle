@@ -2,6 +2,8 @@
 /* Données du jeu : plantes, recettes, améliorations, voisins. */
 /* ---------------- Data ---------------- */
 const PLANTS = {
+  // Graine offerte par Mamie Lapine pendant le tutoriel : pousse en quelques secondes, donne un radis.
+  radis_eclair: { name: "Radis éclair", desc: "Une graine de Mamie Lapine, qui pousse en un clin d’œil.", lvl: 1, cost: 0, time: 25, sell: 5, xp: 2, shape: "bulb", color: "#ec5b82", tuto: true, img: "radis" },
   radis:    { name: "Radis", desc: "Croquant et un brin piquant. Le premier légume de tout bon potager.", lvl: 1, cost: 2, time: 180, sell: 5, xp: 2, shape: "bulb", color: "#ec5b82" },
   laitue:   { name: "Laitue", desc: "Tendre et fraîche, elle pousse sans se faire prier.", lvl: 1, cost: 3, time: 360, sell: 9, xp: 3, shape: "leafy", color: "#a6dc78" },
   patate:   { name: "Pomme de terre", desc: "Elle pousse cachée sous terre et se prête à toutes les recettes.", lvl: 2, cost: 4, time: 480, sell: 11, xp: 3, shape: "bulb", color: "#c9a26b" },
@@ -24,7 +26,7 @@ const PLANTS = {
   azur:     { name: "Épi d’azur", desc: "Des épis aux grains bleu turquoise nacrés, sur des tiges argentées.", hybrid: true, parents: ["ble", "radis"], time: 960, sell: 55, xp: 11, shape: "grain", color: "#3fc4d6", hint: "Une céréale qui aurait croisé une racine croquante…" },
   amethyste: { name: "Carotte améthyste", desc: "Des carottes violet profond, translucides comme une pierre précieuse, aux fanes argentées.", hybrid: true, parents: ["carotte", "lavande"], time: 2160, sell: 140, xp: 24, shape: "root", color: "#9b3fd0", hint: "Une racine orange qui rêve de violet…" },
 };
-const ORDER = Object.keys(PLANTS);
+const ORDER = Object.keys(PLANTS).filter(k => !PLANTS[k].tuto); // la plante du tutoriel reste hors des listes
 const HYBRID_BY_PAIR = {};
 for (const k of ORDER) { const d = PLANTS[k]; if (d.hybrid) { HYBRID_BY_PAIR[pairKey(...d.parents)] = k; d.cost = Math.round(d.sell * 0.35); } }
 function pairKey(a, b) { return [a, b].sort().join("+"); }

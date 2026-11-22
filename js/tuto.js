@@ -10,11 +10,15 @@ const TUTO = [
     text: "Bonjour ! Moi, c’est Mamie Lapine, j’habite juste à côté. Regarde, tes radis sont mûrs : touche le bac où brille l’étoile pour les cueillir.",
     done: () => S.stats.harvest > 0 },
   { id: "plant", basic: true, tab: "garden", hl: ".plot.empty",
-    text: "Joli panier ! Un bac vide ne doit jamais le rester bien longtemps : touche-le et sème quelque chose. Les radis poussent vite.",
-    done: () => tutoF("planted") },
-  { id: "water", basic: true, tab: "garden", hl: ".plot.dry, .plot.growing",
-    text: "De temps en temps, la terre a soif. Quand une goutte apparaît au-dessus d’un bac, touche-le pour l’arroser : sans eau, rien ne pousse. Tu peux même arroser d’avance.",
-    done: () => tutoF("watered"), ok: "C’est noté" },
+    enter: () => { S.seeds.radis_eclair = cnt(S.seeds, "radis_eclair") + 1; },
+    text: "Joli panier ! Tiens, je te donne une graine de radis éclair : il pousse en un clin d’œil. Touche un bac vide pour la semer.",
+    done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair") },
+  { id: "water", basic: true, tab: "garden", hl: ".plot.dry",
+    text: "Oh, la terre est toute sèche : regarde la goutte au-dessus du bac. Sans eau, une plante s’arrête de pousser. Touche le bac pour l’arroser !",
+    done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair" && plotState(p, now()) !== "dry") },
+  { id: "grow", basic: true, tab: "garden", hl: ".plot.ripe",
+    text: () => `Tu vois ? Une fois arrosé, ça pousse : l’anneau vert se remplit, l’anneau bleu montre l’eau qui reste. Un arrosage tient ${UPG.water.values[S.upg.water]} minutes, ensuite la goutte revient. Dès que l’étoile brille, cueille ton radis !`,
+    done: () => tutoF("eclair") },
   { id: "away", basic: true, tab: "garden",
     text: "Et ne t’en fais pas : ton potager continue de pousser quand tu n’es pas là. Reviens quand tu veux, il t’attendra !",
     ok: "Bon à savoir" },
@@ -92,12 +96,13 @@ function tutoUpdate() {
   const box = document.getElementById("tuto"); if (!box) return;
   const t = tutoCurrent(), show = t && [].concat(t.tab).includes(tab);
   const key = show ? t.id : "";
+  if (t && t.enter && !tutoF("enter_" + t.id)) { tutoFlag("enter_" + t.id); t.enter(); save(); render(true); }
   if (key !== tutoKey) {
     tutoKey = key;
     box.hidden = !show;
     box.innerHTML = show ? `<div class="tuto-bubble" role="note">
       <img class="tuto-face" src="assets/img/villager-6.webp" alt="">
-      <div class="tuto-body"><b>Mamie Lapine</b><p>${t.text}</p>
+      <div class="tuto-body"><b>Mamie Lapine</b><p>${typeof t.text === "function" ? t.text() : t.text}</p>
         <div class="tuto-acts">${t.ok ? `<button class="btn sm" data-act="tutoOk" data-arg="${t.id}">${t.ok}</button>` : ""}<button class="tuto-skip" data-act="tutoOff">Je me débrouille, merci</button></div>
       </div></div>` : "";
     if (show) SFX.play("click");

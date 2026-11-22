@@ -1,5 +1,10 @@
 # Notes de version
 
+## Version 1.1.0
+
+- Tutoriel : Mamie Lapine offre une graine de **radis éclair**, qui pousse en 25 secondes. On voit enfin une plante pousser du semis à la récolte dès la première minute de jeu.
+- La graine arrive assoiffée : Mamie explique à quoi sert l'arrosage (sans eau, la plante s'arrête de pousser), comment lire les anneaux vert et bleu, et combien de temps tient l'eau.
+
 ## Version 1.0.2
 
 - Le bouton pour décorer le jardin passe juste au-dessus du jardin (« Décorer » / « Terminé ») : il ne cache plus le badge du bac en haut à droite.

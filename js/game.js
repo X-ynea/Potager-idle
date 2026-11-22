@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.1.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -331,7 +331,7 @@ const A = {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
-    if (st === "empty") return openPicker(+i);
+    if (st === "empty") { if (cnt(S.seeds, "radis_eclair")) return A.plant(`${i}:radis_eclair`, ev); return openPicker(+i); }
     if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); toast("Escargot délogé. La plante repart."); }
     else if (st === "ripe") harvest(+i, x, y);
     else { p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
@@ -346,7 +346,8 @@ const A = {
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
     Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
-    S.lastPick = k; PICK.plot = null; tutoFlag("planted");
+    if (d.tuto) p.waterUntil = t; // la graine de Mamie arrive assoiffée : on apprend à arroser
+    if (!d.tuto) S.lastPick = k; PICK.plot = null; tutoFlag("planted");
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
     buzz(8); SFX.play("plant");
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
@@ -574,8 +575,10 @@ const A = {
   },
 };
 function harvest(i, x, y) {
-  const p = S.plots[i], k = p.seed, d = PLANTS[k];
-  const gold = Math.random() < GOLD_CHANCE;
+  const p = S.plots[i], d = PLANTS[p.seed];
+  const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
+  if (d.tuto) tutoFlag("eclair");
+  const gold = !d.tuto && Math.random() < GOLD_CHANCE;
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;

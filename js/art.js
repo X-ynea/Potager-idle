@@ -206,14 +206,15 @@ const IMG = Object.assign({ plants: [], dishes: [], ui: [] }, window.IMG || {});
 const hasImg = (kind, k) => IMG[kind].includes(k);
 /* Une image dans un <svg> : elle se place exactement comme les dessins vectoriels. */
 const imgSvg = (src, cls = "") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><image href="${src}" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></svg>`;
-function cropArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
-function seedArt(k) { return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
+function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
+function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */
 const SPROUTS = new Set(Object.keys(PLANTS));
 /* Plantes mûres dessinées sans terre (posées directement dans le bac). */
 const RIPE_NO_SOIL = new Set(Object.keys(PLANTS));
 function plantArt(k, stage, inPlot) {
+  k = PLANTS[k]?.img || k; // la plante du tutoriel emprunte les images du radis
   if (stage === 1 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
   if (stage === 2 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-young.webp`, "art img young");
   if (stage === 3 && RIPE_NO_SOIL.has(k) && hasImg("plants", k)) return imgSvg(`assets/img/${k}-3.webp`, "art img ripe");
