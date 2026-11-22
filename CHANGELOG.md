@@ -1,6 +1,8 @@
 # Notes de version
 
-## Version 2.0 « Les quatre saisons » (en préparation, branche `v2-saisons`)
+## Version 2.0 « Les quatre saisons »
+
+*Novembre 2026*
 
 ### Les saisons
 - Une saison par semaine, du lundi au dimanche, la même pour tout le monde : printemps, été, automne, hiver, puis on recommence.

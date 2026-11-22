@@ -50,9 +50,6 @@ const SEASON_FORCE = (() => { try { const s = new URLSearchParams(location.searc
 const dayNum = t => { const d = new Date(t); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); };
 function seasonAt(t) {
   if (SEASON_FORCE) return SEASON_FORCE;
-  // Version de test (branche v2) : saison choisie dans les réglages, l'hiver par défaut. À retirer avant la sortie.
-  const test = typeof S !== "undefined" && S?.settings ? (S.settings.seasonTest ?? "hiver") : null;
-  if (test && SEASONS[test]) return test;
   const w = Math.floor((dayNum(t) - SEASON_ANCHOR_DAY) / 7);
   return SEASON_ORDER[(((w + 2) % 4) + 4) % 4];
 }
