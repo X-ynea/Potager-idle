@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.1.2
+- Fonds de saison à taille fixe, répétés en miroir : ils ne sont plus agrandis sur les grands écrans.
+
 ### 2.1.1
 - Un fond de jardin dessiné pour chaque saison.
 

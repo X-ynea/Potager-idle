@@ -997,7 +997,7 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 /* Escargot (printemps) : même taille et place qu'avant les saisons */
 .pest.pest-snail { width: 46%; right: 4%; bottom: 14%; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 /* Fonds du jardin selon la saison */
-.garden[data-season="printemps"] { background-image: url("../assets/img/bg-printemps.webp"); background-size: cover; background-position: center; }
-.garden[data-season="ete"] { background-image: url("../assets/img/bg-ete.webp"); background-size: cover; background-position: center; }
-.garden[data-season="automne"] { background-image: url("../assets/img/bg-automne.webp"); background-size: cover; background-position: center; }
-.garden[data-season="hiver"] { background-image: url("../assets/img/bg-hiver.webp"); background-size: cover; background-position: center; }
+.garden[data-season="printemps"] { background-image: url("../assets/img/bg-printemps.webp"); background-size: 820px 820px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="ete"] { background-image: url("../assets/img/bg-ete.webp"); background-size: 820px 820px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="automne"] { background-image: url("../assets/img/bg-automne.webp"); background-size: 820px 820px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="hiver"] { background-image: url("../assets/img/bg-hiver.webp"); background-size: 820px 820px; background-repeat: repeat; background-position: center top; }
