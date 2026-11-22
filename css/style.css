@@ -1002,7 +1002,7 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 .garden[data-season="automne"] { background-image: url("../assets/img/bg-automne.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
 .garden[data-season="hiver"] { background-image: url("../assets/img/bg-hiver.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
 /* Mode clair : encarts de saison plus marqués (la fiche elle-même est déjà teintée) */
-.season-bar, .ss-facts > div { background: color-mix(in srgb, var(--leaf) 20%, #fff); border: 1.5px solid color-mix(in srgb, var(--leaf) 55%, #fff); box-shadow: 0 2px 6px color-mix(in srgb, var(--leaf) 18%, transparent); }
+.season-bar, .ss-facts > div { background: color-mix(in srgb, var(--leaf) 20%, #fff); border: 1.5px solid color-mix(in srgb, var(--leaf) 55%, #fff); box-shadow: none; }
 :root[data-theme="dark"] .season-bar, :root[data-theme="dark"] .ss-facts > div { box-shadow: none; background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] .season-bar, :root[data-theme="system"] .ss-facts > div { box-shadow: none; background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
