@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.1.7";
+const APP_VERSION = "2.2.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -479,6 +479,7 @@ const A = {
     decoRefresh(+i);
   },
   openSeason() { modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
+  toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) {
     if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal();
@@ -1061,7 +1062,11 @@ function views_lab() {
       ${have.length ? `<div class="basket">${have.map(k => `<button class="chip" data-act="labPick" data-arg="${k}" aria-pressed="${labSel.includes(k)}">${cropArt(k)}${PLANTS[k].name} · ${cnt(S.crops, k)}</button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Il te faut des récoltes en stock pour faire un croisement.</p>`}
       <div class="row"><button class="btn" data-act="labStart" ${a && b ? "" : "disabled"}>Croiser · ${dur(LAB_TIME * 1000)}</button><span class="small muted">Consomme 1 de chaque. Bonne combinaison : 2 graines hybrides.</span></div>`;
   }
-  return `<section class="panel"><div class="lab-head"><img src="assets/img/greenhouse.webp" alt=""><div><h2>Serre à hybrides</h2><p class="small muted" style="margin:0">Croise deux récoltes pour découvrir de nouvelles variétés.</p></div></div>${top}</section>${herb}`;
+  // Tous les hybrides trouvés : la Serre se replie en un bandeau « terminé » (elle se rouvre d'un toucher,
+  // et se rouvrira d'elle-même si de nouveaux hybrides arrivent).
+  const allFound = hybK.every(h => S.hybrids.includes(h));
+  if (allFound && !UI.labOpen && !S.lab) return `<button class="panel lab-done" data-act="toggleLab" aria-expanded="false"><img src="assets/img/greenhouse.webp" alt=""><span><b>Serre à hybrides</b><small>Tous les hybrides découverts <span class="num" style="white-space:nowrap">· ${hybK.length}/${hybK.length}</span></small></span><span class="lab-check">${CHECK}</span><svg class="lab-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${herb}`;
+  return `<section class="panel"><div class="lab-head"><img src="assets/img/greenhouse.webp" alt=""><div><h2>Serre à hybrides</h2><p class="small muted" style="margin:0">${allFound ? "Tous les hybrides sont découverts. Tu peux encore croiser pour obtenir leurs graines." : "Croise deux récoltes pour découvrir de nouvelles variétés."}</p></div>${allFound && !S.lab ? `<button class="btn ghost sm lab-fold" data-act="toggleLab" aria-expanded="true">Réduire</button>` : ""}</div>${top}</section>${herb}`;
 }
 
 function views_village() {

@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.2.0
+- Une fois tous les hybrides découverts, la Serre se replie en un bandeau « terminé ». Un toucher la rouvre (pour continuer à croiser et obtenir des graines), « Réduire » la referme, et elle se rouvre d’elle-même si de nouveaux hybrides arrivent.
+
 ### 2.1.5
 - Toucher un plat dans une commande du village ouvre la Cuisine sur cette recette (ou le Marché si elle n’est pas encore apprise).
 
