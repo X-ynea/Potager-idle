@@ -696,3 +696,18 @@ button.herb:active { transform: scale(.97); }
 .deco-slots-pick .deco-slot img { height: 80px; }
 .deco-slots-pick .deco-slot small { color: #fff; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
 .deco-slots-pick .deco-slot.sel { outline: 3px solid var(--sun); }
+/* Décorations : 3 emplacements asymétriques sur les côtés du jardin
+   (haut gauche, bas gauche, droite entre les deux premières rangées de bacs). */
+.garden { container-type: inline-size; --cols: 3; --side: 15%; }
+@media (min-width: 620px) { .garden { --cols: 4; } }
+.garden.decorated .plots { margin-inline: var(--side); }
+.garden .deco-row { position: absolute; inset: 0; display: block; margin: 0; pointer-events: none; z-index: 4; }
+.garden .deco-row .deco-slot { position: absolute; pointer-events: auto; width: calc(var(--side) + 2%); height: calc((var(--side) + 2%) * 1.15); max-width: none; display: grid; place-items: end center; }
+.garden .deco-row .deco-slot.s0 { left: 1%; top: 1.5%; }
+.garden .deco-row .deco-slot.s2 { left: 1%; bottom: 1.5%; }
+/* Droite : centré sur l'espace entre la 1re et la 2e rangée de bacs. */
+.garden .deco-row .deco-slot.s1 { right: 1%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * (1 - 2 * var(--side) / 100%) / var(--cols) * 1.008 - (var(--side) + 2%) * .45); }
+.garden .deco-row .deco-slot img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; }
+.garden .deco-row .deco-slot.empty { font-size: 1.3rem; }
+.garden .deco-row .deco-slot { width: 17%; height: 19.5cqw; }
+.garden .deco-row .deco-slot.s1 { top: calc(var(--g) + (100cqw - 2 * var(--g)) * .7 / var(--cols) * 1.008 - 8.8cqw); }

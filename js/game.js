@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "0.30.0";
+const APP_VERSION = "0.30.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -668,7 +668,7 @@ function views_garden() {
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>
-    <div class="garden${UI.editDeco ? " editing" : ""}">
+    <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}">
       <button class="deco-edit" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓" : PENCIL}</button>
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
@@ -705,8 +705,8 @@ function decoRowHTML() {
   const slots = S.decoSlots || [null, null, null];
   if (!UI.editDeco && slots.every(d => !d)) return "";
   return `<div class="deco-row">${slots.map((d, i) => d
-    ? `<button class="deco-slot full" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
-    : `<button class="deco-slot empty" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
+    ? `<button class="deco-slot full s${i}" data-act="decoPick" data-arg="${i}" aria-label="${DECOS[d]}"><img src="assets/img/deco-${d}.webp" alt=""></button>`
+    : `<button class="deco-slot empty s${i}" data-act="decoPick" data-arg="${i}" aria-label="Emplacement libre"${UI.editDeco ? "" : " hidden"}><span>+</span></button>`).join("")}</div>`;
 }
 // Choisir la décoration d'un emplacement.
 function viewDecoPick(slot) {
@@ -988,6 +988,7 @@ function render(force) {
       // repartent de zéro. On remplace seulement ce qui l'entoure.
       for (const sel of [".deco-row", ".deco-edit"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
       oldGarden.classList.toggle("editing", !!UI.editDeco);
+      oldGarden.classList.toggle("decorated", !!UI.editDeco || S.decoSlots.some(Boolean));
       swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);
       swapAround($("#view"), tmp, oldGarden.parentElement, freshGarden.parentElement);
     } else {
