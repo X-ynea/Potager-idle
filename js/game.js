@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.11";
+const APP_VERSION = "2.0.0-beta.12";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1253,7 +1253,7 @@ function spawnButterfly() {
   el.innerHTML = `<span class="bf">${visitorArt(vis.key)}</span>`;
   el.addEventListener("click", ev => {
     ev.stopPropagation(); el.remove(); S.stats.butterflies++; questProgress("butterfly"); SFX.play("butterfly");
-    const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain");
+    const gain = 2 + S.level; earn(gain, ev.clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 3, "butterfly-gain gain-" + vis.key);
     commit();
   });
   el.addEventListener("animationend", () => el.remove());

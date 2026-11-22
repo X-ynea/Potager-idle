@@ -956,3 +956,7 @@ button.herb:active { transform: scale(.97); }
 /* Gel : bloc de glace posé sur le bac, voile givré plus léger */
 img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: drop-shadow(0 2px 4px rgba(60,120,190,.45)); }
 .frost-cover { background: linear-gradient(135deg, rgba(235,248,255,.55), rgba(190,225,250,.4)); }
+/* Texte de gain aux couleurs du visiteur attrapé */
+.float.gain-dragonfly { color: #1f9cc4; }
+.float.gain-ladybug { color: #d8342a; }
+.float.gain-robin { color: #e0662c; }
