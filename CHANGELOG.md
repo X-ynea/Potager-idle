@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.1.4
+- Nouveaux fonds de saison qui se raccordent sur tous les bords : le motif se répète sans miroir ni couture.
+
 ### 2.1.2
 - Fonds de saison à taille fixe, répétés en miroir : ils ne sont plus agrandis sur les grands écrans.
 
