@@ -884,7 +884,7 @@ button.herb:active { transform: scale(.97); }
 .ss-plants .chip.locked { opacity: .55; }
 .ss-plants .chip.locked svg { filter: grayscale(1); }
 .ss-facts { display: grid; gap: 6px; }
-.ss-facts > div { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.7); border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px; font-size: .88rem; }
+.ss-facts > div { display: flex; align-items: center; gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px; font-size: .88rem; color: var(--ink); }
 .ss-ico { width: 34px; height: 34px; display: grid; place-items: center; flex: none; }
 .ss-ico svg, .ss-ico img { width: 100%; height: 100%; object-fit: contain; }
 .sz-bg-hiver .ss-ico svg g[stroke="#e9f6ff"] { stroke: #bfe0f7; }
@@ -962,3 +962,24 @@ img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: dro
 .float.gain-robin { color: #e0662c; }
 .seg.seg5 { grid-template-columns: repeat(5, 1fr); }
 .seg.seg5 button { padding-inline: 2px; font-size: .85rem; }
+/* Cartes dorées en mode sombre (objectif prêt, succès, récolte dorée…) */
+:root[data-theme="dark"] .sheet.levelup.big .lv-item,
+:root[data-theme="dark"] .rv-reward,
+:root[data-theme="dark"] .ach-sum,
+:root[data-theme="dark"] .ach.done,
+:root[data-theme="dark"] .quest.ready,
+:root[data-theme="dark"] .hi-gold.found,
+:root[data-theme="dark"] .gp-card { background: linear-gradient(160deg, #3a3018, #4a3a14); color: var(--ink); }
+:root[data-theme="dark"] .hi-gold.found, :root[data-theme="dark"] .rv-reward b, :root[data-theme="dark"] .gp-name, :root[data-theme="dark"] .gp-val { color: #f4cf72; }
+:root[data-theme="dark"] .gp-title { color: #f4c03e; }
+@media (prefers-color-scheme: dark) {
+:root[data-theme="system"] .sheet.levelup.big .lv-item,
+:root[data-theme="system"] .rv-reward,
+:root[data-theme="system"] .ach-sum,
+:root[data-theme="system"] .ach.done,
+:root[data-theme="system"] .quest.ready,
+:root[data-theme="system"] .hi-gold.found,
+:root[data-theme="system"] .gp-card { background: linear-gradient(160deg, #3a3018, #4a3a14); color: var(--ink); }
+:root[data-theme="system"] .hi-gold.found, :root[data-theme="system"] .rv-reward b, :root[data-theme="system"] .gp-name, :root[data-theme="system"] .gp-val { color: #f4cf72; }
+:root[data-theme="system"] .gp-title { color: #f4c03e; }
+}
