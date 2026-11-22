@@ -1,5 +1,9 @@
 # Notes de version
 
+## Version 1.0.2
+
+- Le bouton pour décorer le jardin passe juste au-dessus du jardin (« Décorer » / « Terminé ») : il ne cache plus le badge du bac en haut à droite.
+
 ## Version 1.0.1
 
 - Changer de décoration dans un emplacement remet à zéro sa position, sa taille et son sens.

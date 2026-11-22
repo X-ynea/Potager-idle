@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "1.0.1";
+const APP_VERSION = "1.0.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -688,9 +688,8 @@ function views_garden() {
       ${S.upg.gloves ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>Retirer les escargots${snails ? ` (${snails})` : ""}</button>` : ""}
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
-    <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p>
+    <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p></div>
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}">
-      <button class="deco-edit" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓" : PENCIL}</button>
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
     </div>${decoRowHTML()}</div>
@@ -1023,7 +1022,7 @@ function render(force) {
     if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
       // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
       // repartent de zéro. On remplace seulement ce qui l'entoure.
-      for (const sel of [".deco-row", ".deco-edit"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
+      for (const sel of [".deco-row"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
       oldGarden.classList.toggle("editing", !!UI.editDeco);
       oldGarden.classList.toggle("decorated", !!UI.editDeco || S.decoSlots.some(Boolean));
       swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);

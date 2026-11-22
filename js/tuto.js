@@ -59,7 +59,7 @@ const TUTO = [
     done: () => (S.discovered || []).length > 0, ok: "J’essaie" },
   { id: "deco", tab: "garden", hl: ".deco-edit",
     when: () => typeof decoUnlocked === "function" && DECO_ORDER.some(decoUnlocked),
-    text: "Quelle jolie récompense ! Touche le crayon dans le coin du jardin pour installer ta décoration.",
+    text: "Quelle jolie récompense ! Touche « Décorer », juste au-dessus du jardin, pour installer ta décoration.",
     done: () => S.decoSlots.some(Boolean) || !!UI.editDeco },
 ];
 const TUTO_BY = Object.fromEntries(TUTO.map(t => [t.id, t]));

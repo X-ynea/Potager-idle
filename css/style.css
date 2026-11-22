@@ -796,3 +796,10 @@ button.herb:active { transform: scale(.97); }
   .sheet.info h2 { font-size: 1.35rem; }
   .sheet.info .btn.big { padding-block: 10px; }
 }
+/* Bouton Décorer sorti du jardin : il ne cache plus les badges des bacs */
+.garden-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 0; }
+.garden-bar .garden-hint { margin: 0; }
+.garden-bar .deco-edit { position: static; width: auto; height: 28px; padding: 0 11px 0 9px; border-radius: 99px; display: inline-flex; align-items: center; gap: 5px;
+  background: var(--panel-2); border: 1px solid var(--line); box-shadow: none; color: var(--leaf-deep); font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
+.garden-bar .deco-edit svg { width: 13px; height: 13px; }
+.garden-bar .deco-edit.on { background: var(--leaf); border-color: var(--leaf); color: #fff; }
