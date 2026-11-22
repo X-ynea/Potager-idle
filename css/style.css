@@ -733,11 +733,15 @@ button.herb:active { transform: scale(.97); }
 .garden.decorated { overflow: clip; overflow-clip-margin: 18px; }
 .garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: -2.5%; }
 .garden .deco-row .deco-slot.s1 { right: -2.5%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .82 / var(--cols) * 1.008 - 8cqw); }
-/* Décorations déplaçables en mode édition */
-.garden.editing .deco-row .deco-slot.full { touch-action: none; cursor: grab; }
-.garden.editing .deco-row .deco-slot.full.dragging { cursor: grabbing; z-index: 6; outline-color: var(--sun); }
-.garden.editing .deco-row .deco-slot.full.dragging img { filter: drop-shadow(0 10px 8px rgba(30,60,10,.45)); }
-.deco-tip { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); margin: 0; z-index: 5; pointer-events: none; white-space: nowrap;
-  background: rgba(255,255,255,.92); color: var(--ink); font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 6px rgba(30,60,10,.2); }
-/* Hors mode édition, les décos ne bloquent pas les taps sur les bacs */
-.garden:not(.editing) .deco-row .deco-slot { pointer-events: none; }
+/* Décalage d'une déco dans son emplacement (croix de flèches) */
+.garden .deco-row .deco-slot.full img, .deco-prev .deco-slot img { transform: translate(var(--ox, 0), var(--oy, 0)) scale(calc(var(--ds, 1) * var(--fx, 1)), var(--ds, 1)); transform-origin: 50% 100%; }
+.deco-adjust { display: flex; align-items: center; justify-content: center; gap: 22px; }
+.deco-prev { width: 104px; height: 120px; border-radius: 16px; background: #8fcf52 url("../assets/img/bg-garden.webp") center / cover; display: grid; place-items: center; overflow: hidden; }
+.deco-prev .deco-slot { display: grid; place-items: end center; width: 64px; height: 74px; outline: 2px dashed rgba(255,255,255,.9); outline-offset: 2px; border-radius: 12px; }
+.deco-prev .deco-slot img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 4px rgba(40,70,10,.35)); }
+.dpad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 4px; }
+.dpad .dp { border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2, #f3f8ec); color: var(--leaf-d, #3f8a2a); display: grid; place-items: center; padding: 0; font-size: 1.1rem; cursor: pointer; }
+.dpad .dp svg { width: 20px; height: 20px; }
+.dpad .dp:active:not(:disabled) { transform: scale(.92); }
+.dpad .dp:disabled { opacity: .35; cursor: default; }
+.dpad .up { grid-area: 1 / 2; } .dpad .left { grid-area: 2 / 1; } .dpad .mid { grid-area: 2 / 2; border-radius: 50%; } .dpad .right { grid-area: 2 / 3; } .dpad .down { grid-area: 3 / 2; }
