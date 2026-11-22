@@ -9,6 +9,9 @@
 - Le visiteur à attraper change : papillon, libellule, coccinelle, rouge-gorge.
 - Ce qui bloque les bacs change aussi, avec le même fonctionnement : escargots, herbes folles, feuilles mortes, gel.
 
+### Nouvelle couleur
+- L'interface passe du vert à des nuances d'orange chaud : fonds crème, boutons, onglets, tags, encadrés, barre d'XP, en clair comme en sombre. Le jardin garde son herbe et ses couleurs naturelles.
+
 ### Les plantes de saison
 - Chaque plante a sa saison, signalée par une icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché, l'inventaire et la fiche de plante.
 - Pendant sa saison, une plante pousse 25 % plus vite.

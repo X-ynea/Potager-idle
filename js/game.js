@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta";
+const APP_VERSION = "2.0.0-beta.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -673,7 +673,7 @@ function applyTheme() {
   const th = S.settings.theme;
   document.documentElement.dataset.theme = th;
   const dark = th === "dark" || (th === "system" && darkQuery.matches);
-  document.getElementById("theme-color")?.setAttribute("content", dark ? "#172016" : "#f2f9e6");
+  document.getElementById("theme-color")?.setAttribute("content", dark ? "#1f1711" : "#fdf3e7");
 }
 darkQuery.addEventListener?.("change", () => S && applyTheme());
 const CHEVRON = `<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -865,7 +865,7 @@ function updateGarden(t) {
 
 /* ---------------- Composants : cases, fiche détaillée, ingrédients ---------------- */
 const UI = { sel: {}, invCat: "crops", sellCat: "crops" };
-const CHECK = `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3fae49"/><path d="M4.5 8.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const CHECK = `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#ec7d2e"/><path d="M4.5 8.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const LOCK = `<svg viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="7" rx="1.6" fill="#8a9a80"/><path d="M5.5 7V5.5a2.5 2.5 0 0 1 5 0V7" stroke="#8a9a80" stroke-width="1.6" fill="none"/></svg>`;
 const priceTag = n => `${coin}<span class="num">${fmt(n)}</span>`;
 const canCook = r => Object.entries(RECIPES[r].need).every(([k, q]) => cnt(S.crops, k) >= q);
