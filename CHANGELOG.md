@@ -10,7 +10,8 @@
 - Ce qui bloque les bacs change aussi, avec le même fonctionnement : escargots, herbes folles, feuilles mortes, gel.
 
 ### Nouvelle couleur
-- L'interface passe du vert à des nuances d'orange chaud : fonds crème, boutons, onglets, tags, encadrés, barre d'XP, en clair comme en sombre. Le jardin garde son herbe et ses couleurs naturelles.
+- Les couleurs de l'interface suivent la saison : rose clair au printemps, vert l'été, orange chaud en automne, bleu clair l'hiver (fonds, boutons, onglets, tags, encadrés, barre d'XP), en clair comme en sombre. Le jardin garde son herbe et ses couleurs naturelles.
+- Nouvelle icône d'appli sur fond orange pâle.
 
 ### Les plantes de saison
 - Chaque plante a sa saison, signalée par une icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché, l'inventaire et la fiche de plante.
