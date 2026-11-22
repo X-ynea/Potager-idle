@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.21";
+const APP_VERSION = "2.0.0-beta.22";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -21,6 +21,7 @@ const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
 // Vitesse d’une plante : compost, et +25 % pour une plante de saison pendant sa saison.
 const plantSpeed = k => speed() * (inSeason(k) ? SEASON_BONUS : 1);
+const growSpeed = plantSpeed; // vitesse de pousse d’une plante (compost + bonus de saison)
 // Nombre de voisins qui peuvent attendre une commande en même temps (3, puis 4 et 5 avec le Banc des voisins).
 const maxOrders = () => UPG.village.values[S.upg.village || 0];
 const stoves = () => UPG.stove.values[S.upg.stove];
@@ -840,7 +841,7 @@ function plotHTML(p, i, t) {
   if (st === "weed") inner += `${pestArt(PEST().key)}<span class="thirst pest-alert"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="#e2473b" stroke-width="2.6" stroke-linecap="round"/></svg></span>`; // escargot + bulle à croix rouge
   if (st === "ripe") return inner + `<span class="thirst ready">${STAR}</span>`; // étoile : prête à récolter (pas de jauges)
   const r = ringValues(p, st, t); // valeurs posées dès la création, sans animation depuis zéro
-  inner += `<span class="ring" title="${d.name}"><svg viewBox="0 0 40 40" aria-hidden="true">
+  inner += `<span class="ring"><svg viewBox="0 0 40 40" aria-hidden="true">
       <circle class="ring-bg" cx="20" cy="20" r="18"/><circle class="ring-water" cx="20" cy="20" r="18" pathLength="100" data-rw="${i}" style="stroke-dashoffset:${r.w}"/>
       <circle class="ring-bg" cx="20" cy="20" r="14"/><circle class="ring-grow" cx="20" cy="20" r="14" pathLength="100" data-rg="${i}" style="stroke-dashoffset:${r.g}"/>
     </svg><span class="ring-ico">${cropArt(p.seed)}</span></span>`;
@@ -850,6 +851,34 @@ function plotLabel(p, t) {
   const st = plotState(p, t); if (st === "empty") return "Parcelle vide : planter";
   const n = PLANTS[p.seed].name;
   return { ripe: `${n} prêt à récolter`, dry: `${n} a soif : arroser`, weed: `${n} envahi : désherber`, growing: `${n} en train de pousser : arroser` }[st];
+}
+/* Temps restant avant maturité : pleine vitesse tant que l'eau tient, puis au ralenti (DRY_RATE). */
+function plotEta(p, t) {
+  const sp = growSpeed(p.seed), left = PLANTS[p.seed].time * 1000 - p.grown;
+  if (left <= 0) return 0;
+  const wet = S.upg.auto ? Infinity : Math.max(0, p.waterUntil - t);
+  return left <= wet * sp ? left / sp : wet + (left - wet * sp) / (sp * DRY_RATE);
+}
+// Bulle au survol d'un bac (ordinateur) : temps restant, mis à jour chaque seconde.
+let tipPlot = -1;
+function plotTipText(p, t) {
+  if (!p.seed) return "Bac vide : touche pour planter";
+  const d = PLANTS[p.seed], st = plotState(p, t);
+  if (st === "ripe") return `<b>${d.name}</b> · prêt à récolter`;
+  if (st === "weed") return `<b>${d.name}</b> · bloqué, touche pour libérer`;
+  return `<b>${d.name}</b> · prêt dans ${dur(plotEta(p, t))}${st === "dry" ? `<br><span class="tip-dry">Terre sèche : pousse au ralenti</span>` : ""}`;
+}
+function updatePlotTip(t) {
+  const tip = document.getElementById("plot-tip"), el = tipPlot >= 0 && document.querySelector(`[data-plot="${tipPlot}"]`);
+  if (!tip) return;
+  if (!el || tab !== "garden" || !S.plots[tipPlot]) { tip.hidden = true; return; }
+  tip.innerHTML = plotTipText(S.plots[tipPlot], t); tip.hidden = false;
+  const r = el.getBoundingClientRect();
+  tip.style.left = (r.left + r.width / 2) + "px"; tip.style.top = (r.top - 6) + "px";
+}
+if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  document.addEventListener("mouseover", ev => { const el = ev.target.closest?.("[data-plot]"); const i = el ? +el.dataset.plot : -1; if (i !== tipPlot) { tipPlot = i; updatePlotTip(now()); } });
+  addEventListener("scroll", () => updatePlotTip(now()), { passive: true });
 }
 function updateGarden(t) {
   document.querySelectorAll("[data-plot]").forEach(el => {
@@ -865,8 +894,6 @@ function updateGarden(t) {
       const r = ringValues(p, st, t);
       const rg = el.querySelector("[data-rg]"); if (rg) rg.style.strokeDashoffset = r.g;
       const rw = el.querySelector("[data-rw]"); if (rw) rw.style.strokeDashoffset = r.w;
-      const ring = el.querySelector(".ring");
-      if (ring) ring.title = st === "ripe" ? `${PLANTS[p.seed].name} : prêt !` : st === "dry" ? `${PLANTS[p.seed].name} : a soif` : st === "weed" ? `${PLANTS[p.seed].name} : bloqué (${PEST().name})` : `${PLANTS[p.seed].name} : prêt dans ${dur((need - p.grown) / speed())}`;
     }
   });
 }
@@ -1121,6 +1148,7 @@ function live(t) {
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
+  updatePlotTip(t);
   tutoUpdate();
   document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });
   document.querySelectorAll("[data-left]").forEach(el => { el.textContent = dur(+el.dataset.left - t); });
