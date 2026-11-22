@@ -210,9 +210,10 @@ function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgS
 function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */
-const SPROUTS = new Set(Object.keys(PLANTS));
+// Seulement les plantes qui ont déjà leurs images (les nouvelles gardent leur dessin de secours).
+const SPROUTS = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 /* Plantes mûres dessinées sans terre (posées directement dans le bac). */
-const RIPE_NO_SOIL = new Set(Object.keys(PLANTS));
+const RIPE_NO_SOIL = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 function plantArt(k, stage, inPlot) {
   k = PLANTS[k]?.img || k; // la plante du tutoriel emprunte les images du radis
   if (stage === 1 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
@@ -282,7 +283,7 @@ function face(cx, cy, s) {
     `<circle cx="${cx - s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/><circle cx="${cx + s * 1.65}" cy="${cy + s * .6}" r="${s * .38}" fill="#ff8fa3" opacity=".6"/>`;
 }
 /* Nombre de voisins qui ont déjà leur portrait illustré (les suivants ont un dessin simple). */
-const VILLAGER_IMAGES = 8;
+const VILLAGER_IMAGES = 12;
 function avatar(v) {
   const i = VILLAGERS.indexOf(v);
   if (i >= 0 && i < VILLAGER_IMAGES) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;

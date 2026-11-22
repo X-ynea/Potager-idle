@@ -1,5 +1,27 @@
 # Notes de version
 
+## Version 2.0 « Les quatre saisons »
+
+*Novembre 2026*
+
+### Les saisons
+- Une saison par semaine, du lundi au dimanche, la même pour tout le monde : printemps, été, automne, hiver, puis on recommence.
+- Le jardin change d'ambiance : pétales au printemps, pollen doré l'été, feuilles mortes qui tombent en automne, flocons l'hiver.
+- Un bandeau en haut du jardin indique la saison et les jours restants, et ouvre sa fiche. Une annonce accueille chaque nouvelle saison.
+- Le visiteur à attraper change : papillon, libellule, coccinelle, rouge-gorge.
+- Ce qui bloque les bacs change aussi, avec le même fonctionnement : escargots, herbes folles, feuilles mortes, gel.
+
+### Nouvelle couleur
+- Les couleurs de l'interface suivent la saison : rose clair au printemps, vert l'été, orange chaud en automne, bleu clair l'hiver (fonds, boutons, onglets, tags, encadrés, barre d'XP), en clair comme en sombre. Le jardin garde son herbe et ses couleurs naturelles.
+- Nouvelle icône d'appli sur fond orange pâle.
+
+### Les plantes de saison
+- Chaque plante a sa saison. Les plantes de la saison en cours portent son icône (fleur, soleil, feuille, flocon) dans l'herbier, le choix des graines, le marché et l'inventaire ; la fiche de plante et le détail du marché indiquent la saison de chaque plante.
+- Pendant sa saison, une plante pousse 25 % plus vite.
+- 8 nouvelles plantes exclusives, dont les graines ne sont vendues que pendant leur saison : petits pois et asperge, courgette et melon, betterave et champignon des bois, poireau et chou d'hiver.
+- 8 nouvelles recettes de saison, du velouté de petits pois à la potée au chou.
+- 4 nouveaux voisins qui ne passent que pendant leur saison : Mlle Hirondelle, Léon le Lézard, Noisette la Souris et Edmond l'Ours.
+- Nouveau succès « Quatre saisons » : récolter les 8 plantes exclusives.
 ## Version 1.6.0
 
 - Sur ordinateur, passer la souris sur un bac affiche une bulle avec le temps restant avant la récolte (en comptant l'eau qui reste et le ralenti en terre sèche), ou ce qu'il faut faire : récolter, libérer, planter.

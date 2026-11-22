@@ -13,8 +13,10 @@ const ACHIEVEMENTS = [
   { id: "double", cat: "garden", name: "Récolte double", desc: "Obtenir une récolte double", value: () => st("doubles"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "full", cat: "garden", name: "Jardin plein", desc: "Avoir toutes ses parcelles plantées en même temps", value: () => st("fullGarden"), tiers: [{ n: 1, c: 40, x: 15 }] },
   { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "can" }] },
-  { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && S.discovered.includes(k)).length,
+  { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && !PLANTS[k].only && S.discovered.includes(k)).length,
     tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur", deco: "scarecrow" }] },
+  { id: "seasons", cat: "garden", name: "Quatre saisons", desc: "Récolter les 8 plantes exclusives des saisons", value: () => ORDER.filter(k => PLANTS[k].only && S.discovered.includes(k)).length,
+    tiers: [{ n: 2, c: 150, x: 40 }, { n: 8, c: 1500, x: 300, title: "Jardinier des saisons" }] },
 
   { id: "gold", cat: "garden", name: "Chercheur d’or", desc: n => n === 1 ? "Trouver une récolte dorée" : `Trouver ${n} récoltes dorées différentes`, value: () => (S.goldenFound || []).length,
     tiers: [{ n: 1, c: 100, x: 30 }, { n: 5, c: 600, x: 150 }, { n: 20, c: 4000, x: 600, title: "Chercheur d’or" }] },
@@ -43,9 +45,9 @@ const ACHIEVEMENTS = [
   { id: "levels", cat: "eco", name: "Jardinier confirmé", desc: n => `Atteindre le niveau ${n}`, value: () => S.level,
     tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }] },
 
-  { id: "butterflies", cat: "daily", name: "Chasseur de papillons", desc: n => `Attraper ${n} papillons`, value: () => st("butterflies"),
+  { id: "butterflies", cat: "daily", name: "Chasseur de papillons", desc: n => `Attraper ${n} visiteurs ailés (papillons, libellules…)`, value: () => st("butterflies"),
     tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Chasseur de papillons" }] },
-  { id: "snails", cat: "daily", name: "Anti-escargots", desc: n => `Retirer ${n} escargots`, value: () => st("weeds"), tiers: [{ n: 50, c: 300, x: 80 }] },
+  { id: "snails", cat: "daily", name: "Jardinier vigilant", desc: n => `Libérer ${n} bacs bloqués (escargots, herbes folles, feuilles, gel)`, value: () => st("weeds"), tiers: [{ n: 50, c: 300, x: 80 }] },
   { id: "comeback", cat: "daily", name: "Bon retour", desc: "Revenir après plus de 8 heures d’absence", value: () => st("comeback"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: "Récupérer le cadeau du jour 7 jours d’affilée", value: () => st("bestStreak"), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle", deco: "bench" }] },
   { id: "early", cat: "daily", name: "Lève-tôt", desc: "Récolter avant 8 h", value: () => st("early"), tiers: [{ n: 1, c: 50, x: 15 }] },
