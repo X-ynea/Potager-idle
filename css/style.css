@@ -960,3 +960,5 @@ img.pest.pest-frost { width: 58%; left: 21%; top: auto; bottom: 14%; filter: dro
 .float.gain-dragonfly { color: #1f9cc4; }
 .float.gain-ladybug { color: #d8342a; }
 .float.gain-robin { color: #e0662c; }
+.seg.seg5 { grid-template-columns: repeat(5, 1fr); }
+.seg.seg5 button { padding-inline: 2px; font-size: .85rem; }

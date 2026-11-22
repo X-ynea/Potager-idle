@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.0.0-beta.14";
+const APP_VERSION = "2.0.0-beta.15";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -526,6 +526,7 @@ const A = {
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
   toggleSound() { S.settings.sound = !S.settings.sound; commit(); SFX.play("success"); },
+  setSeasonTest(k) { S.settings.seasonTest = k; S.season = season(); applyTheme(); commit(); },
   setVolume(v) { S.settings.volume = +v; SFX.play("coin"); save(); },
   async toggleNotif() {
     if (S.settings.notif) { S.settings.notif = false; return commit(); }
@@ -694,6 +695,9 @@ function viewSettings() {
     ${installPrompt ? `<div class="install"><p>Installe le jeu sur ton téléphone pour y jouer comme une vraie appli.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
+    </div>
+    <div class="set-group"><h3>Saison (test)</h3>
+      <div class="seg seg5">${[["auto", "Auto"], ["printemps", "Print."], ["ete", "Été"], ["automne", "Aut."], ["hiver", "Hiver"]].map(([k, l]) => `<button data-act="setSeasonTest" data-arg="${k}" aria-pressed="${(S.settings.seasonTest ?? "hiver") === k}">${l}</button>`).join("")}</div>
     </div>
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
