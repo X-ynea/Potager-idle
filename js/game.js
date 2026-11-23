@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.9";
+const APP_VERSION = "2.7.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -490,6 +490,7 @@ const A = {
   },
   openSeason() { modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
   toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
+  setSort(arg) { const [c, m] = arg.split(":"); S.settings.sort = { ...(S.settings.sort || {}), [c]: m }; commit(); },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) {
     if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal();
@@ -946,9 +947,17 @@ const catCount = c => Object.values(catBag(c)).reduce((a, b) => a + b, 0);
 function catTabs(cats, cur, act) {
   return `<div class="subtabs" style="grid-template-columns:repeat(${cats.length},1fr)">${cats.map(([c, l]) => `<button data-act="${act}" data-arg="${c}" aria-pressed="${cur === c}">${l} <span class="num">${catCount(c)}</span></button>`).join("")}</div>`;
 }
+/* Tri des listes (Cuisine, Vente) : gardé dans les réglages. */
+const byName = (a, b, n) => n(a).localeCompare(n(b), "fr", { sensitivity: "base" });
+function sortBar(ctx, opts) {
+  const cur = (S.settings.sort || {})[ctx] || opts[0][0];
+  return `<div class="sortbar"><span>Trier</span>${opts.map(([k, l]) => `<button class="chip sort-chip" data-act="setSort" data-arg="${ctx}:${k}" aria-pressed="${cur === k}">${l}</button>`).join("")}</div>`;
+}
+const sortOf = (ctx, def) => (S.settings.sort || {})[ctx] || def;
 function invBody(ctx, cat) {
   const bag = catBag(cat);
   const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
+  if (ctx === "sell") { const m = sortOf("sell", "price"); keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
@@ -966,7 +975,7 @@ function invBody(ctx, cat) {
   }
   const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(cat === "seeds" ? bag : itemBag(x), x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
-  return det + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
+  return det + (ctx === "sell" && keys.length > 1 ? sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) : "") + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
 function viewInv() {
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
@@ -1050,9 +1059,12 @@ function views_kitchen() {
   const d = RECIPES[r], ok = canCook(r), free = S.cooking.length < n;
   const btn = `<button class="btn big peach" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>${!ok ? "Il manque des ingrédients" : !free ? "Fourneaux occupés" : `Cuisiner · ${dur(d.time * 1000)}`}</button>`;
   const det = detail("kitchen", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.dishes, r)), ingList(d.need), btn);
-  const grid = S.recipes.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
+  const km = sortOf("kitchen", "ready"), rec = [...S.recipes];
+  rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
+    : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
+  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
-  return head + `<section class="panel">${det}<div class="tiles">${grid}</div></section>`;
+  return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }
 
 function views_lab() {

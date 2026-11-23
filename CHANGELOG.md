@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.7.0
+- Tri des listes : en Cuisine (faisables d’abord, prix de vente, ordre alphabétique) et au Marché, rayon Vendre (prix unitaire, valeur totale du stock, ordre alphabétique). Le choix est mémorisé.
+
 ### 2.6.9
 - Si une image n’arrive vraiment pas à se charger, le dessin vectoriel de la plante, du plat ou du voisin la remplace, au lieu de l’icône d’image cassée.
 

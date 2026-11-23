@@ -1069,3 +1069,8 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .float.gain-weeds { color: #4a9a2a; }
 .float.gain-leaves { color: #d2601f; }
 .float.gain-frost { color: #2f8fd6; }
+/* Tri des listes */
+.sortbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sortbar > span { font-size: .78rem; font-weight: 800; color: var(--muted); margin-right: 2px; }
+.sort-chip { font: inherit; font-size: .8rem; font-weight: 800; padding: 4px 11px; cursor: pointer; color: var(--ink); }
+.chip.sort-chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--leaf-ink); }
