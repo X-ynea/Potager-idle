@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.6";
+const APP_VERSION = "2.9.7";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1062,7 +1062,7 @@ function marketUpgrades() {
   return `<div class="list">${rows.sort((a, b) => a[0] - b[0]).map(r => r[1]).join("")}</div>`;
 }
 function views_market() {
-  const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["upgrades", "Bonus"], ["sell", "Vendre"]];
+  const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["sell", "Vendre"], ["upgrades", "Bonus"]];
   const body = { seeds: marketSeeds, recipes: marketRecipes, upgrades: marketUpgrades, sell: marketSell }[msub]();
   return `<section class="panel"><h2>Marché</h2>
     <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
