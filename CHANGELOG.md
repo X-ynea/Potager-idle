@@ -61,6 +61,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.8.0
+- 4 nouveaux succès cachés, à découvrir…
+- « Fidèle au poste » gagne deux paliers : 15 puis 30 jours d’affilée (titre « Pilier du potager »).
+
 ### 2.7.1
 - Appli installée : la couleur de base passe au blanc, assorti à la barre d’onglets, pour la barre système d’Android en bas de l’écran.
 

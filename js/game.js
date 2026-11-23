@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.7.1";
+const APP_VERSION = "2.8.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -116,6 +116,9 @@ function tick(t) {
     p.last = t;
   }
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
+  // Succès cachés : escargot gardé plus d'une heure, tous les bacs plantés de la même plante.
+  if (S.plots.some(p => p.weed && p.weedKind === "snail" && p.weedAt && t - p.weedAt > 3600e3)) S.stats.petSnail = 1;
+  if (S.plots.length >= 6 && S.plots.every(p => p.seed && p.seed === S.plots[0].seed)) S.stats.monoculture = 1;
   S.stats.maxCoins = Math.max(st("maxCoins"), S.coins);
   S.orders = S.orders.filter(o => Object.keys(o.items).every(k => (PLANTS[k] || RECIPES[k]) && knownItem(k)));
   if (S.orders.length < maxOrders() && t >= S.nextOrderAt) { S.orders.push(genOrder()); S.nextOrderAt = t + rand(90, 150) * 1000; }
@@ -475,7 +478,7 @@ const A = {
     if (S.orders.length < maxOrders()) S.nextOrderAt = Math.min(S.nextOrderAt, now() + 60000);
     commit();
   },
-  dismiss(id) { S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
+  dismiss(id) { S.stats.refused = st("refused") + 1; S.orders = S.orders.filter(o => o.id !== id); S.nextOrderAt = now() + 60000; commit(); },
   close() { closeModal(); },
   decoFlip(i) { S.decoFlip = S.decoFlip || [false, false, false]; S.decoFlip[+i] = !S.decoFlip[+i]; SFX.play("click"); save(); decoRefresh(+i); },
   decoNudge(arg) {
@@ -543,7 +546,9 @@ const A = {
     const o = dailyOffer(); if (!o) return closeModal();
     for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
     S.coins += o.coins;
-    S.daily.last = o.day; S.daily.streak = o.streak; S.daily.offer = null; S.stats.bestStreak = Math.max(st("bestStreak"), o.streak);
+    const yd = new Date(); yd.setDate(yd.getDate() - 1);
+    const run = S.daily.last === dayKey(yd) ? (S.daily.run || S.daily.streak || 0) + 1 : 1; // jours d'affilée, sans plafond
+    S.daily.last = o.day; S.daily.streak = o.streak; S.daily.run = run; S.daily.offer = null; S.stats.bestStreak = Math.max(st("bestStreak"), o.streak); S.stats.bestRun = Math.max(st("bestRun"), run);
     const { x, y } = pos(ev); closeModal(); addXp(o.xp); buzz([15, 40, 15]); SFX.play("success");
     floatText(`+${fmt(o.coins)} pièces · +${o.xp} XP`, x, y, true);
     commit();
@@ -629,6 +634,7 @@ function harvest(i, x, y) {
   if (!p.wasDry) S.stats.neverDry = st("neverDry") + 1;
   const hr = new Date().getHours(); if (hr < 8) S.stats.early = 1; if (hr >= 22) S.stats.night = 1;
   if (p.ripeAt && now() - p.ripeAt > 24 * 3600000) S.stats.patience = 1;
+  if (d.only && d.season !== season()) S.stats.offSeason = 1; // plante de saison récoltée hors de sa saison
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
@@ -1381,7 +1387,7 @@ function start() {
     if (!document.hidden && tab === "garden" && t >= nextButterfly) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
     if (t >= nextWeed) {
       const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
-      if (cand.length) pick(cand).weed = true;
+      if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; }
       nextWeed = t + rand(80, 170) * 1000;
     }
     render();

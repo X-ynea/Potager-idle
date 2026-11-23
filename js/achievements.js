@@ -63,13 +63,17 @@ const ACHIEVEMENTS = [
     tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Ami des petites bêtes" }] },
   { id: "snails", cat: "daily", name: "Jardinier vigilant", desc: n => `Libérer ${n} bacs bloqués (escargots, herbes folles, feuilles, gel)`, value: () => st("weeds"), tiers: [{ n: 50, c: 300, x: 80 }] },
   { id: "comeback", cat: "daily", name: "Bon retour", desc: "Revenir après plus de 8 heures d’absence", value: () => st("comeback"), tiers: [{ n: 1, c: 50, x: 15 }] },
-  { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: "Récupérer le cadeau du jour 7 jours d’affilée", value: () => st("bestStreak"), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle", deco: "bench" }] },
+  { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: n => `Récupérer le cadeau du jour ${n} jours d’affilée`, value: () => Math.max(st("bestRun"), st("bestStreak")), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle", deco: "bench" }, { n: 15, c: 1500, x: 250 }, { n: 30, c: 4000, x: 500, title: "Pilier du potager" }] },
   { id: "early", cat: "daily", name: "Lève-tôt", desc: "Récolter avant 8 h", value: () => st("early"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "night", cat: "daily", name: "Oiseau de nuit", desc: "Récolter après 22 h", value: () => st("night"), tiers: [{ n: 1, c: 50, x: 15, deco: "lantern" }] },
 
   { id: "whynot", cat: "hidden", hidden: true, name: "Pourquoi pas ?", desc: "Croiser une plante avec elle-même", value: () => st("selfCross"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "patience", cat: "hidden", hidden: true, name: "Patience", desc: "Laisser une plante mûre plus de 24 h avant de la récolter", value: () => st("patience"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "sellall", cat: "hidden", hidden: true, name: "Tout vendre", desc: "Vendre toute sa récolte d’un coup pour plus de 1 000 pièces", value: () => st("bigSale"), tiers: [{ n: 1, c: 200, x: 50 }] },
+  { id: "petsnail", cat: "hidden", hidden: true, name: "Escargot de compagnie", desc: "Laisser un escargot sur un bac plus d’une heure", value: () => st("petSnail"), tiers: [{ n: 1, c: 100, x: 30 }] },
+  { id: "monoculture", cat: "hidden", hidden: true, name: "Monoculture", desc: "Avoir tous ses bacs plantés de la même plante", value: () => st("monoculture"), tiers: [{ n: 1, c: 150, x: 40 }] },
+  { id: "offseason", cat: "hidden", hidden: true, name: "Hors saison", desc: "Récolter une plante de saison en dehors de sa saison", value: () => st("offSeason"), tiers: [{ n: 1, c: 200, x: 50 }] },
+  { id: "refuser", cat: "hidden", hidden: true, name: "Difficile en affaires", desc: "Refuser 10 commandes de voisins", value: () => st("refused"), tiers: [{ n: 10, c: 150, x: 40 }] },
 ];
 // XP des succès divisée par deux (2.4), arrondie à 5.
 ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .5 / 5) * 5); }));
