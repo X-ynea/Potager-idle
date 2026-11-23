@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.9";
+const APP_VERSION = "2.10.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -510,7 +510,8 @@ const A = {
   },
   openSeason() { modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
   toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
-  setSort(arg) { const [c, m] = arg.split(":"); S.settings.sort = { ...(S.settings.sort || {}), [c]: m }; commit(); },
+  // Toucher le tri actif le retire : retour à l’ordre de base.
+  setSort(arg) { const [c, m] = arg.split(":"); const cur = (S.settings.sort || {})[c]; S.settings.sort = { ...(S.settings.sort || {}), [c]: cur === m ? "none" : m }; commit(); },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) {
     if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal();
@@ -972,14 +973,14 @@ function catTabs(cats, cur, act) {
 /* Tri des listes (Cuisine, Vente) : gardé dans les réglages. */
 const byName = (a, b, n) => n(a).localeCompare(n(b), "fr", { sensitivity: "base" });
 function sortBar(ctx, opts) {
-  const cur = (S.settings.sort || {})[ctx] || opts[0][0];
+  const cur = (S.settings.sort || {})[ctx] || "none";
   return `<div class="sortbar"><span>Trier</span>${opts.map(([k, l]) => `<button class="chip sort-chip" data-act="setSort" data-arg="${ctx}:${k}" aria-pressed="${cur === k}">${l}</button>`).join("")}</div>`;
 }
-const sortOf = (ctx, def) => (S.settings.sort || {})[ctx] || def;
+const sortOf = ctx => (S.settings.sort || {})[ctx] || "none"; // "none" = ordre de base
 function invBody(ctx, cat) {
   const bag = catBag(cat);
   const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
-  if (ctx === "sell") { const m = sortOf("sell", "price"); keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
+  if (ctx === "sell") { const m = sortOf("sell"); if (m !== "none") keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
@@ -1019,9 +1020,10 @@ function marketSeeds() {
     return tile(m ? mystery(x) : seedArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), badge: m ? "" : seasonBadge(x), under: a ? (seedBuyable(x) ? priceTag(p.cost) : "Hors saison") : m ? "???" : `Niv. ${p.lvl}` });
   };
   // Tri : achetables d'abord (débloquées, en vente et payables), prix de vente, ordre alphabétique ; les verrouillées à la fin.
-  const sm = sortOf("seeds", "ready"), ok = x => seedBuyable(x) && S.coins >= PLANTS[x].cost;
+  const sm = sortOf("seeds"), ok = x => seedBuyable(x) && S.coins >= PLANTS[x].cost;
   const sorter = (a, b) => (seedAvailable(b) - seedAvailable(a)) || (!seedAvailable(a) && PLANTS[a].lvl - PLANTS[b].lvl) || (sm === "name" ? byName(a, b, x => PLANTS[x].name) : sm === "price" ? PLANTS[b].sell - PLANTS[a].sell : sm === "cost" ? PLANTS[a].cost - PLANTS[b].cost : (ok(b) - ok(a)) || byName(a, b, x => PLANTS[x].name)) || (PLANTS[a].lvl - PLANTS[b].lvl);
-  const base = ORDER.filter(x => !PLANTS[x].hybrid).sort(sorter), hyb = ORDER.filter(x => PLANTS[x].hybrid).sort(sorter);
+  const srt = l => sm === "none" ? l : l.sort(sorter);
+  const base = srt(ORDER.filter(x => !PLANTS[x].hybrid)), hyb = srt(ORDER.filter(x => PLANTS[x].hybrid));
   const found = hyb.filter(seedAvailable).length;
   return det + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
@@ -1087,8 +1089,8 @@ function views_kitchen() {
   const d = RECIPES[r], ok = canCook(r), free = S.cooking.length < n;
   const btn = `<button class="btn big peach" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>${!ok ? "Il manque des ingrédients" : !free ? "Fourneaux occupés" : `Cuisiner · ${dur(d.time * 1000)}`}</button>`;
   const det = detail("kitchen", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.dishes, r)), ingList(d.need), btn);
-  const km = sortOf("kitchen", "ready"), rec = [...S.recipes];
-  rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
+  const km = sortOf("kitchen"), rec = [...S.recipes];
+  if (km !== "none") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
   const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;

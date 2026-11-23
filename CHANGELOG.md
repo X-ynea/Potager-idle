@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.10.0
+- Tri des listes : toucher à nouveau le tri actif le retire et remet l’ordre de base. Par défaut, aucun tri n’est actif.
+
 ### 2.9.9
 - Marché, rayon Graines : tri par prix d’achat (du moins cher au plus cher) en plus du prix de vente.
 
