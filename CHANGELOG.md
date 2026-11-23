@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.3
+- Jardin décoré : marges latérales réduites, les bacs sont plus grands et les décos débordent un peu sur les bords.
+
 ### 2.9.2
 - Cadeau de la semaine : sans plante de saison débloquée ou sans hybride découvert, 2 graines d’une autre sorte les remplacent.
 

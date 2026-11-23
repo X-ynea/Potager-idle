@@ -1079,3 +1079,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .daily-streak span.gift { padding: 5px; }
 .daily-streak span.gift svg { width: 100%; height: 100%; }
 .daily-streak span.gift:not(.on) { color: var(--muted); }
+/* Jardin décoré : marges latérales plus fines (les décos débordent un peu sur les bacs) */
+.garden { --side: 5.5%; }
+.garden .deco-row .deco-slot.s0, .garden .deco-row .deco-slot.s2 { left: -3%; }
+.garden .deco-row .deco-slot.s1 { right: -3%; top: calc(var(--g) + (100cqw - 2 * var(--g)) * .93 / var(--cols) * 1.008 - 8cqw); }
