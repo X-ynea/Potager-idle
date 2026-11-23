@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.6
+- Choix de graine : sur l’onglet Hybrides, le contenu reste en haut et l’espace libre est en dessous.
+
 ### 2.9.5
 - Les recettes apprises alors que leur hybride n’était pas encore découvert sont retirées et remboursées.
 
