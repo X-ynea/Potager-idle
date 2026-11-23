@@ -59,8 +59,8 @@ const ACHIEVEMENTS = [
   { id: "levels", cat: "eco", name: "Jardinier confirmé", desc: n => `Atteindre le niveau ${n}`, value: () => S.level,
     tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }, { n: 30, c: 6000, x: 0, title: "Maître jardinier" }] },
 
-  { id: "butterflies", cat: "daily", name: "Chasseur de papillons", desc: n => `Attraper ${n} visiteurs ailés (papillons, libellules…)`, value: () => st("butterflies"),
-    tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Chasseur de papillons" }] },
+  { id: "butterflies", cat: "daily", name: "Petits visiteurs", desc: n => `Attraper ${n} visiteurs ailés (papillons, libellules, coccinelles, rouges-gorges)`, value: () => st("butterflies"),
+    tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Ami des petites bêtes" }] },
   { id: "snails", cat: "daily", name: "Jardinier vigilant", desc: n => `Libérer ${n} bacs bloqués (escargots, herbes folles, feuilles, gel)`, value: () => st("weeds"), tiers: [{ n: 50, c: 300, x: 80 }] },
   { id: "comeback", cat: "daily", name: "Bon retour", desc: "Revenir après plus de 8 heures d’absence", value: () => st("comeback"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "loyal", cat: "daily", name: "Fidèle au poste", desc: "Récupérer le cadeau du jour 7 jours d’affilée", value: () => st("bestStreak"), tiers: [{ n: 7, c: 500, x: 120, title: "Fidèle", deco: "bench" }] },

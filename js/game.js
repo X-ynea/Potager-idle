@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.2";
+const APP_VERSION = "2.6.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -85,6 +85,7 @@ function migrate(s) {
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (!s.decoSlots) s.decoSlots = [null, null, null];
+  if (s.title === "Chasseur de papillons") s.title = "Ami des petites bêtes"; // succès renommé (2.6.3)
   // Nouvelle courbe d’XP : on garde le niveau et la même proportion de la barre en cours.
   if (!s.xpCurve2) { s.xp = Math.round((s.xp || 0) / xpNeedOld(s.level || 1) * (20 * (s.level || 1) ** 2)); s.xpCurve2 = true; }
   if (!s.xpCurve3) { s.xp = Math.min(xpNeed(s.level || 1) - 1, Math.round((s.xp || 0) / (20 * (s.level || 1) ** 2) * xpNeed(s.level || 1))); s.xpCurve3 = true; }

@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.3
+- Le succès « Chasseur de papillons » devient « Petits visiteurs », puisqu’il compte tous les visiteurs ailés ; son titre devient « Ami des petites bêtes ».
+
 ### 2.6.2
 - La pastille de profil en haut à gauche est toujours encadrée, même avec la feuille par défaut, pour montrer qu’elle ouvre le profil.
 
