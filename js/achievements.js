@@ -71,6 +71,8 @@ const ACHIEVEMENTS = [
   { id: "patience", cat: "hidden", hidden: true, name: "Patience", desc: "Laisser une plante mûre plus de 24 h avant de la récolter", value: () => st("patience"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "sellall", cat: "hidden", hidden: true, name: "Tout vendre", desc: "Vendre toute sa récolte d’un coup pour plus de 1 000 pièces", value: () => st("bigSale"), tiers: [{ n: 1, c: 200, x: 50 }] },
 ];
+// XP des succès divisée par deux (2.4), arrondie à 5.
+ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .5 / 5) * 5); }));
 const DECOS = {
   gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", can: "Arrosoir fleuri", birdhouse: "Nichoir",
   hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", mailbox: "Boîte aux lettres", lantern: "Lanterne",

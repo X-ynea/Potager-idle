@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.3.4";
+const APP_VERSION = "2.4.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -16,7 +16,9 @@ function dur(ms) {
   if (m < 60) return r ? `${m} min ${String(r).padStart(2, "0")}` : `${m} min`;
   return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
 }
-const xpNeed = l => Math.round(15 * Math.pow(l, 1.6));
+// Courbe d’XP (2.4) : début rapide, puis environ 3 à 4 semaines pour atteindre le niveau 15.
+const xpNeed = l => Math.round(20 * l * l);
+const xpNeedOld = l => Math.round(15 * Math.pow(l, 1.6)); // ancienne courbe, pour convertir les parties
 const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
 // Vitesse d’une plante : compost, et +25 % pour une plante de saison pendant sa saison.
@@ -50,7 +52,7 @@ function fresh() {
   const t = now();
   const P = () => ({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
   const s = {
-    v: 1, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
+    v: 1, xpCurve2: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
@@ -82,6 +84,8 @@ function migrate(s) {
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (!s.decoSlots) s.decoSlots = [null, null, null];
+  // Nouvelle courbe d’XP : on garde le niveau et la même proportion de la barre en cours.
+  if (!s.xpCurve2) { s.xp = Math.round((s.xp || 0) / xpNeedOld(s.level || 1) * xpNeed(s.level || 1)); s.xpCurve2 = true; }
   if (s.upg && !s.upgBought017) { s.upg.basket = 0; s.upg.gloves = 0; s.upgBought017 = true; }
   const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 let lastSaveAt = 0;
@@ -337,7 +341,7 @@ function genOrder() {
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
   return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
-    coins: Math.round(effort * type.bonus + 2), xp: Math.round((xp * 1.3 + 3) * type.bonus) };
+    coins: Math.round(effort * type.bonus + 2), xp: Math.round((xp * .8 + 2) * type.bonus) }; // XP des commandes réduite (2.4)
 }
 
 /* ---------------- Actions ---------------- */

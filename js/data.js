@@ -66,11 +66,11 @@ const RECIPES = {
   // Recettes de saison
   veloute_pois: { name: "Velouté de petits pois", desc: "Un velouté vert tendre, frais comme un matin d’avril.", lvl: 4, price: 86, need: { petitpois: 3, laitue: 1 }, time: 150, sell: 78, xp: 18, look: "bowl", color: "#8ccf5a" },
   gratin:   { name: "Gratin de courgettes", desc: "Doré sur le dessus, fondant dessous, et une tomate pour la couleur.", lvl: 7, price: 135, need: { courgette: 2, patate: 1, tomate: 1 }, time: 200, sell: 123, xp: 28, look: "pie", color: "#9bc35a" },
-  soupe_bette: { name: "Soupe de betterave", desc: "Une soupe rubis qui réchauffe les soirées d’automne.", lvl: 6, price: 92, need: { betterave: 2, patate: 1 }, time: 150, sell: 83, xp: 19, look: "bowl", color: "#b0284f" },
-  fondue:   { name: "Fondue de poireaux", desc: "Des poireaux tout doux, sur une tartine bien grillée.", lvl: 7, price: 145, need: { poireau: 3, ble: 1 }, time: 180, sell: 140, xp: 30, look: "bowl", color: "#c9dc8a" },
+  soupe_bette: { name: "Soupe de betterave", desc: "Une soupe rubis qui réchauffe les soirées d’automne.", lvl: 5, price: 92, need: { betterave: 2, patate: 1 }, time: 150, sell: 83, xp: 19, look: "bowl", color: "#b0284f" },
+  fondue:   { name: "Fondue de poireaux", desc: "Des poireaux tout doux, sur une tartine bien grillée.", lvl: 8, price: 145, need: { poireau: 3, ble: 1 }, time: 180, sell: 140, xp: 30, look: "bowl", color: "#c9dc8a" },
   tarte_asperge: { name: "Tarte aux asperges", desc: "Une tarte fine où les asperges dessinent un soleil.", lvl: 10, price: 220, need: { asperge: 2, ble: 2 }, time: 240, sell: 200, xp: 42, look: "pie", color: "#9dc46a" },
-  salade_melon: { name: "Salade de melon", desc: "Melon, fraises et basilic : l’été dans un bol.", lvl: 10, price: 200, need: { melon: 1, fraise: 1, basilic: 1 }, time: 180, sell: 180, xp: 38, look: "bowl", color: "#f5a05a" },
-  tourte:   { name: "Tourte forestière", desc: "Une tourte généreuse aux champignons des bois.", lvl: 12, price: 360, need: { champignon: 2, ble: 2, patate: 1 }, time: 280, sell: 326, xp: 62, look: "pie", color: "#a2774a" },
+  salade_melon: { name: "Salade de melon", desc: "Melon, fraises et basilic : l’été dans un bol.", lvl: 13, price: 200, need: { melon: 1, fraise: 1, basilic: 1 }, time: 180, sell: 180, xp: 38, look: "bowl", color: "#f5a05a" },
+  tourte:   { name: "Tourte forestière", desc: "Une tourte généreuse aux champignons des bois.", lvl: 14, price: 360, need: { champignon: 2, ble: 2, patate: 1 }, time: 280, sell: 326, xp: 62, look: "pie", color: "#a2774a" },
   potee:    { name: "Potée au chou", desc: "Le grand plat d’hiver qui mijote toute l’après-midi.", lvl: 13, price: 240, need: { chou: 1, carotte: 2, patate: 2 }, time: 300, sell: 218, xp: 45, look: "bowl", color: "#8fb86a" },
   gateau:   { name: "Gâteau des moissons", desc: "Le chef-d’œuvre des récoltes, qui réunit les plus rares variétés du jardin.", lvl: 15, price: 3850, need: { azur: 2, amethyste: 2, lanterne: 2, lilas: 1, myrtille: 3 }, time: 1800, sell: 2566, xp: 290, look: "cake", color: "#ffcf1f" },
 };

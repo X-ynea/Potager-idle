@@ -61,6 +61,12 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.4.0
+- Progression plus lente : il faut environ 2,7 fois plus d’XP pour le niveau 9 et 3,4 fois plus pour le niveau 15 (comptez 3 à 4 semaines, un cycle de saisons). Le début reste rapide.
+- Les parties en cours gardent leur niveau ; la barre du niveau actuel est convertie à la même proportion.
+- XP des commandes réduite d’environ un tiers, XP des succès divisée par deux.
+- Déblocages mieux répartis : soupe de betterave au niveau 5, fondue de poireaux au 8, salade de melon au 13, tourte forestière au 14.
+
 ### 2.3.4
 - Herbier : les hybrides inconnus n’affichent plus que « ??? » ; « Touche un hybride inconnu pour un indice » est indiqué sous le titre Hybrides.
 
