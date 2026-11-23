@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.0";
+const APP_VERSION = "2.9.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -164,17 +164,16 @@ function dailyOffer() {
   const run = S.daily.last === dayKey(y) ? (S.daily.run || S.daily.streak || 0) + 1 : 1;
   const streak = (run - 1) % 7 + 1, big = streak === 7;
   const pool = ORDER.filter(k => !PLANTS[k].hybrid && !PLANTS[k].only && seedAvailable(k));
+  // Une sorte de graine, 2 graines. Fin de semaine : 1 graine de saison et 1 graine d'hybride en plus.
   const seeds = {};
-  const nb = Math.random() < .5 ? 1 : 2;
-  while (Object.keys(seeds).length < Math.min(nb, pool.length)) { const k = pick(pool); if (!seeds[k]) seeds[k] = 2 + Math.floor(Math.random() * 3); }
-  // Fin de semaine : gros cadeau, avec des graines de saison et d'hybride.
+  if (pool.length) seeds[pick(pool)] = 2;
   if (big) {
     const sz = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season === season() && PLANTS[k].lvl <= S.level);
-    if (sz.length) seeds[pick(sz)] = 3;
-    if (S.hybrids.length) seeds[pick(S.hybrids)] = 2;
+    if (sz.length) seeds[pick(sz)] = 1;
+    if (S.hybrids.length) seeds[pick(S.hybrids)] = 1;
   }
   const boost = big ? 2.5 : 1 + (streak - 1) * .15;
-  S.daily.offer = { day: today, streak, run, big, seeds, coins: Math.round((15 + S.level * 8) * boost), xp: Math.round((5 + S.level * 2) * boost) };
+  S.daily.offer = { day: today, streak, run, big, seeds, coins: Math.round((10 + S.level * 4) * boost), xp: Math.round((5 + S.level * 2) * boost) };
   return S.daily.offer;
 }
 function showDaily() {
@@ -187,7 +186,7 @@ function showDaily() {
     ${(o.run || 1) > 1 ? `<p class="daily-run">Série : <b class="num">${o.run} jours</b> d’affilée</p>` : ""}
     <div class="daily-streak">${Array.from({ length: 7 }, (_, i) => `<span class="${i < o.streak ? "on" : ""}${i === 6 ? " gift" : ""}">${i === 6 ? GIFT : i + 1}</span>`).join("")}</div>
     <div class="lv-list">
-      ${Object.entries(o.seeds).map(([k, n]) => `<div class="lv-item"><div class="lv-art">${seedArt(k)}</div><div><b>${n} graines de ${PLANTS[k].name.toLowerCase()}</b><span>Directement dans ton inventaire</span></div></div>`).join("")}
+      ${Object.entries(o.seeds).map(([k, n]) => `<div class="lv-item"><div class="lv-art">${seedArt(k)}</div><div><b>${n} graine${n > 1 ? "s" : ""} de ${PLANTS[k].name.toLowerCase()}</b><span>Directement dans ton inventaire</span></div></div>`).join("")}
       <div class="lv-item"><div class="lv-art"><span class="coin" style="width:100%;height:100%"></span></div><div><b class="num">${fmt(o.coins)} pièces</b><span>Pour le marché</span></div></div>
       <div class="lv-item"><div class="lv-art"><img src="assets/img/xp-leaf.webp" alt=""></div><div><b class="num">+${o.xp} XP</b><span>Pour monter de niveau</span></div></div>
     </div>

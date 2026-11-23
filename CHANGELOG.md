@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.1
+- Cadeau du jour plus modeste : environ moitié moins de pièces, et 2 graines d’une seule sorte. Le cadeau de la semaine ajoute 1 graine de saison et 1 graine d’hybride déjà découvert.
+
 ### 2.9.0
 - Cadeau du jour : la frise de 7 jours recommence chaque semaine, et le 7ᵉ jour donne un gros cadeau (2,5 fois plus de pièces et d’XP, des graines de saison et d’hybride). La série de jours d’affilée s’affiche dans la fenêtre.
 
