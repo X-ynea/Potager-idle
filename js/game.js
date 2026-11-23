@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.4";
+const APP_VERSION = "2.9.5";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -85,6 +85,12 @@ function migrate(s) {
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (!s.decoSlots) s.decoSlots = [null, null, null];
+  // 2.9.5 : recettes apprises alors que leur hybride n'était pas découvert → retirées et remboursées.
+  if (!s.hybRefund && Array.isArray(s.recipes)) {
+    const bad = s.recipes.filter(r => RECIPES[r] && Object.keys(RECIPES[r].need).some(k => PLANTS[k]?.hybrid && !(s.hybrids || []).includes(k)));
+    if (bad.length) { s.recipes = s.recipes.filter(r => !bad.includes(r)); s.coins = (s.coins || 0) + bad.reduce((t, r) => t + RECIPES[r].price, 0); s.hybRefundMsg = bad.map(r => RECIPES[r].name); }
+    s.hybRefund = true;
+  }
   if (s.title === "Chasseur de papillons") s.title = "Ami des petites bêtes"; // succès renommé (2.6.3)
   // Nouvelle courbe d’XP : on garde le niveau et la même proportion de la barre en cours.
   if (!s.xpCurve2) { s.xp = Math.round((s.xp || 0) / xpNeedOld(s.level || 1) * (20 * (s.level || 1) ** 2)); s.xpCurve2 = true; }
@@ -1391,6 +1397,7 @@ function start() {
   const ready = S.plots.filter(p => plotState(p, t) === "ripe").length;
   if (away > 8 * 3600000 && loaded) S.stats.comeback = 1;
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
+  if (S.hybRefundMsg) { const m = S.hybRefundMsg; delete S.hybRefundMsg; toast(`Recette${m.length > 1 ? "s" : ""} remboursée${m.length > 1 ? "s" : ""} : <b>${m.join(", ")}</b>. Découvre d’abord l’hybride à la Serre pour l’apprendre.`, 7000); save(); }
   // Première visite : c’est Mamie Lapine qui accueille (js/tuto.js).
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);

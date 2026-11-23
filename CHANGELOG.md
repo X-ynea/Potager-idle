@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.5
+- Les recettes apprises alors que leur hybride n’était pas encore découvert sont retirées et remboursées.
+
 ### 2.9.4
 - Une recette qui demande un hybride pas encore découvert ne peut plus être apprise : le Marché indique « Découvre d’abord l’hybride à la Serre ».
 
