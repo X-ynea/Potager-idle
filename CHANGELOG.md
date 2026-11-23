@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.3.4
+- Herbier : les hybrides inconnus n’affichent plus que « ??? » ; « Touche un hybride inconnu pour un indice » est indiqué sous le titre Hybrides.
+
 ### 2.3.3
 - Téléphone : les boutons du jardin, le bandeau de saison et l’indication d’eau et de compost se coupent proprement, et « 25 % » ne se sépare plus de son signe.
 
