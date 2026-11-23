@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.6
+- Marché, rayon Bonus : les améliorations achetables maintenant sont en haut, puis celles à débloquer (par niveau), puis celles déjà acquises.
+
 ### 2.6.5
 - Choix de graine : la fenêtre garde la même hauteur sur les onglets Plantes et Hybrides.
 
