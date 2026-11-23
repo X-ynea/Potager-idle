@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.3.2
+- Herbier : les hybrides pas encore découverts affichent « Touche pour un indice » ; l’indice s’ouvre dans leur fiche.
+
 ### 2.3.1
 - Choix de graine : le bouton « Planter » fait un petit rebond quand on plante.
 
