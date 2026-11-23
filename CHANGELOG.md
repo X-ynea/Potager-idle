@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.5
+- Choix de graine : la fenêtre garde la même hauteur sur les onglets Plantes et Hybrides.
+
 ### 2.6.3
 - Le succès « Chasseur de papillons » devient « Petits visiteurs », puisqu’il compte tous les visiteurs ailés ; son titre devient « Ami des petites bêtes ».
 

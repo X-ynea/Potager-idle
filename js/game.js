@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.4";
+const APP_VERSION = "2.6.5";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1218,7 +1218,9 @@ function viewPlotShop() {
 }
 function viewPicker() {
   const free = S.plots.filter(p => !p.seed).length;
-  return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Choisir une graine">
+  // Même hauteur pour les deux onglets (celle du plus rempli), pour éviter un saut en changeant d'onglet.
+  const rows = Math.max(PICK.order.filter(k => !PLANTS[k].hybrid).length, PICK.order.filter(k => PLANTS[k].hybrid).length, 1);
+  return `<div class="sheet picker-sheet" style="--rows:${rows}" role="dialog" aria-modal="true" aria-label="Choisir une graine">
     <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div><button class="btn ghost sm" data-act="close">Fermer</button></div>
     ${(() => { const nb = PICK.order.filter(k => !PLANTS[k].hybrid).length, nh = PICK.order.filter(k => PLANTS[k].hybrid).length;
       return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
