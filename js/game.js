@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.8";
+const APP_VERSION = "2.6.9";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1321,7 +1321,14 @@ function spawnButterfly() {
 document.addEventListener("error", ev => {
   const el = ev.target, attr = el?.tagName === "IMG" ? "src" : el?.tagName === "image" ? "href" : null;
   if (!attr) return;
-  const n = +(el.dataset?.retry || 0); if (n >= 3) return;
+  const n = +(el.dataset?.retry || 0);
+  if (n >= 3) { // toujours rien : on met le dessin vectoriel à la place (ou on masque l'image)
+    const host = attr === "href" ? el.closest("svg") : el, html = vectorArt(el.getAttribute(attr));
+    if (!host) return;
+    if (html) { const box = document.createElement("div"); box.innerHTML = html; const v = box.firstElementChild; if (host.getAttribute("class")) v.setAttribute("class", host.getAttribute("class").replace(/\bimg\b/, "")); host.replaceWith(v); }
+    else host.style.visibility = "hidden";
+    return;
+  }
   el.dataset.retry = n + 1;
   setTimeout(() => { const u = (el.getAttribute(attr) || "").split("?")[0]; if (u) el.setAttribute(attr, `${u}?r=${Date.now()}`); }, 1500 * (n + 1));
 }, true);

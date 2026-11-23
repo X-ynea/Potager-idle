@@ -203,7 +203,8 @@ function young(d) { // jeune plant, avec un indice de la couleur finale
 
 /* ---- Images détaillées (assets/img), utilisées dès qu'elles existent ---- */
 const IMG = Object.assign({ plants: [], dishes: [], ui: [] }, window.IMG || {});
-const hasImg = (kind, k) => IMG[kind].includes(k);
+let VEC_ONLY = false; // dessin vectoriel forcé (image qui n’a pas pu se charger)
+const hasImg = (kind, k) => !VEC_ONLY && IMG[kind].includes(k);
 /* Une image dans un <svg> : elle se place exactement comme les dessins vectoriels. */
 const imgSvg = (src, cls = "") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><image href="${src}" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></svg>`;
 function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
@@ -216,8 +217,8 @@ const SPROUTS = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 const RIPE_NO_SOIL = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 function plantArt(k, stage, inPlot) {
   k = PLANTS[k]?.img || k; // la plante du tutoriel emprunte les images du radis
-  if (stage === 1 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
-  if (stage === 2 && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-young.webp`, "art img young");
+  if (stage === 1 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
+  if (stage === 2 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-young.webp`, "art img young");
   if (stage === 3 && RIPE_NO_SOIL.has(k) && hasImg("plants", k)) return imgSvg(`assets/img/${k}-3.webp`, "art img ripe");
   if (hasImg("plants", k)) return stage === 0 ? imgSvg(`assets/img/${k}-grain.webp`, "art img grain") : imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
   const d = PLANTS[k];
@@ -286,7 +287,7 @@ function face(cx, cy, s) {
 const VILLAGER_IMAGES = 12;
 function avatar(v) {
   const i = VILLAGERS.indexOf(v);
-  if (i >= 0 && i < VILLAGER_IMAGES) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;
+  if (i >= 0 && i < VILLAGER_IMAGES && !VEC_ONLY) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;
   return `<svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="${v.color}" opacity=".22"/><circle cx="12" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="34" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="23" cy="25" r="15" fill="${vol(v.color)}"/><ellipse cx="23" cy="31" rx="7" ry="5" fill="#fff" opacity=".55"/><circle cx="23" cy="29" r="2.2" fill="${INK}"/>${face(23, 23, 3.2)}</svg>`;
 }
 
@@ -308,3 +309,20 @@ const WEED = `<g>${leaf(17, 61, -20, 15, 3, "#6e9a3a")}${leaf(21, 61, 8, 18, 3.2
   document.body.prepend(svg);
   DEFS_EL = svg.querySelector("defs");
 })();
+
+/* Dessin vectoriel de secours pour une image du jeu (plante, graines, récolte, plat, voisin). */
+function vectorArt(url) {
+  const m = /assets\/img\/([a-z_]+)-([a-z0-9]+)\.webp/.exec(url || ""); if (!m) return null;
+  const [, a, b] = m;
+  VEC_ONLY = true;
+  try {
+    if (a === "dish" && RECIPES[b]) return dishArt(b);
+    if (a === "villager" && VILLAGERS[+b]) return avatar(VILLAGERS[+b]);
+    if (!PLANTS[a]) return null;
+    const st = { grain: 0, sprout: 1, young: 2, 0: 0, 1: 1, 2: 2, 3: 3 }[b];
+    if (st != null) return plantArt(a, st, true);
+    if (b === "crop") return plantArt(a, 3);
+    if (b === "seeds") return packetArt(a);
+    return null;
+  } finally { VEC_ONLY = false; }
+}
