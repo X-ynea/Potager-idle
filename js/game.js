@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.3.0";
+const APP_VERSION = "2.3.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -365,6 +365,8 @@ const A = {
     Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
     if (d.tuto) p.waterUntil = t; // la graine de Mamie arrive assoiffée : on apprend à arroser
     if (!d.tuto) S.lastPick = k; PICK.plot = null; tutoFlag("planted");
+    // Petit rebond du bouton (la fenêtre reste ouverte et se redessine : l'état est gardé un instant).
+    PICK.flash = k; clearTimeout(PICK.flashT); PICK.flashT = setTimeout(() => { PICK.flash = null; }, 600);
     if (ev) { const { x, y } = pos(ev); floatText(`${d.name} planté`, x, y); }
     buzz(8); SFX.play("plant");
     // La fenêtre reste ouverte tant qu'il reste des bacs vides.
@@ -1218,7 +1220,7 @@ function viewPicker() {
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
     <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
       <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${inSeason(k) ? " " + seasonIcon(d.season) : ""}</b><span>${dur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
-      <div class="acts">${own ? `<button class="btn sm" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
+      <div class="acts">${own ? `<button class="btn sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
 /* Fiche d'une plante depuis l'herbier. */
 function openPlantInfo(k) {

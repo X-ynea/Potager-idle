@@ -1022,3 +1022,6 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 .toast:has(.ach-toast) { pointer-events: auto; }
 .ach.flash { animation: ach-flash 1.8s ease-out; }
 @keyframes ach-flash { 0%, 30% { box-shadow: 0 0 0 3px var(--sun), 0 0 18px rgba(244,192,62,.8); transform: scale(1.02); } 100% { box-shadow: 0 0 0 0 transparent; transform: none; } }
+/* Choix de graine : rebond du bouton quand on plante */
+.btn.planted { animation: planted .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes planted { 0% { transform: scale(.88); } 45% { transform: scale(1.08); box-shadow: 0 0 0 4px color-mix(in srgb, var(--leaf) 35%, transparent); } 100% { transform: none; } }

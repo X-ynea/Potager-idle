@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.3.1
+- Choix de graine : le bouton « Planter » fait un petit rebond quand on plante.
+
 ### 2.3.0
 - Toucher le message d’un succès ouvre la liste des succès obtenus, défilée jusqu’à ce succès, qui s’illumine un instant.
 
