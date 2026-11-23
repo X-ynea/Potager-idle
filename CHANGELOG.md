@@ -61,6 +61,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.0
+- Nouveau **profil**, en touchant la pastille en haut à gauche : pseudo modifiable, photo de profil (ta photo ou le portrait d’un voisin), bannière (un fond de saison ou ton image), titre affiché et quelques chiffres de ton potager.
+- La photo de profil remplace la feuille dorée en haut de l’écran. Les images importées sont recadrées et compressées sur l’appareil et restent dans ta sauvegarde.
+
 ### 2.5.0
 - Les déblocages sont étalés jusqu’au niveau 30, avec au moins une nouveauté à chaque niveau : les plantes, recettes, améliorations et bacs arrivent progressivement, et le Gâteau des moissons couronne le niveau 30.
 - Courbe d’XP ajustée pour ces 30 niveaux (environ 2 semaines pour le niveau 15, 2 à 3 mois pour le niveau 30).

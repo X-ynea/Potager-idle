@@ -1030,3 +1030,33 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 .season-bar { flex-wrap: wrap; column-gap: 6px; row-gap: 2px; }
 .season-bar > * { white-space: nowrap; }
 .garden-bar .garden-hint { text-align: right; }
+/* ================= Profil ================= */
+button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
+.brand.has-avatar img { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--leaf); }
+.pf-card { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--panel-2); padding-bottom: 12px; }
+.pf-banner { display: block; width: 100%; aspect-ratio: 3 / 1; border: 0; padding: 0; background: center / 260px repeat; cursor: pointer; position: relative; }
+.pf-banner.photo { background-size: cover; background-repeat: no-repeat; }
+.pf-avatar { position: absolute; left: 16px; top: calc(min(100%, 33.3%) - 6px); transform: translateY(-50%); width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--panel); padding: 0; background: #fff8ec; cursor: pointer; overflow: visible; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.pf-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.pf-edit { position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--leaf-deep); display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.pf-avatar .pf-edit { right: -4px; bottom: -2px; }
+.pf-edit svg { width: 13px; height: 13px; }
+.pf-id { display: grid; gap: 4px; padding: 8px 14px 0 112px; min-height: 48px; }
+.pf-name { font: inherit; font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; color: var(--ink); background: transparent; border: 0; border-bottom: 1.5px dashed var(--line); border-radius: 0; padding: 2px 0; width: 100%; min-width: 0; }
+.pf-name:focus { outline: none; border-bottom-color: var(--leaf); }
+.pf-sub { font-size: .85rem; color: var(--muted); font-weight: 700; }
+.pf-sub .title-tag { display: inline-block; }
+.pf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
+.pf-grid.banners { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.pf-opt { display: grid; justify-items: center; gap: 2px; padding: 6px 4px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--panel); font: inherit; color: var(--ink); cursor: pointer; }
+.pf-opt img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.pf-opt small { font-size: .68rem; font-weight: 700; color: var(--muted); }
+.pf-opt.sel { border-color: var(--leaf); background: var(--tile-sel); }
+.pf-grid.banners .pf-opt { height: 56px; background-size: 140px; align-content: end; }
+.pf-grid.banners .pf-opt small { background: rgba(255,255,255,.88); border-radius: 99px; padding: 0 6px; color: var(--ink); }
+.pf-opt.upload { border-style: dashed; place-content: center; }
+.pf-opt.upload span { font-family: var(--f-display); font-size: 1.5rem; line-height: 1; color: var(--leaf-deep); }
+.pf-grid.banners .pf-opt.upload { height: 56px; }
+.pf-avatar { position: relative; float: left; left: auto; top: auto; transform: none; margin: -42px 12px 0 16px; }
+.pf-id { padding: 8px 14px 0 0; overflow: hidden; }
+.pf-card::after { content: ""; display: block; clear: both; }

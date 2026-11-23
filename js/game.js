@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.5.0";
+const APP_VERSION = "2.6.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1145,7 +1145,7 @@ function render(force) {
     lastSig = s;
     if (modalView && !$("#modal").hidden) {
       const sc = $("#modal .sheet")?.scrollTop || 0;
-      const kept = [...document.querySelectorAll("#modal textarea")].map(t => [t.id, t.value]);
+      const kept = [...document.querySelectorAll("#modal textarea, #modal input[id]:not([type=range])")].map(t => [t.id, t.value, t === document.activeElement, t.selectionStart]);
       // Même fenêtre : on remplace son contenu sans la recréer (pas d'animation d'ouverture rejouée).
       const box = document.createElement("div"); box.innerHTML = modalView();
       const ns = box.firstElementChild, os = $("#modal .sheet");
@@ -1155,7 +1155,7 @@ function render(force) {
         os.innerHTML = ns.innerHTML;
         document.querySelectorAll("#modal .strip").forEach((e, k) => { e.scrollLeft = strip[k] || 0; });
       } else $("#modal").innerHTML = box.innerHTML;
-      for (const [id, v] of kept) { const t = document.getElementById(id); if (t) t.value = v; }
+      for (const [id, v, f, c] of kept) { const t = document.getElementById(id); if (t) { t.value = v; if (f) { t.focus(); try { t.setSelectionRange(c, c); } catch (e) {} } } }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
     }
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
@@ -1164,6 +1164,7 @@ function render(force) {
 }
 function live(t) {
   $("#coins").textContent = fmt(S.coins);
+  updateBrand();
   $("#lvl").innerHTML = "Niveau " + S.level + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
@@ -1329,7 +1330,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
