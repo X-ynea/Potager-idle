@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.10.1
+- Les temps de pousse sont arrondis à la minute (« 16 min » au lieu de « 15 min 40 »). Les comptes à rebours gardent les secondes.
+
 ### 2.10.0
 - Tri des listes : toucher à nouveau le tri actif le retire et remet l’ordre de base. Par défaut, aucun tri n’est actif.
 

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.10.0";
+const APP_VERSION = "2.10.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -9,6 +9,8 @@ const fmt = n => Math.floor(n).toLocaleString("fr-FR");
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const coin = '<span class="coin" aria-hidden="true"></span>';
+// Temps de pousse affiché : arrondi à la minute (les comptes à rebours gardent les secondes).
+const growDur = ms => ms < 60000 ? dur(ms) : dur(Math.round(ms / 60000) * 60000);
 function dur(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
   if (s < 60) return s + " s";
@@ -987,7 +989,7 @@ function invBody(ctx, cat) {
     det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
   } else if (cat === "seeds") {
     const d = PLANTS[k];
-    det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", dur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)),
+    det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)),
       "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
   } else {
     const n = cnt(itemBag(k), k), v = itemVal(k);
@@ -1011,7 +1013,7 @@ function marketSeeds() {
   const det = myst
     ? detail("seeds", mystery(k), "Variété mystère", `Indice : ${d.hint}`, mi("Où la trouver", "Serre"), "", `<button class="btn big ghost" data-act="tab" data-arg="lab">Essayer un croisement</button>`)
     : detail("seeds", seedArt(k), d.name + (d.hybrid ? ` <small class="hy">Hybride</small>` : "") + (d.season ? " " + seasonIcon(d.season) : ""), d.desc + (d.season ? `<br><span class="sz-note">${seasonNote(k)}</span>` : ""),
-      mi("Pousse", dur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
+      mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
       av && !seedBuyable(k) ? `<button class="btn big" disabled>En vente ${d.season === "printemps" ? "au printemps" : d.season === "ete" ? "en été" : d.season === "automne" ? "en automne" : "en hiver"}</button>`
       : av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter · ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5 · ${priceTag(d.cost * 5)}</button>`
         : `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`);
@@ -1269,7 +1271,7 @@ function viewPicker() {
       return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
     <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
-      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${inSeason(k) ? " " + seasonIcon(d.season) : ""}</b><span>${dur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
+      <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${inSeason(k) ? " " + seasonIcon(d.season) : ""}</b><span>${growDur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
       <div class="acts">${own ? `<button class="btn sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
 /* Fiche d'une plante depuis l'herbier. */
@@ -1287,7 +1289,7 @@ function openPlantInfo(k) {
     ${d.hybrid && known ? `<div class="rv-cross"><span>${cropArt(d.parents[0])}${PLANTS[d.parents[0]].name}</span><b>+</b><span>${cropArt(d.parents[1])}${PLANTS[d.parents[1]].name}</span></div>` : ""}
     <p class="rv-desc">${known ? `«&nbsp;${desc}&nbsp;»` : desc}</p>
     ${d.season ? `<p class="sz-note">${seasonNote(k)}${inSeason(k) ? " <b>C’est sa saison !</b>" : ""}</p>` : ""}
-    ${known ? `<div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / plantSpeed(k)))}${mi("Vente", fmt(d.sell))}${mi("XP récolte", "+" + d.xp)}${mi("En stock", fmt(cnt(S.crops, k)))}</div>` : ""}
+    ${known ? `<div class="meta rv-meta">${mi("Pousse", growDur(d.time * 1000 / plantSpeed(k)))}${mi("Vente", fmt(d.sell))}${mi("XP récolte", "+" + d.xp)}${mi("En stock", fmt(cnt(S.crops, k)))}</div>` : ""}
     ${known ? `<div class="hi-gold ${S.goldenFound.includes(k) ? "found" : ""}">${S.goldenFound.includes(k) ? `${goldArt(k)}<span><b>Version dorée trouvée</b><br>Elle vaut ${fmt(d.sell * 10)} pièces.</span>` : `<span class="sil">${cropArt(k)}</span><span><b>Version dorée : pas encore trouvée</b><br>Une récolte sur 50 environ est dorée.</span>`}</div>` : ""}
     ${known && uses.length ? `<div class="hi-uses"><h4>Recettes</h4><div class="basket">${uses.map(r => `<span class="chip">${dishArt(r)}${RECIPES[r].name}</span>`).join("")}</div></div>` : ""}
     ${known && usedIn.length ? `<div class="hi-uses"><h4>Hybrides obtenus</h4><div class="basket">${usedIn.map(h => `<span class="chip">${cropArt(h)}${PLANTS[h].name}</span>`).join("")}</div></div>` : ""}
@@ -1309,7 +1311,7 @@ function openReveal(h, isNew) {
       <div class="rv-reward"><div class="lv-art"><img src="assets/img/xp-leaf.webp" alt=""></div><b class="num">+${isNew ? 25 : 6}</b><span>XP</span></div>
       ${isNew ? `<div class="rv-reward"><div class="lv-art rv-shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z" fill="currentColor"/><path d="M5 13v7h14v-7" stroke="currentColor" stroke-width="2" fill="none"/></svg></div><b>Marché</b><span>graines en vente</span></div>` : ""}
     </div>
-    <div class="meta rv-meta">${mi("Pousse", dur(d.time * 1000 / plantSpeed(h)))}${mi("Vente", `${fmt(d.sell)}`)}${mi("XP récolte", "+" + d.xp)}</div>
+    <div class="meta rv-meta">${mi("Pousse", growDur(d.time * 1000 / plantSpeed(h)))}${mi("Vente", `${fmt(d.sell)}`)}${mi("XP récolte", "+" + d.xp)}</div>
     ${uses.length ? `<p class="small muted" style="margin:0">Sert pour : ${uses.join(", ")}</p>` : ""}
     <button class="btn big" data-act="close">Super !</button></div>`;
   $("#modal").innerHTML = modalView(); openModal(); SFX.play(isNew ? "discover" : "success"); if (isNew) buzz([20, 60, 20, 60, 40]);
