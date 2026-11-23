@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.6";
+const APP_VERSION = "2.6.7";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -356,7 +356,7 @@ const A = {
     const p = S.plots[+i]; const st = plotState(p, t);
     const { x, y } = pos(ev);
     if (st === "empty") { if (cnt(S.seeds, "radis_eclair")) return A.plant(`${i}:radis_eclair`, ev); return openPicker(+i); }
-    if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2); floatText(PEST().act, x, y - 26); }
+    if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2, "gain-" + PEST().key); floatText(PEST().act, x, y - 26, "gain-" + PEST().key); }
     else if (st === "ripe") harvest(+i, x, y);
     else { p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
@@ -389,7 +389,7 @@ const A = {
   snailsAll(_, ev) {
     const t = now(); tick(t); let n = 0;
     for (const p of S.plots) if (plotState(p, t) === "weed") { p.weed = false; S.stats.weeds++; n++; }
-    if (n) { SFX.play("snail"); questProgress("snail", n); const { x, y } = pos(ev); earn(n, x, y, 2 * n); }
+    if (n) { SFX.play("snail"); questProgress("snail", n); const { x, y } = pos(ev); earn(n, x, y, 2 * n, "gain-" + PEST().key); }
     commit();
   },
   waterAll(_, ev) {

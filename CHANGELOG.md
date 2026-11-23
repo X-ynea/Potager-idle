@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.7
+- Libérer un bac affiche son gain aux couleurs de ce qu’on retire : brun pour l’escargot, vert pour les herbes, orange pour les feuilles, bleu pour le gel.
+
 ### 2.6.6
 - Marché, rayon Bonus : les améliorations achetables maintenant sont en haut, puis celles à débloquer (par niveau), puis celles déjà acquises.
 

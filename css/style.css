@@ -1064,3 +1064,8 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .brand img { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--leaf); background: var(--panel); }
 .brand:not(.has-avatar) img { object-fit: contain; padding: 3px; }
 .picker-sheet { height: min(82dvh, calc(var(--rows) * 146px + 190px)); }
+/* Gain en libérant un bac, aux couleurs de ce qu'on retire */
+.float.gain-snail { color: #9a6a2e; }
+.float.gain-weeds { color: #4a9a2a; }
+.float.gain-leaves { color: #d2601f; }
+.float.gain-frost { color: #2f8fd6; }
