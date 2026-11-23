@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.7";
+const APP_VERSION = "2.9.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1018,9 +1018,12 @@ function marketSeeds() {
     const p = PLANTS[x], a = seedAvailable(x), m = p.hybrid && !a;
     return tile(m ? mystery(x) : seedArt(x), { act: "sel", arg: "seeds:" + x, sel: x === k, label: m ? "Variété mystère" : p.name, locked: !a && !m, count: cnt(S.seeds, x), badge: m ? "" : seasonBadge(x), under: a ? (seedBuyable(x) ? priceTag(p.cost) : "Hors saison") : m ? "???" : `Niv. ${p.lvl}` });
   };
-  const base = ORDER.filter(x => !PLANTS[x].hybrid), hyb = ORDER.filter(x => PLANTS[x].hybrid);
+  // Tri : achetables d'abord (débloquées, en vente et payables), prix de vente, ordre alphabétique ; les verrouillées à la fin.
+  const sm = sortOf("seeds", "ready"), ok = x => seedBuyable(x) && S.coins >= PLANTS[x].cost;
+  const sorter = (a, b) => (seedAvailable(b) - seedAvailable(a)) || (!seedAvailable(a) && PLANTS[a].lvl - PLANTS[b].lvl) || (sm === "name" ? byName(a, b, x => PLANTS[x].name) : sm === "price" ? PLANTS[b].sell - PLANTS[a].sell : (ok(b) - ok(a)) || byName(a, b, x => PLANTS[x].name)) || (PLANTS[a].lvl - PLANTS[b].lvl);
+  const base = ORDER.filter(x => !PLANTS[x].hybrid).sort(sorter), hyb = ORDER.filter(x => PLANTS[x].hybrid).sort(sorter);
   const found = hyb.filter(seedAvailable).length;
-  return det + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
+  return det + sortBar("seeds", [["ready", "Achetables"], ["price", "Prix"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
 }
 // Hybrides d'une recette pas encore découverts : on ne peut pas l'apprendre avant.
