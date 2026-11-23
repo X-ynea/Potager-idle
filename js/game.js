@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.3";
+const APP_VERSION = "2.9.4";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -424,7 +424,7 @@ const A = {
     if (tot) questProgress("sell", tot);
     if (tot) { const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
-  buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r)) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
+  buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r) || d.lvl > S.level || missingHyb(r).length) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
   buyUpg(u) {
     S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; SFX.play("success"); commit(); },
   buyPlot() {
@@ -1017,19 +1017,22 @@ function marketSeeds() {
   return det + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
 }
+// Hybrides d'une recette pas encore découverts : on ne peut pas l'apprendre avant.
+const missingHyb = r => Object.keys(RECIPES[r].need).filter(k => PLANTS[k].hybrid && !S.hybrids.includes(k));
 function marketRecipes() {
   let r = UI.sel.recipes;
   if (!RECIPES[r]) r = RORDER.find(x => !S.recipes.includes(x) && RECIPES[x].lvl <= S.level) || RORDER[0];
-  const d = RECIPES[r], own = S.recipes.includes(r), lock = d.lvl > S.level;
+  const d = RECIPES[r], own = S.recipes.includes(r), lock = d.lvl > S.level, hybLock = !own && missingHyb(r).length > 0;
   const act = own ? `<button class="btn big ghost" data-act="cookGo" data-arg="${r}">Déjà apprise · aller en cuisine</button>`
     : lock ? `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`
+    : hybLock ? `<button class="btn big ghost" data-act="tab" data-arg="lab">Découvre d’abord l’hybride à la Serre</button>`
     : `<button class="btn big" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>Apprendre · ${priceTag(d.price)}</button>`;
   const det = detail("recipes", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp), ingList(d.need), act);
   // Disponibles d'abord, recettes bloquées (niveau trop bas) en bas, par niveau croissant.
   const sorted = [...RORDER].sort((x, y) => (RECIPES[x].lvl > S.level) - (RECIPES[y].lvl > S.level) || (RECIPES[x].lvl > S.level ? RECIPES[x].lvl - RECIPES[y].lvl : 0));
   const grid = sorted.map(x => {
-    const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level;
-    return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : priceTag(e.price) });
+    const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level, h = !o && !l && missingHyb(x).length > 0;
+    return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l || h, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : h ? "Hybride ?" : priceTag(e.price) });
   }).join("");
   return det + `<div class="tiles">${grid}</div>`;
 }

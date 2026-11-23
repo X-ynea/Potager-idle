@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.4
+- Une recette qui demande un hybride pas encore découvert ne peut plus être apprise : le Marché indique « Découvre d’abord l’hybride à la Serre ».
+
 ### 2.9.3
 - Jardin décoré : marges latérales réduites, les bacs sont plus grands et les décos débordent un peu sur les bords.
 
