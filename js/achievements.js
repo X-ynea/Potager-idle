@@ -57,7 +57,7 @@ const ACHIEVEMENTS = [
     tiers: [{ n: Object.keys(UPG).length, c: 2000, x: 300 }] },
   { id: "domain", cat: "eco", name: "Domaine", desc: n => `Avoir les ${n} parcelles`, value: () => S.plots.length, tiers: [{ n: MAX_PLOTS, c: 1000, x: 200, title: "Propriétaire", deco: "fence" }] },
   { id: "levels", cat: "eco", name: "Jardinier confirmé", desc: n => `Atteindre le niveau ${n}`, value: () => S.level,
-    tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }] },
+    tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }, { n: 30, c: 6000, x: 0, title: "Maître jardinier" }] },
 
   { id: "butterflies", cat: "daily", name: "Chasseur de papillons", desc: n => `Attraper ${n} visiteurs ailés (papillons, libellules…)`, value: () => st("butterflies"),
     tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Chasseur de papillons" }] },
@@ -88,7 +88,7 @@ const hasBonus = b => ACHIEVEMENTS.some(a => a.tiers.some((t, i) => t.bonus === 
 const xpMult = () => hasBonus("xp") ? 1.05 : 1;
 const coinMult = () => hasBonus("coins") ? 1.05 : 1;
 const cookMult = () => hasBonus("cook") ? .9 : 1;
-const ROMAN = ["", "I", "II", "III"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI"];
 const achDesc = (a, n) => typeof a.desc === "function" ? a.desc(n) : a.desc;
 
 /* Vérifie les succès ; distribue les récompenses des nouveaux paliers. */

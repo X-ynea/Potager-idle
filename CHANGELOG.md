@@ -61,6 +61,12 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.5.0
+- Les déblocages sont étalés jusqu’au niveau 30, avec au moins une nouveauté à chaque niveau : les plantes, recettes, améliorations et bacs arrivent progressivement, et le Gâteau des moissons couronne le niveau 30.
+- Courbe d’XP ajustée pour ces 30 niveaux (environ 2 semaines pour le niveau 15, 2 à 3 mois pour le niveau 30).
+- Les plantes déjà récoltées restent achetables, même si leur niveau de déblocage a changé ; recettes et améliorations déjà acquises sont conservées.
+- Nouveau palier « Jardinier confirmé IV » au niveau 30, avec le titre « Maître jardinier ».
+
 ### 2.4.0
 - Progression plus lente : il faut environ 2,7 fois plus d’XP pour le niveau 9 et 3,4 fois plus pour le niveau 15 (comptez 3 à 4 semaines, un cycle de saisons). Le début reste rapide.
 - Les parties en cours gardent leur niveau ; la barre du niveau actuel est convertie à la même proportion.
