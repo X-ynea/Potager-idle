@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.8
+- Une image qui n’a pas pu se charger (coupure réseau d’un instant) est rechargée automatiquement, au lieu de rester cassée.
+
 ### 2.6.7
 - Libérer un bac affiche son gain aux couleurs de ce qu’on retire : brun pour l’escargot, vert pour les herbes, orange pour les feuilles, bleu pour le gel.
 

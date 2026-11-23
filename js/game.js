@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.7";
+const APP_VERSION = "2.6.8";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1317,6 +1317,14 @@ function spawnButterfly() {
   $("#fx").appendChild(el);
 }
 
+/* Image qui n'a pas pu se charger (réseau coupé un instant…) : on réessaie jusqu'à 3 fois. */
+document.addEventListener("error", ev => {
+  const el = ev.target, attr = el?.tagName === "IMG" ? "src" : el?.tagName === "image" ? "href" : null;
+  if (!attr) return;
+  const n = +(el.dataset?.retry || 0); if (n >= 3) return;
+  el.dataset.retry = n + 1;
+  setTimeout(() => { const u = (el.getAttribute(attr) || "").split("?")[0]; if (u) el.setAttribute(attr, `${u}?r=${Date.now()}`); }, 1500 * (n + 1));
+}, true);
 /* ---------------- Events ---------------- */
 document.addEventListener("click", ev => {
   const el = ev.target.closest("[data-act]");
