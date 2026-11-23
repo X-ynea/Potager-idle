@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.2
+- La pastille de profil en haut à gauche est toujours encadrée, même avec la feuille par défaut, pour montrer qu’elle ouvre le profil.
+
 ### 2.6.1
 - Les statistiques quittent les réglages : elles sont dans le profil, avec les visiteurs attrapés et les bacs libérés.
 

@@ -1060,3 +1060,6 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .pf-avatar { position: relative; float: left; left: auto; top: auto; transform: none; margin: -42px 12px 0 16px; }
 .pf-id { padding: 8px 14px 0 0; overflow: hidden; }
 .pf-card::after { content: ""; display: block; clear: both; }
+/* Pastille de profil : toujours un rond encadré, même avec la feuille par défaut */
+.brand img { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--leaf); background: var(--panel); }
+.brand:not(.has-avatar) img { object-fit: contain; padding: 3px; }
