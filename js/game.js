@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.6.0";
+const APP_VERSION = "2.6.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -734,9 +734,6 @@ function viewSettings() {
         <button class="set-link" data-act="toggleImport" aria-expanded="${!!UI.importOpen}">${ICON_DOWN}<span><b>Importer une partie</b><small>Colle le code venant d’un autre appareil</small></span>${CHEVRON}</button>
         ${UI.importOpen ? `<div class="import-box"><textarea id="save-in" placeholder="Colle ton code ici"></textarea><p class="small muted" style="margin:0">Attention : la partie actuelle sera remplacée.</p><button class="btn" data-act="importSave">Importer</button></div>` : ""}
       </div>
-    </div>
-    <div class="set-group"><h3>Statistiques</h3>
-      <div class="stats">${mi("Récoltes", fmt(S.stats.harvest))}${mi("Plats cuisinés", fmt(S.stats.cooked))}${mi("Commandes", fmt(S.stats.orders))}${mi("Visiteurs ailés", fmt(S.stats.butterflies))}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Escargots", fmt(S.stats.weeds))}</div>
     </div>
     <div class="set-group danger"><h3>Zone sensible</h3>
       <button class="set-link ${resetArmed ? "armed" : ""}" data-act="reset">${ICON_RESET}<span><b>${resetArmed ? "Touche encore pour tout effacer" : "Recommencer à zéro"}</b><small>${resetArmed ? "Cette action est définitive" : "Efface toute ta progression (tes réglages sont gardés)"}</small></span></button>

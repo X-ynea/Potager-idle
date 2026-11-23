@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.6.1
+- Les statistiques quittent les réglages : elles sont dans le profil, avec les visiteurs attrapés et les bacs libérés.
+
 ### 2.6.0
 - Nouveau **profil**, en touchant la pastille en haut à gauche : pseudo modifiable, photo de profil (ta photo ou le portrait d’un voisin), bannière (un fond de saison ou ton image), titre affiché et quelques chiffres de ton potager.
 - La photo de profil remplace la feuille dorée en haut de l’écran. Les images importées sont recadrées et compressées sur l’appareil et restent dans ta sauvegarde.

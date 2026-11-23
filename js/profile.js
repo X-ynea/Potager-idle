@@ -48,7 +48,7 @@ function viewProfile() {
         : `<p class="small muted" style="margin:0">Certains succès débloquent un titre à afficher à côté de ton nom.</p>`}
     </div>
     <div class="set-group"><h3>Mon potager</h3>
-      <div class="stats">${mi("Niveau", S.level)}${mi("Récoltes", fmt(S.stats.harvest || 0))}${mi("Succès", achDone)}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Plats cuisinés", fmt(S.stats.cooked || 0))}${mi("Commandes", fmt(S.stats.orders || 0))}</div>
+      <div class="stats">${mi("Niveau", S.level)}${mi("Récoltes", fmt(S.stats.harvest || 0))}${mi("Succès", achDone)}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Plats cuisinés", fmt(S.stats.cooked || 0))}${mi("Commandes", fmt(S.stats.orders || 0))}${mi("Visiteurs ailés", fmt(S.stats.butterflies || 0))}${mi("Bacs libérés", fmt(S.stats.weeds || 0))}</div>
     </div>
   </div>`;
 }
