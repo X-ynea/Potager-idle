@@ -76,8 +76,8 @@ const ACHIEVEMENTS = [
   { id: "overwater", cat: "hidden", hidden: true, name: "Noyade", desc: "Arroser le même bac 10 fois d’affilée", value: () => st("overWater"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "refuser", cat: "hidden", hidden: true, name: "Difficile en affaires", desc: "Refuser 10 commandes de voisins", value: () => st("refused"), tiers: [{ n: 10, c: 150, x: 40 }] },
 ];
-// XP des succès divisée par deux (2.4), arrondie à 5.
-ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .5 / 5) * 5); }));
+// XP des succès réduite d’un quart (2.12), arrondie à 5.
+ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .75 / 5) * 5); }));
 const DECOS = {
   gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", can: "Arrosoir fleuri", birdhouse: "Nichoir",
   hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", mailbox: "Boîte aux lettres", lantern: "Lanterne",

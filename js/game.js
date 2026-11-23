@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.11.1";
+const APP_VERSION = "2.12.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -19,7 +19,7 @@ function dur(ms) {
   return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
 }
 // Courbe d’XP (2.4) : début rapide, puis environ 3 à 4 semaines pour atteindre le niveau 15.
-const xpNeed = l => Math.round(8 * l * l + 60 * l); // 2.5 : déblocages étalés jusqu’au niveau 30
+const xpNeed = l => Math.round(6 * l * l + 30 * l); // 2.12 : courbe adoucie (environ 1,5 fois la 1.0)
 const xpNeedOld = l => Math.round(15 * Math.pow(l, 1.6)); // ancienne courbe, pour convertir les parties
 const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
@@ -55,7 +55,7 @@ function fresh() {
   const t = now();
   const P = () => ({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
   const s = {
-    v: 1, xpCurve2: true, xpCurve3: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
+    v: 1, xpCurve2: true, xpCurve3: true, xpCurve4: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
@@ -96,7 +96,9 @@ function migrate(s) {
   if (s.title === "Chasseur de papillons") s.title = "Ami des petites bêtes"; // succès renommé (2.6.3)
   // Nouvelle courbe d’XP : on garde le niveau et la même proportion de la barre en cours.
   if (!s.xpCurve2) { s.xp = Math.round((s.xp || 0) / xpNeedOld(s.level || 1) * (20 * (s.level || 1) ** 2)); s.xpCurve2 = true; }
-  if (!s.xpCurve3) { s.xp = Math.min(xpNeed(s.level || 1) - 1, Math.round((s.xp || 0) / (20 * (s.level || 1) ** 2) * xpNeed(s.level || 1))); s.xpCurve3 = true; }
+  const L = s.level || 1, c3 = 8 * L * L + 60 * L;
+  if (!s.xpCurve3) { s.xp = Math.min(c3 - 1, Math.round((s.xp || 0) / (20 * L ** 2) * c3)); s.xpCurve3 = true; }
+  if (!s.xpCurve4) { s.xp = Math.min(xpNeed(L) - 1, Math.round((s.xp || 0) / c3 * xpNeed(L))); s.xpCurve4 = true; }
   if (s.upg && !s.upgBought017) { s.upg.basket = 0; s.upg.gloves = 0; s.upgBought017 = true; }
   const f = fresh(); for (const k in f) if (!(k in s)) s[k] = f[k]; for (const k in f.upg) if (!(k in s.upg)) s.upg[k] = 0; for (const k in f.stats) if (!(k in s.stats)) s.stats[k] = 0; for (const k in f.settings) if (!(k in s.settings)) s.settings[k] = f.settings[k]; return s; }
 let lastSaveAt = 0;
@@ -376,7 +378,7 @@ function genOrder() {
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
   return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
-    offSeason, coins: Math.round((effort * type.bonus + 2) * (offSeason ? 1.3 : 1)), xp: Math.round((xp * .8 + 2) * type.bonus * (offSeason ? 1.3 : 1)) }; // XP des commandes réduite (2.4)
+    offSeason, coins: Math.round((effort * type.bonus + 2) * (offSeason ? 1.3 : 1)), xp: Math.round((xp * 1.1 + 3) * type.bonus * (offSeason ? 1.3 : 1)) };
 }
 
 /* ---------------- Actions ---------------- */
