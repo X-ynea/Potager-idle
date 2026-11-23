@@ -6,9 +6,10 @@
   const fix = s => s
     .replace(/[  ]+([;!?])/g, NNBSP + "$1")       // fine insécable avant ; ! ?
     .replace(/[  ]+(:)/g, NBSP + "$1")             // insécable avant :
+    .replace(/(\d)[ \u00a0]+%/g, "$1" + NNBSP + "%")  // « 25 % » ne se coupe pas
     .replace(/«[  ]*/g, "«" + NBSP)                 // après «
     .replace(/[  ]*»/g, NBSP + "»");                // avant »
-  const needs = /[ ][;:!?»]|«[ ]/;
+  const needs = /[ ][;:!?»]|«[ ]|\d[ \u00a0]%/;
   const walk = root => {
     if (root.nodeType === 3) { if (needs.test(root.nodeValue)) root.nodeValue = fix(root.nodeValue); return; }
     if (root.nodeType !== 1 || root.closest?.("script,style,textarea,input")) return;

@@ -1025,3 +1025,8 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 /* Choix de graine : rebond du bouton quand on plante */
 .btn.planted { animation: planted .5s cubic-bezier(.2,1.6,.4,1); }
 @keyframes planted { 0% { transform: scale(.88); } 45% { transform: scale(1.08); box-shadow: 0 0 0 4px color-mix(in srgb, var(--leaf) 35%, transparent); } 100% { transform: none; } }
+/* Téléphone : textes qui se coupent proprement */
+.garden-tools .btn { white-space: normal; line-height: 1.15; text-align: center; padding-inline: 10px; }
+.season-bar { flex-wrap: wrap; column-gap: 6px; row-gap: 2px; }
+.season-bar > * { white-space: nowrap; }
+.garden-bar .garden-hint { text-align: right; }

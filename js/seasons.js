@@ -18,7 +18,7 @@ const SEASONS = {
   },
   ete: {
     name: "Été", of: "d’été", arrive: "L’été est arrivé !",
-    pest: { key: "weeds", one: "Des herbes folles", name: "herbes folles", remove: "Arracher les herbes folles", act: "Herbes arrachées",
+    pest: { key: "weeds", one: "Des herbes folles", name: "herbes folles", remove: "Arracher les herbes", act: "Herbes arrachées",
       quest: n => `Arracher ${n} touffes d’herbes folles`, notif: ["Des herbes folles !", "Elles étouffent une plante. Viens les arracher."],
       tip: "Avec la chaleur, les herbes folles poussent partout et étouffent tes plantes ! Touche le bac pour les arracher." },
     visitor: { key: "dragonfly", name: "libellule", plural: "libellules", label: "Attraper la libellule" },

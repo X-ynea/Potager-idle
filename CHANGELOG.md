@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.3.3
+- Téléphone : les boutons du jardin, le bandeau de saison et l’indication d’eau et de compost se coupent proprement, et « 25 % » ne se sépare plus de son signe.
+
 ### 2.3.2
 - Herbier : les hybrides pas encore découverts affichent « Touche pour un indice » ; l’indice s’ouvre dans leur fiche.
 

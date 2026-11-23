@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.3.2";
+const APP_VERSION = "2.3.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -760,7 +760,7 @@ function views_garden() {
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
-    <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · Compost : +${Math.round((speed() - 1) * 100)} %` : ""}</p></div>
+    <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
