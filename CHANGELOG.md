@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.11.0
+- Hors saison, les voisins réclament parfois (1 commande sur 8) une plante exclusive déjà récoltée, ou un plat qui en contient. Ces commandes « Hors saison » rapportent 30 % de plus : pense à garder des graines avant la fin de la saison !
+
 ### 2.10.1
 - Les temps de pousse sont arrondis à la minute (« 16 min » au lieu de « 15 min 40 »). Les comptes à rebours gardent les secondes.
 

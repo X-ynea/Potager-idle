@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.10.1";
+const APP_VERSION = "2.11.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -351,6 +351,18 @@ function genOrder() {
     if (slot === "d") { const r = take(dishes); if (r) items[r] = 1; }
   }
   if (!Object.keys(items).length) { const k = pick(crops); items[k] = qtyCrop(k); }
+  // Hors saison (1 commande sur 8) : un voisin réclame une plante exclusive déjà récoltée, ou un plat qui en contient.
+  // Il faut avoir gardé des graines ou des récoltes : la commande rapporte 30 % de plus.
+  let offSeason = false;
+  const outEx = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season !== season() && S.discovered.includes(k));
+  if (outEx.length && Math.random() < 1 / 8) {
+    const outDish = RORDER.filter(r => RECIPES[r].lvl <= S.level && knownItem(r) && Object.keys(RECIPES[r].need).some(k => outEx.includes(k))
+      && Object.keys(RECIPES[r].need).every(k => outEx.includes(k) || seedBuyable(k) || cnt(S.crops, k) > 0));
+    for (const k in items) delete items[k];
+    if (outDish.length && Math.random() < .4) items[pick(outDish)] = 1;
+    else { const k = pick(outEx); items[k] = Math.max(1, qtyCrop(k) - 1); }
+    offSeason = true;
+  }
   S.orderHist = hist.concat(Object.keys(items)).slice(-10);
   S.lastOrderType = type.id;
   let effort = 0, xp = 0;
@@ -365,7 +377,7 @@ function genOrder() {
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
   return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
-    coins: Math.round(effort * type.bonus + 2), xp: Math.round((xp * .8 + 2) * type.bonus) }; // XP des commandes réduite (2.4)
+    offSeason, coins: Math.round((effort * type.bonus + 2) * (offSeason ? 1.3 : 1)), xp: Math.round((xp * .8 + 2) * type.bonus * (offSeason ? 1.3 : 1)) }; // XP des commandes réduite (2.4)
 }
 
 /* ---------------- Actions ---------------- */
@@ -669,6 +681,7 @@ function viewSeason(arrived) {
   return `<div class="sheet season-sheet sz-bg-${s}" role="dialog" aria-modal="true" aria-label="${z.name}">
     <div class="ss-head">${seasonIcon(s, "big")}<div><h2>${arrived ? z.arrive : z.name}</h2><span class="muted small">Encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}, puis ${SEASONS[nx].name.toLowerCase()}</span></div></div>
     <p class="ss-intro">${z.intro}</p>
+    <p class="small muted" style="margin:0">Les graines de saison ne sont vendues que cette semaine : garde-en quelques-unes, les voisins en redemanderont hors saison !</p>
     <h3 class="cat-title">Plantes de saison <span class="muted small">poussent 25 % plus vite</span></h3>
     <div class="ss-plants">${plants.map(k => { const ok = seedAvailable(k) || S.discovered.includes(k); return `<span class="chip${ok ? "" : " locked"}">${cropArt(k)}${ok ? PLANTS[k].name : `Niv. ${PLANTS[k].lvl}`}</span>`; }).join("")}</div>
     <div class="ss-facts">
@@ -1131,7 +1144,7 @@ function views_lab() {
 function views_village() {
   const t = now();
   const cards = S.orders.map(o => { const v = VILLAGERS[o.v]; const ok = Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q); return `
-    <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}${o.stars ? `<span class="diff d${o.stars}">${"★".repeat(o.stars)}<span>${o.label}</span></span>` : ""}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
+    <div class="order"><div class="avatar">${avatar(v)}</div><div style="min-width:0"><div class="who">${v.name}${o.stars ? `<span class="diff d${o.stars}">${"★".repeat(o.stars)}<span>${o.label}</span></span>` : ""}${o.offSeason ? `<span class="diff off">Hors saison · +30 %</span>` : ""}</div><div class="say">« ${o.say || v.say[o.line || 0]} »</div>
       <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<button class="chip need-chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" data-name="${itemName(k)}" data-act="chipName" data-arg="${k}" aria-label="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</button>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
   return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / ${maxOrders()}</span></div>
