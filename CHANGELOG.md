@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.3.0
+- Toucher le message d’un succès ouvre la liste des succès obtenus, défilée jusqu’à ce succès, qui s’illumine un instant.
+
 ### 2.2.1
 - Serre : les hybrides ne sont plus proposés dans les récoltes à croiser (ils ne se croisent pas).
 

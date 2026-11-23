@@ -109,7 +109,7 @@ function showAchToasts() {
     const { a, lv, t } = ACH_QUEUE.shift();
     const name = a.name + (a.tiers.length > 1 ? " " + ROMAN[lv] : "");
     const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
-    toast(`<span class="ach-toast">${TROPHY}<span><b>Succès : ${name}</b><br>${rew}</span></span>`, 5500);
+    toast(`<button class="ach-toast" data-act="achGo" data-arg="${a.id}" aria-label="Voir le succès ${name}">${TROPHY}<span><b>Succès : ${name}</b><br>${rew}</span></button>`, 5500);
     buzz([10, 40, 10]); SFX.play("success");
   }
 }
@@ -126,7 +126,7 @@ function viewAch() {
   const cardDone = a => {
     const lv = S.ach[a.id] || 0, max = a.tiers.length, t = a.tiers[lv - 1];
     const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
-    return `<div class="ach done">
+    return `<div class="ach done${UI.achFlash === a.id ? " flash" : ""}" data-ach="${a.id}">
       <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
       <div class="ach-txt"><b>${a.name}${max > 1 ? " " + ROMAN[lv] : ""}</b><span>${achDesc(a, t.n)}</span><span class="ach-rew ok">Obtenu${rew ? " · " + rew : ""}</span></div></div>`;
   };

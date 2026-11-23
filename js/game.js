@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.2.1";
+const APP_VERSION = "2.3.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -509,6 +509,13 @@ const A = {
     const Q = dailyQuests(); if (Q.bonus || !Q.list.every(q => q.claimed)) return;
     Q.bonus = true; const { x, y } = pos(ev); earn(50 + S.level * 15, x, y, 10 + S.level * 2); SFX.play("level");
     commit();
+  },
+  // Toucher le message d'un succès : liste « Obtenus », défilée jusqu'au succès, qui s'illumine un instant.
+  achGo(id, ev) {
+    document.querySelectorAll(".toast:has(.ach-toast)").forEach(t => t.remove());
+    UI.achTab = "done"; UI.achFlash = id; modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal();
+    document.querySelector(`#modal [data-ach="${id}"]`)?.scrollIntoView({ block: "center" });
+    clearTimeout(A._achT); A._achT = setTimeout(() => { UI.achFlash = null; }, 2000);
   },
   openAch() { modalView = viewAch; $("#modal").innerHTML = viewAch(); openModal(); },
   setTitle(t) { S.title = t || ""; commit(); },

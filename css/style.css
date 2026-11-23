@@ -1017,3 +1017,8 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 .lab-check svg { width: 100%; height: 100%; }
 .lab-chev { width: 22px; height: 22px; color: var(--muted); flex: none; }
 .lab-head .lab-fold { margin-left: auto; align-self: flex-start; }
+/* Message de succès cliquable, et succès mis en lumière dans la liste */
+.toast button.ach-toast { all: unset; display: flex; align-items: center; gap: 10px; cursor: pointer; pointer-events: auto; width: 100%; }
+.toast:has(.ach-toast) { pointer-events: auto; }
+.ach.flash { animation: ach-flash 1.8s ease-out; }
+@keyframes ach-flash { 0%, 30% { box-shadow: 0 0 0 3px var(--sun), 0 0 18px rgba(244,192,62,.8); transform: scale(1.02); } 100% { box-shadow: 0 0 0 0 transparent; transform: none; } }
