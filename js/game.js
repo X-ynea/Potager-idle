@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.11.0";
+const APP_VERSION = "2.11.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -125,7 +125,6 @@ function tick(t) {
   }
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
   // Succès cachés : escargot gardé plus d'une heure, tous les bacs plantés de la même plante.
-  if (S.plots.some(p => p.weed && p.weedKind === "snail" && p.weedAt && t - p.weedAt > 3600e3)) S.stats.petSnail = 1;
   if (S.plots.length >= 6 && S.plots.every(p => p.seed && p.seed === S.plots[0].seed)) S.stats.monoculture = 1;
   S.stats.maxCoins = Math.max(st("maxCoins"), S.coins);
   S.orders = S.orders.filter(o => Object.keys(o.items).every(k => (PLANTS[k] || RECIPES[k]) && knownItem(k)));
@@ -1425,9 +1424,11 @@ function start() {
   setInterval(() => {
     const t = now(); tick(t);
     if (!document.hidden && tab === "garden" && t >= nextButterfly) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
+    // « Escargot de compagnie » : seul le temps passé jeu ouvert compte (pas la nuit, jeu fermé).
+    if (!document.hidden) for (const q of S.plots) if (q.weed && q.weedKind === "snail") { q.snailTime = (q.snailTime || 0) + 1000; if (q.snailTime >= 3600e3) S.stats.petSnail = 1; }
     if (t >= nextWeed) {
       const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
-      if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; }
+      if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; q.snailTime = 0; }
       nextWeed = t + rand(80, 170) * 1000;
     }
     render();

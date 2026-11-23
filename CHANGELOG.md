@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.11.1
+- Succès caché « Escargot de compagnie » : seul le temps passé jeu ouvert compte désormais.
+
 ### 2.11.0
 - Hors saison, les voisins réclament parfois (1 commande sur 8) une plante exclusive déjà récoltée, ou un plat qui en contient. Ces commandes « Hors saison » rapportent 30 % de plus : pense à garder des graines avant la fin de la saison !
 
