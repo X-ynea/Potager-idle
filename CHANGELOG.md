@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.9
+- Marché, rayon Graines : tri par prix d’achat (du moins cher au plus cher) en plus du prix de vente.
+
 ### 2.9.8
 - Marché, rayon Graines : tri « Achetables », « Prix » (de vente) ou « A → Z », comme en Cuisine. Les graines encore verrouillées restent en fin de liste.
 
