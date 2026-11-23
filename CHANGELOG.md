@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.2
+- Cadeau de la semaine : sans plante de saison débloquée ou sans hybride découvert, 2 graines d’une autre sorte les remplacent.
+
 ### 2.9.1
 - Cadeau du jour plus modeste : environ moitié moins de pièces, et 2 graines d’une seule sorte. Le cadeau de la semaine ajoute 1 graine de saison et 1 graine d’hybride déjà découvert.
 

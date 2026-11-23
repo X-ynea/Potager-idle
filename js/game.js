@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.9.1";
+const APP_VERSION = "2.9.2";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -169,8 +169,10 @@ function dailyOffer() {
   if (pool.length) seeds[pick(pool)] = 2;
   if (big) {
     const sz = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season === season() && PLANTS[k].lvl <= S.level);
-    if (sz.length) seeds[pick(sz)] = 1;
-    if (S.hybrids.length) seeds[pick(S.hybrids)] = 1;
+    // À défaut de graine de saison ou d'hybride : 2 graines d'une autre sorte à la place.
+    const extra = () => { const o = pool.filter(k => !seeds[k]); if (o.length) seeds[pick(o)] = 2; };
+    if (sz.length) seeds[pick(sz)] = 1; else extra();
+    if (S.hybrids.length) seeds[pick(S.hybrids)] = 1; else extra();
   }
   const boost = big ? 2.5 : 1 + (streak - 1) * .15;
   S.daily.offer = { day: today, streak, run, big, seeds, coins: Math.round((10 + S.level * 4) * boost), xp: Math.round((5 + S.level * 2) * boost) };
