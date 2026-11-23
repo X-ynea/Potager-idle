@@ -1074,3 +1074,8 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .sortbar > span { font-size: .78rem; font-weight: 800; color: var(--muted); margin-right: 2px; }
 .sort-chip { font: inherit; font-size: .8rem; font-weight: 800; padding: 4px 11px; cursor: pointer; color: var(--ink); }
 .chip.sort-chip[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--leaf-ink); }
+/* Cadeau du jour : série et cadeau de fin de semaine */
+.daily-run { margin: 0; font-size: .85rem; color: var(--leaf-deep); font-weight: 700; }
+.daily-streak span.gift { padding: 5px; }
+.daily-streak span.gift svg { width: 100%; height: 100%; }
+.daily-streak span.gift:not(.on) { color: var(--muted); }

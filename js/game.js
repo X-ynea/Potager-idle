@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.8.1";
+const APP_VERSION = "2.9.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -160,13 +160,21 @@ function dailyOffer() {
   if (S.daily.last === today) return null;               // déjà récupéré aujourd'hui
   if (S.daily.offer && S.daily.offer.day === today) return S.daily.offer;
   const y = new Date(); y.setDate(y.getDate() - 1);
-  const streak = S.daily.last === dayKey(y) ? Math.min(7, S.daily.streak + 1) : 1; // jours d'affilée (max 7)
-  const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level);
+  // Série de jours d'affilée (sans plafond) ; la frise de 7 jours repart à 1 chaque semaine.
+  const run = S.daily.last === dayKey(y) ? (S.daily.run || S.daily.streak || 0) + 1 : 1;
+  const streak = (run - 1) % 7 + 1, big = streak === 7;
+  const pool = ORDER.filter(k => !PLANTS[k].hybrid && !PLANTS[k].only && seedAvailable(k));
   const seeds = {};
   const nb = Math.random() < .5 ? 1 : 2;
   while (Object.keys(seeds).length < Math.min(nb, pool.length)) { const k = pick(pool); if (!seeds[k]) seeds[k] = 2 + Math.floor(Math.random() * 3); }
-  const boost = 1 + (streak - 1) * .15;
-  S.daily.offer = { day: today, streak, seeds, coins: Math.round((15 + S.level * 8) * boost), xp: Math.round((5 + S.level * 2) * boost) };
+  // Fin de semaine : gros cadeau, avec des graines de saison et d'hybride.
+  if (big) {
+    const sz = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season === season() && PLANTS[k].lvl <= S.level);
+    if (sz.length) seeds[pick(sz)] = 3;
+    if (S.hybrids.length) seeds[pick(S.hybrids)] = 2;
+  }
+  const boost = big ? 2.5 : 1 + (streak - 1) * .15;
+  S.daily.offer = { day: today, streak, run, big, seeds, coins: Math.round((15 + S.level * 8) * boost), xp: Math.round((5 + S.level * 2) * boost) };
   return S.daily.offer;
 }
 function showDaily() {
@@ -174,9 +182,10 @@ function showDaily() {
   if (!o || !$("#modal").hidden || LEVEL_QUEUE.length || tutoBasicsPending()) return;
   modalView = () => `<div class="sheet levelup" role="dialog" aria-modal="true" aria-label="Cadeau du jour">
     <div class="lv-badge daily-gift">${GIFT}</div>
-    <h2>Cadeau du jour</h2>
-    <p class="muted" style="margin:0">${o.streak > 1 ? `${o.streak} jours d’affilée : ton cadeau grossit !` : "Reviens chaque jour pour un cadeau plus gros."}</p>
-    <div class="daily-streak">${Array.from({ length: 7 }, (_, i) => `<span class="${i < o.streak ? "on" : ""}">${i + 1}</span>`).join("")}</div>
+    <h2>${o.big ? "Cadeau de la semaine !" : "Cadeau du jour"}</h2>
+    <p class="muted" style="margin:0">${o.big ? "Une semaine complète : voici un gros cadeau !" : o.streak > 1 ? "Ton cadeau grossit chaque jour de la semaine." : "Reviens chaque jour pour un cadeau plus gros."}</p>
+    ${(o.run || 1) > 1 ? `<p class="daily-run">Série : <b class="num">${o.run} jours</b> d’affilée</p>` : ""}
+    <div class="daily-streak">${Array.from({ length: 7 }, (_, i) => `<span class="${i < o.streak ? "on" : ""}${i === 6 ? " gift" : ""}">${i === 6 ? GIFT : i + 1}</span>`).join("")}</div>
     <div class="lv-list">
       ${Object.entries(o.seeds).map(([k, n]) => `<div class="lv-item"><div class="lv-art">${seedArt(k)}</div><div><b>${n} graines de ${PLANTS[k].name.toLowerCase()}</b><span>Directement dans ton inventaire</span></div></div>`).join("")}
       <div class="lv-item"><div class="lv-art"><span class="coin" style="width:100%;height:100%"></span></div><div><b class="num">${fmt(o.coins)} pièces</b><span>Pour le marché</span></div></div>
@@ -547,8 +556,7 @@ const A = {
     const o = dailyOffer(); if (!o) return closeModal();
     for (const [k, n] of Object.entries(o.seeds)) S.seeds[k] = cnt(S.seeds, k) + n;
     S.coins += o.coins;
-    const yd = new Date(); yd.setDate(yd.getDate() - 1);
-    const run = S.daily.last === dayKey(yd) ? (S.daily.run || S.daily.streak || 0) + 1 : 1; // jours d'affilée, sans plafond
+    const run = o.run || 1;
     S.daily.last = o.day; S.daily.streak = o.streak; S.daily.run = run; S.daily.offer = null; S.stats.bestStreak = Math.max(st("bestStreak"), o.streak); S.stats.bestRun = Math.max(st("bestRun"), run);
     const { x, y } = pos(ev); closeModal(); addXp(o.xp); buzz([15, 40, 15]); SFX.play("success");
     floatText(`+${fmt(o.coins)} pièces · +${o.xp} XP`, x, y, true);

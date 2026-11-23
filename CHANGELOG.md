@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.9.0
+- Cadeau du jour : la frise de 7 jours recommence chaque semaine, et le 7ᵉ jour donne un gros cadeau (2,5 fois plus de pièces et d’XP, des graines de saison et d’hybride). La série de jours d’affilée s’affiche dans la fenêtre.
+
 ### 2.8.1
 - Un nouveau succès caché, pour les jardiniers un peu trop zélés…
 
