@@ -73,6 +73,7 @@ const ACHIEVEMENTS = [
   { id: "petsnail", cat: "hidden", hidden: true, name: "Escargot de compagnie", desc: "Laisser un escargot sur un bac plus d’une heure", value: () => st("petSnail"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "monoculture", cat: "hidden", hidden: true, name: "Monoculture", desc: "Avoir tous ses bacs plantés de la même plante", value: () => st("monoculture"), tiers: [{ n: 1, c: 150, x: 40 }] },
   { id: "offseason", cat: "hidden", hidden: true, name: "Hors saison", desc: "Récolter une plante de saison en dehors de sa saison", value: () => st("offSeason"), tiers: [{ n: 1, c: 200, x: 50 }] },
+  { id: "overwater", cat: "hidden", hidden: true, name: "Noyade", desc: "Arroser le même bac 10 fois d’affilée", value: () => st("overWater"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "refuser", cat: "hidden", hidden: true, name: "Difficile en affaires", desc: "Refuser 10 commandes de voisins", value: () => st("refused"), tiers: [{ n: 10, c: 150, x: 40 }] },
 ];
 // XP des succès divisée par deux (2.4), arrondie à 5.

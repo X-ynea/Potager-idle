@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.8.1
+- Un nouveau succès caché, pour les jardiniers un peu trop zélés…
+
 ### 2.8.0
 - 4 nouveaux succès cachés, à découvrir…
 - « Fidèle au poste » gagne deux paliers : 15 puis 30 jours d’affilée (titre « Pilier du potager »).

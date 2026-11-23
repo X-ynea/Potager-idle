@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.8.0";
+const APP_VERSION = "2.8.1";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -361,7 +361,8 @@ const A = {
     if (st === "empty") { if (cnt(S.seeds, "radis_eclair")) return A.plant(`${i}:radis_eclair`, ev); return openPicker(+i); }
     if (st === "weed") { p.weed = false; S.stats.weeds++; questProgress("snail"); SFX.play("snail"); earn(1, x, y, 2, "gain-" + PEST().key); floatText(PEST().act, x, y - 26, "gain-" + PEST().key); }
     else if (st === "ripe") harvest(+i, x, y);
-    else { p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
+    else { const W = UI.spam || {}; UI.spam = W.i === +i && t - W.t < 1500 ? { i: +i, n: W.n + 1, t } : { i: +i, n: 1, t }; if (UI.spam.n >= 10) S.stats.overWater = 1; // arrosé 10 fois d'affilée
+      p.waterUntil = t + waterMs(); tutoFlag("watered"); questProgress("water"); SFX.play("water"); floatText("Arrosé !", x, y); }
     commit();
   },
   plant(arg, ev) {
