@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.7.1
+- Appli installée : la couleur de base passe au blanc, assorti à la barre d’onglets, pour la barre système d’Android en bas de l’écran.
+
 ### 2.7.0
 - Tri des listes : en Cuisine (faisables d’abord, prix de vente, ordre alphabétique) et au Marché, rayon Vendre (prix unitaire, valeur totale du stock, ordre alphabétique). Le choix est mémorisé.
 
