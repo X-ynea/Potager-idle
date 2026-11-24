@@ -41,63 +41,65 @@ XP nécessaire pour passer au niveau suivant : `Math.round(6 * l * l + 30 * l)`.
 
 ## Déblocages par niveau
 
-| Niveau | Nouveautés |
-| --- | --- |
-| 1 | 🌱 Radis · 🌱 Laitue |
-| 2 | 🌱 Pomme de terre · 🍲 Salade croquante · ⚙️ Panier en osier (100 p) |
-| 3 | 🌱 Petits pois (exclusive printemps) · 🍲 Purée maison · ⚙️ Tuyau d’arrosage (300 p) · 🟫 Bac n° 7 (120 p) · 🏡 La Serre à hybrides |
-| 4 | 🌱 Carotte · 🍲 Velouté de petits pois · ⚙️ Gants de jardinage (250 p) |
-| 5 | 🌱 Blé · 🍲 Soupe de carottes |
-| 6 | 🌱 Courgette (exclusive été) · 🍲 Pain de campagne · ⚙️ Arrosoir 1/3 (150 p) |
-| 7 | 🌱 Fraise · 🍲 Tarte aux fraises · ⚙️ Fourneau 1/2 (800 p) |
-| 8 | 🌱 Betterave (exclusive automne) · 🍲 Pain d’azur · 🟫 Bac n° 8 (350 p) |
-| 9 | 🌱 Basilic · 🍲 Soupe de betterave · ⚙️ Compost maison 1/3 (500 p) |
-| 10 | 🌱 Poireau (exclusive hiver) · 🍲 Salade pourpre |
-| 11 | 🌱 Tomate · 🍲 Fondue de poireaux · ⚙️ Banc des voisins 1/2 (1 200 p) |
-| 12 | 🍲 Gnocchis roses · 🍲 Sauce tomate · ⚙️ Arrosoir 2/3 (600 p) |
-| 13 | 🌱 Myrtille · 🟫 Bac n° 9 (900 p) |
-| 14 | 🌱 Asperge (exclusive printemps) · 🍲 Muffins myrtille · 🍲 Gratin de courgettes |
-| 15 | 🌱 Lavande · 🍲 Tarte aux asperges |
-| 16 | 🌱 Melon (exclusive été) · 🍲 Pizza du potager |
-| 17 | 🍲 Tisane lavande · 🍲 Velouté lunaire · ⚙️ Compost maison 2/3 (1 800 p) |
-| 18 | 🌱 Tournesol · 🍲 Smoothie fraisille · ⚙️ Arrosoir 3/3 (2 000 p) |
-| 19 | 🌱 Potiron · 🍲 Salade de melon · 🟫 Bac n° 10 (2 000 p) |
-| 20 | 🌱 Champignon des bois (exclusive automne) · 🍲 Velouté de potiron · ⚙️ Banc des voisins 2/2 (4 000 p) |
-| 21 | 🍲 Pain aux graines · ⚙️ Fourneau 2/2 (5 000 p) |
-| 22 | 🌱 Chou d’hiver (exclusive hiver) |
-| 23 | 🍲 Purée améthyste |
-| 24 | 🍲 Soupe lanterne · ⚙️ Compost maison 3/3 (5 000 p) |
-| 25 | 🍲 Tourte forestière · ⚙️ Arroseur automatique (8 000 p) · 🟫 Bac n° 11 (4 000 p) |
-| 26 | 🍲 Potée au chou |
-| 27 | 🍲 Sirop de soleil lilas |
-| 28 | 🍲 Biscuits à la lavande |
-| 29 | 🟫 Bac n° 12 (7 000 p) |
-| 30 | 🍲 Gâteau des moissons |
+Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; après une amélioration : son prix en pièces.
+
+| Niveau | Plantes | Recettes | Améliorations |
+| --- | --- | --- | --- |
+| 1 | Radis, Laitue | — | — |
+| 2 | Pomme de terre | Salade croquante | Panier en osier (100 p) |
+| 3 | Petits pois (printemps) | Purée maison | Tuyau d’arrosage (300 p), Bac n° 7 (120 p), Serre à hybrides |
+| 4 | Carotte | Velouté de petits pois | Gants de jardinage (250 p) |
+| 5 | Blé | Soupe de carottes | — |
+| 6 | Courgette (été) | Pain de campagne | Arrosoir 1/3 (150 p) |
+| 7 | Fraise | Tarte aux fraises | Fourneau 1/2 (800 p) |
+| 8 | Betterave (automne) | Pain d’azur | Bac n° 8 (350 p) |
+| 9 | Basilic | Soupe de betterave | Compost maison 1/3 (500 p) |
+| 10 | Poireau (hiver) | Salade pourpre | — |
+| 11 | Tomate | Fondue de poireaux | Banc des voisins 1/2 (1 200 p) |
+| 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (600 p) |
+| 13 | Myrtille | — | Bac n° 9 (900 p) |
+| 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes | — |
+| 15 | Lavande | Tarte aux asperges | — |
+| 16 | Melon (été) | Pizza du potager | — |
+| 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (1 800 p) |
+| 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (2 000 p) |
+| 19 | Potiron | Salade de melon | Bac n° 10 (2 000 p) |
+| 20 | Champignon des bois (automne) | Velouté de potiron | Banc des voisins 2/2 (4 000 p) |
+| 21 | — | Pain aux graines | Fourneau 2/2 (5 000 p) |
+| 22 | Chou d’hiver (hiver) | — | — |
+| 23 | — | Purée améthyste | — |
+| 24 | — | Soupe lanterne | Compost maison 3/3 (5 000 p) |
+| 25 | — | Tourte forestière | Arroseur automatique (8 000 p), Bac n° 11 (4 000 p) |
+| 26 | — | Potée au chou | — |
+| 27 | — | Sirop de soleil lilas | — |
+| 28 | — | Biscuits à la lavande | — |
+| 29 | — | — | Bac n° 12 (7 000 p) |
+| 30 | — | Gâteau des moissons | — |
 
 ## Améliorations (Marché › Bonus)
 
-| Amélioration | Palier | Niveau | Prix | Effet |
-| --- | --- | --- | --- | --- |
-| Arrosoir | 1/3 | 6 | 150 | L’eau tient 8 min dans la terre |
-|  | 2/3 | 12 | 600 | L’eau tient 15 min dans la terre |
-|  | 3/3 | 18 | 2 000 | L’eau tient 30 min dans la terre |
-| Panier en osier | 1/1 | 2 | 100 | Débloque le bouton « Tout récolter » |
-| Tuyau d’arrosage | 1/1 | 3 | 300 | Débloque le bouton « Tout arroser » |
-| Gants de jardinage | 1/1 | 4 | 250 | Débloque le bouton pour libérer d’un coup tous les bacs bloqués (escargots, herbes folles, feuilles, gel) |
-| Compost maison | 1/3 | 9 | 500 | Les plantes poussent 15 % plus vite |
-|  | 2/3 | 17 | 1 800 | Les plantes poussent 30 % plus vite |
-|  | 3/3 | 24 | 5 000 | Les plantes poussent 50 % plus vite |
-| Fourneau | 1/2 | 7 | 800 | 2 plats en même temps |
-|  | 2/2 | 21 | 5 000 | 3 plats en même temps |
-| Banc des voisins | 1/2 | 11 | 1 200 | 4 voisins peuvent passer commander en même temps |
-|  | 2/2 | 20 | 4 000 | 5 voisins peuvent passer commander en même temps |
-| Arroseur automatique | 1/1 | 25 | 8 000 | Tes plantes n’ont plus jamais soif |
-| Nouvelle parcelle | bac 7/12 | 3 | 120 | Un bac de plus |
-|  | bac 8/12 | 8 | 350 | Un bac de plus |
-|  | bac 9/12 | 13 | 900 | Un bac de plus |
-|  | bac 10/12 | 19 | 2 000 | Un bac de plus |
-|  | bac 11/12 | 25 | 4 000 | Un bac de plus |
-|  | bac 12/12 | 29 | 7 000 | Un bac de plus |
+| Amélioration | Palier | Niveau | Prix |
+| --- | --- | --- | --- |
+| Arrosoir | 1/3 | 6 | 150 |
+|  | 2/3 | 12 | 600 |
+|  | 3/3 | 18 | 2 000 |
+| Panier en osier | 1/1 | 2 | 100 |
+| Tuyau d’arrosage | 1/1 | 3 | 300 |
+| Gants de jardinage | 1/1 | 4 | 250 |
+| Compost maison | 1/3 | 9 | 500 |
+|  | 2/3 | 17 | 1 800 |
+|  | 3/3 | 24 | 5 000 |
+| Fourneau | 1/2 | 7 | 800 |
+|  | 2/2 | 21 | 5 000 |
+| Banc des voisins | 1/2 | 11 | 1 200 |
+|  | 2/2 | 20 | 4 000 |
+| Arroseur automatique | 1/1 | 25 | 8 000 |
+| Nouvelle parcelle | bac 7/12 | 3 | 120 |
+|  | bac 8/12 | 8 | 350 |
+|  | bac 9/12 | 13 | 900 |
+|  | bac 10/12 | 19 | 2 000 |
+|  | bac 11/12 | 25 | 4 000 |
+|  | bac 12/12 | 29 | 7 000 |
 
 ## Plantes
 

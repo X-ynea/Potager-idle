@@ -37,23 +37,24 @@ p("");
 // --- Déblocages par niveau
 p(`## Déblocages par niveau\n`);
 const by = {};
-const add = (l, s) => (by[l] = by[l] || []).push(s);
-for (const k of base) add(PLANTS[k].lvl, `🌱 ${PLANTS[k].name}${PLANTS[k].only ? ` (exclusive ${SEASON[PLANTS[k].season].toLowerCase()})` : ""}`);
-for (const r of RORDER) add(RECIPES[r].lvl, `🍲 ${RECIPES[r].name}`);
-for (const u in UPG) UPG[u].steps.forEach((s, i) => add(s.lvl, `⚙️ ${UPG[u].name}${UPG[u].steps.length > 1 ? ` ${i + 1}/${UPG[u].steps.length}` : ""} (${fr(s.cost)} p)`));
-PLOT_STEPS.forEach((s, i) => add(s.lvl, `🟫 Bac n° ${7 + i} (${fr(s.cost)} p)`));
-add(3, "🏡 La Serre à hybrides");
-p(`| Niveau | Nouveautés |`);
-p(`| --- | --- |`);
-for (let l = 1; l <= 30; l++) p(`| ${l} | ${(by[l] || ["—"]).join(" · ")} |`);
+const add = (l, col, txt) => { by[l] = by[l] || { plants: [], recipes: [], upg: [] }; by[l][col].push(txt); };
+for (const k of base) add(PLANTS[k].lvl, "plants", `${PLANTS[k].name}${PLANTS[k].only ? ` (${SEASON[PLANTS[k].season].toLowerCase()})` : ""}`);
+for (const r of RORDER) add(RECIPES[r].lvl, "recipes", RECIPES[r].name);
+for (const u in UPG) UPG[u].steps.forEach((s, i) => add(s.lvl, "upg", `${UPG[u].name}${UPG[u].steps.length > 1 ? ` ${i + 1}/${UPG[u].steps.length}` : ""} (${fr(s.cost)} p)`));
+PLOT_STEPS.forEach((s, i) => add(s.lvl, "upg", `Bac n° ${7 + i} (${fr(s.cost)} p)`));
+add(3, "upg", "Serre à hybrides");
+p(`Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; après une amélioration : son prix en pièces.\n`);
+p(`| Niveau | Plantes | Recettes | Améliorations |`);
+p(`| --- | --- | --- | --- |`);
+for (let l = 1; l <= 30; l++) { const b = by[l] || { plants: [], recipes: [], upg: [] }; p(`| ${l} | ${b.plants.join(", ") || "—"} | ${b.recipes.join(", ") || "—"} | ${b.upg.join(", ") || "—"} |`); }
 p("");
 
 // --- Améliorations
 p(`## Améliorations (Marché › Bonus)\n`);
-p(`| Amélioration | Palier | Niveau | Prix | Effet |`);
-p(`| --- | --- | --- | --- | --- |`);
-for (const u in UPG) { const U = UPG[u]; U.steps.forEach((s, i) => p(`| ${i ? "" : U.name} | ${i + 1}/${U.steps.length} | ${s.lvl} | ${fr(s.cost)} | ${U.desc(U.values[i + 1])} |`)); }
-PLOT_STEPS.forEach((s, i) => p(`| ${i ? "" : "Nouvelle parcelle"} | bac ${7 + i}/${MAX_PLOTS} | ${s.lvl} | ${fr(s.cost)} | Un bac de plus |`));
+p(`| Amélioration | Palier | Niveau | Prix |`);
+p(`| --- | --- | --- | --- |`);
+for (const u in UPG) { const U = UPG[u]; U.steps.forEach((s, i) => p(`| ${i ? "" : U.name} | ${i + 1}/${U.steps.length} | ${s.lvl} | ${fr(s.cost)} |`)); }
+PLOT_STEPS.forEach((s, i) => p(`| ${i ? "" : "Nouvelle parcelle"} | bac ${7 + i}/${MAX_PLOTS} | ${s.lvl} | ${fr(s.cost)} |`));
 p("");
 
 // --- Plantes
