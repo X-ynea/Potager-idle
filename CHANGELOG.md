@@ -62,7 +62,7 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 ## Détail des mises à jour
 
 ### 2.13.1
-- Comptes Discord activés.
+- Comptes Discord activés : la partie se sauvegarde en ligne et se retrouve sur tous les appareils.
 
 ### 2.13.0
 - Comptes (facultatifs) : connexion avec Discord pour sauvegarder sa partie en ligne et la retrouver sur tous ses appareils. Section « Compte » dans les réglages, page « Données personnelles ». Activé dès que le projet en ligne est configuré.

@@ -16,6 +16,7 @@ create table public.saves (
   updated_at timestamptz not null default now()
 );
 alter table public.saves enable row level security;
+grant select, insert, update, delete on public.saves to authenticated;
 
 -- Chaque joueur ne voit et ne modifie que sa propre sauvegarde
 create policy "lire sa sauvegarde" on public.saves for select using (auth.uid() = user_id);
@@ -34,7 +35,7 @@ grant execute on function public.delete_me() to authenticated;
 
 4. Va dans **Project Settings › API** et note :
    - **Project URL** (du genre `https://abcdefgh.supabase.co`) ;
-   - la clé **anon public** (longue chaîne commençant par `eyJ…`).
+   - la clé **publishable** (`sb_publishable_…`), anciennement appelée « anon public ».
 
 ## 2. Créer l'application Discord
 
@@ -45,7 +46,7 @@ grant execute on function public.delete_me() to authenticated;
 
 ## 3. Relier Discord à Supabase
 
-1. Dans Supabase : **Authentication › Providers › Discord** : active-le, colle le Client ID et le Client Secret de Discord, enregistre.
+1. Dans Supabase : **Authentication › Sign In / Providers › Discord** : active-le, colle le Client ID et le Client Secret de Discord, enregistre.
 2. **Authentication › URL Configuration** :
    - **Site URL** : l'adresse du jeu, par exemple `https://x-ynea.github.io/Potager-idle/` ;
    - **Redirect URLs** : ajoute la même adresse (et `http://localhost:8000/` si tu testes en local).
@@ -55,3 +56,8 @@ grant execute on function public.delete_me() to authenticated;
 Envoie-moi la **Project URL** et la clé **anon public** (elles sont publiques, ce n'est pas un secret). Je les mets dans `js/cloud-config.js`, je publie, et le bouton « Se connecter avec Discord » apparaît dans les réglages.
 
 **Ne m'envoie jamais** le Client Secret de Discord, le mot de passe de la base, ni la clé `service_role` de Supabase.
+
+## Ce qui est en place
+
+- Projet : `https://gsicckbnwypcpxlokwjl.supabase.co` (configuré dans `js/cloud-config.js`).
+- Les sauvegardes sont visibles dans Supabase, **Table Editor › saves** (une ligne par joueur connecté).
