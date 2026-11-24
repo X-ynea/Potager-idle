@@ -108,7 +108,7 @@ function cloudSettingsHTML() {
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
   const ago = CLOUD.lastSync ? Math.max(0, Math.round((Date.now() - CLOUD.lastSync) / 60000)) : null;
   return `<div class="set-group"><h3>Compte</h3>
-    <div class="cloud-user">${u?.avatar ? `<img src="${u.avatar}" alt="">` : `<span class="cloud-ph">${DISCORD_ICON}</span>`}<span><b>${u ? u.name : "Connexion…"}</b><small>${CLOUD.error ? "Synchronisation en attente (hors ligne ?)" : ago == null ? "Synchronisation…" : `Sauvegardé en ligne ${ago < 1 ? "à l’instant" : `il y a ${ago} min`}`}</small></span></div>
+    <div class="cloud-user">${u?.avatar ? `<img src="${u.avatar}" alt="">` : `<span class="cloud-ph">${DISCORD_ICON}</span>`}<span><b>${u ? u.name : "Connexion…"}</b><small>${CLOUD.error ? `Synchronisation en attente<br><span class="cloud-err">${CLOUD.error.replace(/[<>&]/g, "")}</span>` : ago == null ? "Synchronisation…" : `Sauvegardé en ligne ${ago < 1 ? "à l’instant" : `il y a ${ago} min`}`}</small></span></div>
     <div class="d-acts"><button class="btn ghost" data-act="cloudSync">Synchroniser</button><button class="btn ghost" data-act="cloudLogout">Se déconnecter</button></div>
     <button class="set-link" data-act="cloudDelete"><span class="ico">🗑️</span><span><b>${UI.cloudDel ? "Toucher encore pour confirmer" : "Supprimer mon compte en ligne"}</b><small>Efface ta sauvegarde en ligne. La partie reste sur cet appareil.</small></span></button>
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
