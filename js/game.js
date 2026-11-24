@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.17.3-test";
+const APP_VERSION = "2.17.4-test";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -387,7 +387,7 @@ function genOrder() {
 }
 
 /* ---------------- Actions ---------------- */
-let tab = "garden", msub = "seeds", labSel = [null, null], resetArmed = false;
+let tab = "garden", msub = "seeds", labSel = [null, null];
 const A = {
   tab(arg) { tab = arg; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
@@ -637,10 +637,22 @@ const A = {
   goRecipe(r) { UI.sel.recipes = r; A.goRecipes(); },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
   cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
-  reset() {
-    if (!resetArmed) { resetArmed = true; render(true); buzz([20, 60, 20]); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
-    resetArmed = false; const keepSettings = S.settings; S = fresh(); S.settings = keepSettings; S.orders = [genOrder(), genOrder()]; closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
+  dangerOpen(k) { UI.danger = k; modalView = viewDanger; render(true); setTimeout(() => $("#danger-in")?.focus(), 50); },
+  dangerCancel() { UI.danger = null; modalView = viewSettings; render(true); },
+  async dangerGo() {
+    const k = UI.danger, d = DANGER[k], i = $("#danger-in");
+    if (!d || !i || norm(i.value) !== d.word) return;
+    UI.danger = null; buzz([20, 60, 20]);
+    if (k === "reset") {
+      const keep = { settings: S.settings, profile: S.profile }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
+      closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
+      if (typeof CLOUD !== "undefined" && CLOUD.signedIn) { try { await CLOUD.push(); } catch (e) {} } // la sauvegarde en ligne suit tout de suite
+    } else {
+      closeModal();
+      try { await CLOUD.deleteAccount(); toast("Compte en ligne supprimé."); showGate(); } catch (e) { toast("Suppression impossible pour le moment."); }
+    }
   },
+
 };
 function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
@@ -761,7 +773,7 @@ function viewSettings() {
     </div>
     ${cloudSettingsHTML()}
     <div class="set-group danger"><h3>Zone sensible</h3>
-      <button class="set-link ${resetArmed ? "armed" : ""}" data-act="reset">${ICON_RESET}<span><b>${resetArmed ? "Touche encore pour tout effacer" : "Recommencer à zéro"}</b><small>${resetArmed ? "Cette action est définitive" : "Efface toute ta progression (tes réglages sont gardés)"}</small></span></button>
+      <button class="set-link" data-act="dangerOpen" data-arg="reset">${ICON_RESET}<span><b>Recommencer à zéro</b><small>Efface ta progression, ton compte est gardé</small></span></button>
       ${typeof cloudDangerHTML === "function" ? cloudDangerHTML() : ""}
     </div>
     <div class="set-group"><h3>À propos</h3>
@@ -770,6 +782,38 @@ function viewSettings() {
     </div>
   </div>`;
 }
+
+/* Confirmation des actions définitives : ce qui part, ce qui reste, et un mot à écrire. */
+const norm = v => v.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const DANGER = {
+  reset: { title: "Recommencer à zéro", word: "RECOMMENCER", btn: "Tout recommencer",
+    lost: () => ["Ton niveau, ton XP et tes pièces", "Tes bacs, graines, récoltes et plats", "Tes hybrides, recettes, décorations et améliorations", "Tes succès et tes titres"],
+    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? ["Ton compte Discord, tes amis et tes messages"] : [])],
+    note: "Ta sauvegarde en ligne est remplacée par la nouvelle partie." },
+  account: { title: "Supprimer mon compte", word: "SUPPRIMER", btn: "Supprimer mon compte",
+    lost: () => ["Ta sauvegarde en ligne", "Ton profil visible par tes amis et ton code ami", "Tes amis, tes demandes et tes messages", "Les joueurs que tu as bloqués"],
+    kept: () => ["La partie sur cet appareil"],
+    note: "Tu devras te reconnecter avec Discord pour continuer à jouer : un nouveau compte sera créé avec ta partie." },
+};
+function viewDanger() {
+  const d = DANGER[UI.danger]; if (!d) return viewSettings();
+  return `<div class="sheet danger-sheet" role="dialog" aria-modal="true" aria-label="${d.title}">
+    <div class="sheet-head"><h2>${d.title}</h2><button class="btn ghost sm" data-act="dangerCancel">Annuler</button></div>
+    <div class="dz-cols">
+      <div class="dz-box lost"><h3>Supprimé</h3><ul>${d.lost().map(x => `<li>${x}</li>`).join("")}</ul></div>
+      <div class="dz-box kept"><h3>Gardé</h3><ul>${d.kept().map(x => `<li>${x}</li>`).join("")}</ul></div>
+    </div>
+    <p class="small muted" style="margin:0">${d.note} <b>C’est définitif.</b></p>
+    <label class="dz-field"><span>Pour confirmer, écris <b>${d.word}</b></span>
+      <input id="danger-in" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done" placeholder="${d.word}"></label>
+    <button class="btn danger dz-go" data-act="dangerGo"${norm($("#danger-in")?.value || "") === d.word ? "" : " disabled"}>${d.btn}</button>
+  </div>`;
+}
+document.addEventListener("input", ev => {
+  if (ev.target.id !== "danger-in") return;
+  const b = document.querySelector(".dz-go"), d = DANGER[UI.danger]; if (b && d) b.disabled = norm(ev.target.value) !== d.word;
+});
+document.addEventListener("keydown", ev => { if (ev.key === "Enter" && ev.target.id === "danger-in") A.dangerGo(); });
 
 /* ---------------- Views ---------------- */
 function views_garden() {
@@ -1142,7 +1186,7 @@ function views_village() {
 const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
 let lastSig = "";
 function sig(t) {
-  const base = [tab, season(), S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
+  const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
     case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);

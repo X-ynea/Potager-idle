@@ -135,19 +135,13 @@ function cloudSettingsHTML() {
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
 }
 // Dans la zone sensible des réglages.
-const cloudDangerHTML = () => CLOUD.enabled() && CLOUD.signedIn ? `<button class="set-link ${UI.cloudDel ? "armed" : ""}" data-act="cloudDelete"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>${UI.cloudDel ? "Touche encore pour confirmer" : "Supprimer mon compte en ligne"}</b><small>Efface ta sauvegarde en ligne. La partie reste sur cet appareil.</small></span></button>` : "";
+const cloudDangerHTML = () => CLOUD.enabled() && CLOUD.signedIn ? `<button class="set-link" data-act="dangerOpen" data-arg="account"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Supprimer mon compte</b><small>Efface tes données en ligne, tes amis et tes messages</small></span></button>` : "";
 const DISCORD_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.3 5.3A16.6 16.6 0 0 0 15.2 4l-.5 1a15.3 15.3 0 0 0-5.4 0L8.8 4a16.6 16.6 0 0 0-4.1 1.3C2.1 9.2 1.4 13 1.7 16.7a16.7 16.7 0 0 0 5 2.5l1.1-1.7a10.7 10.7 0 0 1-1.7-.8l.4-.3a11.9 11.9 0 0 0 11 0l.4.3c-.5.3-1.1.6-1.7.8l1.1 1.7a16.6 16.6 0 0 0 5-2.5c.4-4.3-.7-8.1-3-11.4zM8.7 14.4c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>`;
 const CLOUD_ACTS = {
   cloudLogin() { CLOUD.login(); },
   cloudSync() { CLOUD.sync(true); },
   async cloudLogout() { await CLOUD.logout(); },
   async gateSwitch() { await CLOUD.logout(); },
-  async cloudDelete() {
-    if (!UI.cloudDel) { UI.cloudDel = true; render(true); setTimeout(() => { UI.cloudDel = false; render(true); }, 5000); return; }
-    UI.cloudDel = false;
-    try { await CLOUD.deleteAccount(); toast("Compte en ligne supprimé. Ta partie reste sur cet appareil."); } catch (e) { toast("Suppression impossible pour le moment."); }
-    render(true);
-  },
   async cloudPick(which) {
     closeModal();
     if (which === "remote" && CLOUD._choice) { S = migrate(CLOUD._choice); save(); applyTheme(); commit(); toast("Partie en ligne récupérée."); }
