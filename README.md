@@ -38,6 +38,10 @@ python3 -m http.server 8000
 | `manifest.webmanifest`, `icons/` | Nom, icône et couleurs de l'appli installée |
 | `fonts/` | Polices Fredoka et Nunito (licence SIL OFL), embarquées pour le hors-ligne |
 
+## Équilibrage
+
+Le tableau complet de la progression (courbe d'XP, déblocages par niveau, améliorations, plantes, recettes, succès) est dans [`docs/progression.md`](docs/progression.md). Il est généré à partir des données du jeu : après un changement d'équilibrage, relancer `node tools/progression.js`.
+
 ## Ajouter des images
 
 1. Déposer les images générées dans `assets/raw/` (noms dans `docs/prompts-images.md`) :
