@@ -43,7 +43,7 @@ function friendRow(f) {
   const head = `<span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b>${f.title ? `<span class="title-tag">${esc(f.title)}</span>` : ""}<small>Niv. ${f.level} · ${f.direction === "friend" ? seenAgo(f.last_seen) : "code " + esc(f.code)}</small></span>`;
   if (f.direction === "in") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn sm" data-act="frRespond" data-arg="${f.id}:1">Accepter</button><button class="btn ghost sm" data-act="frRespond" data-arg="${f.id}:0">Refuser</button></span></div>`;
   if (f.direction === "out") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn ghost sm" data-act="frRemove" data-arg="${f.id}">Annuler</button></span></div>`;
-  return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn fr-ico fr-chat-btn" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}${FR.unread[f.user_id] ? `<span class="fr-badge">${FR.unread[f.user_id]}</span>` : ""}</button><button class="btn fr-ico ghost${FR.confirm === f.id ? " armed" : ""}" data-act="frRemove" data-arg="${f.id}" aria-label="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer cet ami"}" title="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer"}">${FR.confirm === f.id ? "?" : "✕"}</button></span></div>`;
+  return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn fr-ico ghost fr-visit-btn" data-act="frVisit" data-arg="${f.id}" aria-label="Visiter son jardin" title="Visiter">${VISIT_ICON}</button><button class="btn fr-ico fr-chat-btn" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}${FR.unread[f.user_id] ? `<span class="fr-badge">${FR.unread[f.user_id]}</span>` : ""}</button><button class="btn fr-ico ghost${FR.confirm === f.id ? " armed" : ""}" data-act="frRemove" data-arg="${f.id}" aria-label="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer cet ami"}" title="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer"}">${FR.confirm === f.id ? "?" : "✕"}</button></span></div>`;
 }
 function viewFriends() {
   const shell = body => `<div class="sheet tall friends-sheet" role="dialog" aria-modal="true" aria-label="Amis">
@@ -115,7 +115,7 @@ document.addEventListener("submit", async ev => {
   catch (e) { input.value = body; toast(/pas ami/.test(e.message) ? "Tu ne peux écrire qu’à tes amis." : "Message non envoyé, réessaie."); }
   FR.sending = false; render(true); scrollChat(true); $("#msg-in")?.focus();
 });
-const openFriends = () => { modalView = () => FR.chat != null ? viewChat() : viewFriends(); $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
+const openFriends = () => { modalView = () => VISIT.id != null ? viewVisit() : FR.chat != null ? viewChat() : viewFriends(); $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
 document.addEventListener("submit", async ev => {
   if (ev.target.dataset?.form !== "frSearch") return; ev.preventDefault();
   const q = $("#fr-q").value.trim(); FR.q = q; if (q.length < 2) { FR.results = []; render(true); return; }
@@ -124,7 +124,7 @@ document.addEventListener("submit", async ev => {
   FR.searching = false; render(true);
 });
 const FRIENDS_ACTS = {
-  openFriends() { FR.chat = null; openFriends(); },
+  openFriends() { FR.chat = null; VISIT.id = null; openFriends(); },
   frTab(t) { FR.tab = t; FR.confirm = null; render(true); },
   frRefresh() { loadFriends(true); },
   async frCopy() { try { await navigator.clipboard.writeText(FR.code); toast(`Code ${FR.code} copié !`); } catch (e) { toast(`Ton code : ${FR.code}`); } },

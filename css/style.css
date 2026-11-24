@@ -1208,3 +1208,15 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .dz-go { width: 100%; }
 .dz-go:disabled { opacity: .45; }
 @media (max-width: 360px) { .dz-cols { grid-template-columns: 1fr; } }
+/* Visite du jardin d'un ami (lecture seule) */
+.sheet.visit-sheet { height: 85dvh; align-content: start; grid-auto-rows: max-content; }
+.fr-visit-btn { color: var(--leaf-deep); }
+.visit-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.visit-bar .garden-hint { margin: 0; }
+.visit-sum { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: .78rem; font-weight: 800; color: var(--muted); }
+.visit-sum span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); }
+.visit-sum svg, .visit-sum img { width: 15px; height: 15px; flex: none; }
+.visit-garden .plot:active { transform: none; }
+.visit-note { margin: 0; font-size: .74rem; color: var(--muted); text-align: center; }
+.herb.friend-knows { border-style: dashed; border-color: color-mix(in srgb, var(--leaf) 55%, var(--line)); }
+.herb.friend-knows .muted { color: var(--leaf-deep); font-weight: 800; }

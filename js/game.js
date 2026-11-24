@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.17.4-test";
+const APP_VERSION = "2.18.0-test";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -106,25 +106,27 @@ function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stri
 
 /* ---------------- Simulation ---------------- */
 const DRY_RATE = .25; // vitesse de pousse quand la terre est sèche
+/* Pousse d'une parcelle jusqu'à t (sert aussi pour le jardin d'un ami en visite). */
+function growPlot(p, t) {
+  if (p.seed) {
+    const sp = plantSpeed(p.seed);
+    const need = PLANTS[p.seed].time * 1000;
+    if (p.grown < need && !p.weed) {
+      // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
+      const wu = S.upg.auto ? Infinity : p.waterUntil;
+      const wet = Math.max(0, Math.min(t, wu) - p.last), dry = Math.max(0, t - Math.max(p.last, wu));
+      const g0 = p.grown, gWet = wet * sp;
+      p.grown = Math.min(need, g0 + gWet + dry * sp * DRY_RATE);
+      if (g0 < need && p.grown >= need) // moment où la plante a mûri
+        p.ripeAt = g0 + gWet >= need ? p.last + (need - g0) / sp : Math.max(p.last, wu) + (need - g0 - gWet) / (sp * DRY_RATE);
+      if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
+    }
+  }
+  p.last = t;
+}
 function tick(t) {
   const sz = season(); if (!(S.stats.seasonsSeen || []).includes(sz)) S.stats.seasonsSeen = [...(S.stats.seasonsSeen || []), sz];
-  for (const p of S.plots) {
-    if (p.seed) {
-      const sp = plantSpeed(p.seed);
-      const need = PLANTS[p.seed].time * 1000;
-      if (p.grown < need && !p.weed) {
-        // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
-        const wu = S.upg.auto ? Infinity : p.waterUntil;
-        const wet = Math.max(0, Math.min(t, wu) - p.last), dry = Math.max(0, t - Math.max(p.last, wu));
-        const g0 = p.grown, gWet = wet * sp;
-        p.grown = Math.min(need, g0 + gWet + dry * sp * DRY_RATE);
-        if (g0 < need && p.grown >= need) // moment où la plante a mûri
-          p.ripeAt = g0 + gWet >= need ? p.last + (need - g0) / sp : Math.max(p.last, wu) + (need - g0 - gWet) / (sp * DRY_RATE);
-        if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
-      }
-    }
-    p.last = t;
-  }
+  for (const p of S.plots) growPlot(p, t);
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
   // Succès caché « Patience » : une plante mûre depuis plus de 24 h (débloqué sans attendre la récolte).
   for (const p of S.plots) if (p.seed && !p.weed && p.grown >= PLANTS[p.seed].time * 1000) {
@@ -1255,6 +1257,7 @@ function live(t) {
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
+  updateVisit(t);
   updatePlotTip(t);
   tutoUpdate();
   document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });
@@ -1433,7 +1436,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {

@@ -1,0 +1,50 @@
+# Version 3 : jouer avec ses amis
+
+Plan validé le 24 novembre 2026. Tout se prépare sur la branche `test` (version publiée dans `/test/`).
+
+## Principe
+
+Seul le propriétaire écrit dans sa sauvegarde. Les amis :
+- **lisent** une partie de la sauvegarde grâce à une fonction serveur (amis uniquement, sans blocage) ;
+- **agissent** en déposant quelque chose dans une **boîte de réception** sur le serveur. Le jeu du propriétaire l'applique à sa prochaine synchronisation et le marque comme reçu (chaque envoi a un numéro, jamais appliqué deux fois).
+
+Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
+
+## Étape 1 : visite et herbier
+
+- Bouton **« Visiter »** sur la ligne d'un ami.
+- On voit son **jardin** (bacs, plantes et leur avancement, décos, saison) et son **herbier** (plantes découvertes, dorées).
+- Aucune quantité d'inventaire, pas de pièces.
+- Lecture seule : rien n'est modifiable.
+- Le jardin continue de pousser pendant la visite, calculé à partir de sa dernière sauvegarde. Rien n'est enregistré.
+- **Anti-spoil** : un hybride que tu n'as pas découvert reste « ??? » chez lui aussi, avec seulement la mention qu'il le connaît.
+- Fonction serveur : `docs/visites.sql` (`friend_garden`).
+
+## Étape 2 : arrosage et boîte aux lettres
+
+- Bouton **Arroser** dans la visite.
+- Effet : tous ses bacs sont arrosés et ses plantes poussent **+20 % pendant 2 h**. Le bonus ne s'additionne pas ; un 2ᵉ arrosage remet le compteur à 2 h.
+- Le bonus s'additionne aux autres (+25 % de saison, compost).
+- Limites par jour :
+  - un jardin reçoit **2 arrosages d'amis** au plus. Au-delà : arrosoir grisé, « Des amis sont déjà passés par là ! » ;
+  - un joueur arrose **2 jardins d'amis** au plus. Au-delà : arrosoir grisé, « Tu as déjà bien arrosé chez tes amis aujourd'hui, reviens demain ! » ;
+  - une même personne arrose un même jardin une fois par jour au plus.
+- Affichage : rien sur les bacs. Sous « L'eau tient x min » (ou « Arroseur automatique actif »), une ligne `[pp] a arrosé · +20 % · 1 h 42` avec le temps qui diminue. Une 2ᵉ pp se place à côté de la première, en la chevauchant un peu.
+- Récompense de celui qui arrose : un peu d'XP.
+- **Boîte aux lettres** : élément fixe de l'écran d'accueil, hors des emplacements de déco, avec drapeau et pastille. Courrier en trois parties : Reçus, Envoyés, Nouvelles.
+- Nouvelles images (boîte aux lettres, arrosoir) faites à part, pour ne pas les confondre avec les décos.
+
+## Étape 3 : échanges
+
+- Bouton **Échanger** dans la visite (à côté de l'arrosoir) et dans la conversation. La proposition arrive dans la boîte aux lettres, avec une ligne dans la conversation.
+- Dans la fenêtre d'échange, on voit l'inventaire de l'autre (plantes et plats, avec quantités) pour choisir ce qu'on demande.
+- Deux types : **objets contre objets** (plantes et plats mélangés) ou **objets contre pièces**. Pas de cadeau, pas de pièces contre pièces.
+- **Équivalence** : valeur = prix de vente au marché. Écart de **20 %** au plus entre les deux côtés. Balance affichée, et vérification par le serveur avec sa propre liste des prix.
+- Plafond fixe pour tout le monde : **3 000 pièces de valeur** par côté. **3 échanges par jour.**
+- Exclus : graines et dorées.
+- **Anti-spoil**, dans les deux sens :
+  - on ne peut pas proposer un objet que l'autre n'a pas découvert ;
+  - dans son inventaire, ce que tu n'as pas découvert est masqué ;
+  - un plat est découvert quand il est **débloqué au niveau** du joueur (recette apprise ou non), et seulement si ses hybrides sont découverts.
+- Tout ce qu'on propose (objets ou pièces) quitte le compte dès l'envoi. C'est rendu si l'autre refuse, si on **annule** (depuis la boîte aux lettres, où l'on voit tous ses échanges proposés) ou au bout de **48 h**.
+- À l'acceptation, le jeu de l'autre vérifie qu'il a encore assez. Sinon : « Tu n'en as plus assez ».
