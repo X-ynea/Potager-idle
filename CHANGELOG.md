@@ -61,6 +61,22 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.15.0 · Comptes
+- Un compte Discord est maintenant nécessaire pour jouer : la partie est sauvegardée en ligne et suit le joueur sur tous ses appareils. Une partie déjà commencée est reliée au compte à la première connexion.
+- Une fenêtre « Du nouveau au potager ! » explique le changement, une seule fois.
+- Se déconnecter retire la partie de l’appareil ; elle revient en se reconnectant.
+- Le profil prend le pseudo et la photo Discord par défaut (modifiables avec le crayon).
+- Réglages : export et import de sauvegarde retirés ; « Recommencer à zéro » (qui garde maintenant le profil) et « Supprimer mon compte » ouvrent une fenêtre de confirmation qui liste ce qui est effacé et gardé, avec un mot à écrire.
+
+### 2.14.4
+- Herbier et marché : les plantes pas encore débloquées sont rangées par niveau.
+
+### 2.14.3
+- Barre du haut : avec un titre affiché, le compteur d’XP n’est plus coupé. Si la place manque, le titre se cache.
+
+### 2.14.2
+- Compte : se connecter sur un nouvel appareil reprend bien la partie du compte, au lieu de la remplacer par une partie vide.
+
 ### 2.14.1
 - Version de test : connexion Discord possible avec un compte de test. Un compte ne peut jamais servir à la fois à une vraie partie et à une partie de test.
 
