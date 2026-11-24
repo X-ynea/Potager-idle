@@ -50,3 +50,16 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
   - un plat est découvert quand il est **débloqué au niveau** du joueur (recette apprise ou non), et seulement si ses hybrides sont découverts.
 - Tout ce qu'on propose (objets ou pièces) quitte le compte dès l'envoi. C'est rendu si l'autre refuse, si on **annule** (depuis la boîte aux lettres, où l'on voit tous ses échanges proposés) ou au bout de **48 h**.
 - À l'acceptation, le jeu de l'autre vérifie qu'il a encore assez. Sinon : « Tu n'en as plus assez ».
+
+## Avant la sortie : conseils de Mamie Lapine pour la v3
+
+À préparer une fois les trois étapes terminées. Ils s'ajoutent aux conseils existants (`js/tuto.js`), sous forme de conseils « selon la situation » : ils arrivent quand c'est utile, pour les nouveaux joueurs comme pour les anciens, une seule fois chacun.
+
+Pistes à affiner ensemble :
+1. **Onglet Amis** (à partir d'un certain niveau, ou après les premiers pas) : Mamie montre l'onglet en bas et le code ami à partager.
+2. **Premier ami ajouté** : « Touche ton ami pour visiter son jardin ! »
+3. **Première visite** : l'arrosoir, une fois par jour, +20 % pendant 2 h pour lui, un peu d'XP pour toi.
+4. **Premier arrosage reçu** : expliquer la ligne sous « L'eau tient » (photo de l'ami, temps qui reste).
+5. **Échanges et boîte aux lettres** : proposer un échange depuis la visite ou la conversation, l'équivalence de valeur, la boîte aux lettres pour accepter ou annuler.
+
+Questions à trancher : à quel niveau Mamie présente les amis ? Un conseil séparé pour les anciens joueurs, ou seulement la fenêtre « Du nouveau au potager ! » de la v3 ?
