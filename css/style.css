@@ -1232,3 +1232,14 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .sheet.visit-sheet::before { display: none; }
 .sheet.visit-sheet .sheet-head { top: calc(-10px - env(safe-area-inset-top, 0px)); margin-top: calc(-10px - env(safe-area-inset-top, 0px)); padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
 #modal:has(.visit-sheet) { background: var(--bg, rgba(45,25,10,.6)); }
+/* Conversation : « Fermer » à droite ; le blocage passe dans le menu « ⋯ » (plus de risque de bloquer en voulant fermer) */
+.chat-head { position: sticky; }
+.chat-more { margin-left: auto; flex: none; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.chat-more svg { width: 18px; height: 18px; }
+.chat-more.on { background: var(--panel-2); color: var(--ink); }
+.chat-head .btn.chat-close { font-size: .9rem; padding: 0 14px; }
+.chat-menu { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(100% + 6px); z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 6px; }
+.chat-menu-item { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 10px; background: none; padding: 10px 12px; font: inherit; font-weight: 800; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+.chat-menu-item svg { width: 18px; height: 18px; flex: none; }
+.chat-menu-item.danger { color: var(--bad); }
+.chat-menu-item.danger.armed { background: var(--bad); color: #fff; }

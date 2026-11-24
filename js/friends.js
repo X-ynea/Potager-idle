@@ -83,7 +83,9 @@ function viewChat() {
           <span class="msg-meta">${timeOf(m.created_at)}${mine && FR.msgSel === m.id ? ` · <button class="msg-del" data-act="msgDel" data-arg="${m.id}">Supprimer</button>` : ""}</span></div>`; }).join("");
   return `<div class="sheet tall chat-sheet" role="dialog" aria-modal="true" aria-label="Messages avec ${esc(f.name)}">
     <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span>
-      <button class="chat-block${FR.blockConfirm ? " armed" : ""}" data-act="frBlock" data-arg="${f.user_id}" aria-label="${FR.blockConfirm ? "Confirmer le blocage" : "Bloquer"}" title="Bloquer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+      <button class="chat-more${FR.chatMenu ? " on" : ""}" data-act="chatMenu" aria-label="Plus d’options" aria-expanded="${!!FR.chatMenu}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/></svg></button>
+      <button class="btn ghost sm chat-close" data-act="close">Fermer</button>
+      ${FR.chatMenu ? `<div class="chat-menu"><button class="chat-menu-item danger${FR.blockConfirm ? " armed" : ""}" data-act="frBlock" data-arg="${f.user_id}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>${FR.blockConfirm ? "Toucher encore pour bloquer" : `Bloquer ${esc(f.name)}`}</button></div>` : ""}</div>
     <div class="chat-body" id="chat-body"><p class="chat-note">Les messages sont effacés au bout de 30 jours.</p>${bubbles}</div>
     <form class="chat-input" data-form="msgSend"><input id="msg-in" maxlength="500" placeholder="Écrire à ${esc(f.name)}…" autocomplete="off" enterkeyhint="send"><button class="btn" type="submit" ${FR.sending ? "disabled" : ""}>Envoyer</button></form></div>`;
 }
@@ -146,17 +148,18 @@ const FRIENDS_ACTS = {
     try { await CLOUD.rpc("remove_friendship", { fid: +id }); } catch (e) { toast("Action impossible pour le moment."); }
     loadFriends(true);
   },
-  frChat(id) { FR.chat = +id; FR.msgSel = null; FR.blockConfirm = false; render(true); loadMessages(true); },
-  frBack() { FR.chat = null; FR.msgSel = null; FR.blockConfirm = false; render(true); },
+  frChat(id) { FR.chat = +id; FR.msgSel = null; FR.blockConfirm = false; FR.chatMenu = false; render(true); loadMessages(true); },
+  frBack() { FR.chat = null; FR.msgSel = null; FR.blockConfirm = false; FR.chatMenu = false; render(true); },
   msgSel(id) { FR.msgSel = FR.msgSel === +id ? null : +id; render(true); },
   async msgDel(id) {
     const f = chatFriend(); try { await CLOUD.rpc("delete_message", { mid: +id }); if (f) FR.msgs[f.user_id] = (FR.msgs[f.user_id] || []).filter(m => m.id !== +id); } catch (e) { toast("Suppression impossible pour le moment."); }
     FR.msgSel = null; render(true);
   },
+  chatMenu() { FR.chatMenu = !FR.chatMenu; FR.blockConfirm = false; render(true); },
   async frBlock(uid) {
     if (!FR.blockConfirm) { FR.blockConfirm = true; render(true); toast("Touche encore pour bloquer : cet ami sera retiré, la conversation effacée et tout nouveau contact empêché."); setTimeout(() => { if (FR.blockConfirm) { FR.blockConfirm = false; render(true); } }, 5000); return; }
     FR.blockConfirm = false;
-    try { await CLOUD.rpc("block_user", { target: uid }); delete FR.msgs[uid]; FR.chat = null; toast("Joueur bloqué."); } catch (e) { toast("Blocage impossible pour le moment."); }
+    try { await CLOUD.rpc("block_user", { target: uid }); delete FR.msgs[uid]; FR.chat = null; FR.chatMenu = false; toast("Joueur bloqué."); } catch (e) { toast("Blocage impossible pour le moment."); }
     loadFriends(true);
   },
 };
