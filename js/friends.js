@@ -84,7 +84,7 @@ function viewChat() {
   return `<div class="sheet tall chat-sheet" role="dialog" aria-modal="true" aria-label="Messages avec ${esc(f.name)}">
     <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span>
       <button class="btn ghost sm chat-block${FR.blockConfirm ? " armed" : ""}" data-act="frBlock" data-arg="${f.user_id}">${FR.blockConfirm ? "Confirmer ?" : "Bloquer"}</button></div>
-    <div class="chat-body" id="chat-body">${bubbles}</div>
+    <div class="chat-body" id="chat-body"><p class="chat-note">Les messages sont effacés au bout de 30 jours.</p>${bubbles}</div>
     <form class="chat-input" data-form="msgSend"><input id="msg-in" maxlength="500" placeholder="Écrire à ${esc(f.name)}…" autocomplete="off" enterkeyhint="send"><button class="btn" type="submit" ${FR.sending ? "disabled" : ""}>Envoyer</button></form></div>`;
 }
 // Messages : chargement de la conversation ouverte, et des non lus, toutes les 30 secondes.
