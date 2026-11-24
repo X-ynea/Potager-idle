@@ -93,6 +93,10 @@ svg { display: block; }
 .lvl { display: grid; gap: 3px; flex: 1; min-width: 0; max-width: 300px; margin-right: auto; }
 .lvl-top { display: flex; justify-content: space-between; gap: 6px; font-size: .75rem; color: var(--muted); font-weight: 700; white-space: nowrap; }
 .lvl-top b { color: var(--ink); font-family: var(--f-display); font-weight: 600; font-size: .9rem; }
+/* Le titre passe à la ligne (masquée) s'il n'a pas la place : l'XP reste toujours lisible. */
+.lvl-top #lvl { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; min-width: 0; height: 1.4em; overflow: hidden; }
+.lvl-top #lvl .title-tag { margin-left: 0; }
+.lvl-top #xpt { flex: none; }
 .xpbar { height: 8px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--leaf), var(--leaf-light, #f8b46c)); border-radius: 99px; transition: width .4s; }
 
