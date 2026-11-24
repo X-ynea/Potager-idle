@@ -1227,3 +1227,8 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .visit-note { margin: 0; font-size: .74rem; color: var(--muted); text-align: center; }
 .herb.friend-knows { border-style: dashed; border-color: color-mix(in srgb, var(--leaf) 55%, var(--line)); }
 .herb.friend-knows .muted { color: var(--leaf-deep); font-weight: 800; }
+/* Visite : plein écran (même largeur que le jeu sur ordinateur) */
+.sheet.visit-sheet { height: 100dvh; max-height: 100dvh; max-width: 760px; border-radius: 0; padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+.sheet.visit-sheet::before { display: none; }
+.sheet.visit-sheet .sheet-head { top: calc(-10px - env(safe-area-inset-top, 0px)); margin-top: calc(-10px - env(safe-area-inset-top, 0px)); padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+#modal:has(.visit-sheet) { background: var(--bg, rgba(45,25,10,.6)); }
