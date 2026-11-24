@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.13.2";
+const APP_VERSION = "2.13.3";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -126,6 +126,11 @@ function tick(t) {
     p.last = t;
   }
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
+  // Succès caché « Patience » : une plante mûre depuis plus de 24 h (débloqué sans attendre la récolte).
+  for (const p of S.plots) if (p.seed && !p.weed && p.grown >= PLANTS[p.seed].time * 1000) {
+    if (!p.ripeAt) p.ripeAt = t; // plante mûre sans date connue (ancienne sauvegarde) : on compte à partir de maintenant
+    if (t - p.ripeAt > 24 * 3600000) S.stats.patience = 1;
+  }
   // Succès cachés : escargot gardé plus d'une heure, tous les bacs plantés de la même plante.
   if (S.plots.length >= 6 && S.plots.every(p => p.seed && p.seed === S.plots[0].seed)) S.stats.monoculture = 1;
   S.stats.maxCoins = Math.max(st("maxCoins"), S.coins);

@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.13.3
+- Succès caché « Patience » : il se débloque dès qu’une plante est restée mûre 24 h, sans attendre de la récolter, et compte aussi les plantes mûres d’anciennes sauvegardes.
+
 ### 2.13.1
 - Comptes Discord activés : la partie se sauvegarde en ligne et se retrouve sur tous les appareils.
 
