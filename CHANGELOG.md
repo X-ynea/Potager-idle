@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.14.4
+- Herbier et marché : les plantes pas encore débloquées sont rangées par niveau.
+
 ### 2.14.3
 - Barre du haut : avec un titre affiché, le compteur d’XP n’est plus coupé. Si la place manque, le titre se cache.
 
