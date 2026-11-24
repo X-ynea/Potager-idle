@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false # une publication de test ne doit jamais annuler celle des joueurs
 
 jobs:
   build:
