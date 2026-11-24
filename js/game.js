@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.12.3";
+const APP_VERSION = "2.13.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -768,6 +768,7 @@ function viewSettings() {
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
       <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
+    ${cloudSettingsHTML()}
     <div class="set-group"><h3>Sauvegarde</h3>
       <div class="set-list">
         <button class="set-link" data-act="exportSave">${ICON_UP}<span><b>Exporter ma partie</b><small>Copie un code pour continuer sur un autre appareil</small></span>${CHEVRON}</button>
@@ -1404,7 +1405,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
@@ -1419,6 +1420,7 @@ function start() {
   if (away > 8 * 3600000 && loaded) S.stats.comeback = 1;
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
   if (S.hybRefundMsg) { const m = S.hybRefundMsg; delete S.hybRefundMsg; toast(`Recette${m.length > 1 ? "s" : ""} remboursée${m.length > 1 ? "s" : ""} : <b>${m.join(", ")}</b>. Découvre d’abord l’hybride à la Serre pour l’apprendre.`, 7000); save(); }
+  CLOUD.sync(); // compte en ligne : récupère ou envoie la partie
   // Première visite : c’est Mamie Lapine qui accueille (js/tuto.js).
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);

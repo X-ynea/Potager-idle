@@ -1,6 +1,6 @@
 /* Service worker de Potager idle : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v274";
+const VERSION = "potager-v275";
 const FILES = [
   "./",
   "index.html",
@@ -11,6 +11,9 @@ const FILES = [
   "js/achievements.js",
   "js/tuto.js",
   "js/profile.js",
+  "js/cloud-config.js",
+  "js/cloud.js",
+  "confidentialite.html",
   "js/seasons.js",
   "js/sound.js",
   "js/typo.js",

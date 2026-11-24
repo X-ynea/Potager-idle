@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Données personnelles · Potager idle</title>
+<style>
+  :root { --bg: #fdf3e7; --ink: #3a2c1f; --muted: #86705b; --leaf: #b8571a; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1f1711; --ink: #f2e6d9; --muted: #b59d86; --leaf: #f7b47a; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; } h2 { font-size: 1.1rem; margin: 28px 0 6px; color: var(--leaf); }
+  p, li { margin: 6px 0; } .muted { color: var(--muted); font-size: .9rem; } a { color: var(--leaf); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Données personnelles</h1>
+  <p class="muted">Potager idle · dernière mise à jour : novembre 2026</p>
+
+  <h2>Sans compte</h2>
+  <p>Ta partie est enregistrée uniquement sur ton appareil, dans le navigateur. Rien n’est envoyé en ligne.</p>
+
+  <h2>Avec un compte (facultatif)</h2>
+  <p>Si tu te connectes avec Discord, nous enregistrons :</p>
+  <ul>
+    <li>l’identifiant de ton compte, ton nom et ta photo Discord, fournis par Discord lors de la connexion ;</li>
+    <li>ta sauvegarde de jeu (progression, inventaire, pseudo, et la photo de profil ou la bannière si tu en as importé une).</li>
+  </ul>
+  <p>Ces données servent uniquement à sauvegarder ta partie et à la retrouver sur tes autres appareils. Elles ne sont ni vendues, ni partagées, ni utilisées pour de la publicité. Nous ne lisons pas tes messages ni tes serveurs Discord.</p>
+
+  <h2>Où sont-elles stockées ?</h2>
+  <p>Chez notre hébergeur de base de données, Supabase. Chaque joueur ne peut lire et modifier que sa propre sauvegarde.</p>
+
+  <h2>Supprimer tes données</h2>
+  <p>Dans le jeu : Réglages › Compte › « Supprimer mon compte en ligne ». Ton compte et ta sauvegarde en ligne sont alors effacés immédiatement. Ta partie reste sur ton appareil.</p>
+  <p>Tu peux aussi simplement te déconnecter : plus rien n’est envoyé.</p>
+
+  <p style="margin-top:32px"><a href="./">← Retour au jeu</a></p>
+</main>
+</body>
+</html>

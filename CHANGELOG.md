@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.13.0
+- Comptes (facultatifs) : connexion avec Discord pour sauvegarder sa partie en ligne et la retrouver sur tous ses appareils. Section « Compte » dans les réglages, page « Données personnelles ». Activé dès que le projet en ligne est configuré.
+
 ### 2.12.3
 - Plantes mûres (sauf les salades) encore un peu remontées dans le bac.
 
