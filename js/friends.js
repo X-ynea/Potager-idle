@@ -10,6 +10,7 @@ const FR = { list: [], code: "", loaded: false, loading: false, error: "", tab: 
 let pubAvatarCache = { src: null, out: null };
 async function publicAvatar() {
   const a = profile().avatar;
+  if (a === "leaf") return null;
   if (a && a.startsWith("v:")) return a;
   if (a && a.startsWith("data:")) {
     if (pubAvatarCache.src === a) return pubAvatarCache.out;
@@ -28,7 +29,7 @@ async function loadFriends(force) {
   if (!friendsReady() || FR.loading || (!force && Date.now() - FR.lastLoad < 20e3)) return;
   FR.loading = true;
   try {
-    FR.code = await CLOUD.rpc("upsert_profile", { p_name: profile().name || CLOUD.user?.name || "Jardinier", p_avatar: await publicAvatar(), p_title: S.title || null, p_level: S.level, p_test: IS_TEST });
+    FR.code = await CLOUD.rpc("upsert_profile", { p_name: profileName(), p_avatar: await publicAvatar(), p_title: S.title || null, p_level: S.level, p_test: IS_TEST });
     FR.list = await CLOUD.rpc("list_friends") || [];
     FR.loaded = true; FR.error = ""; FR.lastLoad = Date.now();
   } catch (e) { FR.error = /function|does not exist|404/.test(String(e.message)) ? "Le serveur des amis n’est pas encore prêt (script docs/amis.sql)." : "Connexion impossible pour le moment."; }
