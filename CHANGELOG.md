@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.12.1
+- Nouvelles images des plantes mûres dans les bacs : radis, laitue, pomme de terre, carotte, blé, fraise et les 8 hybrides.
+
 ### 2.12.0
 - Progression rééquilibrée, plus douce que la 2.5 : il faut environ un tiers d’XP en moins par niveau (environ 2 300 XP pour le niveau 9, 9 200 pour le 15, 64 000 pour le 30), les commandes rapportent de nouveau plus d’XP et les succès en donnent les trois quarts de l’origine. Les parties en cours gardent leur niveau.
 
