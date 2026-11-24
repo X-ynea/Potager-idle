@@ -613,7 +613,7 @@ button.herb:active { transform: scale(.97); }
 /* Succès */
 .bag.trophy { color: #c98a16; }
 .title-tag { font-family: var(--f-body); font-size: .68rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 0 7px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
-@media (max-width: 400px) { .title-tag { display: none; } }
+@media (max-width: 400px) { .top .title-tag { display: none; } } /* seulement dans l’en-tête */
 .ach-sum { display: flex; align-items: center; gap: 14px; background: linear-gradient(160deg, #fffaf0, #fff1c9); border: 1px solid #f4c03e; border-radius: 16px; padding: 12px 14px; }
 .ach-sum > div:last-child { flex: 1; display: grid; gap: 4px; }
 .ach-sum b { font-family: var(--f-display); font-size: 1.3rem; color: #8a5a00; }
@@ -1127,3 +1127,16 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .test-ribbon { z-index: 15; } /* sous les fenêtres */
 .friends-sheet > p.small { justify-self: start; max-width: none; }
 .chat-head .btn { font-size: 1.3rem; padding: 0 12px; }
+/* Amis : lignes plus aérées, actions en icônes */
+.fr-row { padding: 10px 12px; gap: 12px; align-items: center; }
+.fr-av { width: 48px; height: 48px; }
+.fr-id { gap: 2px; }
+.fr-id b { font-size: 1rem; }
+.fr-id .title-tag { margin: 0; font-size: .66rem; }
+.fr-acts { gap: 8px; align-items: center; }
+.fr-ico { width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; font-size: 1.05rem; }
+.fr-ico.ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); box-shadow: none; }
+.fr-ico.armed { background: #e2473b; border-color: #e2473b; color: #fff; }
+.fr-acts .btn.sm { padding-inline: 12px; }
+.fr-code { padding: 10px 14px; }
+.fr-code b { font-size: 1.5rem; }
