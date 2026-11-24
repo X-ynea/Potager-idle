@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.2" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.17.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -23,9 +23,12 @@ const xpNeed = l => Math.round(6 * l * l + 30 * l); // 2.12 : courbe adoucie (en
 const xpNeedOld = l => Math.round(15 * Math.pow(l, 1.6)); // ancienne courbe, pour convertir les parties
 const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
-// Vitesse d’une plante : compost, et +25 % pour une plante de saison pendant sa saison.
-const plantSpeed = k => speed() * (inSeason(k) ? SEASON_BONUS : 1);
-const growSpeed = plantSpeed; // vitesse de pousse d’une plante (compost + bonus de saison)
+// Arrosage d'un ami : +20 % de pousse pendant 2 h (un 2ᵉ arrosage prolonge, sans s'additionner).
+const FW_BONUS = .2, FW_MS = 2 * 3600e3;
+const boostedAt = t => (S.friendWater || []).some(w => t >= w.at && t < w.at + FW_MS);
+// Vitesse d’une plante : compost, +25 % pour une plante de saison, +20 % après l'arrosage d'un ami (bonus additionnés).
+const plantSpeed = (k, boost) => speed() * (1 + (inSeason(k) ? SEASON_BONUS - 1 : 0) + (boost ? FW_BONUS : 0));
+const growSpeed = k => plantSpeed(k, boostedAt(now())); // vitesse de pousse actuelle d’une plante
 // Nombre de voisins qui peuvent attendre une commande en même temps (3, puis 4 et 5 avec le Banc des voisins).
 const maxOrders = () => UPG.village.values[S.upg.village || 0];
 const stoves = () => UPG.stove.values[S.upg.stove];
@@ -57,7 +60,7 @@ function fresh() {
   const s = {
     v: 1, xpCurve2: true, xpCurve3: true, xpCurve4: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
-    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null], friendWater: [],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
@@ -106,10 +109,23 @@ function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stri
 
 /* ---------------- Simulation ---------------- */
 const DRY_RATE = .25; // vitesse de pousse quand la terre est sèche
-/* Pousse d'une parcelle jusqu'à t (sert aussi pour le jardin d'un ami en visite). */
+/* Pousse d'une parcelle jusqu'à t (sert aussi pour le jardin d'un ami en visite).
+   Le temps est découpé aux arrosages d'amis : à chaque arrosage, le bac est arrosé et le bonus démarre ou s'arrête. */
 function growPlot(p, t) {
+  const fw = S.friendWater || [];
+  if (fw.length && p.last < t) {
+    const cuts = [];
+    for (const w of fw) for (const x of [w.at, w.at + FW_MS]) if (x > p.last && x < t) cuts.push(x);
+    for (const c of cuts.sort((a, b) => a - b)) {
+      growSeg(p, c);
+      for (const w of fw) if (w.at === c) p.waterUntil = Math.max(p.waterUntil, c + waterMs());
+    }
+  }
+  growSeg(p, t);
+}
+function growSeg(p, t) {
   if (p.seed) {
-    const sp = plantSpeed(p.seed);
+    const sp = plantSpeed(p.seed, boostedAt(p.last));
     const need = PLANTS[p.seed].time * 1000;
     if (p.grown < need && !p.weed) {
       // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
@@ -411,7 +427,7 @@ const A = {
     if (!p || p.seed) return;
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost || !seedBuyable(k)) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
-    Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
+    Object.assign(p, { seed: k, grown: 0, last: t, planted: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
     if (d.tuto) p.waterUntil = t; // la graine de Mamie arrive assoiffée : on apprend à arroser
     if (!d.tuto) S.lastPick = k; PICK.plot = null; tutoFlag("planted");
     // Petit rebond du bouton (la fenêtre reste ouverte et se redessine : l'état est gardé un instant).
@@ -836,6 +852,7 @@ function views_garden() {
     </div>
     <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
     <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
+    ${fwLineHTML(t)}
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
@@ -1191,7 +1208,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1437,7 +1454,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {

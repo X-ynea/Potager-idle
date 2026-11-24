@@ -26,6 +26,7 @@ function visitState(d) {
     decoOff: Array.isArray(d.decoOff) ? d.decoOff : [], decoFlip: Array.isArray(d.decoFlip) ? d.decoFlip : [],
     upg: { water: lvl(d.upg?.water, UPG.water.values.length - 1), fert: lvl(d.upg?.fert, UPG.fert.values.length - 1), auto: lvl(d.upg?.auto, 1) },
     discovered: list(d.discovered), hybrids: list(d.hybrids), goldenFound: list(d.goldenFound), level: Math.max(1, +d.level || 1),
+    friendWater: (Array.isArray(d.waterings) ? d.waterings : []).map(w => ({ id: w.id, at: Math.min(t, Date.parse(w.at) || t), name: w.name || "Un ami", avatar: w.avatar || null, mine: !!w.mine })).sort((a, b) => a.at - b.at),
   };
 }
 
@@ -35,7 +36,7 @@ async function loadVisit() {
   try {
     const d = await CLOUD.rpc("friend_garden", { target: f.user_id });
     if (VISIT.id !== f.id) return;
-    if (d && typeof d === "object") { VISIT.data = visitState(d); VISIT.updated = d.updated_at || null; VISIT.error = ""; }
+    if (d && typeof d === "object") { VISIT.data = visitState(d); VISIT.water = d.water || {}; VISIT.updated = d.updated_at || null; VISIT.error = ""; }
     else { VISIT.data = null; VISIT.error = `${f.name} n’a pas encore de jardin sauvegardé en ligne.`; }
     VISIT.at = Date.now();
   } catch (e) {
@@ -52,7 +53,7 @@ const vPlotLabel = (p, t) => { const st = plotState(p, t); if (st === "empty") r
   const n = PLANTS[p.seed].name; return { ripe: `${n} prêt à récolter`, dry: `${n} a soif`, weed: `${n} envahi`, growing: `${n} en train de pousser` }[st]; };
 const vPlotSig = (p, t) => { const st = plotState(p, t); return st + (p.seed || "") + (p.seed ? plotStage(p) : ""); };
 function vPlotHTML(p, i, t) { const st = plotState(p, t); return st === "empty" ? "" : plotHTML(p, i, t); }
-function visitGardenHTML(t) {
+function visitGardenHTML(t, f) {
   return asFriend(() => {
     S.plots.forEach(p => growPlot(p, t));
     const n = st => S.plots.filter(p => plotState(p, t) === st).length;
@@ -63,6 +64,7 @@ function visitGardenHTML(t) {
     const ago = VISIT.updated ? Math.round((Date.now() - Date.parse(VISIT.updated)) / 60000) : null;
     return `<div class="visit-bar"><p class="visit-sum">${bits.length ? bits.join("") : "<span>Aucune plante en ce moment</span>"}</p>
         <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
+      ${fwLineHTML(t)}${visitWaterHTML(f)}
       <div class="garden visit-garden${deco ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
         <div class="plots">${S.plots.map((p, i) => `<div class="plot ${plotState(p, t)}" data-vplot="${i}" data-sig="${vPlotSig(p, t)}" role="img" aria-label="${vPlotLabel(p, t)}">${vPlotHTML(p, i, t)}</div>`).join("")}</div>${deco}</div>
       ${ago != null ? `<p class="visit-note">Jardin sauvegardé ${ago < 2 ? "à l’instant" : ago < 60 ? `il y a ${ago} min` : ago < 1440 ? `il y a ${Math.round(ago / 60)} h` : `il y a ${Math.round(ago / 1440)} j`} · il continue de pousser pendant ta visite.</p>` : ""}`;
@@ -107,13 +109,13 @@ function viewVisit() {
   let body;
   if (!VISIT.data) body = `<div class="empty-note"><span>${VISIT.error ? esc(VISIT.error) : "On pousse le portillon…"}</span></div>${VISIT.error && !VISIT.loading ? `<button class="btn ghost" data-act="visitReload">Réessayer</button>` : ""}`;
   else body = `<div class="subtabs" style="grid-template-columns:repeat(2,1fr)">${[["garden", "Jardin"], ["herb", "Herbier"]].map(([k, l]) => `<button data-act="visitTab" data-arg="${k}" aria-pressed="${VISIT.tab === k}">${l}</button>`).join("")}</div>
-    ${VISIT.tab === "herb" ? visitHerbHTML(f) : visitGardenHTML(t)}`;
+    ${VISIT.tab === "herb" ? visitHerbHTML(f) : visitGardenHTML(t, f)}`;
   return `<div class="sheet tall visit-sheet" role="dialog" aria-modal="true" aria-label="Jardin de ${esc(f.name)}">
     <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="visitBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>Jardin de ${esc(f.name)}</b><small>Niv. ${VISIT.data?.level || f.level}${f.title ? ` · ${esc(f.title)}` : ""}</small></span></div>
     ${body}</div>`;
 }
 const VISIT_ACTS = {
-  frVisit(id) { VISIT.id = +id; VISIT.tab = "garden"; VISIT.data = null; VISIT.updated = null; VISIT.error = ""; FR.confirm = null; SFX.play("click"); render(true); loadVisit(); },
+  frVisit(id) { VISIT.id = +id; VISIT.tab = "garden"; VISIT.data = null; VISIT.water = null; VISIT.watering = false; VISIT.updated = null; VISIT.error = ""; FR.confirm = null; SFX.play("click"); render(true); loadVisit(); },
   visitTab(t) { VISIT.tab = t; render(true); },
   visitBack() { VISIT.id = null; VISIT.data = null; render(true); },
   visitReload() { VISIT.error = ""; render(true); loadVisit(); },

@@ -19,6 +19,7 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
 - Le jardin continue de pousser pendant la visite, calculé à partir de sa dernière sauvegarde. Rien n'est enregistré.
 - **Anti-spoil** : un hybride que tu n'as pas découvert reste « ??? » chez lui aussi, avec seulement la mention qu'il le connaît.
 - Fonction serveur : `docs/visites.sql` (`friend_garden`).
+- ✅ Fait (v2.16), en plein écran.
 
 ## Étape 2 : arrosage et boîte aux lettres
 
@@ -33,6 +34,7 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
 - Récompense de celui qui arrose : un peu d'XP.
 - **Boîte aux lettres** : élément fixe de l'écran d'accueil, hors des emplacements de déco, avec drapeau et pastille. Courrier en trois parties : Reçus, Envoyés, Nouvelles.
 - Nouvelles images (boîte aux lettres, arrosoir) faites à part, pour ne pas les confondre avec les décos.
+- ✅ Arrosage fait (v2.17) : `docs/arrosage.sql` (à lancer après `visites.sql`). Celui qui arrose gagne 5 + 2 × niveau XP. Un arrosage appris en retard (jeu fermé) est rattrapé : eau et bonus comptés depuis l'heure de l'arrosage. En attendant la boîte aux lettres, l'arrivée d'un arrosage est annoncée par un message à l'ouverture du jeu.
 
 ## Étape 3 : échanges
 
