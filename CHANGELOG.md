@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.12.2
+- Ces plantes mûres sont un peu plus petites et remontées au milieu du bac.
+
 ### 2.12.1
 - Nouvelles images des plantes mûres dans les bacs : radis, laitue, pomme de terre, carotte, blé, fraise et les 8 hybrides.
 
