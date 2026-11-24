@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.14.1
+- Version de test : connexion Discord possible avec un compte de test. Un compte ne peut jamais servir à la fois à une vraie partie et à une partie de test.
+
 ### 2.14.0
 - Version de test publiée à part (dossier /test/), avec sa propre sauvegarde et un bandeau « Version de test ».
 

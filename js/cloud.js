@@ -4,8 +4,11 @@
    régulièrement et récupérée sur les autres appareils. Rien d'autre que la sauvegarde n'est stocké. */
 const CLOUD = (() => {
   const cfg = typeof CLOUD_CONFIG === "object" ? CLOUD_CONFIG : {};
-  const KEY = "potager-cloud";
-  const enabled = () => !!(cfg.url && cfg.anonKey) && !IS_TEST; // pas de synchronisation en version de test
+  const KEY = IS_TEST ? "potager-cloud-test" : "potager-cloud"; // sessions séparées entre version des joueurs et version de test
+  const enabled = () => !!(cfg.url && cfg.anonKey);
+  // Les sauvegardes de la version de test sont marquées : un compte ne sert jamais aux deux versions.
+  const payload = () => IS_TEST ? { ...S, cloudTest: true } : S;
+  let blocked = ""; // compte refusé pour cette version (compte principal en test, ou compte de test sur la version des joueurs)
   let sess = null, busy = false, lastSync = 0, lastError = "", dirty = false;
   try { sess = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
   const keep = () => { try { sess ? localStorage.setItem(KEY, JSON.stringify(sess)) : localStorage.removeItem(KEY); } catch (e) {} };
@@ -40,9 +43,10 @@ const CLOUD = (() => {
   }
   const remote = async () => (await api(`/rest/v1/saves?select=data,updated_at&user_id=eq.${sess.user.id}`))?.[0] || null;
   async function push() {
+    if (blocked) throw new Error(blocked);
     await token();
     await api("/rest/v1/saves?on_conflict=user_id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({ user_id: sess.user.id, data: S, updated_at: new Date(S.last || Date.now()).toISOString() }) });
+      body: JSON.stringify({ user_id: sess.user.id, data: payload(), updated_at: new Date(S.last || Date.now()).toISOString() }) });
     lastSync = Date.now(); dirty = false; lastError = "";
   }
   // Ouverture ou connexion : on compare la partie en ligne et celle de l'appareil.
@@ -52,6 +56,12 @@ const CLOUD = (() => {
     try {
       await token();
       const r = await remote();
+      // Garde-fou : ne jamais mélanger une partie de test et une vraie partie.
+      if (r && !!r.data?.cloudTest !== IS_TEST) {
+        blocked = IS_TEST ? "Ce compte Discord a déjà une vraie partie : utilise un compte de test ici." : "Ce compte Discord sert à la version de test : utilise ton compte principal.";
+        lastError = blocked; busy = false; if (manual) toast(blocked); if (!$("#modal").hidden) render(true); return;
+      }
+      blocked = "";
       const fresh = sess.fresh; if (fresh) { delete sess.fresh; keep(); }
       if (!r) await push();
       else {
@@ -80,21 +90,21 @@ const CLOUD = (() => {
   // Sauvegarde régulière en ligne (et à la fermeture).
   setInterval(() => { if (enabled() && sess?.user && !busy && Date.now() - lastSync > 60e3) push().catch(e => { lastError = String(e.message || e); }); }, 15e3);
   addEventListener("pagehide", () => {
-    if (!enabled() || !sess?.user || Date.now() > sess.expires_at) return;
+    if (!enabled() || !sess?.user || blocked || Date.now() > sess.expires_at) return;
     try { fetch(cfg.url + "/rest/v1/saves?on_conflict=user_id", { method: "POST", keepalive: true, headers: { apikey: cfg.anonKey, Authorization: `Bearer ${sess.access_token}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({ user_id: sess.user.id, data: S, updated_at: new Date(S.last || Date.now()).toISOString() }) }); } catch (e) {}
+      body: JSON.stringify({ user_id: sess.user.id, data: payload(), updated_at: new Date(S.last || Date.now()).toISOString() }) }); } catch (e) {}
   });
   addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
 
   return {
     enabled, sync, push,
     get user() { return sess?.user || null; }, get signedIn() { return !!sess; },
-    get lastSync() { return lastSync; }, get error() { return lastError; },
+    get lastSync() { return lastSync; }, get error() { return lastError; }, get blocked() { return blocked; },
     login() {
       const back = location.origin + location.pathname;
       location.href = `${cfg.url}/auth/v1/authorize?provider=discord&redirect_to=${encodeURIComponent(back)}`;
     },
-    logout() { sess = null; keep(); },
+    logout() { sess = null; blocked = ""; lastError = ""; keep(); },
     async deleteAccount() { await token(); await api("/rest/v1/rpc/delete_me", { method: "POST", body: "{}" }); sess = null; keep(); },
   };
 })();
@@ -104,11 +114,12 @@ function cloudSettingsHTML() {
   const u = CLOUD.user;
   if (!CLOUD.signedIn) return `<div class="set-group"><h3>Compte</h3>
     <p class="small muted" style="margin:0">Facultatif : relie ta partie à ton compte Discord pour la sauvegarder en ligne et la retrouver sur tous tes appareils.</p>
+    ${IS_TEST ? `<p class="cloud-warn">Version de test : connecte-toi avec un <b>compte Discord de test</b>, pas ton compte principal (navigation privée ou autre navigateur).</p>` : ""}
     <button class="btn discord" data-act="cloudLogin">${DISCORD_ICON}Se connecter avec Discord</button>
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
   const ago = CLOUD.lastSync ? Math.max(0, Math.round((Date.now() - CLOUD.lastSync) / 60000)) : null;
   return `<div class="set-group"><h3>Compte</h3>
-    <div class="cloud-user">${u?.avatar ? `<img src="${u.avatar}" alt="">` : `<span class="cloud-ph">${DISCORD_ICON}</span>`}<span><b>${u ? u.name : "Connexion…"}</b><small>${CLOUD.error ? `Synchronisation en attente<br><span class="cloud-err">${CLOUD.error.replace(/[<>&]/g, "")}</span>` : ago == null ? "Synchronisation…" : `Sauvegardé en ligne ${ago < 1 ? "à l’instant" : `il y a ${ago} min`}`}</small></span></div>
+    <div class="cloud-user">${u?.avatar ? `<img src="${u.avatar}" alt="">` : `<span class="cloud-ph">${DISCORD_ICON}</span>`}<span><b>${u ? u.name : "Connexion…"}</b><small>${CLOUD.blocked ? `<span class="cloud-err">${CLOUD.blocked}</span>` : CLOUD.error ? `Synchronisation en attente<br><span class="cloud-err">${CLOUD.error.replace(/[<>&]/g, "")}</span>` : ago == null ? "Synchronisation…" : `Sauvegardé en ligne ${ago < 1 ? "à l’instant" : `il y a ${ago} min`}`}</small></span></div>
     <div class="d-acts"><button class="btn ghost" data-act="cloudSync">Synchroniser</button><button class="btn ghost" data-act="cloudLogout">Se déconnecter</button></div>
     <button class="set-link" data-act="cloudDelete"><span class="ico">🗑️</span><span><b>${UI.cloudDel ? "Toucher encore pour confirmer" : "Supprimer mon compte en ligne"}</b><small>Efface ta sauvegarde en ligne. La partie reste sur cet appareil.</small></span></button>
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
