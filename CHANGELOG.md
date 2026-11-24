@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.14.3
+- Barre du haut : avec un titre affiché, le compteur d’XP n’est plus coupé. Si la place manque, le titre se cache.
+
 ### 2.14.2
 - Compte : se connecter sur un nouvel appareil reprend bien la partie du compte, au lieu de la remplacer par une partie vide.
 
