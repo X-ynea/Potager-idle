@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.17.2-test";
+const APP_VERSION = "2.17.3-test";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -637,19 +637,6 @@ const A = {
   goRecipe(r) { UI.sel.recipes = r; A.goRecipes(); },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
   cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
-  exportSave() {
-    const code = btoa(unescape(encodeURIComponent(JSON.stringify(S))));
-    const fallback = () => { UI.exportCode = code; render(true); const t = $("#save-out"); if (t) { t.focus(); t.select(); } toast("Copie le code affiché, puis colle-le sur ton autre appareil."); };
-    if (!navigator.clipboard) return fallback();
-    navigator.clipboard.writeText(code).then(() => { UI.exportCode = null; render(true); toast("Code copié ! Colle-le sur ton autre appareil, dans Importer une partie."); }, fallback);
-  },
-  toggleImport() { UI.importOpen = !UI.importOpen; render(true); if (UI.importOpen) $("#save-in")?.focus(); },
-  importSave() {
-    try {
-      const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0;
-      S = migrate(s); UI.importOpen = false; applyTheme(); commit(); toast("Partie importée !");
-    } catch (e) { toast("Ce code n’est pas valide. Vérifie qu’il est complet."); }
-  },
   reset() {
     if (!resetArmed) { resetArmed = true; render(true); buzz([20, 60, 20]); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
     resetArmed = false; const keepSettings = S.settings; S = fresh(); S.settings = keepSettings; S.orders = [genOrder(), genOrder()]; closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
@@ -749,8 +736,6 @@ function applyTheme() {
 }
 darkQuery.addEventListener?.("change", () => S && applyTheme());
 const CHEVRON = `<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const ICON_UP = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
-const ICON_DOWN = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
 const ICON_RESET = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4v4h4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function savedAgo() {
   const s = Math.round((now() - (lastSaveAt || S.last || now())) / 1000);
@@ -775,16 +760,9 @@ function viewSettings() {
       <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
     ${cloudSettingsHTML()}
-    <div class="set-group"><h3>Sauvegarde</h3>
-      <div class="set-list">
-        <button class="set-link" data-act="exportSave">${ICON_UP}<span><b>Exporter ma partie</b><small>Copie un code pour continuer sur un autre appareil</small></span>${CHEVRON}</button>
-        ${UI.exportCode ? `<textarea id="save-out" readonly aria-label="Code de sauvegarde">${UI.exportCode}</textarea>` : ""}
-        <button class="set-link" data-act="toggleImport" aria-expanded="${!!UI.importOpen}">${ICON_DOWN}<span><b>Importer une partie</b><small>Colle le code venant d’un autre appareil</small></span>${CHEVRON}</button>
-        ${UI.importOpen ? `<div class="import-box"><textarea id="save-in" placeholder="Colle ton code ici"></textarea><p class="small muted" style="margin:0">Attention : la partie actuelle sera remplacée.</p><button class="btn" data-act="importSave">Importer</button></div>` : ""}
-      </div>
-    </div>
     <div class="set-group danger"><h3>Zone sensible</h3>
       <button class="set-link ${resetArmed ? "armed" : ""}" data-act="reset">${ICON_RESET}<span><b>${resetArmed ? "Touche encore pour tout effacer" : "Recommencer à zéro"}</b><small>${resetArmed ? "Cette action est définitive" : "Efface toute ta progression (tes réglages sont gardés)"}</small></span></button>
+      ${typeof cloudDangerHTML === "function" ? cloudDangerHTML() : ""}
     </div>
     <div class="set-group"><h3>À propos</h3>
       <button class="btn ghost" data-act="checkUpdate">Vérifier les mises à jour</button>
@@ -1345,7 +1323,7 @@ function openModal() {
 }
 let modalView = null;
 function closeModal(fromBack) {
-  modalView = null; UI.importOpen = false; UI.exportCode = null;
+  modalView = null;
   if ($("#modal").hidden) return;
   $("#modal").hidden = true; $("#modal").innerHTML = "";
   if (!fromBack && history.state && history.state.modal) history.back();
