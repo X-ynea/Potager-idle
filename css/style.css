@@ -1158,3 +1158,14 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .pf-name-btn { display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 2px 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; min-width: 0; }
 .pf-name-btn b { font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pf-edit.inline { position: static; width: 24px; height: 24px; flex: none; }
+/* Écran de connexion obligatoire */
+#gate { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px;
+  background: var(--bg) url("../assets/img/bg-garden.webp") center / 420px repeat; }
+#gate::before { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+.gate-card { position: relative; width: min(100%, 420px); display: grid; gap: 12px; justify-items: center; text-align: center;
+  background: var(--panel); border-radius: 26px; padding: 26px 22px 20px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
+.gate-logo { width: 84px; height: 84px; }
+.gate-card h1 { margin: 0; font-family: var(--f-display); font-size: 1.8rem; color: var(--leaf-deep); }
+.gate-card p { margin: 0; }
+.gate-note { color: var(--leaf-deep); font-weight: 700; }
+.gate-card .btn.big { width: 100%; }

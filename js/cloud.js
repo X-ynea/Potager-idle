@@ -67,13 +67,16 @@ const CLOUD = (() => {
       else {
         const rs = r.data, rt = Date.parse(r.updated_at) || 0, lt = S.last || 0;
         const same = rs && rs.level === S.level && rs.xp === S.xp && rs.coins === S.coins;
+        const progress = x => (x?.stats?.harvest || 0) > 0 || (x?.level || 1) > 1;
         if (same) lastSync = Date.now();
-        else if (fresh && (S.stats?.harvest || 0) > 0) askChoice(rs);            // 1ʳᵉ connexion avec deux parties : on demande
+        else if (!progress(S)) useRemote(rs);                                     // appareil sans partie : on reprend celle du compte
+        else if (fresh && progress(rs)) askChoice(rs);            // 1ʳᵉ connexion avec deux parties : on demande
         else if (rt > lt + 5000) useRemote(rs);                                     // la partie en ligne est plus récente
         else await push();                                                          // celle de l'appareil est plus récente
       }
       lastError = "";
       if (manual) toast("Partie synchronisée.");
+      showGate();
     } catch (e) { lastError = String(e.message || e); if (manual) toast("Synchronisation impossible pour le moment."); }
     busy = false; if (typeof render === "function" && !$("#modal").hidden) render(true);
   }
@@ -104,7 +107,13 @@ const CLOUD = (() => {
       const back = location.origin + location.pathname;
       location.href = `${cfg.url}/auth/v1/authorize?provider=discord&redirect_to=${encodeURIComponent(back)}`;
     },
-    logout() { sess = null; blocked = ""; lastError = ""; keep(); },
+    // Déconnexion : dernière sauvegarde en ligne, puis la partie quitte l'appareil (écran de connexion).
+    async logout() {
+      if (sess?.user && !blocked) { try { await push(); } catch (e) {} }
+      sess = null; blocked = ""; lastError = ""; keep();
+      try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+      S = fresh(); closeModal(); render(true); showGate();
+    },
     // Appel d'une fonction serveur (amis…). Renvoie son résultat.
     async rpc(name, args = {}) { if (!enabled() || !sess) throw new Error("non connecté"); await token(); return api(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(args) }); },
     async deleteAccount() { await token(); await api("/rest/v1/rpc/delete_me", { method: "POST", body: "{}" }); sess = null; keep(); },
@@ -130,7 +139,8 @@ const DISCORD_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cu
 const CLOUD_ACTS = {
   cloudLogin() { CLOUD.login(); },
   cloudSync() { CLOUD.sync(true); },
-  cloudLogout() { CLOUD.logout(); toast("Déconnecté. Ta partie reste sur cet appareil."); render(true); },
+  async cloudLogout() { await CLOUD.logout(); },
+  async gateSwitch() { await CLOUD.logout(); },
   async cloudDelete() {
     if (!UI.cloudDel) { UI.cloudDel = true; render(true); setTimeout(() => { UI.cloudDel = false; }, 5000); return; }
     UI.cloudDel = false;
@@ -144,3 +154,23 @@ const CLOUD_ACTS = {
     CLOUD._choice = null; render(true);
   },
 };
+
+/* Écran de connexion : un compte Discord est nécessaire pour jouer (quand les comptes sont activés). */
+function showGate() {
+  let g = document.getElementById("gate");
+  const need = CLOUD.enabled() && (!CLOUD.signedIn || CLOUD.blocked);
+  if (!need) { g?.remove(); return; }
+  if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
+  g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
+  const hasLocal = !CLOUD.signedIn && typeof S !== "undefined" && ((S.stats?.harvest || 0) > 0 || S.level > 1);
+  g.innerHTML = `<div class="gate-card" role="dialog" aria-modal="true" aria-label="Connexion">
+    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <h1>Potager idle</h1>
+    ${CLOUD.blocked ? `<p class="cloud-warn">${CLOUD.blocked}</p><button class="btn discord big" data-act="gateSwitch">${DISCORD_ICON}Changer de compte</button>`
+      : `<p>Connecte-toi avec Discord pour jouer : ta partie est sauvegardée en ligne et te suit sur tous tes appareils.</p>
+    ${hasLocal ? `<p class="small gate-note">Ta partie actuelle (niveau ${S.level}) sera reliée à ton compte.</p>` : ""}
+    ${IS_TEST ? `<p class="cloud-warn">Version de test : utilise un compte Discord de test.</p>` : ""}
+    <button class="btn discord big" data-act="cloudLogin">${DISCORD_ICON}Se connecter avec Discord</button>`}
+    <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a>
+  </div>`;
+}

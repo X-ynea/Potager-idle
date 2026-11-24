@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.15.5-test";
+const APP_VERSION = "2.16.0-test";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1427,6 +1427,7 @@ function start() {
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
   if (S.hybRefundMsg) { const m = S.hybRefundMsg; delete S.hybRefundMsg; toast(`Recette${m.length > 1 ? "s" : ""} remboursée${m.length > 1 ? "s" : ""} : <b>${m.join(", ")}</b>. Découvre d’abord l’hybride à la Serre pour l’apprendre.`, 7000); save(); }
   CLOUD.sync(); // compte en ligne : récupère ou envoie la partie
+  showGate(); // sans compte : écran de connexion
   // Première visite : c’est Mamie Lapine qui accueille (js/tuto.js).
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);
