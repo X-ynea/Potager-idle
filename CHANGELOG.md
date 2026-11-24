@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.12.3
+- Plantes mûres (sauf les salades) encore un peu remontées dans le bac.
+
 ### 2.12.2
 - Ces plantes mûres sont un peu plus petites et remontées au milieu du bac.
 
