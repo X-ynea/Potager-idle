@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.14.2
+- Compte : se connecter sur un nouvel appareil reprend bien la partie du compte, au lieu de la remplacer par une partie vide.
+
 ### 2.14.1
 - Version de test : connexion Discord possible avec un compte de test. Un compte ne peut jamais servir à la fois à une vraie partie et à une partie de test.
 
