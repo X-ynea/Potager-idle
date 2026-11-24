@@ -105,6 +105,8 @@ const CLOUD = (() => {
       location.href = `${cfg.url}/auth/v1/authorize?provider=discord&redirect_to=${encodeURIComponent(back)}`;
     },
     logout() { sess = null; blocked = ""; lastError = ""; keep(); },
+    // Appel d'une fonction serveur (amis…). Renvoie son résultat.
+    async rpc(name, args = {}) { if (!enabled() || !sess) throw new Error("non connecté"); await token(); return api(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(args) }); },
     async deleteAccount() { await token(); await api("/rest/v1/rpc/delete_me", { method: "POST", body: "{}" }); sess = null; keep(); },
   };
 })();
