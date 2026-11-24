@@ -37,7 +37,6 @@ function viewProfile() {
         <span class="pf-sub">Niveau ${S.level}${S.title ? ` · <span class="title-tag">${S.title}</span>` : ""}</span>
       </div>
     </div>
-    ${FRIENDS_ON ? `<button class="set-link fr-open" data-act="openFriends"><span class="ico fr-ico-people">${FR_ICONS.people}</span><span><b>Mes amis</b><small>${FR.loaded ? `${FR.list.filter(f => f.direction === "friend").length} ami${FR.list.filter(f => f.direction === "friend").length > 1 ? "s" : ""}${unreadTotal() ? ` · ${unreadTotal()} message${unreadTotal() > 1 ? "s" : ""}` : ""}${incoming().length ? ` · ${incoming().length} demande${incoming().length > 1 ? "s" : ""} reçue${incoming().length > 1 ? "s" : ""}` : ""}` : "Code ami, demandes, messages"}</small></span>${incoming().length + unreadTotal() ? `<span class="fr-badge">${incoming().length + unreadTotal()}</span>` : ""}</button>` : ""}
     ${pick === "avatar" ? `<div class="set-group"><h3>Photo de profil</h3>
       <div class="pf-grid">
         <label class="pf-opt upload"><input type="file" accept="image/*" data-file="avatar" hidden><span>+</span><small>Ma photo</small></label>
@@ -99,7 +98,7 @@ function updateBrand() {
   const src = avatarSrc(), img = b.querySelector("img");
   if (img && img.getAttribute("src") !== src) img.setAttribute("src", src);
   b.classList.toggle("has-avatar", !!profile().avatar && profile().avatar !== "leaf" || (!profile().avatar && !!discordUser()?.avatar));
-  b.classList.toggle("has-req", FRIENDS_ON && (FR.list.some(f => f.direction === "in") || unreadTotal() > 0)); // demande ou message reçu
+  b.classList.remove("has-req"); // demandes et messages : badge sur l’onglet « Amis »
   b.setAttribute("aria-label", `Profil de ${profileName()}`);
 }
 const PROFILE_ACTS = {
