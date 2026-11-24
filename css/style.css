@@ -1152,3 +1152,5 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .sheet.profile-sheet, .sheet.friends-sheet, .sheet.chat-sheet { height: 85dvh; align-content: start; } /* profil, amis et messages : même hauteur */
 .sheet.chat-sheet { grid-template-rows: auto auto 1fr auto; align-content: stretch; } /* poignée, en-tête, messages, saisie */
 .chat-body { min-height: 0; }
+/* Hauteur fixe : les blocs gardent leur taille (le contenu défile au lieu d'être écrasé) */
+.sheet.profile-sheet, .sheet.friends-sheet { grid-auto-rows: max-content; }
