@@ -115,8 +115,8 @@ function viewVisit() {
     ${body}</div>`;
 }
 const VISIT_ACTS = {
-  frVisit(id) { VISIT.id = +id; VISIT.tab = "garden"; VISIT.data = null; VISIT.water = null; VISIT.watering = false; VISIT.updated = null; VISIT.error = ""; FR.confirm = null; SFX.play("click"); render(true); loadVisit(); },
+  frVisit(id) { VISIT.id = +id; VISIT.tab = "garden"; VISIT.data = null; VISIT.water = null; VISIT.watering = false; VISIT.updated = null; VISIT.error = ""; FR.confirm = null; FR.chat = null; SFX.play("click"); friendsOver(); loadVisit(); },
   visitTab(t) { VISIT.tab = t; render(true); },
-  visitBack() { VISIT.id = null; VISIT.data = null; render(true); },
+  visitBack() { VISIT.id = null; VISIT.data = null; if (FR.fromTab) closeModal(); else render(true); },
   visitReload() { VISIT.error = ""; render(true); loadVisit(); },
 };

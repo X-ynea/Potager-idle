@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.17.0" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.18.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1203,7 +1203,7 @@ function views_village() {
 }
 
 /* ---------------- Render loop ---------------- */
-const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
+const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village, friends: views_friends };
 let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
@@ -1213,6 +1213,7 @@ function sig(t) {
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
+    case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, CLOUD.signedIn, CLOUD.blocked]);
   }
 }
 /* Remplace les enfants de « live » par ceux de « fresh », sauf « keep » qui reste en place. */
@@ -1285,7 +1286,7 @@ function live(t) {
   const kN = S.cooking.filter(c => c.end <= t).length;
   const lN = S.lab && S.lab.end <= t ? 1 : 0;
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
-  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN);
+  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal());
   // Barre de progression sur les onglets Cuisine et Serre pendant une préparation.
   const running = S.cooking.filter(c => c.end > t).map(c => ({ end: c.end, d: RECIPES[c.r].time * 1000 }));
   const next = running.sort((a, b) => a.end - b.end)[0];

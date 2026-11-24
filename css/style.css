@@ -1256,3 +1256,10 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .btn.fw-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; background: #e3f2fc; color: #1f6aa5; border: 1.5px solid #7cc4f2; box-shadow: none; }
 .btn.fw-btn:disabled { opacity: .55; filter: grayscale(.6); }
 .fw-ico { width: 26px; height: 26px; flex: none; }
+/* Onglet « Amis » : 6 onglets en bas */
+.tabs.six { grid-template-columns: repeat(6, 1fr); gap: 2px; }
+.tabs.six .tab { font-size: .7rem; }
+.friends-page { display: grid; gap: 12px; }
+.friends-page h2 { margin: 0; }
+.fr-head { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.fr-head:active { transform: scale(.98); }
