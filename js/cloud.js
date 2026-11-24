@@ -5,7 +5,7 @@
 const CLOUD = (() => {
   const cfg = typeof CLOUD_CONFIG === "object" ? CLOUD_CONFIG : {};
   const KEY = "potager-cloud";
-  const enabled = () => !!(cfg.url && cfg.anonKey);
+  const enabled = () => !!(cfg.url && cfg.anonKey) && !IS_TEST; // pas de synchronisation en version de test
   let sess = null, busy = false, lastSync = 0, lastError = "", dirty = false;
   try { sess = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
   const keep = () => { try { sess ? localStorage.setItem(KEY, JSON.stringify(sess)) : localStorage.removeItem(KEY); } catch (e) {} };

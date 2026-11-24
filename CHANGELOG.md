@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.14.0
+- Version de test publiée à part (dossier /test/), avec sa propre sauvegarde et un bandeau « Version de test ».
+
 ### 2.13.3
 - Succès caché « Patience » : il se débloque dès qu’une plante est restée mûre 24 h, sans attendre de la récolter, et compte aussi les plantes mûres d’anciennes sauvegardes.
 

@@ -1,0 +1,49 @@
+# Publication GitHub Pages : la branche main à la racine (version des joueurs),
+# la branche test dans le dossier /test/ (version de test).
+# Réglage requis : Settings › Pages › Source : « GitHub Actions ».
+name: Publication du site
+
+on:
+  push:
+    branches: [main, test]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Version des joueurs (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: _site
+      - name: Version de test (branche test, si elle existe)
+        run: |
+          if git ls-remote --exit-code --heads "https://github.com/${GITHUB_REPOSITORY}.git" test; then
+            git clone --depth 1 --branch test "https://github.com/${GITHUB_REPOSITORY}.git" _site/test
+          fi
+      - name: Nettoyage
+        run: rm -rf _site/.git _site/test/.git _site/assets/raw _site/test/assets/raw _site/.github _site/test/.github
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

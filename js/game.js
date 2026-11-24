@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.13.3";
+const APP_VERSION = "2.14.0";
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -49,7 +49,7 @@ const seasonNote = k => { const d = PLANTS[k]; if (!d?.season) return ""; const 
   return `Plante ${z.of} : pousse 25 % plus vite ${d.season === "ete" ? "l’été" : d.season === "hiver" ? "l’hiver" : d.season === "automne" ? "l’automne" : "au printemps"}${d.only ? `. Graines vendues seulement à cette saison` : ""}.`; };
 
 /* ---------------- State ---------------- */
-const SAVE_KEY = "petit-potager-v1";
+const SAVE_KEY = IS_TEST ? "petit-potager-test" : "petit-potager-v1"; // la version de test a sa propre sauvegarde
 let S;
 function fresh() {
   const t = now();
