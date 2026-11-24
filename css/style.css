@@ -1149,6 +1149,6 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .fr-ico svg { width: 20px; height: 20px; }
 .fr-ico-people { color: var(--leaf-deep); }
 .fr-ico-people svg { width: 22px; height: 22px; }
-.sheet.friends-sheet, .sheet.chat-sheet { height: 75dvh; align-content: start; }
+.sheet.profile-sheet, .sheet.friends-sheet, .sheet.chat-sheet { height: 85dvh; align-content: start; } /* profil, amis et messages : même hauteur */
 .sheet.chat-sheet { grid-template-rows: auto auto 1fr auto; align-content: stretch; } /* poignée, en-tête, messages, saisie */
 .chat-body { min-height: 0; }
