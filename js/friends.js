@@ -4,7 +4,7 @@ const FR_ICONS = {"copy": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect
    Code ami à 5 caractères, recherche par code ou par pseudo, demandes envoyées et reçues,
    liste d'amis et page de discussion (messages à venir). Tout passe par les fonctions serveur
    de docs/amis.sql : on ne voit jamais la sauvegarde des autres joueurs, seulement leur profil public. */
-const FR = { list: [], code: "", loaded: false, loading: false, error: "", tab: "friends", results: null, searching: false, q: "", chat: null, confirm: null, lastLoad: 0 };
+const FR = { msgs: {}, unread: {}, msgSel: null, blockConfirm: false, sending: false, list: [], code: "", loaded: false, loading: false, error: "", tab: "friends", results: null, searching: false, q: "", chat: null, confirm: null, lastLoad: 0 };
 
 // Photo publique : portrait de voisin, photo importée réduite (64 px) ou photo Discord.
 let pubAvatarCache = { src: null, out: null };
@@ -43,7 +43,7 @@ function friendRow(f) {
   const head = `<span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b>${f.title ? `<span class="title-tag">${esc(f.title)}</span>` : ""}<small>Niv. ${f.level} · ${f.direction === "friend" ? seenAgo(f.last_seen) : "code " + esc(f.code)}</small></span>`;
   if (f.direction === "in") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn sm" data-act="frRespond" data-arg="${f.id}:1">Accepter</button><button class="btn ghost sm" data-act="frRespond" data-arg="${f.id}:0">Refuser</button></span></div>`;
   if (f.direction === "out") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn ghost sm" data-act="frRemove" data-arg="${f.id}">Annuler</button></span></div>`;
-  return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn fr-ico" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}</button><button class="btn fr-ico ghost${FR.confirm === f.id ? " armed" : ""}" data-act="frRemove" data-arg="${f.id}" aria-label="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer cet ami"}" title="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer"}">${FR.confirm === f.id ? "?" : "✕"}</button></span></div>`;
+  return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn fr-ico fr-chat-btn" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}${FR.unread[f.user_id] ? `<span class="fr-badge">${FR.unread[f.user_id]}</span>` : ""}</button><button class="btn fr-ico ghost${FR.confirm === f.id ? " armed" : ""}" data-act="frRemove" data-arg="${f.id}" aria-label="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer cet ami"}" title="${FR.confirm === f.id ? "Toucher encore pour retirer" : "Retirer"}">${FR.confirm === f.id ? "?" : "✕"}</button></span></div>`;
 }
 function viewFriends() {
   const shell = body => `<div class="sheet tall friends-sheet" role="dialog" aria-modal="true" aria-label="Amis">
@@ -71,13 +71,50 @@ function viewFriends() {
     ${FR.error ? `<p class="cloud-warn">${esc(FR.error)}</p>` : ""}${body}`);
 }
 // Page de discussion avec un ami (les messages arriveront dans une prochaine version).
+const timeOf = iso => { const d = new Date(iso), now = new Date(); const hm = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return d.toDateString() === now.toDateString() ? hm : `${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} · ${hm}`; };
 function viewChat() {
   const f = FR.list.find(x => x.id === FR.chat); if (!f) return viewFriends();
+  const msgs = FR.msgs[f.user_id];
+  const bubbles = msgs == null ? `<div class="empty-note"><span>Chargement…</span></div>`
+    : !msgs.length ? `<div class="empty-note"><span>Aucun message pour l’instant.<br>Dis bonjour à ${esc(f.name)} ! 🌱</span></div>`
+    : msgs.map(m => { const mine = m.sender !== f.user_id;
+        return `<div class="msg ${mine ? "mine" : "theirs"}"><button class="bubble" ${mine ? `data-act="msgSel" data-arg="${m.id}"` : "disabled"}>${esc(m.body)}</button>
+          <span class="msg-meta">${timeOf(m.created_at)}${mine && FR.msgSel === m.id ? ` · <button class="msg-del" data-act="msgDel" data-arg="${m.id}">Supprimer</button>` : ""}</span></div>`; }).join("");
   return `<div class="sheet tall chat-sheet" role="dialog" aria-modal="true" aria-label="Messages avec ${esc(f.name)}">
-    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span></div>
-    <div class="chat-body"><div class="empty-note"><span>Les messages arrivent bientôt 🌱<br>Tu pourras bientôt écrire à ${esc(f.name)} ici.</span></div></div>
-    <div class="chat-input"><input placeholder="Écrire un message…" disabled><button class="btn" disabled>Envoyer</button></div></div>`;
+    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span>
+      <button class="btn ghost sm chat-block${FR.blockConfirm ? " armed" : ""}" data-act="frBlock" data-arg="${f.user_id}">${FR.blockConfirm ? "Confirmer ?" : "Bloquer"}</button></div>
+    <div class="chat-body" id="chat-body">${bubbles}</div>
+    <form class="chat-input" data-form="msgSend"><input id="msg-in" maxlength="500" placeholder="Écrire à ${esc(f.name)}…" autocomplete="off" enterkeyhint="send"><button class="btn" type="submit" ${FR.sending ? "disabled" : ""}>Envoyer</button></form></div>`;
 }
+// Messages : chargement de la conversation ouverte, et des non lus, toutes les 30 secondes.
+const chatFriend = () => FR.list.find(x => x.id === FR.chat);
+function scrollChat(force) { const b = document.getElementById("chat-body"); if (b && (force || b.scrollHeight - b.scrollTop - b.clientHeight < 120)) b.scrollTop = b.scrollHeight; }
+async function loadMessages(force) {
+  const f = chatFriend(); if (!f || !friendsReady()) return;
+  const cur = FR.msgs[f.user_id], after = cur?.length ? cur[cur.length - 1].id : 0;
+  try {
+    const rows = (await CLOUD.rpc("list_messages", { other: f.user_id, after: force ? 0 : after }) || []).reverse();
+    FR.msgs[f.user_id] = force || !cur ? rows : cur.concat(rows);
+    if (FR.unread[f.user_id]) { FR.unread[f.user_id] = 0; updateBrand?.(); }
+    if (rows.length || force || !cur) { render(true); scrollChat(force || !cur); }
+  } catch (e) { FR.error = "Messages indisponibles pour le moment."; }
+}
+async function loadUnread() {
+  if (!friendsReady() || !FR.loaded) return;
+  try { const rows = await CLOUD.rpc("unread_counts") || []; const u = {}; rows.forEach(r => { u[r.user_id] = r.n; }); const ch = JSON.stringify(u) !== JSON.stringify(FR.unread); FR.unread = u; if (ch) { updateBrand?.(); if (!$("#modal").hidden && FR.chat == null) render(true); } } catch (e) {}
+}
+const unreadTotal = () => Object.values(FR.unread).reduce((a, b) => a + b, 0);
+setInterval(() => { if (!friendsReady() || document.hidden) return; if (FR.chat != null && !$("#modal").hidden) loadMessages(); loadUnread(); }, 30e3);
+addEventListener("load", () => setTimeout(loadUnread, 4000));
+document.addEventListener("submit", async ev => {
+  if (ev.target.dataset?.form !== "msgSend") return; ev.preventDefault();
+  const f = chatFriend(), input = $("#msg-in"), body = input.value.trim(); if (!f || !body || FR.sending) return;
+  FR.sending = true; input.value = "";
+  try { const r = await CLOUD.rpc("send_message", { target: f.user_id, body }); FR.msgs[f.user_id] = (FR.msgs[f.user_id] || []).concat(r || []); SFX.play("click"); }
+  catch (e) { input.value = body; toast(/pas ami/.test(e.message) ? "Tu ne peux écrire qu’à tes amis." : "Message non envoyé, réessaie."); }
+  FR.sending = false; render(true); scrollChat(true); $("#msg-in")?.focus();
+});
 const openFriends = () => { modalView = () => FR.chat != null ? viewChat() : viewFriends(); $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
 document.addEventListener("submit", async ev => {
   if (ev.target.dataset?.form !== "frSearch") return; ev.preventDefault();
@@ -109,6 +146,17 @@ const FRIENDS_ACTS = {
     try { await CLOUD.rpc("remove_friendship", { fid: +id }); } catch (e) { toast("Action impossible pour le moment."); }
     loadFriends(true);
   },
-  frChat(id) { FR.chat = +id; render(true); },
-  frBack() { FR.chat = null; render(true); },
+  frChat(id) { FR.chat = +id; FR.msgSel = null; FR.blockConfirm = false; render(true); loadMessages(true); },
+  frBack() { FR.chat = null; FR.msgSel = null; FR.blockConfirm = false; render(true); },
+  msgSel(id) { FR.msgSel = FR.msgSel === +id ? null : +id; render(true); },
+  async msgDel(id) {
+    const f = chatFriend(); try { await CLOUD.rpc("delete_message", { mid: +id }); if (f) FR.msgs[f.user_id] = (FR.msgs[f.user_id] || []).filter(m => m.id !== +id); } catch (e) { toast("Suppression impossible pour le moment."); }
+    FR.msgSel = null; render(true);
+  },
+  async frBlock(uid) {
+    if (!FR.blockConfirm) { FR.blockConfirm = true; render(true); toast("Bloquer retire cet ami, efface la conversation et empêche tout nouveau contact."); setTimeout(() => { if (FR.blockConfirm) { FR.blockConfirm = false; render(true); } }, 5000); return; }
+    FR.blockConfirm = false;
+    try { await CLOUD.rpc("block_user", { target: uid }); delete FR.msgs[uid]; FR.chat = null; toast("Joueur bloqué."); } catch (e) { toast("Blocage impossible pour le moment."); }
+    loadFriends(true);
+  },
 };
