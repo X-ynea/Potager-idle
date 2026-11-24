@@ -61,3 +61,12 @@ Envoie-moi la **Project URL** et la clé **anon public** (elles sont publiques, 
 
 - Projet : `https://gsicckbnwypcpxlokwjl.supabase.co` (configuré dans `js/cloud-config.js`).
 - Les sauvegardes sont visibles dans Supabase, **Table Editor › saves** (une ligne par joueur connecté).
+
+## Amis (v3, en test)
+
+Lancer **`docs/amis.sql`** dans *SQL Editor* (une fois, peut être relancé sans risque). Il crée :
+- `profiles` : le profil public de chaque joueur (code ami, pseudo, petite photo, titre, niveau) — jamais la sauvegarde ;
+- `friendships` : les demandes et les amitiés ;
+- les fonctions `upsert_profile`, `search_players`, `send_friend_request`, `respond_friend_request`, `remove_friendship`, `list_friends`.
+
+Les comptes de la version de test ne voient que les comptes de test, et inversement.

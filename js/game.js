@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.14.4";
+const APP_VERSION = "2.15.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -387,7 +387,7 @@ function genOrder() {
 }
 
 /* ---------------- Actions ---------------- */
-let tab = "garden", msub = "seeds", labSel = [null, null], resetArmed = false;
+let tab = "garden", msub = "seeds", labSel = [null, null];
 const A = {
   tab(arg) { tab = arg; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
@@ -532,6 +532,7 @@ const A = {
   toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
   // Toucher le tri actif le retire : retour à l’ordre de base.
   setSort(arg) { const [c, m] = arg.split(":"); const cur = (S.settings.sort || {})[c]; S.settings.sort = { ...(S.settings.sort || {}), [c]: cur === m ? "none" : m }; commit(); },
+  hideInstall() { S.settings.hideInstall = true; commit(); toast("D’accord ! Tu pourras toujours l’installer depuis les réglages."); },
   toggleDecoEdit() { UI.editDeco = !UI.editDeco; render(true); },
   decoPick(i) {
     if (!UI.editDeco && !S.decoSlots[+i]) return; modalView = () => viewDecoPick(+i); $("#modal").innerHTML = modalView(); openModal();
@@ -636,23 +637,22 @@ const A = {
   goRecipe(r) { UI.sel.recipes = r; A.goRecipes(); },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
   cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
-  exportSave() {
-    const code = btoa(unescape(encodeURIComponent(JSON.stringify(S))));
-    const fallback = () => { UI.exportCode = code; render(true); const t = $("#save-out"); if (t) { t.focus(); t.select(); } toast("Copie le code affiché, puis colle-le sur ton autre appareil."); };
-    if (!navigator.clipboard) return fallback();
-    navigator.clipboard.writeText(code).then(() => { UI.exportCode = null; render(true); toast("Code copié ! Colle-le sur ton autre appareil, dans Importer une partie."); }, fallback);
+  dangerOpen(k) { UI.danger = k; modalView = viewDanger; render(true); setTimeout(() => $("#danger-in")?.focus(), 50); },
+  dangerCancel() { UI.danger = null; modalView = viewSettings; render(true); },
+  async dangerGo() {
+    const k = UI.danger, d = DANGER[k], i = $("#danger-in");
+    if (!d || !i || norm(i.value) !== d.word) return;
+    UI.danger = null; buzz([20, 60, 20]);
+    if (k === "reset") {
+      const keep = { settings: S.settings, profile: S.profile }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
+      closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
+      if (typeof CLOUD !== "undefined" && CLOUD.signedIn) { try { await CLOUD.push(); } catch (e) {} } // la sauvegarde en ligne suit tout de suite
+    } else {
+      closeModal();
+      try { await CLOUD.deleteAccount(); toast("Compte en ligne supprimé."); showGate(); } catch (e) { toast("Suppression impossible pour le moment."); }
+    }
   },
-  toggleImport() { UI.importOpen = !UI.importOpen; render(true); if (UI.importOpen) $("#save-in")?.focus(); },
-  importSave() {
-    try {
-      const s = JSON.parse(decodeURIComponent(escape(atob($("#save-in").value.trim())))); if (!s.plots) throw 0;
-      S = migrate(s); UI.importOpen = false; applyTheme(); commit(); toast("Partie importée !");
-    } catch (e) { toast("Ce code n’est pas valide. Vérifie qu’il est complet."); }
-  },
-  reset() {
-    if (!resetArmed) { resetArmed = true; render(true); buzz([20, 60, 20]); setTimeout(() => { resetArmed = false; render(true); }, 5000); return; }
-    resetArmed = false; const keepSettings = S.settings; S = fresh(); S.settings = keepSettings; S.orders = [genOrder(), genOrder()]; closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
-  },
+
 };
 function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
@@ -748,8 +748,6 @@ function applyTheme() {
 }
 darkQuery.addEventListener?.("change", () => S && applyTheme());
 const CHEVRON = `<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const ICON_UP = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
-const ICON_DOWN = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
 const ICON_RESET = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4v4h4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function savedAgo() {
   const s = Math.round((now() - (lastSaveAt || S.last || now())) / 1000);
@@ -774,16 +772,9 @@ function viewSettings() {
       <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
     ${cloudSettingsHTML()}
-    <div class="set-group"><h3>Sauvegarde</h3>
-      <div class="set-list">
-        <button class="set-link" data-act="exportSave">${ICON_UP}<span><b>Exporter ma partie</b><small>Copie un code pour continuer sur un autre appareil</small></span>${CHEVRON}</button>
-        ${UI.exportCode ? `<textarea id="save-out" readonly aria-label="Code de sauvegarde">${UI.exportCode}</textarea>` : ""}
-        <button class="set-link" data-act="toggleImport" aria-expanded="${!!UI.importOpen}">${ICON_DOWN}<span><b>Importer une partie</b><small>Colle le code venant d’un autre appareil</small></span>${CHEVRON}</button>
-        ${UI.importOpen ? `<div class="import-box"><textarea id="save-in" placeholder="Colle ton code ici"></textarea><p class="small muted" style="margin:0">Attention : la partie actuelle sera remplacée.</p><button class="btn" data-act="importSave">Importer</button></div>` : ""}
-      </div>
-    </div>
     <div class="set-group danger"><h3>Zone sensible</h3>
-      <button class="set-link ${resetArmed ? "armed" : ""}" data-act="reset">${ICON_RESET}<span><b>${resetArmed ? "Touche encore pour tout effacer" : "Recommencer à zéro"}</b><small>${resetArmed ? "Cette action est définitive" : "Efface toute ta progression (tes réglages sont gardés)"}</small></span></button>
+      <button class="set-link" data-act="dangerOpen" data-arg="reset">${ICON_RESET}<span><b>Recommencer à zéro</b><small>Efface ta progression, ton compte est gardé</small></span></button>
+      ${typeof cloudDangerHTML === "function" ? cloudDangerHTML() : ""}
     </div>
     <div class="set-group"><h3>À propos</h3>
       <button class="btn ghost" data-act="checkUpdate">Vérifier les mises à jour</button>
@@ -791,6 +782,38 @@ function viewSettings() {
     </div>
   </div>`;
 }
+
+/* Confirmation des actions définitives : ce qui part, ce qui reste, et un mot à écrire. */
+const norm = v => v.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const DANGER = {
+  reset: { title: "Recommencer à zéro", word: "RECOMMENCER", btn: "Tout recommencer",
+    lost: () => ["Ton niveau, ton XP et tes pièces", "Tes bacs, graines, récoltes et plats", "Tes hybrides, recettes, décorations et améliorations", "Tes succès et tes titres"],
+    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? [FRIENDS_ON ? "Ton compte Discord, tes amis et tes messages" : "Ton compte Discord"] : [])],
+    note: "Ta sauvegarde en ligne est remplacée par la nouvelle partie." },
+  account: { title: "Supprimer mon compte", word: "SUPPRIMER", btn: "Supprimer mon compte",
+    lost: () => FRIENDS_ON ? ["Ta sauvegarde en ligne", "Ton profil visible par tes amis et ton code ami", "Tes amis, tes demandes et tes messages", "Les joueurs que tu as bloqués"] : ["Ta sauvegarde en ligne", "Ton lien avec ton compte Discord"],
+    kept: () => ["La partie sur cet appareil"],
+    note: "Tu devras te reconnecter avec Discord pour continuer à jouer : un nouveau compte sera créé avec ta partie." },
+};
+function viewDanger() {
+  const d = DANGER[UI.danger]; if (!d) return viewSettings();
+  return `<div class="sheet danger-sheet" role="dialog" aria-modal="true" aria-label="${d.title}">
+    <div class="sheet-head"><h2>${d.title}</h2><button class="btn ghost sm" data-act="dangerCancel">Annuler</button></div>
+    <div class="dz-cols">
+      <div class="dz-box lost"><h3>Supprimé</h3><ul>${d.lost().map(x => `<li>${x}</li>`).join("")}</ul></div>
+      <div class="dz-box kept"><h3>Gardé</h3><ul>${d.kept().map(x => `<li>${x}</li>`).join("")}</ul></div>
+    </div>
+    <p class="small muted" style="margin:0">${d.note} <b>C’est définitif.</b></p>
+    <label class="dz-field"><span>Pour confirmer, écris <b>${d.word}</b></span>
+      <input id="danger-in" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done" placeholder="${d.word}"></label>
+    <button class="btn danger dz-go" data-act="dangerGo"${norm($("#danger-in")?.value || "") === d.word ? "" : " disabled"}>${d.btn}</button>
+  </div>`;
+}
+document.addEventListener("input", ev => {
+  if (ev.target.id !== "danger-in") return;
+  const b = document.querySelector(".dz-go"), d = DANGER[UI.danger]; if (b && d) b.disabled = norm(ev.target.value) !== d.word;
+});
+document.addEventListener("keydown", ev => { if (ev.key === "Enter" && ev.target.id === "danger-in") A.dangerGo(); });
 
 /* ---------------- Views ---------------- */
 function views_garden() {
@@ -802,7 +825,7 @@ function views_garden() {
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k), badge: PLANTS[k] ? seasonBadge(k) : "" })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k), badge: seasonBadge(k) })).join("")}</div>`;
-  return `${installPrompt && isPhone() ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
+  return `${installPrompt && isPhone() && !S.settings.hideInstall ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button><button class="install-x" data-act="hideInstall" aria-label="Ne plus proposer">✕</button></div>` : ""}
   <section class="panel">
     <div class="garden-tools">
       ${S.upg.basket ? `<button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>` : ""}
@@ -1164,7 +1187,7 @@ function views_village() {
 const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
 let lastSig = "";
 function sig(t) {
-  const base = [tab, season(), S.coins, S.level, msub, resetArmed, labSel.join(","), JSON.stringify(UI)].join("|");
+  const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
     case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
@@ -1345,7 +1368,7 @@ function openModal() {
 }
 let modalView = null;
 function closeModal(fromBack) {
-  modalView = null; UI.importOpen = false; UI.exportCode = null;
+  modalView = null;
   if ($("#modal").hidden) return;
   $("#modal").hidden = true; $("#modal").innerHTML = "";
   if (!fromBack && history.state && history.state.modal) history.back();
@@ -1411,7 +1434,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
@@ -1427,6 +1450,7 @@ function start() {
   if (away > 120000 && loaded) toast(`Bon retour ! Absent ${dur(away)}${ready > before ? `, ${ready - before} plante${ready - before > 1 ? "s" : ""} ${ready - before > 1 ? "ont" : "a"} mûri` : ""}.`, 5000);
   if (S.hybRefundMsg) { const m = S.hybRefundMsg; delete S.hybRefundMsg; toast(`Recette${m.length > 1 ? "s" : ""} remboursée${m.length > 1 ? "s" : ""} : <b>${m.join(", ")}</b>. Découvre d’abord l’hybride à la Serre pour l’apprendre.`, 7000); save(); }
   CLOUD.sync(); // compte en ligne : récupère ou envoie la partie
+  showGate(); // sans compte : écran de connexion
   // Première visite : c’est Mamie Lapine qui accueille (js/tuto.js).
   nextButterfly = t + rand(40, 90) * 1000; nextWeed = t + rand(70, 140) * 1000;
   render(true);

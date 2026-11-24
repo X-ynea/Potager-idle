@@ -76,6 +76,7 @@ const CLOUD = (() => {
       }
       lastError = "";
       if (manual) toast("Partie synchronisée.");
+      showGate();
     } catch (e) { lastError = String(e.message || e); if (manual) toast("Synchronisation impossible pour le moment."); }
     busy = false; if (typeof render === "function" && !$("#modal").hidden) render(true);
   }
@@ -106,7 +107,15 @@ const CLOUD = (() => {
       const back = location.origin + location.pathname;
       location.href = `${cfg.url}/auth/v1/authorize?provider=discord&redirect_to=${encodeURIComponent(back)}`;
     },
-    logout() { sess = null; blocked = ""; lastError = ""; keep(); },
+    // Déconnexion : dernière sauvegarde en ligne, puis la partie quitte l'appareil (écran de connexion).
+    async logout() {
+      if (sess?.user && !blocked) { try { await push(); } catch (e) {} }
+      sess = null; blocked = ""; lastError = ""; keep();
+      try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+      S = fresh(); closeModal(); render(true); showGate();
+    },
+    // Appel d'une fonction serveur (amis…). Renvoie son résultat.
+    async rpc(name, args = {}) { if (!enabled() || !sess) throw new Error("non connecté"); await token(); return api(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(args) }); },
     async deleteAccount() { await token(); await api("/rest/v1/rpc/delete_me", { method: "POST", body: "{}" }); sess = null; keep(); },
   };
 })();
@@ -123,20 +132,17 @@ function cloudSettingsHTML() {
   return `<div class="set-group"><h3>Compte</h3>
     <div class="cloud-user">${u?.avatar ? `<img src="${u.avatar}" alt="">` : `<span class="cloud-ph">${DISCORD_ICON}</span>`}<span><b>${u ? u.name : "Connexion…"}</b><small>${CLOUD.blocked ? `<span class="cloud-err">${CLOUD.blocked}</span>` : CLOUD.error ? `Synchronisation en attente<br><span class="cloud-err">${CLOUD.error.replace(/[<>&]/g, "")}</span>` : ago == null ? "Synchronisation…" : `Sauvegardé en ligne ${ago < 1 ? "à l’instant" : `il y a ${ago} min`}`}</small></span></div>
     <div class="d-acts"><button class="btn ghost" data-act="cloudSync">Synchroniser</button><button class="btn ghost" data-act="cloudLogout">Se déconnecter</button></div>
-    <button class="set-link" data-act="cloudDelete"><span class="ico">🗑️</span><span><b>${UI.cloudDel ? "Toucher encore pour confirmer" : "Supprimer mon compte en ligne"}</b><small>Efface ta sauvegarde en ligne. La partie reste sur cet appareil.</small></span></button>
     <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a></div>`;
 }
+// Dans la zone sensible des réglages.
+const cloudDangerHTML = () => CLOUD.enabled() && CLOUD.signedIn ? `<button class="set-link" data-act="dangerOpen" data-arg="account"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Supprimer mon compte</b><small>${FRIENDS_ON ? "Efface tes données en ligne, tes amis et tes messages" : "Efface tes données en ligne"}</small></span></button>` : "";
 const DISCORD_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.3 5.3A16.6 16.6 0 0 0 15.2 4l-.5 1a15.3 15.3 0 0 0-5.4 0L8.8 4a16.6 16.6 0 0 0-4.1 1.3C2.1 9.2 1.4 13 1.7 16.7a16.7 16.7 0 0 0 5 2.5l1.1-1.7a10.7 10.7 0 0 1-1.7-.8l.4-.3a11.9 11.9 0 0 0 11 0l.4.3c-.5.3-1.1.6-1.7.8l1.1 1.7a16.6 16.6 0 0 0 5-2.5c.4-4.3-.7-8.1-3-11.4zM8.7 14.4c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>`;
 const CLOUD_ACTS = {
   cloudLogin() { CLOUD.login(); },
   cloudSync() { CLOUD.sync(true); },
-  cloudLogout() { CLOUD.logout(); toast("Déconnecté. Ta partie reste sur cet appareil."); render(true); },
-  async cloudDelete() {
-    if (!UI.cloudDel) { UI.cloudDel = true; render(true); setTimeout(() => { UI.cloudDel = false; }, 5000); return; }
-    UI.cloudDel = false;
-    try { await CLOUD.deleteAccount(); toast("Compte en ligne supprimé. Ta partie reste sur cet appareil."); } catch (e) { toast("Suppression impossible pour le moment."); }
-    render(true);
-  },
+  async cloudLogout() { await CLOUD.logout(); },
+  async gateSwitch() { await CLOUD.logout(); },
+  newsClose() { newsNow = false; showGate(); },
   async cloudPick(which) {
     closeModal();
     if (which === "remote" && CLOUD._choice) { S = migrate(CLOUD._choice); save(); applyTheme(); commit(); toast("Partie en ligne récupérée."); }
@@ -144,3 +150,52 @@ const CLOUD_ACTS = {
     CLOUD._choice = null; render(true);
   },
 };
+
+/* Écran de connexion : un compte Discord est nécessaire pour jouer (quand les comptes sont activés). */
+// Annonce des comptes (v2.15) : une seule fois, pour les joueurs qui avaient déjà une partie.
+// Gardée sur l'appareil (pas dans la partie) pour ne pas revenir après une déconnexion.
+const NEWS_KEY = "potager-news-comptes" + (IS_TEST ? "-test" : "");
+let newsNow = false;
+function checkNews() {
+  let seen = true; try { seen = !!localStorage.getItem(NEWS_KEY); } catch (e) {}
+  if (seen || CLOUD.blocked) return;
+  if ((S.stats?.harvest || 0) > 0 || S.level > 1) newsNow = true;
+  try { localStorage.setItem(NEWS_KEY, "1"); } catch (e) {}
+}
+function newsHTML() {
+  const signed = CLOUD.signedIn;
+  return `<div class="gate-card news-card" role="dialog" aria-modal="true" aria-label="Du nouveau au potager">
+    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <h1>Du nouveau au potager ! 🌱</h1>
+    <div class="news-list">
+      <p><b>Ton jardin a maintenant un compte.</b> ${signed ? "" : "Connecte-toi avec Discord pour continuer à jouer. "}Ta partie est sauvegardée en ligne et tu la retrouves sur tous tes appareils : téléphone, ordinateur, tablette.</p>
+      ${signed ? "" : `<p><b>Rien n’est perdu.</b> Ta partie actuelle (niveau ${S.level}) sera reliée à ton compte dès ta connexion.</p>`}
+      <p><b>Ton profil</b> prend ton pseudo et ta photo Discord. Tu peux toujours les changer avec le petit crayon.</p>
+    </div>
+    ${signed ? `<button class="btn big" data-act="newsClose">C’est parti !</button>` : `<button class="btn discord big" data-act="cloudLogin">${DISCORD_ICON}Se connecter avec Discord</button>`}
+  </div>`;
+}
+function showGate() {
+  let g = document.getElementById("gate");
+  if (CLOUD.enabled() && typeof S !== "undefined") checkNews();
+  const need = CLOUD.enabled() && (!CLOUD.signedIn || CLOUD.blocked);
+  if (newsNow && CLOUD.enabled() && !CLOUD.blocked) {
+    if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
+    g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
+    g.innerHTML = newsHTML(); return;
+  }
+  if (!need) { g?.remove(); return; }
+  if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
+  g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
+  const hasLocal = !CLOUD.signedIn && typeof S !== "undefined" && ((S.stats?.harvest || 0) > 0 || S.level > 1);
+  g.innerHTML = `<div class="gate-card" role="dialog" aria-modal="true" aria-label="Connexion">
+    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <h1>Potager idle</h1>
+    ${CLOUD.blocked ? `<p class="cloud-warn">${CLOUD.blocked}</p><button class="btn discord big" data-act="gateSwitch">${DISCORD_ICON}Changer de compte</button>`
+      : `<p>Connecte-toi avec Discord pour jouer : ta partie est sauvegardée en ligne et te suit sur tous tes appareils.</p>
+    ${hasLocal ? `<p class="small gate-note">Ta partie actuelle (niveau ${S.level}) sera reliée à ton compte.</p>` : ""}
+    ${IS_TEST ? `<p class="cloud-warn">Version de test : utilise un compte Discord de test.</p>` : ""}
+    <button class="btn discord big" data-act="cloudLogin">${DISCORD_ICON}Se connecter avec Discord</button>`}
+    <a class="small muted" href="confidentialite.html" target="_blank" rel="noopener">Données personnelles</a>
+  </div>`;
+}
