@@ -122,6 +122,39 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.10
+- Herbier : plantes et hybrides rangés par niveau (découverts d’abord). Un hybride a le niveau de son parent le plus tardif, donc les inconnus apparaissent dans l’ordre où ils deviennent possibles.
+- Marché › Graines : même ordre pour les hybrides pas encore trouvés.
+
+### 2.16.9
+- Commandes hors saison : toujours « Difficile » (3 étoiles), avec le plus gros bonus de difficulté puis +30 %. Elles rapportent nettement plus qu’avant.
+
+### 2.16.8
+- Marché › Vendre : les récoltes dorées passent en premier, quel que soit le tri.
+
+### 2.16.7
+- Grand écran : l’XP et les pièces restent affichées en détail dans la barre du haut. Le format court (1k, 13,3k) ne sert que sur les écrans étroits.
+
+### 2.16.6
+- Pas d’espace en plus pour une section placée juste sous un grand titre (Inventaire › Graines, Herbier › Plantes).
+
+### 2.16.5
+- Plus d’espace au-dessus des titres de section (profil, réglages, marché, jardin) pour mieux les séparer.
+
+### 2.16.4
+- Barre du haut : l’XP s’affiche en court (1k / 1,5k). Le détail exact est dans le profil, avec une barre de progression sous la photo et la bannière ; toucher le niveau en haut ouvre le profil.
+- Pièces : « 38,9k » au lieu de « 38,9 k ».
+
+### 2.16.3
+- Barre du haut : le titre est de retour, sous la barre d’XP, sur tous les écrans.
+- Pièces en format court dès 10 000 (38,9 k, 123 k, 4,56 M…) ; le montant exact est affiché en haut du Marché.
+
+### 2.16.2
+- Barre du haut : au-delà de 100 000 pièces, la somme s’affiche en court (123 k, 4,56 M…). Le montant exact apparaît au survol.
+
+### 2.16.1
+- Barre du haut : l’XP n’est plus coupée avec beaucoup de pièces. Si la place manque, « XP » puis « Niveau » se raccourcissent (« Niv. »).
+
 ### 2.16.0 · Progression rééquilibrée
 - Il faut 25 % d’XP en plus pour monter de niveau. Chaque joueur garde son niveau, et sa barre d’XP reste remplie à la même proportion.
 - Commandes des voisins : un peu moins d’XP, et 20 % de pièces en moins (objectifs du jour aussi).

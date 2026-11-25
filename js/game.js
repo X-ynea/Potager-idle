@@ -1,11 +1,16 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.29.2" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.29.3" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
 const fmt = n => Math.floor(n).toLocaleString("fr-FR");
+// Version courte pour la barre du haut : 9 999, puis 38,9k, 123k, 4,5 M… (arrondi vers le bas : jamais plus que ce qu'on a).
+const fmtShort = n => { n = Math.floor(n); const cut = (v, d) => (Math.floor(v * 10 ** d) / 10 ** d).toLocaleString("fr-FR");
+  return n < 1e4 ? fmt(n) : n < 1e5 ? cut(n / 1e3, 1) + "k" : n < 1e6 ? cut(n / 1e3, 0) + "k" : n < 1e7 ? cut(n / 1e6, 2) + "M" : n < 1e9 ? cut(n / 1e6, n < 1e8 ? 1 : 0) + "M" : cut(n / 1e9, 1) + "Md"; };
+// XP de la barre du haut : 1049 / 1530 devient 1k / 1,5k (le détail est dans le profil).
+const fmtXp = n => { n = Math.floor(n); return n < 1e3 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10).toLocaleString("fr-FR") + "k" : fmtShort(n); };
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const coin = '<span class="coin" aria-hidden="true"></span>';
@@ -46,6 +51,8 @@ const itemVal = k => isGold(k) ? PLANTS[goldBase(k)].sell * 10 : PLANTS[k] ? PLA
 const itemXp = k => isGold(k) ? PLANTS[goldBase(k)].xp * 3 : PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
 const itemDesc = k => isGold(k) ? `Une ${PLANTS[goldBase(k)].name.toLowerCase()} rarissime, qui brille comme un trésor. Elle vaut dix fois le prix normal.` : (PLANTS[k] || RECIPES[k]).desc;
 // Une plante déjà récoltée reste disponible, même si son niveau de déblocage a changé.
+// Niveau à partir duquel une plante est accessible (pour un hybride : quand ses deux parents le sont).
+const plantLvl = k => PLANTS[k].hybrid ? Math.max(...PLANTS[k].parents.map(p => PLANTS[p].lvl)) : PLANTS[k].lvl;
 const seedAvailable = k => { const d = PLANTS[k]; return d.hybrid ? S.hybrids.includes(k) : d.lvl <= S.level || S.discovered.includes(k); };
 // Graines achetables maintenant : les plantes exclusives ne sont vendues que pendant leur saison.
 const seedBuyable = k => seedAvailable(k) && (!PLANTS[k].only || PLANTS[k].season === season());
@@ -404,8 +411,10 @@ function genOrder() {
   const v = guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here.filter(i => !used.has(i)));
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
-  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
-    offSeason, coins: Math.round((effort * type.bonus + 2) * (offSeason ? 1.3 : 1) * .8), xp: Math.round((xp * .8 + 3) * type.bonus * (offSeason ? 1.3 : 1)) }; // 2.16 : −20 % de pièces, moins d’XP
+  // Hors saison : toujours « Difficile », avec le meilleur bonus de difficulté, puis +30 %.
+  const bonus = offSeason ? Math.max(...ORDER_TYPES.map(t => t.bonus)) * 1.3 : type.bonus;
+  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: offSeason ? 3 : type.stars, label: offSeason ? "Difficile" : type.label,
+    offSeason, coins: Math.round((effort * bonus + 2) * .8), xp: Math.round((xp * .8 + 3) * bonus) }; // 2.16 : −20 % de pièces, moins d’XP
 }
 
 /* ---------------- Actions ---------------- */
@@ -1055,6 +1064,7 @@ function invBody(ctx, cat) {
   const bag = catBag(cat);
   const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
   if (ctx === "sell") { const m = sortOf("sell"); if (m !== "none") keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
+  if (ctx === "sell") keys.sort((a, b) => isGold(b) - isGold(a)); // à la vente, les dorées d’abord (elles ne servent qu’à ça)
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
@@ -1096,7 +1106,7 @@ function marketSeeds() {
   // Tri : achetables d'abord (débloquées, en vente et payables), prix de vente, ordre alphabétique ; les verrouillées à la fin.
   const sm = sortOf("seeds"), ok = x => seedBuyable(x) && S.coins >= PLANTS[x].cost;
   const sorter = (a, b) => (seedAvailable(b) - seedAvailable(a)) || (!seedAvailable(a) && PLANTS[a].lvl - PLANTS[b].lvl) || (sm === "name" ? byName(a, b, x => PLANTS[x].name) : sm === "price" ? PLANTS[b].sell - PLANTS[a].sell : sm === "cost" ? PLANTS[a].cost - PLANTS[b].cost : (ok(b) - ok(a)) || byName(a, b, x => PLANTS[x].name)) || (PLANTS[a].lvl - PLANTS[b].lvl);
-  const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && !PLANTS[a].hybrid && PLANTS[a].lvl - PLANTS[b].lvl)) : l.sort(sorter);
+  const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && plantLvl(a) - plantLvl(b))) : l.sort(sorter);
   const base = srt(ORDER.filter(x => !PLANTS[x].hybrid)), hyb = srt(ORDER.filter(x => PLANTS[x].hybrid));
   const found = hyb.filter(seedAvailable).length;
   return det + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
@@ -1143,7 +1153,7 @@ function marketUpgrades() {
 function views_market() {
   const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["sell", "Vendre"], ["upgrades", "Bonus"]];
   const body = { seeds: marketSeeds, recipes: marketRecipes, upgrades: marketUpgrades, sell: marketSell }[msub]();
-  return `<section class="panel"><h2>Marché</h2>
+  return `<section class="panel"><div class="row spread"><h2>Marché</h2><span class="market-purse" title="Tes pièces">${coin}${fmt(S.coins)}</span></div>
     <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
 }
 
@@ -1177,7 +1187,8 @@ function views_lab() {
   const herbCard = k => { const d = PLANTS[k], known = isKnown(k); return `
       <button class="herb ${known ? "" : "unknown"} ${S.goldenFound.includes(k) ? "has-gold" : ""}" data-act="plantInfo" data-arg="${k}" aria-label="${known || !d.hybrid ? d.name : "Variété mystère"}">${cropArt(k)}${seasonBadge(k)}<b>${known || !d.hybrid ? d.name : "???"}</b>${known ? `<span class="muted">${fmt(d.sell)} pièces</span>` : d.hybrid ? "" : `<span class="muted">Niveau ${d.lvl}</span>`}</button>`; };
   // Les plantes pas encore découvertes vont à la fin, par niveau de déblocage.
-  const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort((a, b) => isKnown(b) - isKnown(a) || (!isKnown(a) && PLANTS[a].lvl - PLANTS[b].lvl)), hybK = ORDER.filter(k => PLANTS[k].hybrid);
+  const byKnown = (a, b) => isKnown(b) - isKnown(a) || plantLvl(a) - plantLvl(b); // découvertes d’abord, puis par niveau d’accès
+  const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort(byKnown), hybK = ORDER.filter(k => PLANTS[k].hybrid).sort(byKnown);
   const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
     <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3>${hybK.some(k => !isKnown(k)) ? `<p class="small muted" style="margin:-4px 0 0">Touche un hybride inconnu pour un indice.</p>` : ""}<div class="herbier">${hybK.map(herbCard).join("")}</div></section>`;
@@ -1282,10 +1293,11 @@ function render(force) {
   live(t);
 }
 function live(t) {
-  $("#coins").textContent = fmt(S.coins);
+  $("#coins").innerHTML = `<span class="n-short">${fmtShort(S.coins)}</span><span class="n-full">${fmt(S.coins)}</span>`; $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
   updateBrand();
-  $("#lvl").innerHTML = "Niveau " + S.level + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
-  $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
+  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>`;
+  const ttl = $("#ttl"); ttl.hidden = !S.title; ttl.textContent = S.title || ""; // titre sous la barre d’XP
+  $("#xpt").innerHTML = `<span class="n-short">${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}</span><span class="n-full">${fmt(S.xp)} / ${fmt(xpNeed(S.level))}</span><span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
   updateVisit(t);

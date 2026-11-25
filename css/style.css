@@ -95,8 +95,21 @@ svg { display: block; }
 .lvl-top b { color: var(--ink); font-family: var(--f-display); font-weight: 600; font-size: .9rem; }
 /* Le titre passe à la ligne (masquée) s'il n'a pas la place : l'XP reste toujours lisible. */
 .lvl-top #lvl { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; min-width: 0; height: 1.4em; overflow: hidden; }
-.lvl-top #lvl .title-tag { margin-left: 0; }
+/* Titre affiché sous la barre d'XP */
+#ttl { justify-self: start; margin: 1px 0 0; font-size: .6rem; line-height: 1.35; padding: 0 6px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+#ttl[hidden] { display: none; }
+.market-purse { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 1rem; }
 .lvl-top #xpt { flex: none; }
+/* Quand la place manque (grosses sommes de pièces, gros niveaux) : « XP » puis « Niveau » se raccourcissent. */
+.lvl { container-type: inline-size; }
+.lv-short { display: none; }
+/* Nombres détaillés quand il y a la place (grand écran), courts sinon */
+.n-full { display: none; }
+@container (min-width: 236px) { #xpt .n-full { display: inline; } #xpt .n-short { display: none; } }
+@media (min-width: 600px) { #coins .n-full { display: inline; } #coins .n-short { display: none; } }
+@container (max-width: 215px) { .xp-unit { display: none; } }
+@container (max-width: 160px) { .lv-long { display: none; } .lv-short { display: inline; } }
+@media (max-width: 400px) { .lv-long { display: inline !important; } .lv-short { display: none !important; } } /* l’XP passe sous la barre : la place suffit */
 .xpbar { height: 8px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--leaf), var(--leaf-light, #f8b46c)); border-radius: 99px; transition: width .4s; }
 
@@ -318,6 +331,9 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .seg button[aria-pressed="true"] { background: var(--leaf); color: var(--leaf-ink); }
 .set-group { display: grid; gap: 8px; }
 .set-group h3 { font-size: .95rem; }
+/* Plus d’air au-dessus des titres de section */
+.set-group > h3:first-child { margin-top: 12px; }
+.sheet-head + .set-group > h3:first-child { margin-top: 0; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-weight: 700; }
 .switch { position: relative; width: 50px; height: 30px; border-radius: 99px; border: 0; background: var(--line); flex: none; padding: 0; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
@@ -467,7 +483,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .bag svg { width: 20px; height: 20px; }
   .top .pill { padding: 3px 10px 3px 5px; }
   .lvl-top b { font-size: .85rem; }
-  .lvl-top span { font-size: .7rem; }
+  .lvl-top #xpt { font-size: .7rem; }
 }
 @media (max-width: 400px) { .xp-unit { display: none; } }
 @media (max-width: 400px) {
@@ -475,7 +491,12 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .lvl-top { display: contents; }
   .lvl-top b { order: 1; }
   .xpbar { order: 2; }
-  .lvl-top span { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
+  .lvl-top #xpt { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
+  /* Avec un titre : le titre à gauche, l'XP à droite, sur la même ligne sous la barre */
+  .lvl:has(#ttl:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto; column-gap: 6px; }
+  .lvl:has(#ttl:not([hidden])) > .lvl-top b, .lvl:has(#ttl:not([hidden])) > .xpbar { grid-column: 1 / -1; }
+  .lvl:has(#ttl:not([hidden])) #ttl { order: 3; grid-column: 1; margin: 0; }
+  .lvl:has(#ttl:not([hidden])) .lvl-top #xpt { order: 4; grid-column: 2; align-self: center; }
 }
 .lv-item .lv-buy { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: .74rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 1px 8px; }
 .lv-item > div:last-child { display: grid; justify-items: start; }
@@ -510,7 +531,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 .pest.snail { animation: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 .plot .thirst.pest-alert { padding: 4%; }
 .btn.danger { background: #d9675a; color: #fff; box-shadow: 0 2px 0 rgba(140,50,40,.25); }
-.cat-title { font-size: 1rem; display: flex; align-items: baseline; gap: 8px; margin-top: 4px; } .cat-title .num { font-family: var(--f-body); font-size: .8rem; font-weight: 700; }
+.cat-title { font-size: 1rem; display: flex; align-items: baseline; gap: 8px; margin-top: 16px; } .cat-title:first-child { margin-top: 0; } .cat-title .num { font-family: var(--f-body); font-size: .8rem; font-weight: 700; }
 /* Plante prête : cadre doré lumineux, comme le cadre rouge de l'escargot */
 .plot.ripe::before { content: ""; position: absolute; inset: 3%; z-index: 1; border: 3px solid #f4c03e; border-radius: 12%; pointer-events: none;
   animation: ready-glow 1.4s ease-in-out infinite alternate; }
@@ -521,7 +542,9 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
 @media (min-width: 620px) { .tiles.mini { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); } }
 .tiles.mini .tile { border-radius: 12px; padding: 9%; }
 .tiles.mini .tile .cnt { font-size: .8rem; left: 4px; bottom: 1px; }
-main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 0; }
+main[data-tab="garden"] .cat-title { font-size: .9rem; margin-top: 10px; }
+/* Juste sous un grand titre (Inventaire, Herbier…) : pas d’espace en plus */
+h2 + .cat-title, .row:has(> h2) + .cat-title, main[data-tab] h2 + .cat-title { margin-top: 0; }
 .h-ico { display: flex; align-items: center; gap: 8px; }
 .bag-ico { width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); color: var(--leaf-deep); display: grid; place-items: center; flex: none; }
 .bag-ico svg { width: 18px; height: 18px; }
@@ -616,7 +639,6 @@ button.herb:active { transform: scale(.97); }
 /* Succès */
 .bag.trophy { color: #c98a16; }
 .title-tag { font-family: var(--f-body); font-size: .68rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 0 7px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
-@media (max-width: 400px) { .top .title-tag { display: none; } } /* seulement dans l’en-tête */
 .ach-sum { display: flex; align-items: center; gap: 14px; background: linear-gradient(160deg, #fffaf0, #fff1c9); border: 1px solid #f4c03e; border-radius: 16px; padding: 12px 14px; }
 .ach-sum > div:last-child { flex: 1; display: grid; gap: 4px; }
 .ach-sum b { font-family: var(--f-display); font-size: 1.3rem; color: #8a5a00; }
@@ -1541,3 +1563,10 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .news3-item b { font-size: .88rem; }
 .news3-item small { font-size: .76rem; line-height: 1.3; }
 .news3-ico svg { width: 20px; height: 20px; }
+/* Profil : progression détaillée */
+.pf-xp { display: grid; gap: 5px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.pf-xp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pf-xp-top b { font-family: var(--f-display); font-weight: 600; }
+.pf-xp-top span { font-size: .85rem; font-weight: 700; color: var(--muted); }
+.pf-xp small { font-size: .75rem; }
+.top .lvl { cursor: pointer; }

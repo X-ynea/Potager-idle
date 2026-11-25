@@ -34,9 +34,12 @@ function viewProfile() {
       <div class="pf-id">
         ${UI.editName ? `<input id="pf-name" class="pf-name" maxlength="20" value="${profileName().replace(/"/g, "&quot;")}" placeholder="Ton pseudo" aria-label="Pseudo" autocomplete="off" spellcheck="false" enterkeyhint="done">`
           : `<button class="pf-name-btn" data-act="editName" aria-label="Modifier le pseudo"><b>${profileName().replace(/[<>&]/g, "")}</b><span class="pf-edit inline">${PENCIL}</span></button>`}
-        <span class="pf-sub">Niveau ${S.level}${S.title ? ` · <span class="title-tag">${S.title}</span>` : ""}</span>
+        ${S.title ? `<span class="pf-sub"><span class="title-tag">${S.title}</span></span>` : ""}
       </div>
     </div>
+    <div class="pf-xp"><div class="pf-xp-top"><b>Niveau ${S.level}</b><span class="num">${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP</span></div>
+      <div class="xpbar"><i style="width:${(S.xp / xpNeed(S.level) * 100).toFixed(1)}%"></i></div>
+      <small class="muted">Encore ${fmt(xpNeed(S.level) - S.xp)} XP avant le niveau ${S.level + 1}</small></div>
     ${pick === "avatar" ? `<div class="set-group"><h3>Photo de profil</h3>
       <div class="pf-grid">
         <label class="pf-opt upload"><input type="file" accept="image/*" data-file="avatar" hidden><span>+</span><small>Ma photo</small></label>
@@ -54,7 +57,7 @@ function viewProfile() {
         : `<p class="small muted" style="margin:0">Certains succès débloquent un titre à afficher à côté de ton nom.</p>`}
     </div>
     <div class="set-group"><h3>Mon potager</h3>
-      <div class="stats">${mi("Niveau", S.level)}${mi("Récoltes", fmt(S.stats.harvest || 0))}${mi("Succès", achDone)}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Plats cuisinés", fmt(S.stats.cooked || 0))}${mi("Commandes", fmt(S.stats.orders || 0))}${mi("Visiteurs ailés", fmt(S.stats.butterflies || 0))}${mi("Bacs libérés", fmt(S.stats.weeds || 0))}</div>
+      <div class="stats">${mi("Récoltes", fmt(S.stats.harvest || 0))}${mi("Succès", achDone)}${mi("Hybrides", `${S.hybrids.length} / ${ORDER.filter(k => PLANTS[k].hybrid).length}`)}${mi("Plats cuisinés", fmt(S.stats.cooked || 0))}${mi("Commandes", fmt(S.stats.orders || 0))}${mi("Visiteurs ailés", fmt(S.stats.butterflies || 0))}${mi("Bacs libérés", fmt(S.stats.weeds || 0))}</div>
     </div>
   </div>`;
 }
