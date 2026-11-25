@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.14
+- Nouvelles images de jeunes plants, qui sortent de la terre : radis, betterave, poireau, pomme de terre et champignon des bois.
+
 ### 3.0.13
 - Plantes mûres refaites : remontées pour pousser du milieu du bac, comme les autres.
 
