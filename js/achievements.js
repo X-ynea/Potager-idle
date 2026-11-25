@@ -152,7 +152,7 @@ function viewAch() {
       </div></div>`;
   };
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Succès">
-    <div class="sheet-head"><h2>Succès</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Succès</h2>${SHEET_X}</div>
     <div class="ach-sum"><div class="ach-ico big">${TROPHY}</div><div><b class="num">${done} / ${total}</b><span>paliers obtenus</span><div class="pbar"><i style="width:${(done / total * 100).toFixed(1)}%"></i></div></div></div>
     <div class="set-group"><h3>Titre affiché</h3>
       ${titles.length ? `<div class="basket">${["", ...titles].map(ti => `<button class="chip title-chip" data-act="setTitle" data-arg="${ti}" aria-pressed="${(S.title || "") === ti}">${ti || "Aucun"}</button>`).join("")}</div>`

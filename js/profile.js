@@ -27,7 +27,7 @@ function viewProfile() {
   const achDone = ACHIEVEMENTS.reduce((t, a) => t + ((S.ach || {})[a.id] || 0), 0);
   const banner = bannerSrc();
   return `<div class="sheet tall profile-sheet" role="dialog" aria-modal="true" aria-label="Profil">
-    <div class="sheet-head"><h2>Profil</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Profil</h2>${SHEET_X}</div>
     <div class="pf-card">
       <button class="pf-banner${banner.startsWith("data:") ? " photo" : ""}" style="background-image:url('${banner}')" data-act="profilePick" data-arg="banner" aria-label="Changer la bannière"><span class="pf-edit">${PENCIL}</span></button>
       <button class="pf-avatar" data-act="profilePick" data-arg="avatar" aria-label="Changer la photo de profil"><img src="${avatarSrc()}" alt=""><span class="pf-edit">${PENCIL}</span></button>

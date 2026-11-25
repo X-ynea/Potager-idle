@@ -9,7 +9,7 @@
    · Ce qu'on propose quitte la partie dès l'envoi ; ça revient si l'ami refuse, contre-propose, si on annule ou au bout de 48 h.
    La boîte aux lettres (dans le jardin) rassemble les propositions reçues, envoyées, et les nouvelles. */
 const TR_MAX = 3000, TR_GAP = 1.2, TR_DAY = 3, TR_HOURS = 48, TR_ITEMS = 8;
-const TR = { list: [], loaded: false, draft: null, inv: null, invErr: "", sending: false, busy: false, mailTab: "in", pick: false, fromMail: false };
+const TR = { list: [], loaded: false, draft: null, inv: null, invErr: "", sending: false, busy: false, mailTab: "in", fromMail: false };
 const TRADE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 // Boîte aux lettres provisoire (en attendant l'image définitive) : rouge vif, drapeau levé quand il y a du courrier.
 const MAIL_ICON = up => `<svg class="mb-art" viewBox="0 0 48 56" aria-hidden="true"><rect x="21" y="30" width="6" height="24" rx="1.5" fill="#8a5a33"/><path d="M8 14a10 10 0 0 1 20 0v18H8z" fill="#b3262b"/><path d="M18 4h12a12 12 0 0 1 12 12v16H28V14A10 10 0 0 0 18 4z" fill="#e2473b"/><path d="M8 32h34v4H8z" fill="#9c1f24"/><ellipse cx="18" cy="22" rx="5" ry="7" fill="#7a171b"/>${up ? `<path d="M38 8v-6" stroke="#5b3a1e" stroke-width="2" stroke-linecap="round"/><path d="M38 2h8l-2 3 2 3h-8z" fill="#ffd23f"/>` : `<path d="M38 22h7" stroke="#5b3a1e" stroke-width="2" stroke-linecap="round"/><path d="M45 22v6h-3z" fill="#ffd23f"/>`}</svg>`;
@@ -51,14 +51,9 @@ async function loadTrades() {
       const st = await CLOUD.rpc("claim_trade", { tid: r.id }).catch(() => null);
       if (!st) continue;
       r.a_claimed = true;
-      const who = `<b>${esc(r.name)}</b>`;
-      if (st === "accepted") { moveItems(r.want, r.want_coins, 1); toast(`📬 ${who} a accepté ton échange ! Tu reçois ${trPlain(r.want, r.want_coins)}.`, 6000); SFX.play("success"); }
-      else {
-        moveItems(r.give, r.give_coins, 1);
-        toast({ refused: `📬 ${who} a refusé ton échange : ${trPlain(r.give, r.give_coins)} te ${trBack(r)}.`,
-          expired: `📬 Ton échange avec ${who} a expiré : ${trPlain(r.give, r.give_coins)} te ${trBack(r)}.`,
-          countered: `🔁 ${who} t’a fait une contre-proposition (boîte aux lettres). Ce que tu proposais te ${trBack(r)}.` }[st], 6000);
-      }
+      // Pas de message : la boîte aux lettres signale la nouvelle (pastille).
+      if (st === "accepted") { moveItems(r.want, r.want_coins, 1); SFX.play("success"); }
+      else moveItems(r.give, r.give_coins, 1);
       save();
     }
   } catch (e) {}
@@ -72,18 +67,26 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) setT
 /* ---------- Boîte aux lettres ---------- */
 const trIn = () => TR.list.filter(r => !r.mine && r.status === "pending");
 const trOut = () => TR.list.filter(r => r.mine && r.status === "pending");
-// Nouvelles : arrosages reçus (24 h) et ce qui est arrivé aux échanges (7 jours).
+// Nouvelles : gardées dans la partie. Une nouvelle non lue reste ; une fois lue, elle disparaît
+// 24 h après l'arrosage, ou 7 jours après l'échange.
+const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3 };
 function mailNews() {
-  const n = (S.friendWater || []).filter(w => !w.mine && Date.now() - w.at < 24 * 3600e3).map(w => ({ at: w.at, html: `💧 <b>${esc(w.name)}</b> a arrosé ton jardin.` }));
+  const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k));
+  const add = (k, at, html, kind, read) => { if (!keys.has(k) && html) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
+  for (const w of S.friendWater || []) if (!w.mine) add("w" + w.id, w.at, `💧 <b>${esc(w.name)}</b> a arrosé ton jardin.`, "w");
   for (const r of TR.list) {
     if (r.status === "pending" || !r.decided_at) continue;
-    const at = Date.parse(r.decided_at), who = `<b>${esc(r.name)}</b>`;
-    if (r.mine) n.push({ at, html: { accepted: `✅ ${who} a accepté ton échange.`, refused: `❌ ${who} a refusé ton échange.`, expired: `⌛ Ton échange avec ${who} a expiré.`, cancelled: `↩️ Tu as annulé ton échange avec ${who}.`, countered: `🔁 ${who} t’a fait une contre-proposition.` }[r.status] });
-    else n.push({ at, html: { accepted: `✅ Tu as accepté l’échange de ${who}.`, refused: `❌ Tu as refusé l’échange de ${who}.`, expired: `⌛ L’échange proposé par ${who} a expiré.`, cancelled: `↩️ ${who} a annulé son échange.`, countered: `🔁 Tu as fait une contre-proposition à ${who}.` }[r.status] });
+    const at = Date.parse(r.decided_at), who = `<b>${esc(r.name)}</b>`, k = `t${r.id}${r.status}`;
+    // Ce que j'ai fait moi-même arrive déjà lu.
+    if (r.mine) add(k, at, { accepted: `✅ ${who} a accepté ton échange.`, refused: `❌ ${who} a refusé ton échange.`, expired: `⌛ Ton échange avec ${who} a expiré.`, cancelled: `↩️ Tu as annulé ton échange avec ${who}.`, countered: `🔁 ${who} t’a fait une contre-proposition.` }[r.status], "t", r.status === "cancelled");
+    else add(k, at, { accepted: `✅ Tu as accepté l’échange de ${who}.`, refused: `❌ Tu as refusé l’échange de ${who}.`, expired: `⌛ L’échange proposé par ${who} a expiré.`, cancelled: `↩️ ${who} a annulé son échange.`, countered: `🔁 Tu as fait une contre-proposition à ${who}.` }[r.status], "t", ["accepted", "refused", "countered"].includes(r.status));
   }
-  return n.filter(x => x.html).sort((a, b) => b.at - a.at);
+  const now = Date.now();
+  S.news = list.filter(n => !n.read || now - n.at < (NEWS_TTL[n.kind] || NEWS_TTL.t)).sort((a, b) => b.at - a.at).slice(0, 60);
+  return S.news;
 }
-const mailCount = () => FRIENDS_ON ? trIn().length + mailNews().filter(x => x.at > (S.mailSeen || 0)).length : 0;
+const markNewsRead = () => { const t = Date.now(); TR.newsMark = t; for (const n of mailNews()) if (!n.read) { n.read = true; n.readAt = t; } save(); };
+const mailCount = () => FRIENDS_ON ? trIn().length + mailNews().filter(n => !n.read).length : 0;
 function mailboxHTML() {
   if (!FRIENDS_ON || !CLOUD.signedIn) return "";
   const n = mailCount();
@@ -91,28 +94,27 @@ function mailboxHTML() {
 }
 function tradeCard(r) {
   const who = `<span class="fr-av">${friendAvatar(r.avatar)}</span>`, counter = r.counter_of ? `<span class="tr-tag">Contre-proposition</span>` : "";
-  if (r.mine) return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title">À <b>${esc(r.name)}</b> ${counter}· <span class="muted">${trLeft(r.created_at)}</span></p>
+  if (r.mine) return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title">À <b>${esc(r.name)}</b> ${counter}<small class="tr-exp">${trLeft(r.created_at)}</small></p>
       <div class="tr-line"><small>Tu donnes</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre</small>${trChips(r.want, r.want_coins)}</div>
       <div class="tr-acts"><button class="btn ghost sm" data-act="trCancel" data-arg="${r.id}">Annuler</button></div></div></div>`;
   const ok = haveItems(r.want, r.want_coins);
-  return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title"><b>${esc(r.name)}</b> te propose ${counter}· <span class="muted">${trLeft(r.created_at)}</span></p>
+  return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title"><b>${esc(r.name)}</b> te propose ${counter}<small class="tr-exp">${trLeft(r.created_at)}</small></p>
       <div class="tr-line"><small>Tu reçois</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre</small>${trChips(r.want, r.want_coins)}</div>
       ${ok ? "" : `<p class="small tr-miss">Tu n’en as plus assez pour accepter.</p>`}
       <div class="tr-acts"><button class="btn ghost sm" data-act="trRespond" data-arg="${r.id}:0">Refuser</button><button class="btn ghost sm" data-act="trCounter" data-arg="${r.id}">Contre-proposer</button><button class="btn sm" data-act="trRespond" data-arg="${r.id}:1" ${ok ? "" : "disabled"}>Accepter</button></div></div></div>`;
 }
 function viewMail() {
-  const inn = trIn(), out = trOut(), news = mailNews(), seen = S.mailSeen || 0;
-  const fresh = news.filter(x => x.at > seen).length, friends = FR.list.filter(f => f.direction === "friend");
+  const inn = trIn(), out = trOut(), news = mailNews(), mark = TR.newsMark || 0;
+  const fresh = news.filter(n => !n.read).length;
   const tabs = [["in", `Reçus${inn.length ? ` <span class="fr-badge">${inn.length}</span>` : ""}`], ["out", `Envoyés <span class="num">${out.length}</span>`], ["news", `Nouvelles${fresh ? ` <span class="fr-badge">${fresh}</span>` : ""}`]];
   let body;
   if (!TR.loaded) body = `<div class="empty-note"><span>On ouvre la boîte…</span></div>`;
   else if (TR.mailTab === "in") body = inn.length ? inn.map(tradeCard).join("") : `<div class="empty-note"><span>Aucune proposition reçue.<br>Tes amis peuvent t’en faire depuis ton jardin ou vos messages.</span></div>`;
-  else if (TR.mailTab === "out") body = `${TR.pick ? `<div class="tr-pick"><p class="small muted" style="margin:0">Avec qui veux-tu échanger ?</p>${friends.length ? `<div class="tr-pick-list">${friends.map(f => `<button class="tr-pick-f" data-act="trOpenMail" data-arg="${f.id}"><span class="fr-av">${friendAvatar(f.avatar)}</span><b>${esc(f.name)}</b></button>`).join("")}</div>` : `<p class="small muted" style="margin:0">Ajoute d’abord des amis dans l’onglet « Amis ».</p>`}<button class="btn ghost sm" data-act="trPick">Annuler</button></div>`
-      : `<button class="btn tr-new" data-act="trPick">${TRADE_ICON}Nouvel échange</button>`}
+  else if (TR.mailTab === "out") body = `<button class="btn tr-new" data-act="trNew">${TRADE_ICON}Nouvel échange</button>
     ${out.length ? out.map(tradeCard).join("") : `<div class="empty-note"><span>Aucune proposition en attente.</span></div>`}`;
-  else body = news.length ? `<div class="mail-news">${news.map(x => `<p class="${x.at > seen ? "new" : ""}"><span>${x.html}</span><small>${trAgo(x.at)}</small></p>`).join("")}</div><p class="small muted" style="margin:0;text-align:center">Les arrosages restent 24 h, les échanges 7 jours.</p>` : `<div class="empty-note"><span>Pas de nouvelles pour l’instant.</span></div>`;
+  else body = news.length ? `<div class="mail-news">${news.map(n => `<p class="${!n.read || n.readAt >= mark ? "new" : ""}"><span>${n.html}</span><small>${trAgo(n.at)}</small></p>`).join("")}</div><p class="small muted" style="margin:0;text-align:center">Une fois lues, les nouvelles s’effacent : 24 h pour les arrosages, 7 jours pour les échanges.</p>` : `<div class="empty-note"><span>Pas de nouvelles pour l’instant.</span></div>`;
   return `<div class="sheet tall mail-sheet" role="dialog" aria-modal="true" aria-label="Boîte aux lettres">
-    <div class="sheet-head"><h2>Boîte aux lettres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Boîte aux lettres</h2>${SHEET_X}</div>
     <div class="subtabs" style="grid-template-columns:repeat(3,1fr)">${tabs.map(([k, l]) => `<button data-act="mailTab" data-arg="${k}" aria-pressed="${TR.mailTab === k}">${l}</button>`).join("")}</div>
     ${body}</div>`;
 }
@@ -175,19 +177,18 @@ function trSide(side, f) {
       <small class="muted">${otherCoins ? "Déjà des pièces de l’autre côté" : give ? `Tu as ${fmt(S.coins)}` : ""}</small></label>
   </section>`;
 }
-// Petite balance : le plateau le plus lourd descend. Verte quand l'échange est équilibré.
-function trScaleSVG(va, vb, ok) {
-  const max = Math.max(va, vb, 1), a = Math.max(-14, Math.min(14, (vb - va) / max * 40)) * Math.PI / 180;
-  const cx = 110, cy = 34, L = 76, lx = cx - L * Math.cos(a), ly = cy - L * Math.sin(a), rx = cx + L * Math.cos(a), ry = cy + L * Math.sin(a);
-  const col = ok ? "#3f9a4b" : va && vb ? "#d9675a" : "#b9a993";
-  const pan = (x, y, v, label) => `<path d="M${x} ${y}L${x - 26} ${y + 34}M${x} ${y}L${x + 26} ${y + 34}" stroke="${col}" stroke-width="1.6" fill="none"/><path d="M${x - 32} ${y + 34}h64a32 12 0 0 1-64 0z" fill="${col}" opacity=".9"/><text x="${x}" y="${y + 30}" text-anchor="middle" class="tr-sv">${fmt(v)}</text><text x="${x}" y="${y + 60}" text-anchor="middle" class="tr-sl">${label}</text>`;
-  return `<svg class="tr-scale" viewBox="0 0 220 132" aria-hidden="true"><path d="M${cx} ${cy}v80M${cx - 26} 118h52" stroke="#8a6a46" stroke-width="5" stroke-linecap="round"/><path d="M${cx - 12} 118l12-14 12 14z" fill="#8a6a46"/>
-    <line x1="${lx}" y1="${ly}" x2="${rx}" y2="${ry}" stroke="#8a6a46" stroke-width="5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="6" fill="${col}"/>
-    ${pan(lx, ly, va, "Tu donnes")}${pan(rx, ry, vb, "Tu demandes")}</svg>`;
+// Balance : deux jauges rondes (ce que tu donnes, ce que tu demandes) et une petite balance au milieu.
+// Chaque jauge se remplit par rapport au côté le plus lourd ; tout passe en vert quand l'échange est équilibré.
+const SCALE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15M7 20h10M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7l-3 6h6zM18 7l-3 6h6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 13a3 2 0 0 0 6 0zM15 13a3 2 0 0 0 6 0z" fill="currentColor"/><circle cx="12" cy="4" r="1.6" fill="currentColor"/></svg>`;
+function trGauges(va, vb, state) {
+  const max = Math.max(va, vb, 1);
+  const g = (v, label) => { const pct = Math.round(v / max * 100);
+    return `<div class="tr-g"><small>${label}</small><span class="tr-ring"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="bg" cx="20" cy="20" r="16"/><circle class="fg" cx="20" cy="20" r="16" pathLength="100" style="stroke-dashoffset:${100 - pct}"/></svg><b class="num">${fmt(v)}</b></span><span class="tr-pct num">${v ? pct + " %" : "—"}</span></div>`; };
+  return `<div class="tr-gauges ${state}">${g(va, "Tu donnes")}<span class="tr-g-ico">${SCALE_ICON}</span>${g(vb, "Tu demandes")}</div>`;
 }
 function trBalanceHTML() {
   const d = TR.draft, c = trCheck(d), left = Math.max(0, TR_DAY - (TR.inv?.today || 0));
-  return `<div class="tr-balance${c.msg ? "" : " ok"}" id="tr-balance">${trScaleSVG(c.va, c.vb, !c.msg)}
+  return `<div class="tr-balance${c.msg ? "" : " ok"}" id="tr-balance">${trGauges(c.va, c.vb, !c.msg ? "ok" : c.va && c.vb ? "bad" : "")}
     <p class="tr-verdict">${c.msg ? esc(c.msg) : `Échange équilibré ✓${c.gap ? ` · écart ${c.gap} %` : ""}`}</p>
     <button class="btn big" data-act="trSend" ${c.msg || TR.sending || !TR.inv ? "disabled" : ""}>${TR.sending ? "Envoi…" : d.counter ? "Envoyer la contre-proposition" : "Proposer l’échange"}</button>
     <p class="small muted" style="margin:0">Ce que tu donnes est mis de côté jusqu’à sa réponse (${TR_HOURS} h au plus).${d.counter ? " Une contre-proposition ne compte pas dans tes échanges du jour." : TR.inv ? ` · ${left} échange${left > 1 ? "s" : ""} possible${left > 1 ? "s" : ""} aujourd’hui` : ""}</p></div>`;
@@ -195,7 +196,7 @@ function trBalanceHTML() {
 function viewTrade() {
   const f = trFriend(); if (!f) { TR.draft = null; return TR.fromMail ? viewMail() : friendsRouter(); }
   return `<div class="sheet tall trade-sheet" role="dialog" aria-modal="true" aria-label="Échange avec ${esc(f.name)}">
-    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="trBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${TR.draft.counter ? "Contre-proposition à" : "Échange avec"} ${esc(f.name)}</b><small>Valeur = prix de vente au marché</small></span></div>
+    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="trBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${TR.draft.counter ? "Contre-proposition à" : "Échange avec"} ${esc(f.name)}</b><small>Valeur = prix de vente au marché</small></span><button class="sheet-x" data-act="trCloseAll" aria-label="Fermer">${X_SVG}</button></div>
     ${trSide("give", f)}${trSide("want", f)}${trBalanceHTML()}</div>`;
 }
 // Saisie des pièces : on met à jour le brouillon et la balance sans redessiner la fenêtre (le clavier reste ouvert).
@@ -220,8 +221,9 @@ function trClose() {
 
 const TRADE_ACTS = {
   trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; TR.fromMail = false; trStart(f); friendsOver(); },
-  trOpenMail(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; TR.pick = false; TR.fromMail = true; trStart(f); modalView = friendsRouter; render(true); },
-  trPick() { TR.pick = !TR.pick; render(true); },
+  // Nouvel échange depuis la boîte aux lettres : on choisit l'ami dans l'onglet « Amis » (bouton ⇄).
+  trNew() { closeModal(); A.tab("friends"); loadFriends(true); },
+  trCloseAll() { TR.draft = null; TR.fromMail = false; closeModal(); },
   trCounter(id) {
     const r = TR.list.find(x => x.id === +id), f = r && FR.list.find(x => x.user_id === r.other && x.direction === "friend");
     if (!f) { toast("Vous n’êtes plus amis."); return; }
@@ -249,15 +251,18 @@ const TRADE_ACTS = {
     try {
       await CLOUD.rpc("propose_trade", { target: f.user_id, give, give_coins: d.giveCoins, want, want_coins: d.wantCoins, counter: d.counter });
       save(); SFX.play("success");
-      toast(`📬 ${d.counter ? "Contre-proposition envoyée" : "Échange proposé"} à <b>${esc(f.name)}</b> ! Ce que tu donnes est mis de côté jusqu’à sa réponse.`, 5000);
+      toast(`📬 ${d.counter ? "Contre-proposition envoyée" : "Échange proposé"} à <b>${esc(f.name)}</b>.`);
       TR.sending = false; if (d.counter) TR.mailTab = "out";
       trClose(); loadTrades(); if (FR.chat != null) loadMessages(true);
       return;
     } catch (e) { moveItems(give, d.giveCoins, 1); toast(trErr(String(e.message || e))); if (/trop_echanges/.test(e.message) && TR.inv) TR.inv.today = TR_DAY; }
     TR.sending = false; render(true);
   },
-  openMail() { TR.pick = false; TR.mailTab = trIn().length ? "in" : "news"; if (TR.mailTab === "news") S.mailSeen = Date.now(); modalView = viewMail; $("#modal").innerHTML = viewMail(); openModal(); loadTrades(); save(); },
-  mailTab(t) { TR.mailTab = t; TR.pick = false; render(true); if (t === "news") { S.mailSeen = Date.now(); save(); } },
+  openMail() {
+    TR.mailTab = trIn().length ? "in" : mailNews().some(n => !n.read) || !trOut().length ? "news" : "out";
+    if (TR.mailTab === "news") markNewsRead(); modalView = viewMail; $("#modal").innerHTML = viewMail(); openModal(); loadTrades();
+  },
+  mailTab(t) { TR.mailTab = t; if (t === "news") markNewsRead(); render(true); },
   async trRespond(arg) {
     const [id, ok] = arg.split(":"), r = TR.list.find(x => x.id === +id); if (!r || TR.sending) return;
     const accept = ok === "1";
@@ -266,8 +271,7 @@ const TRADE_ACTS = {
     try {
       await CLOUD.rpc("respond_trade", { tid: r.id, accept });
       r.status = accept ? "accepted" : "refused"; r.decided_at = new Date().toISOString();
-      if (accept) { moveItems(r.want, r.want_coins, -1); moveItems(r.give, r.give_coins, 1); save(); SFX.play("success"); toast(`✅ Échange conclu avec <b>${esc(r.name)}</b> ! Tu reçois ${trPlain(r.give, r.give_coins)}.`, 5000); }
-      else toast(`Échange de <b>${esc(r.name)}</b> refusé.`);
+      if (accept) { moveItems(r.want, r.want_coins, -1); moveItems(r.give, r.give_coins, 1); save(); SFX.play("success"); toast(`✅ Échange conclu avec <b>${esc(r.name)}</b> !`); }
     } catch (e) { toast(trErr(String(e.message || e))); }
     TR.sending = false; loadTrades();
   },
@@ -277,7 +281,7 @@ const TRADE_ACTS = {
     try {
       await CLOUD.rpc("cancel_trade", { tid: r.id });
       r.status = "cancelled"; r.a_claimed = true; r.decided_at = new Date().toISOString();
-      moveItems(r.give, r.give_coins, 1); save(); toast(`Échange annulé : ${trPlain(r.give, r.give_coins)} te ${trBack(r)}.`);
+      moveItems(r.give, r.give_coins, 1); save();
     } catch (e) { toast(trErr(String(e.message || e))); }
     TR.sending = false; loadTrades();
   },

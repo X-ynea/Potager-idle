@@ -61,8 +61,6 @@ async function loadWaterings() {
   S.friendWater = (S.friendWater || []).filter(w => t - w.at < FW_KEEP);
   if (!fresh.length) return;
   for (const w of fresh) { fwCatchUp(w); S.friendWater.push(w); }
-  const names = [...new Set(fresh.map(w => w.name))];
-  toast(`💧 <b>${esc(names.join(" et "))}</b> ${names.length > 1 ? "ont" : "a"} arrosé ton jardin ! Tes plantes poussent ${Math.round(FW_BONUS * 100)} % plus vite pendant 2 h.`, 6000);
   SFX.play("water"); save(); render(true);
 }
 setInterval(() => { if (friendsReady() && !document.hidden) loadWaterings(); }, 60e3);
@@ -80,7 +78,7 @@ function visitWaterHTML(f) {
     <span class="small muted">${msg || `Arroser : ses bacs sont arrosés et ses plantes poussent +${Math.round(FW_BONUS * 100)} % pendant 2 h.`}</span></div>`;
 }
 // Effet d'arrosage : une pluie de gouttes sur chaque bac du jardin de l'ami, puis des éclaboussures.
-function fwSplash() {
+function fwSplash(xp) {
   const box = document.createElement("div"); box.className = "fw-fx"; document.body.appendChild(box);
   document.querySelectorAll("#modal [data-vplot]").forEach((el, i) => {
     const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
@@ -93,7 +91,7 @@ function fwSplash() {
     s.style.left = r.left + r.width / 2 + "px"; s.style.top = r.top + r.height * .62 + "px"; s.style.animationDelay = (i * 70 + 520) + "ms"; box.appendChild(s);
   });
   const g = document.querySelector("#modal .visit-garden");
-  if (g) { const r = g.getBoundingClientRect(), t = document.createElement("span"); t.className = "fw-pop"; t.textContent = `💧 Arrosé ! +${Math.round(FW_BONUS * 100)} %`;
+  if (g) { const r = g.getBoundingClientRect(), t = document.createElement("span"); t.className = "fw-pop"; t.textContent = `💧 Arrosé ! +${Math.round(FW_BONUS * 100)} %${xp ? ` · +${xp} XP` : ""}`;
     t.style.left = r.left + r.width / 2 + "px"; t.style.top = Math.max(60, r.top + r.height * .4) + "px"; box.appendChild(t); }
   setTimeout(() => box.remove(), 2600);
 }
@@ -108,9 +106,9 @@ const WATER_ACTS = {
       const meW = { id: "moi", at: t, mine: true, name: profileName(), avatar: profile().avatar?.startsWith("v:") ? profile().avatar : CLOUD.user?.avatar || null };
       asFriend(() => { S.plots.forEach(p => growPlot(p, t)); S.friendWater.push(meW); S.plots.forEach(p => { p.waterUntil = Math.max(p.waterUntil, t + waterMs()); }); });
       const xp = 5 + S.level * 2; addXp(xp);
-      SFX.play("water"); buzz?.([15, 40, 15]); toast(`💧 Tu as arrosé le jardin de <b>${esc(f.name)}</b> ! +${xp} XP`);
+      SFX.play("water"); buzz?.([15, 40, 15]);
       VISIT.at = Date.now(); // le serveur a déjà la bonne version : pas besoin de recharger tout de suite
-      VISIT.watering = false; commit(); fwSplash(); return;
+      VISIT.watering = false; commit(); fwSplash(xp); return;
     } catch (e) {
       const m = String(e.message || e);
       if (/deja_arrose/.test(m)) VISIT.water = { ...VISIT.water, mine_today: true };

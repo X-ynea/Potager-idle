@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.20.0" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.20.1" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -714,7 +714,7 @@ function viewSeason(arrived) {
       <div><span class="ss-ico">${visitorArt(z.visitor.key)}</span><span>Visiteur : <b>${z.visitor.name}</b></span></div>
       <div><span class="ss-ico">${pestIcon(z.pest.key)}</span><span>Bloque les bacs : <b>${z.pest.name}</b></span></div>
     </div>
-    <button class="btn big" data-act="close">${arrived ? "C’est parti !" : "Fermer"}</button></div>`;
+    ${arrived ? `<button class="btn big" data-act="close">C’est parti !</button>` : SHEET_X}</div>`;
 }
 function showSeason() {
   if (S.season === season()) return;
@@ -778,7 +778,7 @@ const isPhone = () => matchMedia("(pointer: coarse)").matches;
 function viewSettings() {
   const th = S.settings.theme;
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Paramètres">
-    <div class="sheet-head"><h2>Paramètres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Paramètres</h2>${SHEET_X}</div>
     ${installPrompt ? `<div class="install"><p>Installe le jeu sur ton téléphone pour y jouer comme une vraie appli.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
@@ -913,7 +913,7 @@ function decoAdjustHTML(slot) {
 function viewDecoPick(slot) {
   const cur = S.decoSlots[slot];
   return `<div class="sheet deco-sheet" role="dialog" aria-modal="true" aria-label="Décorations" data-deco-sheet>
-    <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2>${SHEET_X}</div>
     ${cur ? decoAdjustHTML(slot) : ""}
     <p class="small muted" style="margin:0;max-width:none;justify-self:stretch">Choisis une décoration. Elle remplace celle déjà en place.</p>
     <div class="deco-grid strip">${[...DECO_ORDER].sort((a, b) => decoUnlocked(b) - decoUnlocked(a)).map(d => { const ok = decoUnlocked(d), src = decoSource(d);
@@ -925,7 +925,7 @@ function viewDecoPick(slot) {
 // Choisir l'emplacement d'une décoration (depuis l'inventaire).
 function viewDecoSlots(d) {
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="${DECOS[d]}">
-    <div class="sheet-head"><h2>${DECOS[d]}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>${DECOS[d]}</h2>${SHEET_X}</div>
     <p class="small muted" style="margin:0">Où la placer dans le jardin ?</p>
     <div class="deco-slots-pick">${S.decoSlots.map((c, i) => `<button class="deco-slot ${c ? "full" : "empty"}${c === d ? " sel" : ""}" data-act="decoPlace" data-arg="${i}:${d}">${c ? `<img src="assets/img/deco-${c}.webp" alt="">` : "<span>+</span>"}<small>Emplacement ${i + 1}</small></button>`).join("")}</div>
   </div>`;
@@ -1067,7 +1067,7 @@ function invBody(ctx, cat) {
   return det + (ctx === "sell" && keys.length > 1 ? sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) : "") + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
 function viewInv() {
-  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2>${SHEET_X}</div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
 }
 
 /* ---------------- Marché ---------------- */
@@ -1321,7 +1321,7 @@ function viewPlotShop() {
   if (!step) return "";
   const lock = S.level < step.lvl, poor = S.coins < step.cost;
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Nouvelle parcelle">
-    <div class="sheet-head"><h2>Nouvelle parcelle</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Nouvelle parcelle</h2>${SHEET_X}</div>
     <div class="detail"><div class="d-head"><div class="d-art"><img src="assets/img/upg-plot.webp" alt="" style="width:100%;height:100%;object-fit:contain"></div>
       <div class="d-txt"><h3>Un bac de plus</h3><p>Une parcelle supplémentaire pour faire pousser plus de plantes en même temps.</p></div></div>
       <div class="meta">${mi("Parcelles", `${S.plots.length} → ${S.plots.length + 1}`)}${mi("Prix", fmt(step.cost))}${mi("Tes pièces", fmt(S.coins))}</div>
@@ -1333,7 +1333,7 @@ function viewPicker() {
   // Même hauteur pour les deux onglets (celle du plus rempli), pour éviter un saut en changeant d'onglet.
   const rows = Math.max(PICK.order.filter(k => !PLANTS[k].hybrid).length, PICK.order.filter(k => PLANTS[k].hybrid).length, 1);
   return `<div class="sheet picker-sheet" style="--rows:${rows}" role="dialog" aria-modal="true" aria-label="Choisir une graine">
-    <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div>${SHEET_X}</div>
     ${(() => { const nb = PICK.order.filter(k => !PLANTS[k].hybrid).length, nh = PICK.order.filter(k => PLANTS[k].hybrid).length;
       return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
@@ -1360,7 +1360,7 @@ function openPlantInfo(k) {
     ${known ? `<div class="hi-gold ${S.goldenFound.includes(k) ? "found" : ""}">${S.goldenFound.includes(k) ? `${goldArt(k)}<span><b>Version dorée trouvée</b><br>Elle vaut ${fmt(d.sell * 10)} pièces.</span>` : `<span class="sil">${cropArt(k)}</span><span><b>Version dorée : pas encore trouvée</b><br>Une récolte sur 50 environ est dorée.</span>`}</div>` : ""}
     ${known && uses.length ? `<div class="hi-uses"><h4>Recettes</h4><div class="basket">${uses.map(r => `<span class="chip">${dishArt(r)}${RECIPES[r].name}</span>`).join("")}</div></div>` : ""}
     ${known && usedIn.length ? `<div class="hi-uses"><h4>Hybrides obtenus</h4><div class="basket">${usedIn.map(h => `<span class="chip">${cropArt(h)}${PLANTS[h].name}</span>`).join("")}</div></div>` : ""}
-    <button class="btn big ghost" data-act="close">Fermer</button></div>`;
+    ${SHEET_X}</div>`;
   $("#modal").innerHTML = modalView(); openModal();
 }
 function openReveal(h, isNew) {

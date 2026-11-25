@@ -326,3 +326,6 @@ function vectorArt(url) {
     return null;
   } finally { VEC_ONLY = false; }
 }
+/* Petite croix pour fermer une fenêtre (remplace les boutons « Fermer »). */
+const X_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`;
+const SHEET_X = `<button class="sheet-x" data-act="close" aria-label="Fermer">${X_SVG}</button>`;

@@ -54,7 +54,7 @@ function friendRow(f) {
 function viewFriends(inTab) {
   const shell = inTab ? body => `<section class="panel friends-page"><h2>Amis</h2>${body}</section>`
     : body => `<div class="sheet tall friends-sheet" role="dialog" aria-modal="true" aria-label="Amis">
-    <div class="sheet-head"><h2>Amis</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${body}</div>`;
+    <div class="sheet-head"><h2>Amis</h2>${SHEET_X}</div>${body}</div>`;
   if (!CLOUD.enabled()) return shell(`<div class="empty-note"><span>Les amis arrivent bientôt.</span></div>`);
   if (!CLOUD.signedIn) return shell(`<div class="empty-note"><span>Connecte-toi avec Discord pour ajouter des amis et retrouver leur jardin.</span><button class="btn discord" data-act="cloudLogin">${DISCORD_ICON}Se connecter avec Discord</button></div>`);
   if (CLOUD.blocked) return shell(`<p class="cloud-warn">${esc(CLOUD.blocked)}</p>`);
@@ -90,12 +90,12 @@ function viewChat() {
           <span class="msg-meta">${timeOf(m.created_at)}${mine && FR.msgSel === m.id ? ` · <button class="msg-del" data-act="msgDel" data-arg="${m.id}">Supprimer</button>` : ""}</span></div>`; }).join("");
   return `<div class="sheet tall chat-sheet" role="dialog" aria-modal="true" aria-label="Messages avec ${esc(f.name)}">
     <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span>
-      <button class="chat-trade" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
-
-      <button class="btn ghost sm chat-close" data-act="close">Fermer</button>
+      <button class="chat-more${FR.chatMenu ? " on" : ""}" data-act="chatMenu" aria-label="Plus d’options" aria-expanded="${!!FR.chatMenu}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/></svg></button>
+      ${SHEET_X}
+      ${FR.chatMenu ? `<div class="chat-menu"><button class="chat-menu-item danger" data-act="frAsk" data-arg="remove">${UNFRIEND_ICON}Retirer de mes amis</button><button class="chat-menu-item danger" data-act="frAsk" data-arg="block">${BLOCK_ICON}Bloquer ${esc(f.name)}</button></div>` : ""}
       </div>
     ${FR.ask ? askPopHTML(f) : ""}
-    <div class="chat-body" id="chat-body"><div class="chat-danger"><button class="danger-pill" data-act="frAsk" data-arg="remove">${UNFRIEND_ICON}Retirer de mes amis</button><button class="danger-pill" data-act="frAsk" data-arg="block">${BLOCK_ICON}Bloquer</button></div><p class="chat-note">Les messages sont effacés au bout de 30 jours.</p>${bubbles}</div>
+    <div class="chat-body" id="chat-body"><p class="chat-note">Les messages sont effacés au bout de 30 jours.</p>${bubbles}</div>
     <form class="chat-input" data-form="msgSend"><input id="msg-in" maxlength="500" placeholder="Écrire à ${esc(f.name)}…" autocomplete="off" enterkeyhint="send"><button class="btn" type="submit" ${FR.sending ? "disabled" : ""}>Envoyer</button></form></div>`;
 }
 // Retirer ou bloquer : fenêtre de confirmation (évite les erreurs de doigt).
@@ -172,20 +172,21 @@ const FRIENDS_ACTS = {
     try { await CLOUD.rpc("remove_friendship", { fid: +id }); } catch (e) { toast("Action impossible pour le moment."); }
     loadFriends(true);
   },
-  frChat(id) { FR.chat = +id; VISIT.id = null; FR.msgSel = null; FR.ask = null; friendsOver(); loadMessages(true); loadTrades(); },
-  frBack() { FR.chat = null; FR.msgSel = null; FR.ask = null; if (FR.fromTab) closeModal(); else render(true); },
+  frChat(id) { FR.chat = +id; VISIT.id = null; FR.msgSel = null; FR.ask = null; FR.chatMenu = false; friendsOver(); loadMessages(true); loadTrades(); },
+  frBack() { FR.chat = null; FR.msgSel = null; FR.ask = null; FR.chatMenu = false; if (FR.fromTab) closeModal(); else render(true); },
   msgSel(id) { FR.msgSel = FR.msgSel === +id ? null : +id; render(true); },
   async msgDel(id) {
     const f = chatFriend(); try { await CLOUD.rpc("delete_message", { mid: +id }); if (f) FR.msgs[f.user_id] = (FR.msgs[f.user_id] || []).filter(m => m.id !== +id); } catch (e) { toast("Suppression impossible pour le moment."); }
     FR.msgSel = null; render(true);
   },
-  frAsk(k) { FR.ask = k || null; render(true); },
+  chatMenu() { FR.chatMenu = !FR.chatMenu; render(true); },
+  frAsk(k) { FR.ask = k || null; FR.chatMenu = false; render(true); },
   // Après confirmation : retirer l'ami, ou le bloquer (retire l'ami, efface la conversation, empêche tout contact).
   async frAskGo() {
     const f = chatFriend(), k = FR.ask; FR.ask = null; if (!f) return;
     try {
-      if (k === "block") { await CLOUD.rpc("block_user", { target: f.user_id }); toast(`${esc(f.name)} est bloqué.`); }
-      else { await CLOUD.rpc("remove_friendship", { fid: f.id }); toast(`${esc(f.name)} ne fait plus partie de tes amis.`); }
+      if (k === "block") await CLOUD.rpc("block_user", { target: f.user_id });
+      else await CLOUD.rpc("remove_friendship", { fid: f.id });
       delete FR.msgs[f.user_id]; FR.chat = null; if (FR.fromTab) closeModal(); else render(true);
     } catch (e) { toast("Action impossible pour le moment."); render(true); }
     loadFriends(true);

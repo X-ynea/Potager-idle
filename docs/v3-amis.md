@@ -59,7 +59,9 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
   - **contre-proposition** depuis un échange reçu (pré-remplie à l'envers) : l'échange reçu est remplacé, son auteur récupère ses objets, la nouvelle proposition repart pour 48 h et ne compte pas dans les 3 échanges du jour ;
   - boîte aux lettres : bouton « Nouvel échange » dans Envoyés ; nouvelles gardées 24 h (arrosages) et 7 jours (échanges) ;
   - le message « 📬 » de la conversation montre l'échange, avec « Annuler l'échange » (ou son état) ;
-  - liste d'amis : visiter, échanger, messages (même style) ; retirer et bloquer dans la conversation, avec une fenêtre de confirmation.
+  - liste d'amis : visiter, échanger, messages (même style) ; retirer et bloquer dans le menu ⋯ de la conversation, avec une fenêtre de confirmation.
+- ✅ v2.20.1 : balance en deux jauges rondes autour d'une petite balance ; « Nouvel échange » mène à l'onglet Amis ; croix au lieu des boutons « Fermer », plus de barre de glissement sur les fenêtres ; moins de messages en bas de l'écran ; nouvelles gardées dans la partie (une non lue reste, une lue s'efface après 24 h ou 7 jours).
+- Décos à remplacer (images à venir) : Arrosoir → bain d'oiseaux ou tonneau de pluie ; Boîte aux lettres → panneau du village ou moulin à vent. Même succès, déco échangée automatiquement chez ceux qui l'ont déjà.
 
 ## Avant la sortie : conseils de Mamie Lapine pour la v3
 
