@@ -12,7 +12,7 @@ const ACHIEVEMENTS = [
     tiers: [{ n: 10, c: 50, x: 20 }, { n: 100, c: 300, x: 80, deco: "gnome" }, { n: 1000, c: 2000, x: 300, title: "Main verte", bonus: "xp" }] },
   { id: "double", cat: "garden", name: "Récolte double", desc: "Obtenir une récolte double", value: () => st("doubles"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "full", cat: "garden", name: "Jardin plein", desc: "Avoir toutes ses parcelles plantées en même temps", value: () => st("fullGarden"), tiers: [{ n: 1, c: 40, x: 15 }] },
-  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "can" }] },
+  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "birdbath" }] },
   { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && !PLANTS[k].only && S.discovered.includes(k)).length,
     tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur", deco: "scarecrow" }] },
   { id: "seasons", cat: "garden", name: "Quatre saisons", desc: "Récolter les 8 plantes exclusives des saisons", value: () => ORDER.filter(k => PLANTS[k].only && S.discovered.includes(k)).length,
@@ -48,7 +48,7 @@ const ACHIEVEMENTS = [
   { id: "neighbor", cat: "village", name: "Bon voisin", desc: n => `Livrer ${n} commandes`, value: () => st("orders"),
     tiers: [{ n: 10, c: 100, x: 30 }, { n: 50, c: 600, x: 150, deco: "wheelbarrow" }, { n: 150, c: 2000, x: 400, title: "Pilier du village" }] },
   { id: "friends", cat: "village", name: "Ami de tous", desc: "Livrer une commande à chacun des voisins", value: () => (S.stats.served || []).length,
-    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "mailbox" }] },
+    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "signpost" }] },
   { id: "bigdelivery", cat: "village", name: "Grosse livraison", desc: "Livrer une commande de 500 pièces ou plus", value: () => st("bigOrder"), tiers: [{ n: 1, c: 200, x: 50 }] },
 
   { id: "fortune", cat: "eco", name: "Petite fortune", desc: n => `Avoir ${fmt(n)} pièces en même temps`, value: () => st("maxCoins"),
@@ -79,13 +79,16 @@ const ACHIEVEMENTS = [
 // XP des succès réduite d’un quart (2.12), arrondie à 5.
 ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .75 / 5) * 5); }));
 const DECOS = {
-  gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", can: "Arrosoir fleuri", birdhouse: "Nichoir",
-  hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", mailbox: "Boîte aux lettres", lantern: "Lanterne",
+  gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", birdbath: "Bain d’oiseaux", birdhouse: "Nichoir",
+  hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", signpost: "Panneau du village", lantern: "Lanterne",
   rabbit: "Lapin doré", well: "Puits",
 };
 const DECO_ORDER = Object.keys(DECOS);
+// v3 : l'arrosoir et la boîte aux lettres deviennent le bain d'oiseaux et le panneau du village
+// (pour ne pas les confondre avec l'arrosage d'un ami et la boîte aux lettres du jardin).
+const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, can: .55, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, mailbox: .95, lantern: 1.2, rabbit: .7, well: 1.25 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25 };
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
 const decoUnlocked = d => { const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };

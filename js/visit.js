@@ -22,7 +22,7 @@ function visitState(d) {
   });
   const slots = Array.isArray(d.decoSlots) ? d.decoSlots : [];
   return {
-    plots, decoSlots: [0, 1, 2].map(i => DECOS[slots[i]] ? slots[i] : null),
+    plots, decoSlots: [0, 1, 2].map(i => { const d = DECO_RENAME[slots[i]] || slots[i]; return DECOS[d] ? d : null; }),
     decoOff: Array.isArray(d.decoOff) ? d.decoOff : [], decoFlip: Array.isArray(d.decoFlip) ? d.decoFlip : [],
     upg: { water: lvl(d.upg?.water, UPG.water.values.length - 1), fert: lvl(d.upg?.fert, UPG.fert.values.length - 1), auto: lvl(d.upg?.auto, 1) },
     discovered: list(d.discovered), hybrids: list(d.hybrids), goldenFound: list(d.goldenFound), level: Math.max(1, +d.level || 1),

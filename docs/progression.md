@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 2.16.0 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 2.23.0 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -193,7 +193,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 |  | 3 | Récolter 1000 plantes | 2 000 | 225 | titre « Main verte », +5 % d’XP sur tout |
 | Récolte double |  | Obtenir une récolte double | 50 | 10 |  |
 | Jardin plein |  | Avoir toutes ses parcelles plantées en même temps | 40 | 10 |  |
-| Toujours humide |  | Récolter 20 plantes qui n’ont jamais eu soif | 150 | 30 | déco Arrosoir fleuri |
+| Toujours humide |  | Récolter 20 plantes qui n’ont jamais eu soif | 150 | 30 | déco Bain d’oiseaux |
 | Collectionneur |  | Récolter chacune des 12 plantes de base | 400 | 75 | titre « Collectionneur », déco Épouvantail |
 | Quatre saisons | 1 | Récolter les 8 plantes exclusives des saisons | 150 | 30 |  |
 |  | 2 | Récolter les 8 plantes exclusives des saisons | 1 500 | 225 | titre « Jardinier des saisons » |
@@ -223,7 +223,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Bon voisin | 1 | Livrer 10 commandes | 100 | 25 |  |
 |  | 2 | Livrer 50 commandes | 600 | 115 | déco Brouette de légumes |
 |  | 3 | Livrer 150 commandes | 2 000 | 300 | titre « Pilier du village » |
-| Ami de tous |  | Livrer une commande à chacun des voisins | 500 | 90 | titre « Ami du village », déco Boîte aux lettres |
+| Ami de tous |  | Livrer une commande à chacun des voisins | 500 | 90 | titre « Ami du village », déco Panneau du village |
 | Grosse livraison |  | Livrer une commande de 500 pièces ou plus | 200 | 40 |  |
 | Petite fortune | 1 | Avoir 1000 pièces en même temps | 0 | 40 |  |
 |  | 2 | Avoir 10000 pièces en même temps | 0 | 150 |  |

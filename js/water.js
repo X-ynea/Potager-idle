@@ -4,7 +4,7 @@
    tous ses bacs sont arrosés et ses plantes poussent 20 % plus vite pendant 2 h.
    Les arrosages reçus sont gardés dans la sauvegarde (S.friendWater) ; la pousse en tient compte
    (growPlot dans game.js). Limites, comptées par le serveur : 2 arrosages reçus et 2 donnés par jour. */
-const FW_ICON = `<img class="fw-ico" src="assets/img/ui-friend-water.webp" alt="">`;
+const FW_ICON = `<svg class="fw-ico" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c3.4 4.6 5.6 7.8 5.6 10.6a5.6 5.6 0 0 1-11.2 0C10.4 10.8 12.6 7.6 16 3z" fill="#3f9bdc"/><path d="M8.5 15c2.3 3.1 3.8 5.3 3.8 7.2a3.8 3.8 0 0 1-7.6 0c0-1.9 1.5-4.1 3.8-7.2zM23.5 15c2.3 3.1 3.8 5.3 3.8 7.2a3.8 3.8 0 0 1-7.6 0c0-1.9 1.5-4.1 3.8-7.2z" fill="#6cb8ec"/><path d="M14 11.5a2.6 2.6 0 0 0 1 3.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/></svg>`; // trois gouttes
 const FW_KEEP = 26 * 3600e3; // les arrosages plus vieux ne servent plus
 
 // Arrosages qui font effet en ce moment : la « chaîne » d'arrosages qui se suivent sans interruption.

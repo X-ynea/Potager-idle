@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.22.2" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.23.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -91,6 +91,7 @@ function migrate(s) {
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (!s.decoSlots) s.decoSlots = [null, null, null];
+  s.decoSlots = s.decoSlots.map(d => DECO_RENAME[d] || d);
   // 2.9.5 : recettes apprises alors que leur hybride n'était pas découvert → retirées et remboursées.
   if (!s.hybRefund && Array.isArray(s.recipes)) {
     const bad = s.recipes.filter(r => RECIPES[r] && Object.keys(RECIPES[r].need).some(k => PLANTS[k]?.hybrid && !(s.hybrids || []).includes(k)));
