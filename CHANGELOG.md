@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.4
+- Le chiffre dans le titre de l'onglet du navigateur compte aussi les demandes d'ami, les messages non lus, les échanges reçus et les réponses à tes échanges.
+
 ### 3.0.3
 - Conseils de Mamie Lapine : « Je me débrouille, merci » compte comme si tous ses conseils étaient terminés. À chaque mise à jour, elle ne présente que les nouveautés. « Revoir » dans les Paramètres reprend tout depuis le début.
 
