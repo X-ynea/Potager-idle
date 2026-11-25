@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.1
+- Barre du haut : l’XP n’est plus coupée avec beaucoup de pièces. Si la place manque, « XP » puis « Niveau » se raccourcissent (« Niv. »).
+
 ### 2.16.0 · Progression rééquilibrée
 - Il faut 25 % d’XP en plus pour monter de niveau. Chaque joueur garde son niveau, et sa barre d’XP reste remplie à la même proportion.
 - Commandes des voisins : un peu moins d’XP, et 20 % de pièces en moins (objectifs du jour aussi).

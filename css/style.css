@@ -97,6 +97,12 @@ svg { display: block; }
 .lvl-top #lvl { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; min-width: 0; height: 1.4em; overflow: hidden; }
 .lvl-top #lvl .title-tag { margin-left: 0; }
 .lvl-top #xpt { flex: none; }
+/* Quand la place manque (grosses sommes de pièces, gros niveaux) : « XP » puis « Niveau » se raccourcissent. */
+.lvl { container-type: inline-size; }
+.lv-short { display: none; }
+@container (max-width: 215px) { .xp-unit { display: none; } }
+@container (max-width: 190px) { .lv-long { display: none; } .lv-short { display: inline; } }
+@media (max-width: 400px) { .lv-long { display: inline !important; } .lv-short { display: none !important; } } /* l’XP passe sous la barre : la place suffit */
 .xpbar { height: 8px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--leaf), var(--leaf-light, #f8b46c)); border-radius: 99px; transition: width .4s; }
 
@@ -467,7 +473,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .bag svg { width: 20px; height: 20px; }
   .top .pill { padding: 3px 10px 3px 5px; }
   .lvl-top b { font-size: .85rem; }
-  .lvl-top span { font-size: .7rem; }
+  .lvl-top #xpt { font-size: .7rem; }
 }
 @media (max-width: 400px) { .xp-unit { display: none; } }
 @media (max-width: 400px) {
@@ -475,7 +481,7 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .lvl-top { display: contents; }
   .lvl-top b { order: 1; }
   .xpbar { order: 2; }
-  .lvl-top span { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
+  .lvl-top #xpt { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
 }
 .lv-item .lv-buy { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: .74rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 1px 8px; }
 .lv-item > div:last-child { display: grid; justify-items: start; }

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.0" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.1" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1254,7 +1254,7 @@ function render(force) {
 function live(t) {
   $("#coins").textContent = fmt(S.coins);
   updateBrand();
-  $("#lvl").innerHTML = "Niveau " + S.level + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
+  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>` + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
