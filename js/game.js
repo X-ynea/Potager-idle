@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.6" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.7" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1257,11 +1257,11 @@ function render(force) {
   live(t);
 }
 function live(t) {
-  $("#coins").textContent = fmtShort(S.coins); $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
+  $("#coins").innerHTML = `<span class="n-short">${fmtShort(S.coins)}</span><span class="n-full">${fmt(S.coins)}</span>`; $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
   updateBrand();
   $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>`;
   const ttl = $("#ttl"); ttl.hidden = !S.title; ttl.textContent = S.title || ""; // titre sous la barre d’XP
-  $("#xpt").innerHTML = `${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
+  $("#xpt").innerHTML = `<span class="n-short">${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}</span><span class="n-full">${fmt(S.xp)} / ${fmt(xpNeed(S.level))}</span><span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
   updatePlotTip(t);

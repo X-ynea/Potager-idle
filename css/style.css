@@ -103,6 +103,10 @@ svg { display: block; }
 /* Quand la place manque (grosses sommes de pièces, gros niveaux) : « XP » puis « Niveau » se raccourcissent. */
 .lvl { container-type: inline-size; }
 .lv-short { display: none; }
+/* Nombres détaillés quand il y a la place (grand écran), courts sinon */
+.n-full { display: none; }
+@container (min-width: 236px) { #xpt .n-full { display: inline; } #xpt .n-short { display: none; } }
+@media (min-width: 600px) { #coins .n-full { display: inline; } #coins .n-short { display: none; } }
 @container (max-width: 215px) { .xp-unit { display: none; } }
 @container (max-width: 160px) { .lv-long { display: none; } .lv-short { display: inline; } }
 @media (max-width: 400px) { .lv-long { display: inline !important; } .lv-short { display: none !important; } } /* l’XP passe sous la barre : la place suffit */

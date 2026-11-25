@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.7
+- Grand écran : l’XP et les pièces restent affichées en détail dans la barre du haut. Le format court (1k, 13,3k) ne sert que sur les écrans étroits.
+
 ### 2.16.6
 - Pas d’espace en plus pour une section placée juste sous un grand titre (Inventaire › Graines, Herbier › Plantes).
 
