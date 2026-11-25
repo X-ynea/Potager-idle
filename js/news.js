@@ -34,10 +34,18 @@ function checkNews3() {
   let seen = true; try { seen = !!localStorage.getItem(NEWS3_KEY); } catch (e) {}
   if (seen) return;
   try { localStorage.setItem(NEWS3_KEY, "1"); } catch (e) {}
-  if ((S.stats?.harvest || 0) > 0 || S.level > 1) { closeModal(); showNews3(); } // les nouveaux joueurs ne la voient pas
+  if ((S.stats?.harvest || 0) > 0 || S.level > 1) { closeModal(); showNews3(); resetTuto3(); } // les nouveaux joueurs ne la voient pas
 }
 addEventListener("load", () => setTimeout(checkNews3, 2200));
+// Conseils de Mamie Lapine sur la v3 : ils (re)commencent avec la fenêtre, sans refaire les premiers pas.
+const TUTO3_IDS = ["friends", "friends2", "visit", "trade", "watered", "weekly", "hybrids3", "mail"];
+function resetTuto3() {
+  const T = tutoState(); T.off = false;
+  for (const id of TUTO3_IDS) delete T.seen[id];
+  for (const f of ["tab_friends", "visited", "trade_opened", "mail_opened"]) delete T.f[f];
+  save();
+}
 const NEWS3_ACTS = {
   news3Close() { document.getElementById("gate")?.remove(); SFX.play("success"); render(true); },
-  news3Replay() { closeModal(); showNews3(); },
+  news3Replay() { closeModal(); showNews3(); resetTuto3(); },
 };
