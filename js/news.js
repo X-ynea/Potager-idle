@@ -3,7 +3,7 @@
    Une seule fois par appareil, pour les joueurs qui avaient déjà une partie (les nouveaux la découvrent
    avec Mamie Lapine). Ensuite, Mamie Lapine présente chaque nouveauté au bon moment (js/tuto.js).
    Version de test : Paramètres › « Revoir la fenêtre de la v3 ». */
-const NEWS3_KEY = "potager-news-v3b" + (IS_TEST ? "-test" : ""); // « b » : réaffichée une fois sur la version de test après l’ajout des recettes
+const NEWS3_KEY = "potager-news-v3c" + (IS_TEST ? "-test" : ""); // « c » : réaffichée une fois (3.0.1 : elle se fermait toute seule après la synchronisation)
 const NEWS3_ITEMS = [
   [() => FR_ICONS.people, "Un onglet Amis", "Partage ton code ami, ajoute tes proches et discutez ensemble."],
   ["🌱", "Visite leur jardin", "Découvre leurs bacs, leurs décos et leur herbier."],

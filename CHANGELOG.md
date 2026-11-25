@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.1
+- La fenêtre « Du nouveau au potager ! » se fermait toute seule une seconde après l'ouverture du jeu. C'est corrigé, et elle s'affiche de nouveau une fois.
+
 ### 2.16.10
 - Herbier : plantes et hybrides rangés par niveau (découverts d’abord). Un hybride a le niveau de son parent le plus tardif, donc les inconnus apparaissent dans l’ordre où ils deviennent possibles.
 - Marché › Graines : même ordre pour les hybrides pas encore trouvés.

@@ -184,7 +184,7 @@ function showGate() {
     g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
     g.innerHTML = newsHTML(); return;
   }
-  if (!need) { g?.remove(); return; }
+  if (!need) { if (!g?.querySelector(".news3")) g?.remove(); return; } // la fenêtre « Du nouveau » de la v3 reste affichée
   if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
   g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
   const hasLocal = !CLOUD.signedIn && typeof S !== "undefined" && ((S.stats?.harvest || 0) > 0 || S.level > 1);
