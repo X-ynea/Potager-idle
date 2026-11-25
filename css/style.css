@@ -824,10 +824,10 @@ button.herb:active { transform: scale(.97); }
 /* Bouton Décorer sorti du jardin : il ne cache plus les badges des bacs */
 .garden-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 0; }
 .garden-bar .garden-hint { margin: 0; }
-.garden-bar .deco-edit { position: static; width: auto; height: 28px; padding: 0 11px 0 9px; border-radius: 99px; display: inline-flex; align-items: center; gap: 5px;
+.garden-bar .deco-edit, .garden-zone > .deco-edit { position: static; width: auto; height: 28px; padding: 0 11px 0 9px; border-radius: 99px; display: inline-flex; align-items: center; gap: 5px;
   background: var(--panel-2); border: 1px solid var(--line); box-shadow: none; color: var(--leaf-deep); font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
-.garden-bar .deco-edit svg { width: 13px; height: 13px; }
-.garden-bar .deco-edit.on { background: var(--leaf); border-color: var(--leaf); color: #fff; }
+.garden-bar .deco-edit svg, .garden-zone > .deco-edit svg { width: 13px; height: 13px; }
+.garden-bar .deco-edit.on, .garden-zone > .deco-edit.on { background: var(--leaf); border-color: var(--leaf); color: #fff; }
 /* Récolte dorée : fenêtre centrale animée */
 .goldpop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(40,30,5,.25); animation: gp-fade .25s ease-out; cursor: pointer; }
 .goldpop.out { animation: gp-fade .3s ease-in reverse forwards; }
@@ -1570,7 +1570,9 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .pf-xp-top span { font-size: .85rem; font-weight: 700; color: var(--muted); }
 .pf-xp small { font-size: .75rem; }
 .top .lvl { cursor: pointer; }
-/* « Décorer » collé au jardin (3.0.7) : la boîte aux lettres dépasse à droite, à côté du texte qui s'en écarte. */
-.garden:has(> .mailbox) { margin-top: 6px; }
-.panel:has(> .garden > .mailbox) > .garden-bar, .panel:has(> .garden > .mailbox) > .fw-line { padding-right: calc(min(20%, 84px) + 4%); }
-.panel:has(> .garden > .mailbox) > .garden-bar { margin-bottom: 0; }
+/* « Décorer » posé juste au-dessus du jardin, à gauche ; les textes restent à leur place, à droite. */
+.garden-zone { position: relative; padding-top: 36px; }
+.garden-zone > .garden { margin-top: 0 !important; }
+.garden-zone > .deco-edit { position: absolute; top: 2px; left: 0; right: auto; bottom: auto; width: auto; z-index: 3; }
+.garden-bar { justify-content: flex-end; }
+.garden-bar:empty { display: none; }

@@ -122,12 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.9
+- Jardin : les textes au-dessus du jardin reprennent leur place ; seul le bouton « Décorer » est posé juste au-dessus du jardin, à gauche.
+
 ### 3.0.8
 - Récolte dorée : « première trouvaille » ne s’affiche plus quand on en avait déjà trouvé une puis vendue.
 
 ### 3.0.7
 - Décorations : le choix d’une décoration se fait dans une grille, comme le reste de l’app, au lieu d’une bande à faire défiler.
-- Jardin : le bouton « Décorer » est collé au jardin. Le texte à droite s’écarte de la boîte aux lettres.
 
 ### 3.0.6
 - Cette semaine, l'objectif entre amis déjà terminé avec les anciennes cibles redevient actif avec les nouvelles, sans nouvelle récompense.

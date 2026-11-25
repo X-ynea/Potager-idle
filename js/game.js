@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.8" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.9" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -870,12 +870,13 @@ function views_garden() {
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
-    <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
+    <div class="garden-bar"><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
     ${fwLineHTML(t)}
+    <div class="garden-zone"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button>
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div>${decoRowHTML()}${mailboxHTML()}</div>
+    </div>${decoRowHTML()}${mailboxHTML()}</div></div>
   </section>
   ${dailyQuests().bonus ? "" : questsHTML()}
   ${weeklyHTML()}
@@ -1266,8 +1267,10 @@ function render(force) {
       // Saison : on ne remplace les particules que si la saison a changé (sinon leur animation repartirait).
       if (oldGarden.dataset.season !== season()) { oldGarden.dataset.season = season(); oldGarden.querySelector(".season-fx")?.replaceWith(freshGarden.querySelector(".season-fx")); }
       oldGarden.classList.toggle("decorated", !!UI.editDeco || S.decoSlots.some(Boolean));
-      swapAround(oldGarden.parentElement, freshGarden.parentElement, oldGarden, freshGarden);
-      swapAround($("#view"), tmp, oldGarden.parentElement, freshGarden.parentElement);
+      // On remonte jusqu'à la vue en remplaçant, à chaque niveau, tout sauf l'élément qui contient le jardin.
+      let keep = oldGarden, fresh = freshGarden;
+      while (keep.parentElement !== $("#view")) { swapAround(keep.parentElement, fresh.parentElement, keep, fresh); keep = keep.parentElement; fresh = fresh.parentElement; }
+      swapAround($("#view"), tmp, keep, fresh);
     } else {
       $("#view").replaceChildren(...tmp.childNodes);
     }
