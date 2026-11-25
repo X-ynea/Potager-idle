@@ -61,6 +61,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.3
+- Barre du haut : le titre est de retour, sous la barre d’XP, sur tous les écrans.
+- Pièces en format court dès 10 000 (38,9 k, 123 k, 4,56 M…) ; le montant exact est affiché en haut du Marché.
+
 ### 2.16.2
 - Barre du haut : au-delà de 100 000 pièces, la somme s’affiche en court (123 k, 4,56 M…). Le montant exact apparaît au survol.
 

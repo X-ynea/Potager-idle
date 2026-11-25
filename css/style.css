@@ -95,13 +95,16 @@ svg { display: block; }
 .lvl-top b { color: var(--ink); font-family: var(--f-display); font-weight: 600; font-size: .9rem; }
 /* Le titre passe à la ligne (masquée) s'il n'a pas la place : l'XP reste toujours lisible. */
 .lvl-top #lvl { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; min-width: 0; height: 1.4em; overflow: hidden; }
-.lvl-top #lvl .title-tag { margin-left: 0; }
+/* Titre affiché sous la barre d'XP */
+#ttl { justify-self: start; margin: 1px 0 0; font-size: .6rem; line-height: 1.35; padding: 0 6px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+#ttl[hidden] { display: none; }
+.market-purse { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 1rem; }
 .lvl-top #xpt { flex: none; }
 /* Quand la place manque (grosses sommes de pièces, gros niveaux) : « XP » puis « Niveau » se raccourcissent. */
 .lvl { container-type: inline-size; }
 .lv-short { display: none; }
 @container (max-width: 215px) { .xp-unit { display: none; } }
-@container (max-width: 190px) { .lv-long { display: none; } .lv-short { display: inline; } }
+@container (max-width: 160px) { .lv-long { display: none; } .lv-short { display: inline; } }
 @media (max-width: 400px) { .lv-long { display: inline !important; } .lv-short { display: none !important; } } /* l’XP passe sous la barre : la place suffit */
 .xpbar { height: 8px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--leaf), var(--leaf-light, #f8b46c)); border-radius: 99px; transition: width .4s; }
@@ -482,6 +485,11 @@ textarea { width: 100%; min-height: 70px; border-radius: 12px; border: 1px solid
   .lvl-top b { order: 1; }
   .xpbar { order: 2; }
   .lvl-top #xpt { order: 3; font-size: .66rem; line-height: 1; text-align: right; }
+  /* Avec un titre : le titre à gauche, l'XP à droite, sur la même ligne sous la barre */
+  .lvl:has(#ttl:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto; column-gap: 6px; }
+  .lvl:has(#ttl:not([hidden])) > .lvl-top b, .lvl:has(#ttl:not([hidden])) > .xpbar { grid-column: 1 / -1; }
+  .lvl:has(#ttl:not([hidden])) #ttl { order: 3; grid-column: 1; margin: 0; }
+  .lvl:has(#ttl:not([hidden])) .lvl-top #xpt { order: 4; grid-column: 2; align-self: center; }
 }
 .lv-item .lv-buy { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: .74rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 1px 8px; }
 .lv-item > div:last-child { display: grid; justify-items: start; }
@@ -622,7 +630,6 @@ button.herb:active { transform: scale(.97); }
 /* Succès */
 .bag.trophy { color: #c98a16; }
 .title-tag { font-family: var(--f-body); font-size: .68rem; font-weight: 800; color: #8a5a00; background: #fff1c9; border: 1px solid #f4c03e; border-radius: 99px; padding: 0 7px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
-@media (max-width: 400px) { .top .title-tag { display: none; } } /* seulement dans l’en-tête */
 .ach-sum { display: flex; align-items: center; gap: 14px; background: linear-gradient(160deg, #fffaf0, #fff1c9); border: 1px solid #f4c03e; border-radius: 16px; padding: 12px 14px; }
 .ach-sum > div:last-child { flex: 1; display: grid; gap: 4px; }
 .ach-sum b { font-family: var(--f-display); font-size: 1.3rem; color: #8a5a00; }
