@@ -1466,13 +1466,13 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .fr-head .fr-id small { overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 380px) { .fr-row { gap: 8px; padding: 10px; } .fr-acts { gap: 6px; } .fr-ico.fr-act { width: 36px; height: 36px; min-height: 36px; } }
 /* Boîte aux lettres : en bas à droite du jardin, un peu en dessous (marge ajoutée sous le jardin) */
-.panel:has(> .mailbox) { position: relative; }
-.panel:has(> .mailbox) > .garden { margin-bottom: 11%; }
-.mailbox { right: 1.5%; bottom: 2px; width: 19%; height: auto; aspect-ratio: 1; max-width: 120px; }
 .mailbox .mb-art { object-fit: contain; }
 .mailbox .fr-badge { top: 6%; right: 4%; }
 .fw-ico { object-fit: contain; }
 /* Boîte aux lettres décollée du bord de l'encadré ; plus d'air autour de la ligne « Décorer » */
-.mailbox { bottom: 12px; }
-.panel:has(> .mailbox) > .garden { margin-bottom: calc(11% + 10px); }
 .garden-bar { margin: 6px 0; }
+/* Boîte aux lettres en haut à droite du jardin, sur une bande d'herbe au-dessus des bacs :
+   toujours visible, quel que soit le nombre de parcelles, sans cacher de bac. */
+.garden:has(> .mailbox) { --mtop: 18cqw; padding-top: calc(var(--g) + 18%); }
+.garden:has(> .mailbox) .deco-row .deco-slot.s1 { top: calc(var(--mtop) + var(--g) + (100cqw - 2 * var(--g)) * .93 / var(--cols) * 1.008 - 8cqw); }
+.garden > .mailbox { top: 0; right: 2%; bottom: auto; width: 25%; height: auto; aspect-ratio: 1; max-width: none; }

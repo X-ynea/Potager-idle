@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.22.1" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.22.2" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -861,7 +861,7 @@ function views_garden() {
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div>${decoRowHTML()}</div>${mailboxHTML()}
+    </div>${decoRowHTML()}${mailboxHTML()}</div>
   </section>
   ${dailyQuests().bonus ? "" : questsHTML()}
   <section class="panel">
