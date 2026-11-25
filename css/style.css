@@ -1263,3 +1263,16 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .friends-page h2 { margin: 0; }
 .fr-head { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .fr-head:active { transform: scale(.98); }
+/* Arrosage chez un ami : l'arrosoir verse pendant l'envoi, puis pluie de gouttes sur les bacs */
+.btn.fw-btn:not(:disabled):active { transform: scale(.94); }
+.btn.fw-btn.pouring { opacity: 1; filter: none; }
+.btn.fw-btn.pouring .fw-ico { animation: fw-pour .5s ease-in-out infinite alternate; transform-origin: 30% 70%; }
+@keyframes fw-pour { from { transform: rotate(0); } to { transform: rotate(28deg); } }
+.fw-fx { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.fw-drop { position: fixed; width: 10px; height: 15px; margin-left: -5px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(180deg, #bfe6ff, #3f9bdc); box-shadow: 0 1px 2px rgba(20,80,140,.35); opacity: 0; animation: fw-drop .6s ease-in forwards; }
+@keyframes fw-drop { 0% { transform: translateY(-46px) scale(.7); opacity: 0; } 25% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(14px) scale(1); opacity: 0; } }
+.fw-splash { position: fixed; width: 18px; height: 8px; margin: -4px 0 0 -9px; border-radius: 50%; border: 2px solid #7cc4f2; opacity: 0; animation: fw-splash .7s ease-out forwards; }
+@keyframes fw-splash { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+.fw-pop { position: fixed; transform: translate(-50%, -50%); padding: 6px 14px; border-radius: 99px; background: #e3f2fc; color: #1f6aa5; border: 2px solid #7cc4f2; font-weight: 800; font-size: 1rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(20,80,140,.25); animation: fw-pop 2.2s ease-out forwards; }
+@keyframes fw-pop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 25% { transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -90%); } }
+@media (prefers-reduced-motion: reduce) { .fw-drop, .fw-splash { display: none; } }
