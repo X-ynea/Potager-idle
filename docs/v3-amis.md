@@ -50,6 +50,9 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
   - un plat est découvert quand il est **débloqué au niveau** du joueur (recette apprise ou non), et seulement si ses hybrides sont découverts.
 - Tout ce qu'on propose (objets ou pièces) quitte le compte dès l'envoi. C'est rendu si l'autre refuse, si on **annule** (depuis la boîte aux lettres, où l'on voit tous ses échanges proposés) ou au bout de **48 h**.
 - À l'acceptation, le jeu de l'autre vérifie qu'il a encore assez. Sinon : « Tu n'en as plus assez ».
+- ✅ Fait (v2.19) : `docs/echanges.sql` (après `arrosage.sql`), puis `docs/echanges-valeurs.sql` (prix des objets). Après chaque changement de prix, de plante ou de recette : `node tools/trade-values.js`, puis relancer `echanges-valeurs.sql` dans Supabase.
+- Boîte aux lettres provisoire (dessin rouge) en bas à droite du jardin : Reçus, Envoyés (avec Annuler), Nouvelles (arrosages et échanges). Une proposition envoie aussi un message dans la conversation.
+- Au plus 8 objets différents de chaque côté. Si le compte de l'ami est supprimé, la proposition expire et les objets reviennent.
 
 ## Avant la sortie : conseils de Mamie Lapine pour la v3
 

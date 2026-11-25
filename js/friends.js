@@ -87,6 +87,7 @@ function viewChat() {
           <span class="msg-meta">${timeOf(m.created_at)}${mine && FR.msgSel === m.id ? ` · <button class="msg-del" data-act="msgDel" data-arg="${m.id}">Supprimer</button>` : ""}</span></div>`; }).join("");
   return `<div class="sheet tall chat-sheet" role="dialog" aria-modal="true" aria-label="Messages avec ${esc(f.name)}">
     <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="frBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>${seenAgo(f.last_seen)}</small></span>
+      <button class="chat-trade" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
       <button class="chat-more${FR.chatMenu ? " on" : ""}" data-act="chatMenu" aria-label="Plus d’options" aria-expanded="${!!FR.chatMenu}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/></svg></button>
       <button class="btn ghost sm chat-close" data-act="close">Fermer</button>
       ${FR.chatMenu ? `<div class="chat-menu"><button class="chat-menu-item danger${FR.blockConfirm ? " armed" : ""}" data-act="frBlock" data-arg="${f.user_id}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>${FR.blockConfirm ? "Toucher encore pour bloquer" : `Bloquer ${esc(f.name)}`}</button></div>` : ""}</div>
@@ -121,7 +122,7 @@ document.addEventListener("submit", async ev => {
   catch (e) { input.value = body; toast(/pas ami/.test(e.message) ? "Tu ne peux écrire qu’à tes amis." : "Message non envoyé, réessaie."); }
   FR.sending = false; render(true); scrollChat(true); $("#msg-in")?.focus();
 });
-const friendsRouter = () => VISIT.id != null ? viewVisit() : FR.chat != null ? viewChat() : viewFriends();
+const friendsRouter = () => TR.draft ? viewTrade() : VISIT.id != null ? viewVisit() : FR.chat != null ? viewChat() : viewFriends();
 const openFriends = () => { FR.fromTab = false; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
 // Depuis l'onglet « Amis » : la visite et la conversation s'ouvrent par-dessus ; « retour » les referme.
 function friendsOver() { if ($("#modal").hidden || modalView !== friendsRouter) { FR.fromTab = true; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); } else render(true); }

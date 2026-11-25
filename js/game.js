@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.18.3" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.19.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -858,7 +858,7 @@ function views_garden() {
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div>${decoRowHTML()}</div>
+    </div>${decoRowHTML()}${mailboxHTML()}</div>
   </section>
   ${dailyQuests().bonus ? "" : questsHTML()}
   <section class="panel">
@@ -1210,7 +1210,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1241,7 +1241,7 @@ function render(force) {
     if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
       // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
       // repartent de zéro. On remplace seulement ce qui l'entoure.
-      for (const sel of [".deco-row"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
+      for (const sel of [".deco-row", ".mailbox"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
       oldGarden.classList.toggle("editing", !!UI.editDeco);
       // Saison : on ne remplace les particules que si la saison a changé (sinon leur animation repartirait).
       if (oldGarden.dataset.season !== season()) { oldGarden.dataset.season = season(); oldGarden.querySelector(".season-fx")?.replaceWith(freshGarden.querySelector(".season-fx")); }
@@ -1457,7 +1457,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
