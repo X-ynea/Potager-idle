@@ -79,7 +79,7 @@ p("");
 
 // --- Autres sources d'XP et de pièces
 p(`## Autres gains\n`);
-p(`- **Commandes du village** : XP = (XP des objets × 0,8 + 3) × bonus de difficulté (×1,15 à ×1,9) ; pièces = (valeur des objets × bonus + 2) × 0,8 ; ×1,3 (XP et pièces) pour une commande « Hors saison ».`);
+p(`- **Commandes du village** : XP = (XP des objets × 0,8 + 3) × bonus de difficulté (×1,15 à ×1,9) ; pièces = (valeur des objets × bonus + 2) × 0,8 ; une commande « Hors saison » est toujours « Difficile » : bonus ×1,9 puis ×1,3, soit ×2,47.`);
 p(`- **Cadeau du jour** : pièces = (10 + 4 × niveau) × (1 + 0,15 par jour d'affilée, jusqu'au 6ᵉ) ; XP = (5 + 2 × niveau) × le même bonus. Le 7ᵉ jour : ×2,5, plus 1 graine de saison et 1 graine d'hybride.`);
 p(`- **Serre** : croisement en ${dur(LAB_TIME)} ; nouvel hybride +25 XP, hybride déjà connu +6 XP.`);
 p(`- **Récoltes** : 8 % de chances de récolte double, 2 % de récolte dorée (vaut 10 fois le prix).`);

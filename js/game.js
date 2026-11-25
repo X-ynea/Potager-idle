@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.8" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.9" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -389,8 +389,10 @@ function genOrder() {
   const v = guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here.filter(i => !used.has(i)));
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
-  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: type.stars, label: type.label,
-    offSeason, coins: Math.round((effort * type.bonus + 2) * (offSeason ? 1.3 : 1) * .8), xp: Math.round((xp * .8 + 3) * type.bonus * (offSeason ? 1.3 : 1)) }; // 2.16 : −20 % de pièces, moins d’XP
+  // Hors saison : toujours « Difficile », avec le meilleur bonus de difficulté, puis +30 %.
+  const bonus = offSeason ? Math.max(...ORDER_TYPES.map(t => t.bonus)) * 1.3 : type.bonus;
+  return { id: Math.random().toString(36).slice(2, 9), v, say: pick(lines), items, type: type.id, stars: offSeason ? 3 : type.stars, label: offSeason ? "Difficile" : type.label,
+    offSeason, coins: Math.round((effort * bonus + 2) * .8), xp: Math.round((xp * .8 + 3) * bonus) }; // 2.16 : −20 % de pièces, moins d’XP
 }
 
 /* ---------------- Actions ---------------- */

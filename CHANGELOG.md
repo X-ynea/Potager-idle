@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.9
+- Commandes hors saison : toujours « Difficile » (3 étoiles), avec le plus gros bonus de difficulté puis +30 %. Elles rapportent nettement plus qu’avant.
+
 ### 2.16.8
 - Marché › Vendre : les récoltes dorées passent en premier, quel que soit le tri.
 
