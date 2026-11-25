@@ -30,7 +30,7 @@ const trChips = (items, coins) => trItems(items).map(([k, q]) => `<span class="t
   + (coins > 0 ? `<span class="tr-chip coins">${coin}<b class="num">${fmt(coins)}</b><small>pièces</small></span>` : "");
 const trPlain = (items, coins) => [...trItems(items).map(([k, q]) => `${q} × ${itemName(k)}`), ...(coins > 0 ? [`${fmt(coins)} pièces`] : [])].join(", ");
 const trBack = r => (r.give_coins || 0) + trItems(r.give).reduce((a, [, q]) => a + q, 0) > 1 ? "sont rendus" : "est rendu";
-const trLeft = iso => { const ms = Date.parse(iso) + TR_HOURS * 3600e3 - Date.now(); return ms <= 0 ? "expire bientôt" : `expire dans ${dur(ms)}`; };
+const trLeft = iso => { const ms = Date.parse(iso) + TR_HOURS * 3600e3 - Date.now(); return ms <= 0 ? "Expire bientôt" : `Expire dans ${dur(ms)}`; };
 const trAgo = ms => { const m = Math.round((Date.now() - ms) / 60000); return m < 2 ? "à l’instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
 const trErr = m => /desequilibre/.test(m) ? "L’échange n’est pas assez équilibré." : /plafond/.test(m) ? `Maximum ${fmt(TR_MAX)} pièces de valeur de chaque côté.`
   : /pieces_contre_pieces/.test(m) ? "Pas de pièces des deux côtés."
@@ -187,7 +187,7 @@ function trGauges(va, vb, state) {
   return `<div class="tr-gauges ${state}">${g(va, "Tu donnes")}<span class="tr-g-ico">${SCALE_ICON}</span>${g(vb, "Tu demandes")}</div>`;
 }
 function trBalanceHTML() {
-  const d = TR.draft, c = trCheck(d), left = Math.max(0, TR_DAY - (TR.inv?.today || 0));
+  const d = TR.draft, c = TR.sending && TR.sendCheck ? TR.sendCheck : trCheck(d), left = Math.max(0, TR_DAY - (TR.inv?.today || 0));
   return `<div class="tr-balance${c.msg ? "" : " ok"}" id="tr-balance">${trGauges(c.va, c.vb, !c.msg ? "ok" : c.va && c.vb ? "bad" : "")}
     <p class="tr-verdict">${c.msg ? esc(c.msg) : `Échange équilibré ✓${c.gap ? ` · écart ${c.gap} %` : ""}`}</p>
     <button class="btn big" data-act="trSend" ${c.msg || TR.sending || !TR.inv ? "disabled" : ""}>${TR.sending ? "Envoi…" : d.counter ? "Envoyer la contre-proposition" : "Proposer l’échange"}</button>
@@ -220,9 +220,9 @@ function trClose() {
 }
 
 const TRADE_ACTS = {
-  trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; TR.fromMail = false; trStart(f); friendsOver(); },
+  trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; FR.hlTrade = false; TR.fromMail = false; trStart(f); friendsOver(); },
   // Nouvel échange depuis la boîte aux lettres : on choisit l'ami dans l'onglet « Amis » (bouton ⇄).
-  trNew() { closeModal(); A.tab("friends"); loadFriends(true); },
+  trNew() { closeModal(); FR.tab = "friends"; FR.filter = ""; A.tab("friends"); FR.hlTrade = true; render(true); loadFriends(true); },
   trCloseAll() { TR.draft = null; TR.fromMail = false; closeModal(); },
   trCounter(id) {
     const r = TR.list.find(x => x.id === +id), f = r && FR.list.find(x => x.user_id === r.other && x.direction === "friend");
@@ -247,7 +247,7 @@ const TRADE_ACTS = {
   async trSend() {
     const d = TR.draft, f = trFriend(); if (!d || !f || TR.sending || trCheck(d).msg) return;
     const give = Object.fromEntries(trItems(d.give)), want = Object.fromEntries(trItems(d.want));
-    TR.sending = true; moveItems(give, d.giveCoins, -1); render(true); // mis de côté tout de suite
+    TR.sendCheck = trCheck(d); TR.sending = true; moveItems(give, d.giveCoins, -1); render(true); // mis de côté tout de suite (la balance reste verte)
     try {
       await CLOUD.rpc("propose_trade", { target: f.user_id, give, give_coins: d.giveCoins, want, want_coins: d.wantCoins, counter: d.counter });
       save(); SFX.play("success");

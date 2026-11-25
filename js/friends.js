@@ -45,11 +45,15 @@ function friendRow(f) {
   const head = `<span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b>${f.title ? `<span class="title-tag">${esc(f.title)}</span>` : ""}<small>Niv. ${f.level} · ${f.direction === "friend" ? seenAgo(f.last_seen) : "code " + esc(f.code)}</small></span>`;
   if (f.direction === "in") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn sm" data-act="frRespond" data-arg="${f.id}:1">Accepter</button><button class="btn ghost sm" data-act="frRespond" data-arg="${f.id}:0">Refuser</button></span></div>`;
   if (f.direction === "out") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn ghost sm" data-act="frRemove" data-arg="${f.id}">Annuler</button></span></div>`;
-  return `<div class="fr-row"><button class="fr-head" data-act="frVisit" data-arg="${f.id}" aria-label="Visiter le jardin de ${esc(f.name)}">${head}</button><span class="fr-acts">
+  return `<div class="fr-row"><button class="fr-head" data-act="frChat" data-arg="${f.id}" aria-label="Messages avec ${esc(f.name)}">${head}</button><span class="fr-acts">
     <button class="btn fr-ico fr-act" data-act="frVisit" data-arg="${f.id}" aria-label="Visiter son jardin" title="Visiter">${VISIT_ICON}</button>
-    <button class="btn fr-ico fr-act" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
+    <button class="btn fr-ico fr-act${FR.hlTrade ? " hl" : ""}" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
     <button class="btn fr-ico fr-act fr-chat-btn" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}${FR.unread[f.user_id] ? `<span class="fr-badge">${FR.unread[f.user_id]}</span>` : ""}</button></span></div>`;
 }
+// Amis filtrés par la barre de recherche.
+const friendListHTML = () => { const q = (FR.filter || "").trim().toLowerCase(), list = FR.list.filter(f => f.direction === "friend" && (!q || f.name.toLowerCase().includes(q)));
+  return list.length ? list.map(friendRow).join("") : `<p class="small muted" style="margin:0">Aucun ami ne s’appelle comme ça.</p>`; };
+document.addEventListener("input", ev => { if (ev.target.id !== "fr-filter") return; FR.filter = ev.target.value; const l = document.getElementById("fr-list"); if (l) l.innerHTML = friendListHTML(); });
 // Liste d'amis : dans l'onglet « Amis » (inTab), ou dans une fenêtre.
 function viewFriends(inTab) {
   const shell = inTab ? body => `<section class="panel friends-page"><h2>Amis</h2>${body}</section>`
@@ -62,7 +66,8 @@ function viewFriends(inTab) {
   const friends = FR.list.filter(f => f.direction === "friend"), inn = incoming(), out = FR.list.filter(f => f.direction === "out");
   const tabs = [["friends", `Amis <span class="num">${friends.length}</span>`], ["requests", `Demandes${inn.length ? ` <span class="fr-badge">${inn.length}</span>` : ""}`], ["add", "Ajouter"]];
   let body = "";
-  if (FR.tab === "friends") body = friends.length ? `<div class="fr-list">${friends.map(friendRow).join("")}</div>` : `<div class="empty-note"><span>Pas encore d’amis. Partage ton code ou ajoute quelqu’un dans l’onglet « Ajouter ».</span></div>`;
+  if (FR.tab === "friends") body = friends.length ? `${friends.length > 1 ? `<input id="fr-filter" class="fr-filter" type="search" placeholder="Rechercher un ami" autocomplete="off" value="${esc(FR.filter || "")}">` : ""}
+    ${FR.hlTrade ? `<p class="small fr-hint">Touche ${TRADE_ICON} à côté de l’ami avec qui tu veux échanger.</p>` : ""}<div class="fr-list" id="fr-list">${friendListHTML()}</div>` : `<div class="empty-note"><span>Pas encore d’amis. Partage ton code ou ajoute quelqu’un dans l’onglet « Ajouter ».</span></div>`;
   if (FR.tab === "requests") body = `<h3 class="cat-title">Reçues</h3>${inn.length ? `<div class="fr-list">${inn.map(friendRow).join("")}</div>` : `<p class="small muted" style="margin:0">Aucune demande reçue.</p>`}
     <h3 class="cat-title">Envoyées</h3>${out.length ? `<div class="fr-list">${out.map(friendRow).join("")}</div>` : `<p class="small muted" style="margin:0">Aucune demande en attente.</p>`}`;
   if (FR.tab === "add") {
@@ -73,7 +78,7 @@ function viewFriends(inTab) {
         return `<div class="fr-row"><span class="fr-av">${friendAvatar(r.avatar)}</span><span class="fr-id"><b>${esc(r.name)}</b><small>Niv. ${r.level} · code ${esc(r.code)}</small></span><span class="fr-acts">${rel ? `<span class="small muted">${rel.direction === "friend" ? "Déjà ami" : rel.direction === "out" ? "Demande envoyée" : "T’a demandé"}</span>` : `<button class="btn sm" data-act="frAdd" data-arg="${r.user_id}">Ajouter</button>`}</span></div>`; }).join("")}</div>`
         : `<p class="small muted" style="margin:0">Aucun joueur trouvé.</p>`}`;
   }
-  return shell(`<div class="fr-code"><span><small>Ton code ami</small><b class="num">${esc(FR.code)}</b></span><button class="btn fr-ico ghost" data-act="frCopy" aria-label="Copier le code" title="Copier">${FR_ICONS.copy}</button>${navigator.share ? `<button class="btn fr-ico ghost" data-act="frShare" aria-label="Partager le code" title="Partager">${FR_ICONS.share}</button>` : ""}</div>
+  return shell(`<div class="fr-code"><small>Ton code ami</small><b class="num">${esc(FR.code)}</b><button class="btn fr-ico ghost" data-act="frCopy" aria-label="Copier le code" title="Copier">${FR_ICONS.copy}</button>${navigator.share ? `<button class="btn fr-ico ghost" data-act="frShare" aria-label="Partager le code" title="Partager">${FR_ICONS.share}</button>` : ""}</div>
     <div class="subtabs" style="grid-template-columns:repeat(3,1fr)">${tabs.map(([k, l]) => `<button data-act="frTab" data-arg="${k}" aria-pressed="${FR.tab === k}">${l}</button>`).join("")}</div>
     ${FR.error ? `<p class="cloud-warn">${esc(FR.error)}</p>` : ""}${body}`);
 }
@@ -151,7 +156,7 @@ document.addEventListener("submit", async ev => {
 });
 const FRIENDS_ACTS = {
   openFriends() { FR.chat = null; VISIT.id = null; if (FRIENDS_ON) { closeModal(); A.tab("friends"); loadFriends(true); } else openFriends(); },
-  frTab(t) { FR.tab = t; FR.confirm = null; render(true); },
+  frTab(t) { FR.tab = t; FR.confirm = null; FR.hlTrade = false; render(true); },
   frRefresh() { loadFriends(true); },
   async frCopy() { try { await navigator.clipboard.writeText(FR.code); toast(`Code ${FR.code} copié !`); } catch (e) { toast(`Ton code : ${FR.code}`); } },
   frShare() { navigator.share?.({ title: "Potager idle", text: `Ajoute-moi en ami sur Potager idle ! Mon code : ${FR.code}`, url: location.origin + location.pathname }).catch(() => {}); },
@@ -172,7 +177,7 @@ const FRIENDS_ACTS = {
     try { await CLOUD.rpc("remove_friendship", { fid: +id }); } catch (e) { toast("Action impossible pour le moment."); }
     loadFriends(true);
   },
-  frChat(id) { FR.chat = +id; VISIT.id = null; FR.msgSel = null; FR.ask = null; FR.chatMenu = false; friendsOver(); loadMessages(true); loadTrades(); },
+  frChat(id) { FR.chat = +id; VISIT.id = null; FR.msgSel = null; FR.ask = null; FR.chatMenu = false; friendsOver(); scrollChat(true); loadMessages(true); loadTrades(); },
   frBack() { FR.chat = null; FR.msgSel = null; FR.ask = null; FR.chatMenu = false; if (FR.fromTab) closeModal(); else render(true); },
   msgSel(id) { FR.msgSel = FR.msgSel === +id ? null : +id; render(true); },
   async msgDel(id) {

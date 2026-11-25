@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.20.1" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.20.2" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -409,7 +409,7 @@ function genOrder() {
 /* ---------------- Actions ---------------- */
 let tab = "garden", msub = "seeds", labSel = [null, null];
 const A = {
-  tab(arg) { tab = arg; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) { tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -612,6 +612,7 @@ const A = {
     commit();
   },
   pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
+  setTestSeason(k) { try { k ? localStorage.setItem("potager-test-saison", k) : localStorage.removeItem("potager-test-saison"); } catch (e) {} applyTheme(); render(true); },
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
   toggleSound() { S.settings.sound = !S.settings.sound; commit(); SFX.play("success"); },
@@ -783,6 +784,8 @@ function viewSettings() {
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
     </div>
+    ${IS_TEST ? `<div class="set-group"><h3>Version de test</h3><span class="small muted">Saison</span>
+      <div class="seg seg5 test-season">${[["", "Auto"], ...SEASON_ORDER.map(k => [k, SEASONS[k].name])].map(([k, l]) => `<button data-act="setTestSeason" data-arg="${k}" aria-pressed="${(testSeason() || "") === k}">${l}</button>`).join("")}</div></div>` : ""}
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
       ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
@@ -1215,7 +1218,7 @@ function sig(t) {
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
-    case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, CLOUD.signedIn, CLOUD.blocked]);
+    case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, FR.hlTrade, CLOUD.signedIn, CLOUD.blocked]);
   }
 }
 /* Remplace les enfants de « live » par ceux de « fresh », sauf « keep » qui reste en place. */
@@ -1259,6 +1262,7 @@ function render(force) {
       const box = document.createElement("div"); box.innerHTML = modalView();
       const ns = box.firstElementChild, os = $("#modal .sheet");
       const strip = [...document.querySelectorAll("#modal .strip")].map(e => e.scrollLeft);
+      const cb = document.getElementById("chat-body"), cbTop = cb?.scrollTop, cbEnd = cb ? cb.scrollHeight - cb.scrollTop - cb.clientHeight < 120 : false;
       if (os && ns && box.children.length === 1 && os.className === ns.className) {
         for (const a of ns.attributes) os.setAttribute(a.name, a.value);
         os.innerHTML = ns.innerHTML;
@@ -1266,6 +1270,7 @@ function render(force) {
       } else $("#modal").innerHTML = box.innerHTML;
       for (const [id, v, f, c] of kept) { const t = document.getElementById(id); if (t) { t.value = v; if (f) { t.focus(); try { t.setSelectionRange(c, c); } catch (e) {} } } }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
+      const cb2 = document.getElementById("chat-body"); if (cb2 && cb) cb2.scrollTop = cbEnd ? cb2.scrollHeight : cbTop; // conversation : on garde sa place (ou le bas)
     }
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
   }

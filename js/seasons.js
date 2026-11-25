@@ -48,8 +48,11 @@ const SEASON_IMG = new Set(["ui-snail", "ui-butterfly", "ui-weeds", "ui-leaves",
 const SEASON_ANCHOR_DAY = Date.UTC(2026, 10, 16) / 864e5;
 const SEASON_FORCE = (() => { try { const s = new URLSearchParams(location.search).get("saison"); return SEASONS[s] ? s : null; } catch (e) { return null; } })();
 const dayNum = t => { const d = new Date(t); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); };
+// Version de test : saison choisie dans les Paramètres (sur cet appareil seulement).
+const testSeason = () => { if (!IS_TEST) return null; try { const k = localStorage.getItem("potager-test-saison"); return SEASONS[k] ? k : null; } catch (e) { return null; } };
 function seasonAt(t) {
   if (SEASON_FORCE) return SEASON_FORCE;
+  const ts = testSeason(); if (ts) return ts;
   const w = Math.floor((dayNum(t) - SEASON_ANCHOR_DAY) / 7);
   return SEASON_ORDER[(((w + 2) % 4) + 4) % 4];
 }

@@ -1421,3 +1421,28 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .tr-g-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--gc); box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: background .3s; }
 .tr-g-ico svg { width: 24px; height: 24px; }
 .sheet.chat-sheet { grid-template-rows: auto 1fr auto; } /* en-tête, messages, saisie (plus de barre de glissement) */
+/* Bouton retour (‹) carré, comme la croix */
+.chat-head > [data-act="frBack"], .chat-head > [data-act="visitBack"], .chat-head > [data-act="trBack"] { width: 34px; height: 34px; min-height: 34px; padding: 0; flex: none; display: grid; place-items: center; font-size: 1.3rem; border-radius: 10px; }
+/* Résumé d'échange dans un message : boutons d'action à droite */
+.msg-trade > .btn { justify-self: end; }
+/* Onglet Amis : pas de débordement sur téléphone */
+.friends-page { grid-template-columns: minmax(0, 1fr); }
+.fr-search { min-width: 0; }
+.fr-search input { width: 100%; }
+.fr-search .btn { flex: none; }
+/* Code ami compact, sur une ligne */
+.fr-code { padding: 6px 8px 6px 12px; gap: 6px; }
+.fr-code small { flex: 1; font-size: .7rem; }
+.fr-code b { font-size: 1.15rem; letter-spacing: .14em; }
+.fr-code .fr-ico { width: 32px; height: 32px; min-height: 32px; }
+.fr-code .fr-ico svg { width: 17px; height: 17px; }
+/* Recherche dans la liste d'amis */
+.fr-filter { width: 100%; font: inherit; font-size: .95rem; padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); }
+.fr-filter:focus { outline: none; border-color: var(--leaf); }
+/* « Nouvel échange » : boutons d'échange en couleur dans la liste */
+.fr-ico.fr-act.hl { background: #fdf0dc; color: #8a5a1c; border-color: #e8b66a; animation: hl-pulse 1.2s ease-in-out 3; }
+@keyframes hl-pulse { 50% { transform: scale(1.12); } }
+.fr-hint { margin: 0; color: #8a5a1c; font-weight: 700; }
+.fr-hint svg { width: 16px; height: 16px; vertical-align: -3px; }
+/* Paramètres de test : choix de la saison */
+.test-season button { font-size: .72rem; padding-inline: 2px; }
