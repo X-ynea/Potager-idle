@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.13
+- Plantes mûres refaites : remontées pour pousser du milieu du bac, comme les autres.
+
 ### 3.0.12
 - Plantes mûres : tailles harmonisées (le champignon des bois était bien trop grand).
 
