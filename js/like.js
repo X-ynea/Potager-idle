@@ -43,7 +43,7 @@ async function loadLikeStatus() {
   try { VISIT.liked = !!(await CLOUD.rpc("liked_this_week", { target: f.user_id })); } catch (e) { VISIT.liked = null; }
   if (VISIT.id === f.id) render(true);
 }
-const likeBtnHTML = f => `<button class="btn like-btn${VISIT.liked ? " on" : ""}" data-act="visitLike" ${VISIT.liked || VISIT.liking ? "disabled" : ""} aria-label="${VISIT.liked ? `Tu aimes déjà le jardin de ${esc(f.name)} cette semaine` : `J’aime le jardin de ${esc(f.name)}`}">${HEART_ICON}${VISIT.liked ? "Aimé" : "J’aime"}</button>`;
+const likeBtnHTML = f => `<button class="btn like-btn${VISIT.liked ? " on" : ""}" data-act="visitLike" ${VISIT.liked || VISIT.liking ? "disabled" : ""} aria-label="${VISIT.liked ? `Tu aimes déjà le jardin de ${esc(f.name)} cette semaine` : `J’aime le jardin de ${esc(f.name)}`}" title="${VISIT.liked ? "Déjà aimé cette semaine" : "J’aime ton jardin"}">${HEART_ICON}</button>`;
 // Petite gerbe de cœurs au-dessus du bouton, pour le retour visuel.
 function likeBurst(el) {
   const r = el.getBoundingClientRect(), box = document.createElement("div"); box.className = "fw-fx"; document.body.appendChild(box);

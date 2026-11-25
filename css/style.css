@@ -1492,3 +1492,8 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 @keyframes heart-up { 0% { opacity: 0; transform: translate(0, 0) scale(var(--s)); } 15% { opacity: 1; } 80% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--dx), -85vh) scale(var(--s)); } }
 .heart-label { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 8px 16px; border-radius: 99px; background: #fff; color: #c2365f; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 18px rgba(150,30,60,.25); animation: fw-pop 3.6s ease-out forwards; }
 .heart-label b { color: #9c1f4a; }
+/* Visite : rien ne dépasse sur petit écran ; J'aime = un cœur seul, bouton carré */
+.sheet.visit-sheet { grid-template-columns: minmax(0, 1fr); }
+.visit-btns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.btn.like-btn { width: 48px; padding: 0; justify-content: center; }
+.btn.like-btn svg { width: 24px; height: 24px; }
