@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.27.0" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.28.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -786,7 +786,9 @@ function viewSettings() {
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
     </div>
-    ${IS_TEST ? `<div class="set-group"><h3>Version de test</h3><span class="small muted">Saison</span>
+    ${IS_TEST ? `<div class="set-group"><h3>Version de test</h3>
+      <div class="set-row"><span>Fenêtre « Du nouveau » de la v3</span><button class="btn ghost sm" data-act="news3Replay">Revoir</button></div>
+      <span class="small muted">Saison</span>
       <div class="seg seg5 test-season">${[["", "Auto"], ...SEASON_ORDER.map(k => [k, SEASONS[k].name])].map(([k, l]) => `<button data-act="setTestSeason" data-arg="${k}" aria-pressed="${(testSeason() || "") === k}">${l}</button>`).join("")}</div></div>` : ""}
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
@@ -1465,7 +1467,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS, NEWS3_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {

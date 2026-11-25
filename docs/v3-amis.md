@@ -102,3 +102,8 @@ Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent se
   - entre amis : Arche fleurie (printemps), Table de pique-nique (été), Hérisson et feuilles (automne), Bonhomme de neige (hiver) — `deco-f_<saison>.webp` ;
   - tous les joueurs : Fontaine fleurie (printemps), Moulin à vent (été), Montgolfière (automne), Sapin illuminé (hiver) — `deco-g_<saison>.webp`.
 - Réglages (js/goals.js) : types en rotation chaque semaine (récoltes de saison, commandes, plats, visiteurs ; l'objectif de tous a un type décalé de 2 semaines) ; base par joueur 40 / 12 / 15 / 20 ; entre amis : cible = base × taille du cercle (8 au plus), part d'un joueur ≤ 1,5 × base ; tous : cible = base × joueurs actifs de la semaine passée (5 au moins) × 0,6, part d'un joueur ≤ 2 × base ; paliers 25 / 60 / 100 %.
+
+## Sortie de la v3
+- ✅ Fenêtre « Du nouveau au potager ! » de la v3 (v2.28, `js/news.js`) : une seule fois par appareil, pour les joueurs qui avaient déjà une partie (les nouveaux découvrent tout avec Mamie Lapine). Version de test : Paramètres › Version de test › « Revoir ».
+- ✅ Deux conseils de Mamie Lapine en plus : les objectifs de la semaine (jardin) et les 4 nouveaux hybrides (Serre, pour ceux qui ont déjà découvert un hybride).
+- À faire au moment de la sortie : ouvrir les amis aux joueurs (`FRIENDS_ON`), notes de version (`CHANGELOG.md`), fusion de `test` dans `main`.

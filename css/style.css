@@ -1524,3 +1524,19 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .goal-m b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .goal-m.me { border: 1.5px solid color-mix(in srgb, var(--leaf) 50%, var(--line)); }
 .sheet.goal-sheet { align-content: start; grid-auto-rows: max-content; grid-template-columns: minmax(0, 1fr); }
+/* Fenêtre « Du nouveau » de la v3 */
+.news3 { max-height: calc(100dvh - 40px); overflow: auto; }
+.news3-sub { color: var(--muted); font-weight: 700; margin-top: -6px !important; }
+.news3-list { display: grid; gap: 8px; width: 100%; text-align: left; }
+.news3-item { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 10px; border-radius: 14px; background: color-mix(in srgb, var(--leaf) 8%, var(--panel)); }
+.news3-ico { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 1.15rem; font-weight: 800; color: var(--leaf-deep); background: var(--panel); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.news3-item b { display: block; color: var(--leaf-deep); font-size: .92rem; }
+.news3-item small { display: block; color: var(--ink); font-size: .8rem; line-height: 1.35; }
+.news3 { gap: 8px; padding-top: 16px; padding-bottom: 16px; }
+.news3 .gate-logo { width: 48px; height: 48px; }
+.news3 h1 { font-size: 1.35rem; }
+.news3-list { gap: 6px; }
+.news3-item { padding: 6px 10px; grid-template-columns: 32px minmax(0, 1fr); }
+.news3-ico { width: 32px; height: 32px; font-size: 1rem; }
+.news3-item b { font-size: .88rem; }
+.news3-item small { font-size: .76rem; line-height: 1.3; }
