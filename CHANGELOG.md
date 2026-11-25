@@ -2,7 +2,7 @@
 
 ## Version 3 : « Entre amis »
 
-*Version 3.0 · en préparation (date à compléter à la sortie)*
+*25 novembre 2026 · version 3.0.0*
 
 Le potager s'ouvre à tes amis. Ajoute tes proches, visite leur jardin, donne-leur un coup d'arrosoir, échangez vos récoltes et avancez ensemble vers les objectifs de la semaine.
 

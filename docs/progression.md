@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 2.29.3 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.0.0 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -260,5 +260,14 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Hors saison 🔒 |  | Récolter une plante de saison en dehors de sa saison | 200 | 40 |  |
 | Noyade 🔒 |  | Arroser le même bac 10 fois d’affilée | 100 | 25 |  |
 | Difficile en affaires 🔒 |  | Refuser 10 commandes de voisins | 150 | 30 |  |
+| Coup d’arrosoir | 1 | Arroser 5 fois le jardin d’un ami | 100 | 25 |  |
+|  | 2 | Arroser 20 fois le jardin d’un ami | 400 | 75 |  |
+|  | 3 | Arroser 50 fois le jardin d’un ami | 1 200 | 190 | titre « Jardinier solidaire » |
+| Troc | 1 | Conclure 3 échanges avec tes amis | 100 | 25 |  |
+|  | 2 | Conclure 10 échanges avec tes amis | 500 | 90 |  |
+|  | 3 | Conclure 30 échanges avec tes amis | 1 500 | 225 | titre « As du troc » |
+| Esprit d’équipe | 1 | Réussir 1 objectif de la semaine | 150 | 30 |  |
+|  | 2 | Réussir 4 objectifs de la semaine | 600 | 115 |  |
+|  | 3 | Réussir 12 objectifs de la semaine | 2 000 | 300 | titre « Esprit d’équipe » |
 
 🔒 = succès caché.

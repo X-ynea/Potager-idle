@@ -107,4 +107,4 @@ Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent se
 - ✅ Fenêtre « Du nouveau au potager ! » de la v3 (v2.28, `js/news.js`) : une seule fois par appareil, pour les joueurs qui avaient déjà une partie (les nouveaux découvrent tout avec Mamie Lapine). Version de test : Paramètres › Version de test › « Revoir ».
 - ✅ Deux conseils de Mamie Lapine en plus : les objectifs de la semaine (jardin) et les 4 nouveaux hybrides (Serre, pour ceux qui ont déjà découvert un hybride).
 - ✅ 4 recettes avec les hybrides de saison (v2.29) : Tarte rubis (niv. 15), Sorbet étoilé (19), Velouté nuage (21), Potée de cristal (23), avec leurs images ; ajoutées à la fenêtre « Du nouveau ».
-- À faire au moment de la sortie : ouvrir les amis aux joueurs (`FRIENDS_ON`), notes de version (`CHANGELOG.md`), fusion de `test` dans `main`.
+- ✅ **Sortie de la v3.0.0 le 25 novembre 2026** : amis ouverts à tous (`FRIENDS_ON = true`), notes de version dans `CHANGELOG.md`, `test` fusionné dans `main`.
