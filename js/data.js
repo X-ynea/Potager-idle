@@ -34,6 +34,12 @@ const PLANTS = {
   lanterne: { name: "Tomate lanterne", desc: "Des tomates orange doré à côtes, lumineuses comme de petites lanternes suspendues.", hybrid: true, parents: ["tomate", "potiron"], time: 3000, sell: 200, xp: 33, shape: "round", color: "#f59a2a", hint: "Un fruit rouge qui voudrait devenir un potiron…" },
   azur:     { name: "Épi d’azur", desc: "Des épis aux grains bleu turquoise nacrés, sur des tiges argentées.", hybrid: true, parents: ["ble", "radis"], time: 960, sell: 55, xp: 11, shape: "grain", color: "#3fc4d6", hint: "Une céréale qui aurait croisé une racine croquante…" },
   amethyste: { name: "Carotte améthyste", desc: "Des carottes violet profond, translucides comme une pierre précieuse, aux fanes argentées.", hybrid: true, parents: ["carotte", "lavande"], time: 2160, sell: 140, xp: 24, shape: "root", color: "#9b3fd0", hint: "Une racine orange qui rêve de violet…" },
+  // v3 : un hybride par saison (un parent ne se cultive qu'en saison : il faut garder des récoltes de côté)
+  //   été : melon étoilé · automne : champignon nuage · printemps : asperge rubis · hiver : chou de cristal
+  etoile:   { name: "Melon étoilé", desc: "De petits melons jaune soleil à côtes, en forme d’étoile, au parfum de miel.", hybrid: true, parents: ["melon", "tournesol"], time: 3000, sell: 230, xp: 38, shape: "big", color: "#f7d046", hint: "Un fruit d’été qui voudrait suivre le soleil…" },
+  nuage:    { name: "Champignon nuage", desc: "Des champignons au chapeau bleu ciel, doux comme du coton, qui sentent la myrtille.", hybrid: true, parents: ["champignon", "myrtille"], time: 3060, sell: 215, xp: 35, shape: "big", color: "#8fb3e8", hint: "Un habitant des sous-bois qui rêve de baies bleues…" },
+  rubis:    { name: "Asperge rubis", desc: "Des pointes d’asperge rouge rubis, tendres et légèrement sucrées.", hybrid: true, parents: ["asperge", "betterave"], time: 2100, sell: 120, xp: 21, shape: "grain", color: "#c0304f", hint: "Une pousse de printemps jalouse d’une racine d’automne…" },
+  cristal:  { name: "Chou de cristal", desc: "Un chou aux feuilles bleutées et translucides, givrées comme du cristal, étonnamment tendres.", hybrid: true, parents: ["chou", "laitue"], time: 3360, sell: 165, xp: 28, shape: "leafy", color: "#a9d4e8", hint: "Un gros chou d’hiver qui envie la tendresse d’une salade…" },
 };
 const ORDER = Object.keys(PLANTS).filter(k => !PLANTS[k].tuto); // la plante du tutoriel reste hors des listes
 const HYBRID_BY_PAIR = {};
@@ -72,6 +78,11 @@ const RECIPES = {
   tourte:   { name: "Tourte forestière", desc: "Une tourte généreuse aux champignons des bois.", lvl: 25, price: 360, need: { champignon: 2, ble: 2, patate: 1 }, time: 280, sell: 326, xp: 62, look: "pie", color: "#a2774a" },
   potee:    { name: "Potée au chou", desc: "Le grand plat d’hiver qui mijote toute l’après-midi.", lvl: 26, price: 240, need: { chou: 1, carotte: 2, patate: 2 }, time: 300, sell: 218, xp: 45, look: "bowl", color: "#8fb86a" },
   gateau:   { name: "Gâteau des moissons", desc: "Le chef-d’œuvre des récoltes, qui réunit les plus rares variétés du jardin.", lvl: 30, price: 3850, need: { azur: 2, amethyste: 2, lanterne: 2, lilas: 1, myrtille: 3 }, time: 1800, sell: 2566, xp: 290, look: "cake", color: "#ffcf1f" },
+  // v3 : une recette par hybride de saison
+  tarte_rubis: { name: "Tarte rubis", desc: "Une tarte dorée garnie de pointes rouge rubis, croustillante et fondante.", lvl: 15, price: 445, need: { rubis: 2, ble: 2 }, time: 240, sell: 405, xp: 68, look: "pie", color: "#c0304f" },
+  sorbet_etoile: { name: "Sorbet étoilé", desc: "Des boules de sorbet jaune soleil en forme d’étoile, au parfum de miel.", lvl: 19, price: 785, need: { etoile: 2, fraise: 1 }, time: 300, sell: 715, xp: 110, look: "cup", color: "#f7d046" },
+  veloute_nuage: { name: "Velouté nuage", desc: "Un velouté bleu pâle, léger comme un nuage, au parfum de sous-bois.", lvl: 21, price: 735, need: { nuage: 2, patate: 2 }, time: 300, sell: 670, xp: 105, look: "bowl", color: "#8fb3e8" },
+  potee_cristal: { name: "Potée de cristal", desc: "Une potée d’hiver aux feuilles bleutées, qui réchauffe jusqu’au bout des doigts.", lvl: 23, price: 585, need: { cristal: 2, carotte: 2 }, time: 300, sell: 530, xp: 85, look: "bowl", color: "#a9d4e8" },
 };
 const RORDER = Object.keys(RECIPES);
 

@@ -1237,6 +1237,332 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .news-card h1 { font-size: 1.5rem; }
 .news-list { display: grid; gap: 10px; text-align: left; font-size: .92rem; line-height: 1.4; }
 .news-list b { color: var(--leaf-deep); }
+/* Visite du jardin d'un ami (lecture seule) */
+.sheet.visit-sheet { height: 85dvh; align-content: start; grid-auto-rows: max-content; }
+.fr-visit-btn { color: var(--leaf-deep); }
+.visit-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.visit-bar .garden-hint { margin: 0; }
+.visit-sum { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: .78rem; font-weight: 800; color: var(--muted); }
+.visit-sum span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); }
+.visit-sum svg, .visit-sum img { width: 15px; height: 15px; flex: none; }
+.visit-garden .plot:active { transform: none; }
+.visit-note { margin: 0; font-size: .74rem; color: var(--muted); text-align: center; }
+.herb.friend-knows { border-style: dashed; border-color: color-mix(in srgb, var(--leaf) 55%, var(--line)); }
+.herb.friend-knows .muted { color: var(--leaf-deep); font-weight: 800; }
+/* Visite : plein écran (même largeur que le jeu sur ordinateur) */
+.sheet.visit-sheet { height: 100dvh; max-height: 100dvh; max-width: 760px; border-radius: 0; padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+.sheet.visit-sheet::before { display: none; }
+.sheet.visit-sheet .sheet-head { top: calc(-10px - env(safe-area-inset-top, 0px)); margin-top: calc(-10px - env(safe-area-inset-top, 0px)); padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+#modal:has(.visit-sheet) { background: var(--bg, rgba(45,25,10,.6)); }
+/* Conversation : « Fermer » à droite ; le blocage passe dans le menu « ⋯ » (plus de risque de bloquer en voulant fermer) */
+.chat-head { position: sticky; }
+.chat-more { margin-left: auto; flex: none; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.chat-more svg { width: 18px; height: 18px; }
+.chat-more.on { background: var(--panel-2); color: var(--ink); }
+.chat-head .btn.chat-close { font-size: .9rem; padding: 0 14px; }
+.chat-menu { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(100% + 6px); z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 6px; }
+.chat-menu-item { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 10px; background: none; padding: 10px 12px; font: inherit; font-weight: 800; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+.chat-menu-item svg { width: 18px; height: 18px; flex: none; }
+.chat-menu-item.danger { color: var(--bad); }
+.chat-menu-item.danger.armed { background: var(--bad); color: #fff; }
+/* Arrosage d'un ami : ligne sous « L'eau tient… » (photos qui se chevauchent) et bouton dans la visite */
+.fw-line { margin: -2px 0 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: .8rem; color: var(--muted); font-weight: 700; text-align: right; }
+.fw-line b { color: var(--ink); }
+.fw-line .fw-pct { color: #2a7fc0; }
+.fw-avs { display: inline-flex; flex: none; }
+.fw-av { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; background: var(--panel); box-shadow: 0 0 0 2px #7cc4f2; }
+.fw-av + .fw-av { margin-left: -9px; }
+.fw-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.visit-acts { display: flex; align-items: center; gap: 10px; }
+.visit-acts .small { flex: 1; min-width: 0; line-height: 1.3; }
+.btn.fw-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; background: #e3f2fc; color: #1f6aa5; border: 1.5px solid #7cc4f2; box-shadow: none; }
+.btn.fw-btn:disabled { opacity: .55; filter: grayscale(.6); }
+.fw-ico { width: 26px; height: 26px; flex: none; }
+/* Onglet « Amis » : 6 onglets en bas */
+.tabs.six { grid-template-columns: repeat(6, 1fr); gap: 2px; }
+.tabs.six .tab { font-size: .7rem; }
+.friends-page { display: grid; gap: 12px; }
+.friends-page h2 { margin: 0; }
+.fr-head { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.fr-head:active { transform: scale(.98); }
+/* Arrosage chez un ami : l'arrosoir verse pendant l'envoi, puis pluie de gouttes sur les bacs */
+.btn.fw-btn:not(:disabled):active { transform: scale(.94); }
+.btn.fw-btn.pouring { opacity: 1; filter: none; }
+.btn.fw-btn.pouring .fw-ico { animation: fw-pour .5s ease-in-out infinite alternate; transform-origin: 30% 70%; }
+@keyframes fw-pour { from { transform: rotate(0); } to { transform: rotate(28deg); } }
+.fw-fx { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.fw-drop { position: fixed; width: 10px; height: 15px; margin-left: -5px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(180deg, #bfe6ff, #3f9bdc); box-shadow: 0 1px 2px rgba(20,80,140,.35); opacity: 0; animation: fw-drop .6s ease-in forwards; }
+@keyframes fw-drop { 0% { transform: translateY(-46px) scale(.7); opacity: 0; } 25% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(14px) scale(1); opacity: 0; } }
+.fw-splash { position: fixed; width: 18px; height: 8px; margin: -4px 0 0 -9px; border-radius: 50%; border: 2px solid #7cc4f2; opacity: 0; animation: fw-splash .7s ease-out forwards; }
+@keyframes fw-splash { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+.fw-pop { position: fixed; transform: translate(-50%, -50%); padding: 6px 14px; border-radius: 99px; background: #e3f2fc; color: #1f6aa5; border: 2px solid #7cc4f2; font-weight: 800; font-size: 1rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(20,80,140,.25); animation: fw-pop 2.2s ease-out forwards; }
+@keyframes fw-pop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 25% { transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -90%); } }
+@media (prefers-reduced-motion: reduce) { .fw-drop, .fw-splash { display: none; } }
+/* Boîte aux lettres : en bas à droite du jardin (hors des emplacements de déco) */
+.mailbox { position: absolute; right: 6%; bottom: 1%; z-index: 5; width: 11%; height: 15cqw; border: 0; padding: 0; background: none; cursor: pointer; display: grid; place-items: end center; }
+.mailbox .mb-art { width: 100%; height: 100%; filter: drop-shadow(0 4px 3px rgba(30,60,10,.45)); transform-origin: 50% 100%; }
+.mailbox.has .mb-art { animation: mb-wiggle 2.4s ease-in-out infinite; }
+@keyframes mb-wiggle { 0%, 80%, 100% { transform: rotate(0); } 85% { transform: rotate(-6deg); } 90% { transform: rotate(5deg); } 95% { transform: rotate(-3deg); } }
+.mailbox .fr-badge { position: absolute; top: -4px; right: -8px; box-shadow: 0 0 0 2px #fff; }
+.mailbox:active .mb-art { transform: scale(.92); }
+/* Boutons de la visite : Arroser et Échanger */
+.visit-acts { flex-direction: column; align-items: stretch; gap: 6px; }
+.visit-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.visit-btns .btn { justify-content: center; }
+.btn.tr-btn { display: inline-flex; align-items: center; gap: 6px; background: #fdf0dc; color: #8a5a1c; border: 1.5px solid #e8b66a; box-shadow: none; }
+.btn.tr-btn svg { width: 22px; height: 22px; }
+.visit-acts > .small { text-align: center; }
+.chat-trade { flex: none; width: 36px; height: 36px; margin-left: auto; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid #e8b66a; background: #fdf0dc; color: #8a5a1c; cursor: pointer; }
+.chat-trade svg { width: 20px; height: 20px; }
+.chat-trade + .chat-more { margin-left: 0; }
+/* Fenêtre d'échange */
+.sheet.trade-sheet { height: 92dvh; align-content: start; grid-auto-rows: max-content; }
+.tr-side { display: grid; gap: 8px; padding: 10px 12px; border-radius: 16px; background: var(--panel-2); border: 1px solid var(--line); }
+.tr-side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tr-side-head h3 { margin: 0; font-size: .95rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tr-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); flex: none; }
+.tr-seg button { border: 0; background: none; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: .76rem; font-weight: 800; color: var(--muted); cursor: pointer; }
+.tr-seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.tr-seg button:disabled { opacity: .35; cursor: default; }
+.tr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 6px; }
+.tr-item { position: relative; display: grid; justify-items: center; gap: 0; padding: 6px 2px 4px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); font: inherit; cursor: pointer; }
+.tr-item svg, .tr-item img { width: 34px; height: 34px; }
+.tr-item .cnt { position: absolute; top: 2px; right: 4px; font-size: .68rem; font-weight: 800; color: var(--muted); }
+.tr-item small { font-size: .66rem; font-weight: 800; color: var(--muted); }
+.tr-item small::before { content: ""; display: inline-block; width: .8em; height: .8em; margin-right: 2px; vertical-align: -1px; border-radius: 50%; background: #e8b94a; }
+.tr-item:disabled { opacity: .35; cursor: default; }
+.tr-item:not(:disabled):active { transform: scale(.94); }
+.tr-picked { display: flex; flex-wrap: wrap; gap: 6px; }
+.tr-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 4px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); font: inherit; font-size: .78rem; }
+.tr-chip svg, .tr-chip img { width: 22px; height: 22px; }
+.tr-chip small { color: var(--muted); font-weight: 700; }
+.tr-chip.on { border-color: var(--leaf); cursor: pointer; }
+.tr-chip .tr-x { margin-left: 2px; color: var(--bad); font-weight: 800; }
+.tr-chip.coins { padding-left: 8px; }
+.tr-coins { display: flex; align-items: center; gap: 8px; }
+.tr-coins input { width: 120px; font: inherit; font-size: 1.1rem; font-weight: 800; padding: 8px 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); }
+.tr-coins input:focus { outline: none; border-color: var(--leaf); }
+.tr-balance { display: grid; gap: 8px; padding: 10px 12px; border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--bad) 35%, var(--line)); background: color-mix(in srgb, var(--bad) 5%, var(--panel)); }
+.tr-balance.ok { border-color: color-mix(in srgb, var(--leaf) 55%, var(--line)); background: color-mix(in srgb, var(--leaf) 8%, var(--panel)); }
+.tr-balance > p { margin: 0; font-weight: 800; font-size: .85rem; color: var(--bad); text-align: center; }
+.tr-balance.ok > p { color: var(--leaf-deep); }
+.tr-balance > p.small { font-weight: 600; color: var(--muted); font-size: .74rem; }
+.tr-bars { display: grid; gap: 6px; }
+.tr-bars span { position: relative; display: flex; justify-content: space-between; padding: 4px 10px; border-radius: 10px; background: var(--panel); overflow: hidden; font-size: .8rem; }
+.tr-bars span > * { position: relative; z-index: 1; }
+.tr-bars i { position: absolute; left: 0; top: 0; bottom: 0; background: color-mix(in srgb, #e8b94a 35%, transparent); z-index: 0; transition: width .3s; }
+/* Boîte aux lettres : propositions et nouvelles */
+.sheet.mail-sheet { height: 85dvh; align-content: start; grid-auto-rows: max-content; }
+.tr-card { display: flex; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.tr-body { display: grid; gap: 6px; flex: 1; min-width: 0; }
+.tr-title { margin: 0; font-size: .85rem; }
+.tr-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.tr-line > small { width: 100%; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.tr-acts { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.tr-miss { color: var(--bad); font-weight: 800; margin-right: auto; }
+.mail-news { display: grid; gap: 6px; }
+.mail-news p { margin: 0; padding: 8px 12px; border-radius: 12px; background: var(--panel-2); font-size: .85rem; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.mail-news p small { color: var(--muted); white-space: nowrap; font-size: .72rem; }
+.mail-news p.new { background: color-mix(in srgb, var(--leaf) 12%, var(--panel)); font-weight: 700; }
+/* Liste d'amis : trois actions au même style (visiter, échanger, messages) */
+.fr-ico.fr-act { background: var(--panel); border: 1.5px solid var(--line); color: var(--leaf-deep); box-shadow: none; }
+.fr-ico.fr-act svg { width: 20px; height: 20px; }
+/* Conversation : retirer et bloquer, même style, avec fenêtre de confirmation */
+.chat-danger { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+.danger-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; border: 1.5px solid color-mix(in srgb, var(--bad) 35%, transparent); background: color-mix(in srgb, var(--bad) 7%, transparent); color: var(--bad); font: inherit; font-size: .76rem; font-weight: 800; cursor: pointer; }
+.danger-pill svg { width: 15px; height: 15px; }
+.sheet { position: relative; }
+.ask-pop { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(40,20,10,.45); border-radius: inherit; animation: fade .15s ease-out; }
+.ask-card { width: 100%; max-width: 340px; background: var(--panel); border-radius: 20px; padding: 18px; display: grid; gap: 10px; justify-items: center; text-align: center; border-top: 4px solid var(--bad); box-shadow: 0 12px 32px rgba(0,0,0,.3); }
+.ask-card h3 { margin: 0; color: var(--bad); font-size: 1.05rem; }
+.ask-card p { margin: 0; font-size: .85rem; color: var(--muted); line-height: 1.4; }
+.ask-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.ask-ico svg { width: 24px; height: 24px; }
+.ask-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+/* Message « 📬 » : l'échange annoncé, avec Annuler ou Voir */
+.msg.has-trade { max-width: 88%; }
+.msg-trade { display: grid; gap: 6px; margin-top: 4px; padding: 8px 10px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); justify-items: start; }
+.msg.mine .msg-trade { justify-items: end; }
+.msg.mine .msg-trade .tr-line { justify-content: flex-end; }
+.tr-state { font-size: .74rem; font-weight: 800; padding: 2px 10px; border-radius: 99px; background: var(--panel); color: var(--muted); }
+.tr-state.accepted { color: #3f9a4b; } .tr-state.refused, .tr-state.cancelled, .tr-state.expired { color: var(--bad); }
+/* Fenêtre d'échange : catégories, pièces en plus des objets, petite balance */
+.tr-side h3 { margin: 0; font-size: .95rem; }
+.tr-seg { width: 100%; }
+.tr-seg button { padding: 6px 10px; }
+.tr-seg button .num { opacity: .6; }
+.tr-coins { flex-wrap: wrap; font-size: .82rem; font-weight: 700; }
+.tr-coins input { width: 100px; font-size: 1rem; padding: 6px 10px; }
+.tr-coins.off { opacity: .45; }
+.tr-scale { width: 100%; max-width: 260px; justify-self: center; height: auto; }
+.tr-scale line, .tr-scale path, .tr-scale circle { transition: all .35s ease; }
+.tr-sv { font: 800 14px var(--f-body, sans-serif); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.tr-sl { font: 700 10px var(--f-body, sans-serif); fill: var(--muted); }
+.tr-balance > p.tr-verdict { color: var(--bad); }
+.tr-balance.ok > p.tr-verdict { color: #3f9a4b; }
+.tr-balance.ok { border-color: color-mix(in srgb, #3f9a4b 55%, var(--line)); background: color-mix(in srgb, #3f9a4b 8%, var(--panel)); }
+.tr-tag { display: inline-block; font-size: .66rem; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: #fdf0dc; color: #8a5a1c; border: 1px solid #e8b66a; }
+/* Boîte aux lettres : nouvel échange */
+.btn.tr-new { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #fdf0dc; color: #8a5a1c; border: 1.5px solid #e8b66a; box-shadow: none; }
+.btn.tr-new svg { width: 20px; height: 20px; }
+.tr-pick { display: grid; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.tr-pick-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tr-pick-f { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--panel); font: inherit; font-weight: 700; cursor: pointer; }
+.tr-pick-f .fr-av { width: 28px; height: 28px; }
+.tr-miss { margin: 0; }
+/* Fenêtres : plus de barre de glissement en haut ; « Fermer » devient une petite croix */
+.sheet::before, .sheet.visit-sheet::before { content: none; display: none; }
+.sheet-x { flex: none; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer; }
+.sheet-x svg { width: 18px; height: 18px; }
+.sheet-x:active { transform: scale(.92); }
+.sheet.reveal > .sheet-x, .sheet.season-sheet > .sheet-x { position: absolute; top: 10px; right: 10px; z-index: 5; }
+.chat-head .sheet-x { font-size: inherit; padding: 0; }
+.chat-head .chat-more { margin-left: auto; }
+.chat-menu-item { justify-content: flex-start; }
+/* Échange résumé dans un message : tout aligné à gauche */
+.msg.mine .msg-trade { justify-items: start; }
+.msg.mine .msg-trade .tr-line { justify-content: flex-start; }
+/* Boîte aux lettres : « expire dans… » sur sa propre ligne */
+.tr-exp { display: block; color: var(--muted); font-size: .74rem; margin-top: 1px; }
+/* Balance : jauge ronde | petite balance | jauge ronde */
+.tr-gauges { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; --gc: #b9a993; }
+.tr-gauges.ok { --gc: #3f9a4b; } .tr-gauges.bad { --gc: #d9675a; }
+.tr-g { display: grid; justify-items: center; gap: 4px; }
+.tr-g small { font-size: .74rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.tr-ring { position: relative; width: 78px; height: 78px; display: grid; place-items: center; }
+.tr-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.tr-ring circle { fill: none; stroke-width: 4.5; }
+.tr-ring .bg { stroke: var(--line); }
+.tr-ring .fg { stroke: var(--gc); stroke-dasharray: 100; stroke-linecap: round; transition: stroke-dashoffset .35s ease, stroke .3s; }
+.tr-ring b { position: relative; font-size: 1.05rem; }
+.tr-pct { font-size: .8rem; font-weight: 800; color: var(--gc); }
+.tr-g-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--gc); box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: background .3s; }
+.tr-g-ico svg { width: 24px; height: 24px; }
+.sheet.chat-sheet { grid-template-rows: auto 1fr auto; } /* en-tête, messages, saisie (plus de barre de glissement) */
+/* Bouton retour (‹) carré, comme la croix */
+.chat-head > [data-act="frBack"], .chat-head > [data-act="visitBack"], .chat-head > [data-act="trBack"] { width: 34px; height: 34px; min-height: 34px; padding: 0; flex: none; display: grid; place-items: center; font-size: 1.3rem; border-radius: 10px; }
+/* Résumé d'échange dans un message : boutons d'action à droite */
+.msg-trade > .btn { justify-self: end; }
+/* Onglet Amis : pas de débordement sur téléphone */
+.friends-page { grid-template-columns: minmax(0, 1fr); }
+.fr-search { min-width: 0; }
+.fr-search input { width: 100%; }
+.fr-search .btn { flex: none; }
+/* Code ami compact, sur une ligne */
+.fr-code { padding: 6px 8px 6px 12px; gap: 6px; }
+.fr-code small { flex: 1; font-size: .7rem; }
+.fr-code b { font-size: 1.15rem; letter-spacing: .14em; }
+.fr-code .fr-ico { width: 32px; height: 32px; min-height: 32px; }
+.fr-code .fr-ico svg { width: 17px; height: 17px; }
+/* Recherche dans la liste d'amis */
+.fr-filter { width: 100%; font: inherit; font-size: .95rem; padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); }
+.fr-filter:focus { outline: none; border-color: var(--leaf); }
+/* « Nouvel échange » : boutons d'échange en couleur dans la liste */
+.fr-ico.fr-act.hl { background: #fdf0dc; color: #8a5a1c; border-color: #e8b66a; animation: hl-pulse 1.2s ease-in-out 3; }
+@keyframes hl-pulse { 50% { transform: scale(1.12); } }
+.fr-hint { margin: 0; color: #8a5a1c; font-weight: 700; }
+.fr-hint svg { width: 16px; height: 16px; vertical-align: -3px; }
+/* Paramètres de test : choix de la saison */
+.test-season button { font-size: .72rem; padding-inline: 2px; }
+/* La barre du haut passe devant le jardin (bouton Décorer, boîte aux lettres) */
+.top { z-index: 9; }
+/* Code ami : bien centré verticalement */
+.fr-code { align-items: center; }
+.fr-code small, .fr-code b { line-height: 1; display: block; }
+.fr-code b { padding-top: 2px; }
+/* Boutons d'échange aux couleurs de la saison (lisibles en clair comme en sombre) */
+.btn.tr-new, .btn.tr-btn, .fr-ico.fr-act.hl { background: color-mix(in srgb, var(--leaf) 16%, var(--panel)); color: var(--leaf-deep); border: 1.5px solid color-mix(in srgb, var(--leaf) 60%, var(--line)); }
+.fr-ico.fr-act.hl { animation: none; }
+.fr-ico.fr-act.hl.pulse { animation: hl-pulse .6s ease-in-out 1; }
+.fr-hint { color: var(--leaf-deep); }
+.tr-tag { background: color-mix(in srgb, var(--leaf) 16%, var(--panel)); color: var(--leaf-deep); border-color: color-mix(in srgb, var(--leaf) 60%, var(--line)); }
+/* Résumé d'échange dans un message : boutons et état à droite */
+.msg-trade > .btn, .msg-trade > .tr-state { justify-self: end; }
+.fr-hint svg { display: inline-block; }
+/* Liste d'amis : une ligne ne dépasse jamais (titre long, petit écran) */
+.fr-list { grid-template-columns: minmax(0, 1fr); }
+.fr-row { min-width: 0; }
+.fr-id { min-width: 0; }
+.fr-id .title-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-head .fr-id small { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 380px) { .fr-row { gap: 8px; padding: 10px; } .fr-acts { gap: 6px; } .fr-ico.fr-act { width: 36px; height: 36px; min-height: 36px; } }
+/* Boîte aux lettres : en bas à droite du jardin, un peu en dessous (marge ajoutée sous le jardin) */
+.mailbox .mb-art { object-fit: contain; }
+.mailbox .fr-badge { top: 6%; right: 4%; }
+.fw-ico { object-fit: contain; }
+/* Boîte aux lettres décollée du bord de l'encadré ; plus d'air autour de la ligne « Décorer » */
+.garden-bar { margin: 6px 0; }
+/* Boîte aux lettres en haut à droite du jardin, sur une bande d'herbe au-dessus des bacs :
+   toujours visible, quel que soit le nombre de parcelles, sans cacher de bac. */
+.garden:has(> .mailbox) { --mtop: 4cqw; padding-top: calc(var(--g) + 4%); padding-bottom: calc(var(--g) + 4%); margin-top: 18px; overflow: clip; overflow-clip-margin: 40px; }
+.garden:has(> .mailbox) .deco-row .deco-slot.s1 { top: calc(var(--mtop) + var(--g) + (100cqw - 2 * var(--g)) * .93 / var(--cols) * 1.008 - 8cqw); }
+.garden > .mailbox { top: -38px; right: 2%; bottom: auto; width: min(20%, 84px); height: auto; aspect-ratio: 1; max-width: none; } /* dépasse un peu au-dessus du jardin, sans toucher le texte */
+/* Visite : trois boutons (Arroser, Échanger, J'aime) */
+.visit-btns { grid-template-columns: 1fr 1fr auto; }
+.visit-btns .btn { padding-inline: 10px; }
+.btn.like-btn { display: inline-flex; align-items: center; gap: 5px; background: #fde8ee; color: #c2365f; border: 1.5px solid #f2a3b9; box-shadow: none; }
+.btn.like-btn svg { width: 20px; height: 20px; }
+.btn.like-btn.on { opacity: .7; }
+.like-pop { position: fixed; width: 18px; height: 18px; margin: -9px 0 0 -9px; color: #e0628f; animation: like-pop .9s ease-out forwards; }
+.like-pop svg { width: 100%; height: 100%; }
+@keyframes like-pop { 0% { transform: rotate(var(--a)) translateY(0) scale(.4); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-46px) scale(1); opacity: 0; } }
+/* Cœurs reçus : quelques cœurs montent sur l'écran, puis disparaissent */
+.heart-rain { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.heart-rain i { position: absolute; bottom: -40px; width: 28px; height: 28px; transform: scale(var(--s)); opacity: 0; animation: heart-up 3s ease-out forwards; filter: drop-shadow(0 2px 3px rgba(150,30,60,.25)); }
+.heart-rain i svg { width: 100%; height: 100%; }
+@keyframes heart-up { 0% { opacity: 0; transform: translate(0, 0) scale(var(--s)); } 15% { opacity: 1; } 80% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--dx), -85vh) scale(var(--s)); } }
+.heart-label { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 8px 16px; border-radius: 99px; background: #fff; color: #c2365f; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 18px rgba(150,30,60,.25); animation: fw-pop 3.6s ease-out forwards; }
+.heart-label b { color: #9c1f4a; }
+/* Visite : rien ne dépasse sur petit écran ; J'aime = un cœur seul, bouton carré */
+.sheet.visit-sheet { grid-template-columns: minmax(0, 1fr); }
+.visit-btns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.btn.like-btn { width: 48px; padding: 0; justify-content: center; }
+.btn.like-btn svg { width: 24px; height: 24px; }
+/* Objectifs de la semaine */
+.quest.wk { cursor: pointer; }
+.quest.wk:active { transform: scale(.99); }
+.wk-who { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--leaf-deep); margin-bottom: 1px; }
+.wk-bar { position: relative; overflow: visible; }
+.wk-bar > i { border-radius: 99px; }
+.wk-tick { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--line); }
+.wk-tick.on { background: #f4c03e; }
+.wk-more { font-size: 1.6rem; line-height: 1; color: var(--muted); padding: 0 4px; }
+.goal-head { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; }
+.goal-head .q-ico { width: 52px; height: 52px; }
+.goal-head b { display: block; margin-bottom: 6px; }
+.wk-bar.big { height: 12px; }
+.goal-rewards { display: grid; gap: 8px; }
+.goal-rw { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.goal-rw-p { grid-column: 1 / -1; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.goal-rw-r { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 700; font-size: .88rem; }
+.goal-rw-r img { width: 44px; height: 44px; object-fit: contain; }
+.goal-rw-r small { width: 100%; color: var(--muted); font-weight: 600; font-size: .72rem; }
+.goal-rw.ready { border-color: #f4c03e; background: linear-gradient(160deg, #fffaf0, #fff1c9); }
+.goal-rw.got { opacity: .6; }
+.goal-members { display: grid; gap: 6px; }
+.goal-m { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 10px; border-radius: 12px; background: var(--panel-2); }
+.goal-m .fr-av { width: 32px; height: 32px; }
+.goal-m b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal-m.me { border: 1.5px solid color-mix(in srgb, var(--leaf) 50%, var(--line)); }
+.sheet.goal-sheet { align-content: start; grid-auto-rows: max-content; grid-template-columns: minmax(0, 1fr); }
+/* Fenêtre « Du nouveau » de la v3 */
+.news3 { max-height: calc(100dvh - 40px); overflow: auto; }
+.news3-sub { color: var(--muted); font-weight: 700; margin-top: -6px !important; }
+.news3-list { display: grid; gap: 8px; width: 100%; text-align: left; }
+.news3-item { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 10px; border-radius: 14px; background: color-mix(in srgb, var(--leaf) 8%, var(--panel)); }
+.news3-ico { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 1.15rem; font-weight: 800; color: var(--leaf-deep); background: var(--panel); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.news3-item b { display: block; color: var(--leaf-deep); font-size: .92rem; }
+.news3-item small { display: block; color: var(--ink); font-size: .8rem; line-height: 1.35; }
+.news3 { gap: 8px; padding-top: 16px; padding-bottom: 16px; }
+.news3 .gate-logo { width: 48px; height: 48px; }
+.news3 h1 { font-size: 1.35rem; }
+.news3-list { gap: 6px; }
+.news3-item { padding: 6px 10px; grid-template-columns: 32px minmax(0, 1fr); }
+.news3-ico { width: 32px; height: 32px; font-size: 1rem; }
+.news3-item b { font-size: .88rem; }
+.news3-item small { font-size: .76rem; line-height: 1.3; }
+.news3-ico svg { width: 20px; height: 20px; }
 /* Profil : progression détaillée */
 .pf-xp { display: grid; gap: 5px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
 .pf-xp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
@@ -1244,3 +1570,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .pf-xp-top span { font-size: .85rem; font-weight: 700; color: var(--muted); }
 .pf-xp small { font-size: .75rem; }
 .top .lvl { cursor: pointer; }
+/* « Décorer » collé au jardin (3.0.7) : la boîte aux lettres dépasse à droite, à côté du texte qui s'en écarte. */
+.garden:has(> .mailbox) { margin-top: 6px; }
+.panel:has(> .garden > .mailbox) > .garden-bar, .panel:has(> .garden > .mailbox) > .fw-line { padding-right: calc(min(20%, 84px) + 4%); }
+.panel:has(> .garden > .mailbox) > .garden-bar { margin-bottom: 0; }

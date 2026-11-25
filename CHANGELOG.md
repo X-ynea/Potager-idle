@@ -1,5 +1,66 @@
 # Notes de version
 
+## Version 3 : « Entre amis »
+
+*25 novembre 2026 · version 3.0.0*
+
+Le potager s'ouvre à tes amis. Ajoute tes proches, visite leur jardin, donne-leur un coup d'arrosoir, échangez vos récoltes et avancez ensemble vers les objectifs de la semaine.
+
+### Un onglet Amis
+
+- **Un nouvel onglet « Amis »**, en bas de l'écran, avec un badge pour les demandes et les messages.
+- **Ton code ami** à partager, ou à copier en un toucher. On peut aussi chercher un joueur par son pseudo.
+- **Les messages** : touche un ami pour discuter avec lui. Les messages s'effacent au bout de 30 jours.
+- **Retirer ou bloquer** un ami se fait depuis le menu ⋯ de la conversation, toujours avec une confirmation.
+
+### Visiter le jardin de ses amis
+
+- **Toute la place de l'écran** pour admirer son jardin : ses bacs, ses plantes qui continuent de pousser, ses décos et le décor de la saison.
+- **Son herbier**, sans rien dévoiler : un hybride que tu n'as pas encore découvert reste « ??? ».
+- **Un coup d'arrosoir** : une fois par jour, arrose le jardin d'un ami. Ses plantes poussent **20 % plus vite pendant 2 h**, et tu gagnes un peu d'XP. Un jardin reçoit 2 arrosages par jour au plus, et chacun arrose 2 jardins par jour au plus.
+- **« J'aime ton jardin »** : un cœur par ami et par semaine. Ton ami voit des cœurs monter sur son écran.
+
+### Les échanges
+
+- **Échange des récoltes, des plats ou des pièces** avec tes amis, depuis la visite ou la liste d'amis.
+- **Une petite balance** montre si l'échange est équilibré : la valeur de chaque côté (le prix de vente au marché) doit être à peu près la même.
+- **Ce que tu proposes est mis de côté** jusqu'à la réponse. Ton ami peut accepter, refuser ou faire une **contre-proposition**, et vous pouvez faire autant d'allers-retours que vous voulez.
+- **Rien n'est dévoilé** : on ne voit ni ne demande les objets qu'on n'a pas encore découverts.
+- **La boîte aux lettres**, en haut du jardin, réunit les échanges reçus, ceux envoyés et les nouvelles (arrosages, cœurs, réponses).
+
+### Les objectifs de la semaine
+
+- **Deux objectifs chaque semaine**, sous les objectifs du jour : un **entre amis** (toi et tes amis) et un pour **tous les jardiniers**, avec 3 paliers.
+- **On avance ensemble**, jamais les uns contre les autres. Touche un objectif pour voir où en est chacun et ce qu'il rapporte.
+- **Les récompenses** : la première réussite de chaque saison donne une **déco rare**, ensuite des graines de saison ou des **graines d'hybrides**. Si tu n'as pas encore découvert l'hybride, ses graines t'attendent jusqu'à sa découverte.
+- **8 décos de saison** à collectionner :
+  - entre amis : Arche fleurie, Table de pique-nique, Hérisson et feuilles, Bonhomme de neige ;
+  - tous les jardiniers : Fontaine fleurie, Moulin à vent, Montgolfière, Sapin illuminé.
+
+### Quatre hybrides de saison et leurs recettes
+
+Il faut garder des récoltes de saison de côté pour les croiser dans la Serre :
+- **Asperge rubis** (asperge et betterave), pour une **Tarte rubis** ;
+- **Melon étoilé** (melon et tournesol), pour un **Sorbet étoilé** ;
+- **Champignon nuage** (champignon des bois et myrtille), pour un **Velouté nuage** ;
+- **Chou de cristal** (chou d'hiver et laitue), pour une **Potée de cristal**.
+
+### Nouveaux succès
+
+- **Entre amis** : « Coup d'arrosoir », « Troc » et « Esprit d'équipe », avec les titres « Jardinier solidaire », « As du troc » et « Esprit d'équipe ».
+
+### Et aussi
+
+- **Deux décos changent de visage** pour ne pas les confondre avec la boîte aux lettres et l'arrosage : l'Arrosoir fleuri devient le **Bain d'oiseaux** et la Boîte aux lettres devient le **Panneau du village**. Si tu les avais placées, elles restent à leur place.
+- **Mamie Lapine** te présente chaque nouveauté au bon moment.
+- **Fenêtres plus simples** : une petite croix pour fermer, et moins de messages en bas de l'écran.
+
+### En chiffres
+
+**32 plantes** (dont 8 de saison et 12 hybrides) · **33 recettes** · **12 voisins** · **20 décorations** · **46 succès**
+
+Bon jardinage entre amis ! 🌱💧❤️
+
 ## Version 2 : « Les quatre saisons »
 
 *22 novembre 2026 · version 2.1.1*
@@ -61,8 +122,27 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
-### 2.16.11
+### 3.0.7
 - Décorations : le choix d’une décoration se fait dans une grille, comme le reste de l’app, au lieu d’une bande à faire défiler.
+- Jardin : le bouton « Décorer » est collé au jardin. Le texte à droite s’écarte de la boîte aux lettres.
+
+### 3.0.6
+- Cette semaine, l'objectif entre amis déjà terminé avec les anciennes cibles redevient actif avec les nouvelles, sans nouvelle récompense.
+
+### 3.0.5
+- Objectifs de la semaine plus ambitieux : il faut maintenant environ 4 à 5 heures de jeu par personne (60 commandes ou 60 plats, 50 visiteurs, 120 plantes de saison par joueur).
+
+### 3.0.4
+- Le chiffre dans le titre de l'onglet du navigateur compte aussi les demandes d'ami, les messages non lus, les échanges reçus et les réponses à tes échanges.
+
+### 3.0.3
+- Conseils de Mamie Lapine : « Je me débrouille, merci » compte comme si tous ses conseils étaient terminés. À chaque mise à jour, elle ne présente que les nouveautés. « Revoir » dans les Paramètres reprend tout depuis le début.
+
+### 3.0.2
+- Mamie Lapine ne présente plus que les nouveautés de la v3 aux anciens joueurs. Chez ceux qui l'avaient fait taire, elle reprenait les premiers pas depuis le début.
+
+### 3.0.1
+- La fenêtre « Du nouveau au potager ! » se fermait toute seule une seconde après l'ouverture du jeu. C'est corrigé, et elle s'affiche de nouveau une fois.
 
 ### 2.16.10
 - Herbier : plantes et hybrides rangés par niveau (découverts d’abord). Un hybride a le niveau de son parent le plus tardif, donc les inconnus apparaissent dans l’ordre où ils deviennent possibles.

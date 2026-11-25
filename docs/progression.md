@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 2.16.9 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.0.0 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -59,15 +59,15 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (900 p) |
 | 13 | Myrtille | — | Bac n° 9 (1 350 p) |
 | 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes | — |
-| 15 | Lavande | Tarte aux asperges | — |
+| 15 | Lavande | Tarte aux asperges, Tarte rubis | — |
 | 16 | Melon (été) | Pizza du potager | — |
 | 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (2 700 p) |
 | 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (3 000 p) |
-| 19 | Potiron | Salade de melon | Bac n° 10 (3 000 p) |
+| 19 | Potiron | Salade de melon, Sorbet étoilé | Bac n° 10 (3 000 p) |
 | 20 | Champignon des bois (automne) | Velouté de potiron | Banc des voisins 2/2 (6 000 p) |
-| 21 | — | Pain aux graines | Fourneau 2/2 (7 500 p) |
+| 21 | — | Pain aux graines, Velouté nuage | Fourneau 2/2 (7 500 p) |
 | 22 | Chou d’hiver (hiver) | — | — |
-| 23 | — | Purée améthyste | — |
+| 23 | — | Purée améthyste, Potée de cristal | — |
 | 24 | — | Soupe lanterne | Compost maison 3/3 (7 500 p) |
 | 25 | — | Tourte forestière | Arroseur automatique (12 000 p), Bac n° 11 (6 000 p) |
 | 26 | — | Potée au chou | — |
@@ -140,6 +140,10 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Tomate lanterne | Tomate + Potiron | 50 min | 200 | 33 |
 | Épi d’azur | Blé + Radis | 16 min | 55 | 11 |
 | Carotte améthyste | Carotte + Lavande | 36 min | 140 | 24 |
+| Melon étoilé | Melon + Tournesol | 50 min | 230 | 38 |
+| Champignon nuage | Champignon des bois + Myrtille | 51 min | 215 | 35 |
+| Asperge rubis | Asperge + Betterave | 35 min | 120 | 21 |
+| Chou de cristal | Chou d’hiver + Laitue | 56 min | 165 | 28 |
 
 ## Recettes
 
@@ -160,14 +164,18 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Muffins myrtille | 14 | 175 | 2 myrtille, 1 blé | 4 min | 161 | 37 |
 | Gratin de courgettes | 14 | 135 | 2 courgette, 1 pomme de terre, 1 tomate | 3 min | 123 | 28 |
 | Tarte aux asperges | 15 | 220 | 2 asperge, 2 blé | 4 min | 200 | 42 |
+| Tarte rubis | 15 | 445 | 2 asperge rubis, 2 blé | 4 min | 405 | 68 |
 | Pizza du potager | 16 | 210 | 2 blé, 2 tomate, 1 basilic | 4 min | 189 | 47 |
 | Tisane lavande | 17 | 180 | 2 lavande | 3 min | 163 | 34 |
 | Velouté lunaire | 17 | 275 | 2 radis lune, 2 pomme de terre | 5 min | 251 | 49 |
 | Smoothie fraisille | 18 | 315 | 2 fraisille | 3 min | 285 | 50 |
 | Salade de melon | 19 | 200 | 1 melon, 1 fraise, 1 basilic | 3 min | 180 | 38 |
+| Sorbet étoilé | 19 | 785 | 2 melon étoilé, 1 fraise | 5 min | 715 | 110 |
 | Velouté de potiron | 20 | 210 | 1 potiron, 1 pomme de terre, 1 carotte | 5 min | 192 | 40 |
 | Pain aux graines | 21 | 295 | 2 blé, 2 tournesol | 4 min | 270 | 59 |
+| Velouté nuage | 21 | 735 | 2 champignon nuage, 2 pomme de terre | 5 min | 670 | 105 |
 | Purée améthyste | 23 | 495 | 2 carotte améthyste, 2 pomme de terre | 5 min | 448 | 75 |
+| Potée de cristal | 23 | 585 | 2 chou de cristal, 2 carotte | 5 min | 530 | 85 |
 | Soupe lanterne | 24 | 695 | 2 tomate lanterne, 1 basilic | 5 min | 631 | 100 |
 | Tourte forestière | 25 | 360 | 2 champignon des bois, 2 blé, 1 pomme de terre | 5 min | 326 | 62 |
 | Potée au chou | 26 | 240 | 1 chou d’hiver, 2 carotte, 2 pomme de terre | 5 min | 218 | 45 |
@@ -193,7 +201,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 |  | 3 | Récolter 1000 plantes | 2 000 | 225 | titre « Main verte », +5 % d’XP sur tout |
 | Récolte double |  | Obtenir une récolte double | 50 | 10 |  |
 | Jardin plein |  | Avoir toutes ses parcelles plantées en même temps | 40 | 10 |  |
-| Toujours humide |  | Récolter 20 plantes qui n’ont jamais eu soif | 150 | 30 | déco Arrosoir fleuri |
+| Toujours humide |  | Récolter 20 plantes qui n’ont jamais eu soif | 150 | 30 | déco Bain d’oiseaux |
 | Collectionneur |  | Récolter chacune des 12 plantes de base | 400 | 75 | titre « Collectionneur », déco Épouvantail |
 | Quatre saisons | 1 | Récolter les 8 plantes exclusives des saisons | 150 | 30 |  |
 |  | 2 | Récolter les 8 plantes exclusives des saisons | 1 500 | 225 | titre « Jardinier des saisons » |
@@ -210,7 +218,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Ruée vers l’or | 1 | Récolter 10 légumes dorés au total | 800 | 150 |  |
 |  | 2 | Récolter 50 légumes dorés au total | 5 000 | 600 | titre « Orpailleur » |
 | Trésor de saison |  | Trouver une récolte dorée d’une plante de chaque saison | 2 000 | 300 |  |
-| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (28) | 20 000 | 1500 | titre « Roi Midas du potager » |
+| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (32) | 20 000 | 1500 | titre « Roi Midas du potager » |
 | Apprenti botaniste |  | Réussir son premier croisement | 100 | 25 | titre « Botaniste » |
 | Herbier complet |  | Découvrir tous les hybrides | 1 500 | 225 | titre « Grand botaniste », +5 % de pièces sur tout, déco Ruche |
 | Expérimentateur |  | Faire 25 croisements, même ratés | 300 | 60 |  |
@@ -223,7 +231,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Bon voisin | 1 | Livrer 10 commandes | 100 | 25 |  |
 |  | 2 | Livrer 50 commandes | 600 | 115 | déco Brouette de légumes |
 |  | 3 | Livrer 150 commandes | 2 000 | 300 | titre « Pilier du village » |
-| Ami de tous |  | Livrer une commande à chacun des voisins | 500 | 90 | titre « Ami du village », déco Boîte aux lettres |
+| Ami de tous |  | Livrer une commande à chacun des voisins | 500 | 90 | titre « Ami du village », déco Panneau du village |
 | Grosse livraison |  | Livrer une commande de 500 pièces ou plus | 200 | 40 |  |
 | Petite fortune | 1 | Avoir 1000 pièces en même temps | 0 | 40 |  |
 |  | 2 | Avoir 10000 pièces en même temps | 0 | 150 |  |
@@ -252,5 +260,14 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Hors saison 🔒 |  | Récolter une plante de saison en dehors de sa saison | 200 | 40 |  |
 | Noyade 🔒 |  | Arroser le même bac 10 fois d’affilée | 100 | 25 |  |
 | Difficile en affaires 🔒 |  | Refuser 10 commandes de voisins | 150 | 30 |  |
+| Coup d’arrosoir | 1 | Arroser 5 fois le jardin d’un ami | 100 | 25 |  |
+|  | 2 | Arroser 20 fois le jardin d’un ami | 400 | 75 |  |
+|  | 3 | Arroser 50 fois le jardin d’un ami | 1 200 | 190 | titre « Jardinier solidaire » |
+| Troc | 1 | Conclure 3 échanges avec tes amis | 100 | 25 |  |
+|  | 2 | Conclure 10 échanges avec tes amis | 500 | 90 |  |
+|  | 3 | Conclure 30 échanges avec tes amis | 1 500 | 225 | titre « As du troc » |
+| Esprit d’équipe | 1 | Réussir 1 objectif de la semaine | 150 | 30 |  |
+|  | 2 | Réussir 4 objectifs de la semaine | 600 | 115 |  |
+|  | 3 | Réussir 12 objectifs de la semaine | 2 000 | 300 | titre « Esprit d’équipe » |
 
 🔒 = succès caché.

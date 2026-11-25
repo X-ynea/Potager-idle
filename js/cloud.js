@@ -80,7 +80,7 @@ const CLOUD = (() => {
     } catch (e) { lastError = String(e.message || e); if (manual) toast("Synchronisation impossible pour le moment."); }
     busy = false; if (typeof render === "function" && !$("#modal").hidden) render(true);
   }
-  function useRemote(rs) { S = migrate(rs); save(); applyTheme(); lastSync = Date.now(); commit(); toast("Partie récupérée depuis ton compte."); }
+  function useRemote(rs) { S = migrate(rs); save(); applyTheme(); lastSync = Date.now(); commit(); }
   function askChoice(rs) {
     const L = (s, n) => `<button class="set-link" data-act="cloudPick" data-arg="${n}"><span class="ico">${n === "remote" ? "☁️" : "📱"}</span><span><b>${n === "remote" ? "La partie en ligne" : "La partie de cet appareil"}</b><small>Niveau ${s.level} · ${fmt(s.coins)} pièces · ${fmt(s.stats?.harvest || 0)} récoltes</small></span></button>`;
     CLOUD._choice = rs;
@@ -145,7 +145,7 @@ const CLOUD_ACTS = {
   newsClose() { newsNow = false; showGate(); },
   async cloudPick(which) {
     closeModal();
-    if (which === "remote" && CLOUD._choice) { S = migrate(CLOUD._choice); save(); applyTheme(); commit(); toast("Partie en ligne récupérée."); }
+    if (which === "remote" && CLOUD._choice) { S = migrate(CLOUD._choice); save(); applyTheme(); commit(); }
     try { await CLOUD.push(); } catch (e) {}
     CLOUD._choice = null; render(true);
   },
@@ -184,7 +184,7 @@ function showGate() {
     g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
     g.innerHTML = newsHTML(); return;
   }
-  if (!need) { g?.remove(); return; }
+  if (!need) { if (!g?.querySelector(".news3")) g?.remove(); return; } // la fenêtre « Du nouveau » de la v3 reste affichée
   if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
   g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
   const hasLocal = !CLOUD.signedIn && typeof S !== "undefined" && ((S.stats?.harvest || 0) > 0 || S.level > 1);

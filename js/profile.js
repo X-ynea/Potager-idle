@@ -27,7 +27,7 @@ function viewProfile() {
   const achDone = ACHIEVEMENTS.reduce((t, a) => t + ((S.ach || {})[a.id] || 0), 0);
   const banner = bannerSrc();
   return `<div class="sheet tall profile-sheet" role="dialog" aria-modal="true" aria-label="Profil">
-    <div class="sheet-head"><h2>Profil</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Profil</h2>${SHEET_X}</div>
     <div class="pf-card">
       <button class="pf-banner${banner.startsWith("data:") ? " photo" : ""}" style="background-image:url('${banner}')" data-act="profilePick" data-arg="banner" aria-label="Changer la bannière"><span class="pf-edit">${PENCIL}</span></button>
       <button class="pf-avatar" data-act="profilePick" data-arg="avatar" aria-label="Changer la photo de profil"><img src="${avatarSrc()}" alt=""><span class="pf-edit">${PENCIL}</span></button>
@@ -40,7 +40,6 @@ function viewProfile() {
     <div class="pf-xp"><div class="pf-xp-top"><b>Niveau ${S.level}</b><span class="num">${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP</span></div>
       <div class="xpbar"><i style="width:${(S.xp / xpNeed(S.level) * 100).toFixed(1)}%"></i></div>
       <small class="muted">Encore ${fmt(xpNeed(S.level) - S.xp)} XP avant le niveau ${S.level + 1}</small></div>
-    ${FRIENDS_ON ? `<button class="set-link fr-open" data-act="openFriends"><span class="ico fr-ico-people">${FR_ICONS.people}</span><span><b>Mes amis</b><small>${FR.loaded ? `${FR.list.filter(f => f.direction === "friend").length} ami${FR.list.filter(f => f.direction === "friend").length > 1 ? "s" : ""}${unreadTotal() ? ` · ${unreadTotal()} message${unreadTotal() > 1 ? "s" : ""}` : ""}${incoming().length ? ` · ${incoming().length} demande${incoming().length > 1 ? "s" : ""} reçue${incoming().length > 1 ? "s" : ""}` : ""}` : "Code ami, demandes, messages"}</small></span>${incoming().length + unreadTotal() ? `<span class="fr-badge">${incoming().length + unreadTotal()}</span>` : ""}</button>` : ""}
     ${pick === "avatar" ? `<div class="set-group"><h3>Photo de profil</h3>
       <div class="pf-grid">
         <label class="pf-opt upload"><input type="file" accept="image/*" data-file="avatar" hidden><span>+</span><small>Ma photo</small></label>
@@ -102,7 +101,7 @@ function updateBrand() {
   const src = avatarSrc(), img = b.querySelector("img");
   if (img && img.getAttribute("src") !== src) img.setAttribute("src", src);
   b.classList.toggle("has-avatar", !!profile().avatar && profile().avatar !== "leaf" || (!profile().avatar && !!discordUser()?.avatar));
-  b.classList.toggle("has-req", FRIENDS_ON && (FR.list.some(f => f.direction === "in") || unreadTotal() > 0)); // demande ou message reçu
+  b.classList.remove("has-req"); // demandes et messages : badge sur l’onglet « Amis »
   b.setAttribute("aria-label", `Profil de ${profileName()}`);
 }
 const PROFILE_ACTS = {

@@ -12,7 +12,7 @@ const ACHIEVEMENTS = [
     tiers: [{ n: 10, c: 50, x: 20 }, { n: 100, c: 300, x: 80, deco: "gnome" }, { n: 1000, c: 2000, x: 300, title: "Main verte", bonus: "xp" }] },
   { id: "double", cat: "garden", name: "Récolte double", desc: "Obtenir une récolte double", value: () => st("doubles"), tiers: [{ n: 1, c: 50, x: 15 }] },
   { id: "full", cat: "garden", name: "Jardin plein", desc: "Avoir toutes ses parcelles plantées en même temps", value: () => st("fullGarden"), tiers: [{ n: 1, c: 40, x: 15 }] },
-  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "can" }] },
+  { id: "wet", cat: "garden", name: "Toujours humide", desc: n => `Récolter ${n} plantes qui n’ont jamais eu soif`, value: () => st("neverDry"), tiers: [{ n: 20, c: 150, x: 40, deco: "birdbath" }] },
   { id: "collector", cat: "garden", name: "Collectionneur", desc: "Récolter chacune des 12 plantes de base", value: () => ORDER.filter(k => !PLANTS[k].hybrid && !PLANTS[k].only && S.discovered.includes(k)).length,
     tiers: [{ n: 12, c: 400, x: 100, title: "Collectionneur", deco: "scarecrow" }] },
   { id: "seasons", cat: "garden", name: "Quatre saisons", desc: "Récolter les 8 plantes exclusives des saisons", value: () => ORDER.filter(k => PLANTS[k].only && S.discovered.includes(k)).length,
@@ -48,7 +48,7 @@ const ACHIEVEMENTS = [
   { id: "neighbor", cat: "village", name: "Bon voisin", desc: n => `Livrer ${n} commandes`, value: () => st("orders"),
     tiers: [{ n: 10, c: 100, x: 30 }, { n: 50, c: 600, x: 150, deco: "wheelbarrow" }, { n: 150, c: 2000, x: 400, title: "Pilier du village" }] },
   { id: "friends", cat: "village", name: "Ami de tous", desc: "Livrer une commande à chacun des voisins", value: () => (S.stats.served || []).length,
-    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "mailbox" }] },
+    tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "signpost" }] },
   { id: "bigdelivery", cat: "village", name: "Grosse livraison", desc: "Livrer une commande de 500 pièces ou plus", value: () => st("bigOrder"), tiers: [{ n: 1, c: 200, x: 50 }] },
 
   { id: "fortune", cat: "eco", name: "Petite fortune", desc: n => `Avoir ${fmt(n)} pièces en même temps`, value: () => st("maxCoins"),
@@ -76,18 +76,40 @@ const ACHIEVEMENTS = [
   { id: "overwater", cat: "hidden", hidden: true, name: "Noyade", desc: "Arroser le même bac 10 fois d’affilée", value: () => st("overWater"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "refuser", cat: "hidden", hidden: true, name: "Difficile en affaires", desc: "Refuser 10 commandes de voisins", value: () => st("refused"), tiers: [{ n: 10, c: 150, x: 40 }] },
 ];
+// v3 : succès entre amis (seulement là où les amis sont ouverts).
+if (FRIENDS_ON) {
+  ACH_CATS.splice(ACH_CATS.length - 1, 0, ["friends", "Entre amis"]);
+  ACHIEVEMENTS.push(
+    { id: "friend_water", cat: "friends", name: "Coup d’arrosoir", desc: n => `Arroser ${n} fois le jardin d’un ami`, value: () => st("friendWaters"),
+      tiers: [{ n: 5, c: 100, x: 30 }, { n: 20, c: 400, x: 100 }, { n: 50, c: 1200, x: 250, title: "Jardinier solidaire" }] },
+    { id: "trader", cat: "friends", name: "Troc", desc: n => `Conclure ${n} échange${n > 1 ? "s" : ""} avec tes amis`, value: () => st("trades"),
+      tiers: [{ n: 3, c: 100, x: 30 }, { n: 10, c: 500, x: 120 }, { n: 30, c: 1500, x: 300, title: "As du troc" }] },
+    { id: "team", cat: "friends", name: "Esprit d’équipe", desc: n => `Réussir ${n} objectif${n > 1 ? "s" : ""} de la semaine`, value: () => st("weeklyGoals"),
+      tiers: [{ n: 1, c: 150, x: 40 }, { n: 4, c: 600, x: 150 }, { n: 12, c: 2000, x: 400, title: "Esprit d’équipe" }] },
+  );
+}
 // XP des succès réduite d’un quart (2.12), arrondie à 5.
 ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .75 / 5) * 5); }));
 const DECOS = {
-  gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", can: "Arrosoir fleuri", birdhouse: "Nichoir",
-  hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", mailbox: "Boîte aux lettres", lantern: "Lanterne",
+  gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", birdbath: "Bain d’oiseaux", birdhouse: "Nichoir",
+  hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", signpost: "Panneau du village", lantern: "Lanterne",
   rabbit: "Lapin doré", well: "Puits",
 };
+// Décos des objectifs de la semaine (là où les amis sont ouverts) : une par saison, entre amis (f_) et de tous (g_).
+if (FRIENDS_ON) Object.assign(DECOS, { f_printemps: "Arche fleurie", f_ete: "Table de pique-nique", f_automne: "Hérisson et feuilles", f_hiver: "Bonhomme de neige",
+  g_printemps: "Fontaine fleurie", g_ete: "Moulin à vent", g_automne: "Montgolfière", g_hiver: "Sapin illuminé" });
 const DECO_ORDER = Object.keys(DECOS);
+// v3 : l'arrosoir et la boîte aux lettres deviennent le bain d'oiseaux et le panneau du village
+// (pour ne pas les confondre avec l'arrosage d'un ami et la boîte aux lettres du jardin).
+const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, can: .55, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, mailbox: .95, lantern: 1.2, rabbit: .7, well: 1.25 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25 };
+// Décos des objectifs de la semaine
+if (FRIENDS_ON) Object.assign(DECO_SCALE, { f_printemps: 1.1, f_ete: .9, f_automne: .75, f_hiver: .9, g_printemps: 1.05, g_ete: 1.2, g_automne: 1.15, g_hiver: 1.1 });
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
-const decoUnlocked = d => { const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
+const decoUnlocked = d => { if ((S.goalDecos || []).includes(d)) return true; const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
+// Décos des objectifs de la semaine : d'où elles viennent (affiché tant qu'elles ne sont pas gagnées).
+const GOAL_DECO_SRC = d => { const m = /^([fg])_(\w+)$/.exec(d); return m && SEASONS[m[2]] ? `Objectif ${m[1] === "f" ? "entre amis" : "de tous"} · ${SEASONS[m[2]].name.toLowerCase()}` : ""; };
 const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };
 const hasBonus = b => ACHIEVEMENTS.some(a => a.tiers.some((t, i) => t.bonus === b && (S.ach || {})[a.id] > i));
 const xpMult = () => hasBonus("xp") ? 1.05 : 1;
@@ -152,7 +174,7 @@ function viewAch() {
       </div></div>`;
   };
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Succès">
-    <div class="sheet-head"><h2>Succès</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Succès</h2>${SHEET_X}</div>
     <div class="ach-sum"><div class="ach-ico big">${TROPHY}</div><div><b class="num">${done} / ${total}</b><span>paliers obtenus</span><div class="pbar"><i style="width:${(done / total * 100).toFixed(1)}%"></i></div></div></div>
     <div class="set-group"><h3>Titre affiché</h3>
       ${titles.length ? `<div class="basket">${["", ...titles].map(ti => `<button class="chip title-chip" data-act="setTitle" data-arg="${ti}" aria-pressed="${(S.title || "") === ti}">${ti || "Aucun"}</button>`).join("")}</div>`

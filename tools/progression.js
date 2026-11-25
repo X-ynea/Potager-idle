@@ -12,6 +12,7 @@ const xpExpr = /const xpNeed = l => (.+?);/.exec(game)[1];
 const xpNeed = new Function("l", "return " + xpExpr);
 const version = /const APP_VERSION = "([^"]+)"/.exec(game)[1];
 global.S = { stats: {}, ach: {} }; global.st = () => 0; global.fmt = n => String(n);
+global.FRIENDS_ON = true; // v3 : les succès entre amis font partie de la version des joueurs
 eval(read("js/achievements.js").replace(/^(const|let) /gm, "global.$1_".replace("$1_", "")).replace(/global\.(\w+) =/g, "global.$1 ="));
 
 const fr = n => Math.round(n).toLocaleString("fr-FR").replace(/ /g, " ");

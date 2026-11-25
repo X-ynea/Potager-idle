@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.11" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.7" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -29,9 +29,12 @@ const xpNeed4 = l => Math.round(6 * l * l + 30 * l); // courbe 2.12 à 2.15, pou
 const xpNeedOld = l => Math.round(15 * Math.pow(l, 1.6)); // ancienne courbe, pour convertir les parties
 const waterMs = () => UPG.water.values[S.upg.water] * 60000;
 const speed = () => UPG.fert.values[S.upg.fert];
-// Vitesse d’une plante : compost, et +25 % pour une plante de saison pendant sa saison.
-const plantSpeed = k => speed() * (inSeason(k) ? SEASON_BONUS : 1);
-const growSpeed = plantSpeed; // vitesse de pousse d’une plante (compost + bonus de saison)
+// Arrosage d'un ami : +20 % de pousse pendant 2 h (un 2ᵉ arrosage prolonge, sans s'additionner).
+const FW_BONUS = .2, FW_MS = 2 * 3600e3;
+const boostedAt = t => (S.friendWater || []).some(w => t >= w.at && t < w.at + FW_MS);
+// Vitesse d’une plante : compost, +25 % pour une plante de saison, +20 % après l'arrosage d'un ami (bonus additionnés).
+const plantSpeed = (k, boost) => speed() * (1 + (inSeason(k) ? SEASON_BONUS - 1 : 0) + (boost ? FW_BONUS : 0));
+const growSpeed = k => plantSpeed(k, boostedAt(now())); // vitesse de pousse actuelle d’une plante
 // Nombre de voisins qui peuvent attendre une commande en même temps (3, puis 4 et 5 avec le Banc des voisins).
 const maxOrders = () => UPG.village.values[S.upg.village || 0];
 const stoves = () => UPG.stove.values[S.upg.stove];
@@ -65,7 +68,7 @@ function fresh() {
   const s = {
     v: 1, xpCurve2: true, xpCurve3: true, xpCurve4: true, xpCurve5: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
-    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null],
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null], friendWater: [],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
@@ -95,6 +98,7 @@ function migrate(s) {
   if (s.orders) s.orders = s.orders.filter(o => Object.keys(o.items).every(k => PLANTS[k] || RECIPES[k]));
   // Panier et gants sont à acheter pour tout le monde : on retire ceux offerts par la version 0.17.0.
   if (!s.decoSlots) s.decoSlots = [null, null, null];
+  s.decoSlots = s.decoSlots.map(d => DECO_RENAME[d] || d);
   // 2.9.5 : recettes apprises alors que leur hybride n'était pas découvert → retirées et remboursées.
   if (!s.hybRefund && Array.isArray(s.recipes)) {
     const bad = s.recipes.filter(r => RECIPES[r] && Object.keys(RECIPES[r].need).some(k => PLANTS[k]?.hybrid && !(s.hybrids || []).includes(k)));
@@ -115,25 +119,40 @@ function save() { try { S.last = now(); localStorage.setItem(SAVE_KEY, JSON.stri
 
 /* ---------------- Simulation ---------------- */
 const DRY_RATE = .25; // vitesse de pousse quand la terre est sèche
+/* Pousse d'une parcelle jusqu'à t (sert aussi pour le jardin d'un ami en visite).
+   Le temps est découpé aux arrosages d'amis : à chaque arrosage, le bac est arrosé et le bonus démarre ou s'arrête. */
+function growPlot(p, t) {
+  const fw = S.friendWater || [];
+  if (fw.length && p.last < t) {
+    const cuts = [];
+    for (const w of fw) for (const x of [w.at, w.at + FW_MS]) if (x > p.last && x < t) cuts.push(x);
+    for (const c of cuts.sort((a, b) => a - b)) {
+      growSeg(p, c);
+      for (const w of fw) if (w.at === c) p.waterUntil = Math.max(p.waterUntil, c + waterMs());
+    }
+  }
+  growSeg(p, t);
+}
+function growSeg(p, t) {
+  if (p.seed) {
+    const sp = plantSpeed(p.seed, boostedAt(p.last));
+    const need = PLANTS[p.seed].time * 1000;
+    if (p.grown < need && !p.weed) {
+      // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
+      const wu = S.upg.auto ? Infinity : p.waterUntil;
+      const wet = Math.max(0, Math.min(t, wu) - p.last), dry = Math.max(0, t - Math.max(p.last, wu));
+      const g0 = p.grown, gWet = wet * sp;
+      p.grown = Math.min(need, g0 + gWet + dry * sp * DRY_RATE);
+      if (g0 < need && p.grown >= need) // moment où la plante a mûri
+        p.ripeAt = g0 + gWet >= need ? p.last + (need - g0) / sp : Math.max(p.last, wu) + (need - g0 - gWet) / (sp * DRY_RATE);
+      if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
+    }
+  }
+  p.last = t;
+}
 function tick(t) {
   const sz = season(); if (!(S.stats.seasonsSeen || []).includes(sz)) S.stats.seasonsSeen = [...(S.stats.seasonsSeen || []), sz];
-  for (const p of S.plots) {
-    if (p.seed) {
-      const sp = plantSpeed(p.seed);
-      const need = PLANTS[p.seed].time * 1000;
-      if (p.grown < need && !p.weed) {
-        // Arrosée : pleine vitesse. Terre sèche : la plante pousse quand même, au ralenti (DRY_RATE).
-        const wu = S.upg.auto ? Infinity : p.waterUntil;
-        const wet = Math.max(0, Math.min(t, wu) - p.last), dry = Math.max(0, t - Math.max(p.last, wu));
-        const g0 = p.grown, gWet = wet * sp;
-        p.grown = Math.min(need, g0 + gWet + dry * sp * DRY_RATE);
-        if (g0 < need && p.grown >= need) // moment où la plante a mûri
-          p.ripeAt = g0 + gWet >= need ? p.last + (need - g0) / sp : Math.max(p.last, wu) + (need - g0 - gWet) / (sp * DRY_RATE);
-        if (!S.upg.auto && t >= p.waterUntil && p.grown < need) p.wasDry = true;
-      }
-    }
-    p.last = t;
-  }
+  for (const p of S.plots) growPlot(p, t);
   if (S.plots.length && S.plots.every(p => p.seed)) S.stats.fullGarden = 1;
   // Succès caché « Patience » : une plante mûre depuis plus de 24 h (débloqué sans attendre la récolte).
   for (const p of S.plots) if (p.seed && !p.weed && p.grown >= PLANTS[p.seed].time * 1000) {
@@ -247,6 +266,7 @@ function dailyQuests() {
   return S.quests;
 }
 function questProgress(type, amount = 1, k = null) {
+  if (typeof weeklyProgress === "function") weeklyProgress(type, amount, k); // objectifs de la semaine
   const Q = dailyQuests();
   for (const q of Q.list) if (!q.claimed && q.type === type && (!q.k || q.k === k) && q.prog < q.n) q.prog = Math.min(q.n, q.prog + amount);
   if (type === "harvestK") questProgress("harvest", amount);
@@ -400,7 +420,7 @@ function genOrder() {
 /* ---------------- Actions ---------------- */
 let tab = "garden", msub = "seeds", labSel = [null, null];
 const A = {
-  tab(arg) { tab = arg; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) { tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -420,7 +440,7 @@ const A = {
     if (!p || p.seed) return;
     if (!cnt(S.seeds, k)) { if (S.coins < d.cost || !seedBuyable(k)) return; S.coins -= d.cost; S.seeds[k] = 1; }
     S.seeds[k]--; const t = now();
-    Object.assign(p, { seed: k, grown: 0, last: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
+    Object.assign(p, { seed: k, grown: 0, last: t, planted: t, waterUntil: t + waterMs(), weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
     if (d.tuto) p.waterUntil = t; // la graine de Mamie arrive assoiffée : on apprend à arroser
     if (!d.tuto) S.lastPick = k; PICK.plot = null; tutoFlag("planted");
     // Petit rebond du bouton (la fenêtre reste ouverte et se redessine : l'état est gardé un instant).
@@ -504,7 +524,7 @@ const A = {
     const h = HYBRID_BY_PAIR[pairKey(L.a, L.b)];
     if (h) {
       S.seeds[h] = cnt(S.seeds, h) + 2;
-      if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); }
+      if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); releaseMysterySeeds(h); }
       else { addXp(6); openReveal(h, false); }
     } else if (L.a === L.b) {
       S.seeds[L.a] = cnt(S.seeds, L.a) + 1; addXp(1); S.stats.selfCross = (S.stats.selfCross || 0) + 1;
@@ -603,6 +623,7 @@ const A = {
     commit();
   },
   pickCat(c) { PICK.cat = c; render(true); $("#modal .sheet")?.scrollTo?.({ top: 0 }); },
+  setTestSeason(k) { try { k ? localStorage.setItem("potager-test-saison", k) : localStorage.removeItem("potager-test-saison"); } catch (e) {} applyTheme(); render(true); },
   openSettings() { modalView = viewSettings; $("#modal").innerHTML = viewSettings(); openModal(); },
   setTheme(th) { S.settings.theme = th; applyTheme(); commit(); },
   toggleSound() { S.settings.sound = !S.settings.sound; commit(); SFX.play("success"); },
@@ -705,7 +726,7 @@ function viewSeason(arrived) {
       <div><span class="ss-ico">${visitorArt(z.visitor.key)}</span><span>Visiteur : <b>${z.visitor.name}</b></span></div>
       <div><span class="ss-ico">${pestIcon(z.pest.key)}</span><span>Bloque les bacs : <b>${z.pest.name}</b></span></div>
     </div>
-    <button class="btn big" data-act="close">${arrived ? "C’est parti !" : "Fermer"}</button></div>`;
+    ${arrived ? `<button class="btn big" data-act="close">C’est parti !</button>` : SHEET_X}</div>`;
 }
 function showSeason() {
   if (S.season === season()) return;
@@ -769,11 +790,15 @@ const isPhone = () => matchMedia("(pointer: coarse)").matches;
 function viewSettings() {
   const th = S.settings.theme;
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Paramètres">
-    <div class="sheet-head"><h2>Paramètres</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Paramètres</h2>${SHEET_X}</div>
     ${installPrompt ? `<div class="install"><p>Installe le jeu sur ton téléphone pour y jouer comme une vraie appli.</p><button class="btn sm" data-act="install">Installer</button></div>` : ""}
     <div class="set-group"><h3>Apparence</h3>
       <div class="seg">${[["light", "Clair"], ["dark", "Sombre"], ["system", "Auto"]].map(([k, l]) => `<button data-act="setTheme" data-arg="${k}" aria-pressed="${th === k}">${l}</button>`).join("")}</div>
     </div>
+    ${IS_TEST ? `<div class="set-group"><h3>Version de test</h3>
+      <div class="set-row"><span>Fenêtre « Du nouveau » et conseils de la v3</span><button class="btn ghost sm" data-act="news3Replay">Revoir</button></div>
+      <span class="small muted">Saison</span>
+      <div class="seg seg5 test-season">${[["", "Auto"], ...SEASON_ORDER.map(k => [k, SEASONS[k].name])].map(([k, l]) => `<button data-act="setTestSeason" data-arg="${k}" aria-pressed="${(testSeason() || "") === k}">${l}</button>`).join("")}</div></div>` : ""}
     <div class="set-group"><h3>Confort</h3>
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
       ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
@@ -845,12 +870,14 @@ function views_garden() {
     </div>
     <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
     <div class="garden-bar"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>
+    ${fwLineHTML(t)}
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
-    </div>${decoRowHTML()}</div>
+    </div>${decoRowHTML()}${mailboxHTML()}</div>
   </section>
   ${dailyQuests().bonus ? "" : questsHTML()}
+  ${weeklyHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
     ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
@@ -903,19 +930,19 @@ function decoAdjustHTML(slot) {
 function viewDecoPick(slot) {
   const cur = S.decoSlots[slot];
   return `<div class="sheet deco-sheet" role="dialog" aria-modal="true" aria-label="Décorations" data-deco-sheet>
-    <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Emplacement ${slot + 1}</h2>${SHEET_X}</div>
     ${cur ? decoAdjustHTML(slot) : ""}
     <p class="small muted" style="margin:0;max-width:none;justify-self:stretch">Choisis une décoration. Elle remplace celle déjà en place.</p>
     <div class="deco-grid compact">${[...DECO_ORDER].sort((a, b) => decoUnlocked(b) - decoUnlocked(a)).map(d => { const ok = decoUnlocked(d), src = decoSource(d);
       return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}:keep"` : "disabled"}>
-        <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
+        <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : GOAL_DECO_SRC(d)}</span></button>`; }).join("")}</div>
     ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
   </div>`;
 }
 // Choisir l'emplacement d'une décoration (depuis l'inventaire).
 function viewDecoSlots(d) {
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="${DECOS[d]}">
-    <div class="sheet-head"><h2>${DECOS[d]}</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>${DECOS[d]}</h2>${SHEET_X}</div>
     <p class="small muted" style="margin:0">Où la placer dans le jardin ?</p>
     <div class="deco-slots-pick">${S.decoSlots.map((c, i) => `<button class="deco-slot ${c ? "full" : "empty"}${c === d ? " sel" : ""}" data-act="decoPlace" data-arg="${i}:${d}">${c ? `<img src="assets/img/deco-${c}.webp" alt="">` : "<span>+</span>"}<small>Emplacement ${i + 1}</small></button>`).join("")}</div>
   </div>`;
@@ -1058,7 +1085,7 @@ function invBody(ctx, cat) {
   return det + (ctx === "sell" && keys.length > 1 ? sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) : "") + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
 function viewInv() {
-  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
+  return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2>${SHEET_X}</div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
 }
 
 /* ---------------- Marché ---------------- */
@@ -1197,16 +1224,17 @@ function views_village() {
 }
 
 /* ---------------- Render loop ---------------- */
-const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village };
+const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village, friends: views_friends };
 let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
+    case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, FR.hlTrade, CLOUD.signedIn, CLOUD.blocked]);
   }
 }
 /* Remplace les enfants de « live » par ceux de « fresh », sauf « keep » qui reste en place. */
@@ -1232,7 +1260,7 @@ function render(force) {
     if (oldGarden && freshGarden && freshGarden.querySelectorAll("[data-plot]").length === oldGarden.querySelectorAll("[data-plot]").length) {
       // Le jardin n'est jamais retiré de la page : sinon les animations (halo, goutte, étoile)
       // repartent de zéro. On remplace seulement ce qui l'entoure.
-      for (const sel of [".deco-row"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
+      for (const sel of [".deco-row", ".mailbox"]) { const o = oldGarden.querySelector(sel), n = freshGarden.querySelector(sel); if (o && n) o.replaceWith(n); else if (n) oldGarden.appendChild(n); else if (o) o.remove(); }
       oldGarden.classList.toggle("editing", !!UI.editDeco);
       // Saison : on ne remplace les particules que si la saison a changé (sinon leur animation repartirait).
       if (oldGarden.dataset.season !== season()) { oldGarden.dataset.season = season(); oldGarden.querySelector(".season-fx")?.replaceWith(freshGarden.querySelector(".season-fx")); }
@@ -1250,6 +1278,7 @@ function render(force) {
       const box = document.createElement("div"); box.innerHTML = modalView();
       const ns = box.firstElementChild, os = $("#modal .sheet");
       const strip = [...document.querySelectorAll("#modal .strip")].map(e => e.scrollLeft);
+      const cb = document.getElementById("chat-body"), cbTop = cb?.scrollTop, cbEnd = cb ? cb.scrollHeight - cb.scrollTop - cb.clientHeight < 120 : false;
       if (os && ns && box.children.length === 1 && os.className === ns.className) {
         for (const a of ns.attributes) os.setAttribute(a.name, a.value);
         os.innerHTML = ns.innerHTML;
@@ -1257,6 +1286,7 @@ function render(force) {
       } else $("#modal").innerHTML = box.innerHTML;
       for (const [id, v, f, c] of kept) { const t = document.getElementById(id); if (t) { t.value = v; if (f) { t.focus(); try { t.setSelectionRange(c, c); } catch (e) {} } } }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
+      const cb2 = document.getElementById("chat-body"); if (cb2 && cb) cb2.scrollTop = cbEnd ? cb2.scrollHeight : cbTop; // conversation : on garde sa place (ou le bas)
     }
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
   }
@@ -1270,6 +1300,7 @@ function live(t) {
   $("#xpt").innerHTML = `<span class="n-short">${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}</span><span class="n-full">${fmt(S.xp)} / ${fmt(xpNeed(S.level))}</span><span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
   if (tab === "garden") updateGarden(t);
+  updateVisit(t);
   updatePlotTip(t);
   tutoUpdate();
   document.querySelectorAll("[data-pb]").forEach(el => { const e = +el.dataset.pb, d = +el.dataset.pd; el.style.width = Math.min(100, (1 - (e - t) / d) * 100).toFixed(1) + "%"; });
@@ -1279,13 +1310,15 @@ function live(t) {
   const kN = S.cooking.filter(c => c.end <= t).length;
   const lN = S.lab && S.lab.end <= t ? 1 : 0;
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
-  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN);
+  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal());
   // Barre de progression sur les onglets Cuisine et Serre pendant une préparation.
   const running = S.cooking.filter(c => c.end > t).map(c => ({ end: c.end, d: RECIPES[c.r].time * 1000 }));
   const next = running.sort((a, b) => a.end - b.end)[0];
   tabProg("p-kitchen", next ? 1 - (next.end - t) / next.d : null);
   tabProg("p-lab", S.lab && S.lab.end > t ? 1 - (S.lab.end - t) / (LAB_TIME * 1000) : null);
-  const total = gN + kN + lN;
+  // Amis : demandes reçues, messages non lus, échanges reçus et réponses aux échanges (pas les arrosages ni les cœurs).
+  const fN = FRIENDS_ON && CLOUD.signedIn ? incoming().length + unreadTotal() + trIn().length + mailNews().filter(n => !n.read && n.kind === "t").length : 0;
+  const total = gN + kN + lN + fN;
   const title = total ? `(${total}) Potager idle` : "Potager idle";
   if (document.title !== title) document.title = title;
 }
@@ -1312,7 +1345,7 @@ function viewPlotShop() {
   if (!step) return "";
   const lock = S.level < step.lvl, poor = S.coins < step.cost;
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Nouvelle parcelle">
-    <div class="sheet-head"><h2>Nouvelle parcelle</h2><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><h2>Nouvelle parcelle</h2>${SHEET_X}</div>
     <div class="detail"><div class="d-head"><div class="d-art"><img src="assets/img/upg-plot.webp" alt="" style="width:100%;height:100%;object-fit:contain"></div>
       <div class="d-txt"><h3>Un bac de plus</h3><p>Une parcelle supplémentaire pour faire pousser plus de plantes en même temps.</p></div></div>
       <div class="meta">${mi("Parcelles", `${S.plots.length} → ${S.plots.length + 1}`)}${mi("Prix", fmt(step.cost))}${mi("Tes pièces", fmt(S.coins))}</div>
@@ -1324,7 +1357,7 @@ function viewPicker() {
   // Même hauteur pour les deux onglets (celle du plus rempli), pour éviter un saut en changeant d'onglet.
   const rows = Math.max(PICK.order.filter(k => !PLANTS[k].hybrid).length, PICK.order.filter(k => PLANTS[k].hybrid).length, 1);
   return `<div class="sheet picker-sheet" style="--rows:${rows}" role="dialog" aria-modal="true" aria-label="Choisir une graine">
-    <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div><button class="btn ghost sm" data-act="close">Fermer</button></div>
+    <div class="sheet-head"><div><h2>Que planter ?</h2><span class="small muted num">${free} bac${free > 1 ? "s" : ""} vide${free > 1 ? "s" : ""}</span></div>${SHEET_X}</div>
     ${(() => { const nb = PICK.order.filter(k => !PLANTS[k].hybrid).length, nh = PICK.order.filter(k => PLANTS[k].hybrid).length;
       return `<div class="subtabs" style="grid-template-columns:1fr 1fr">${[["base", "Plantes", nb], ["hybrid", "Hybrides", nh]].map(([c, l, n]) => `<button data-act="pickCat" data-arg="${c}" aria-pressed="${PICK.cat === c}">${l} <span class="num">${n}</span></button>`).join("")}</div>`; })()}
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
@@ -1351,7 +1384,7 @@ function openPlantInfo(k) {
     ${known ? `<div class="hi-gold ${S.goldenFound.includes(k) ? "found" : ""}">${S.goldenFound.includes(k) ? `${goldArt(k)}<span><b>Version dorée trouvée</b><br>Elle vaut ${fmt(d.sell * 10)} pièces.</span>` : `<span class="sil">${cropArt(k)}</span><span><b>Version dorée : pas encore trouvée</b><br>Une récolte sur 50 environ est dorée.</span>`}</div>` : ""}
     ${known && uses.length ? `<div class="hi-uses"><h4>Recettes</h4><div class="basket">${uses.map(r => `<span class="chip">${dishArt(r)}${RECIPES[r].name}</span>`).join("")}</div></div>` : ""}
     ${known && usedIn.length ? `<div class="hi-uses"><h4>Hybrides obtenus</h4><div class="basket">${usedIn.map(h => `<span class="chip">${cropArt(h)}${PLANTS[h].name}</span>`).join("")}</div></div>` : ""}
-    <button class="btn big ghost" data-act="close">Fermer</button></div>`;
+    ${SHEET_X}</div>`;
   $("#modal").innerHTML = modalView(); openModal();
 }
 function openReveal(h, isNew) {
@@ -1448,7 +1481,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS, NEWS3_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {
