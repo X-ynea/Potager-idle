@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 2.26.0 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 2.28.1 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -59,15 +59,15 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (900 p) |
 | 13 | Myrtille | — | Bac n° 9 (1 350 p) |
 | 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes | — |
-| 15 | Lavande | Tarte aux asperges | — |
+| 15 | Lavande | Tarte aux asperges, Tarte rubis | — |
 | 16 | Melon (été) | Pizza du potager | — |
 | 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (2 700 p) |
 | 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (3 000 p) |
-| 19 | Potiron | Salade de melon | Bac n° 10 (3 000 p) |
+| 19 | Potiron | Salade de melon, Sorbet étoilé | Bac n° 10 (3 000 p) |
 | 20 | Champignon des bois (automne) | Velouté de potiron | Banc des voisins 2/2 (6 000 p) |
-| 21 | — | Pain aux graines | Fourneau 2/2 (7 500 p) |
+| 21 | — | Pain aux graines, Velouté nuage | Fourneau 2/2 (7 500 p) |
 | 22 | Chou d’hiver (hiver) | — | — |
-| 23 | — | Purée améthyste | — |
+| 23 | — | Purée améthyste, Potée de cristal | — |
 | 24 | — | Soupe lanterne | Compost maison 3/3 (7 500 p) |
 | 25 | — | Tourte forestière | Arroseur automatique (12 000 p), Bac n° 11 (6 000 p) |
 | 26 | — | Potée au chou | — |
@@ -164,14 +164,18 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Muffins myrtille | 14 | 175 | 2 myrtille, 1 blé | 4 min | 161 | 37 |
 | Gratin de courgettes | 14 | 135 | 2 courgette, 1 pomme de terre, 1 tomate | 3 min | 123 | 28 |
 | Tarte aux asperges | 15 | 220 | 2 asperge, 2 blé | 4 min | 200 | 42 |
+| Tarte rubis | 15 | 445 | 2 asperge rubis, 2 blé | 4 min | 405 | 68 |
 | Pizza du potager | 16 | 210 | 2 blé, 2 tomate, 1 basilic | 4 min | 189 | 47 |
 | Tisane lavande | 17 | 180 | 2 lavande | 3 min | 163 | 34 |
 | Velouté lunaire | 17 | 275 | 2 radis lune, 2 pomme de terre | 5 min | 251 | 49 |
 | Smoothie fraisille | 18 | 315 | 2 fraisille | 3 min | 285 | 50 |
 | Salade de melon | 19 | 200 | 1 melon, 1 fraise, 1 basilic | 3 min | 180 | 38 |
+| Sorbet étoilé | 19 | 785 | 2 melon étoilé, 1 fraise | 5 min | 715 | 110 |
 | Velouté de potiron | 20 | 210 | 1 potiron, 1 pomme de terre, 1 carotte | 5 min | 192 | 40 |
 | Pain aux graines | 21 | 295 | 2 blé, 2 tournesol | 4 min | 270 | 59 |
+| Velouté nuage | 21 | 735 | 2 champignon nuage, 2 pomme de terre | 5 min | 670 | 105 |
 | Purée améthyste | 23 | 495 | 2 carotte améthyste, 2 pomme de terre | 5 min | 448 | 75 |
+| Potée de cristal | 23 | 585 | 2 chou de cristal, 2 carotte | 5 min | 530 | 85 |
 | Soupe lanterne | 24 | 695 | 2 tomate lanterne, 1 basilic | 5 min | 631 | 100 |
 | Tourte forestière | 25 | 360 | 2 champignon des bois, 2 blé, 1 pomme de terre | 5 min | 326 | 62 |
 | Potée au chou | 26 | 240 | 1 chou d’hiver, 2 carotte, 2 pomme de terre | 5 min | 218 | 45 |

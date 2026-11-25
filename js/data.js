@@ -78,6 +78,11 @@ const RECIPES = {
   tourte:   { name: "Tourte forestière", desc: "Une tourte généreuse aux champignons des bois.", lvl: 25, price: 360, need: { champignon: 2, ble: 2, patate: 1 }, time: 280, sell: 326, xp: 62, look: "pie", color: "#a2774a" },
   potee:    { name: "Potée au chou", desc: "Le grand plat d’hiver qui mijote toute l’après-midi.", lvl: 26, price: 240, need: { chou: 1, carotte: 2, patate: 2 }, time: 300, sell: 218, xp: 45, look: "bowl", color: "#8fb86a" },
   gateau:   { name: "Gâteau des moissons", desc: "Le chef-d’œuvre des récoltes, qui réunit les plus rares variétés du jardin.", lvl: 30, price: 3850, need: { azur: 2, amethyste: 2, lanterne: 2, lilas: 1, myrtille: 3 }, time: 1800, sell: 2566, xp: 290, look: "cake", color: "#ffcf1f" },
+  // v3 : une recette par hybride de saison
+  tarte_rubis: { name: "Tarte rubis", desc: "Une tarte dorée garnie de pointes rouge rubis, croustillante et fondante.", lvl: 15, price: 445, need: { rubis: 2, ble: 2 }, time: 240, sell: 405, xp: 68, look: "pie", color: "#c0304f" },
+  sorbet_etoile: { name: "Sorbet étoilé", desc: "Des boules de sorbet jaune soleil en forme d’étoile, au parfum de miel.", lvl: 19, price: 785, need: { etoile: 2, fraise: 1 }, time: 300, sell: 715, xp: 110, look: "cup", color: "#f7d046" },
+  veloute_nuage: { name: "Velouté nuage", desc: "Un velouté bleu pâle, léger comme un nuage, au parfum de sous-bois.", lvl: 21, price: 735, need: { nuage: 2, patate: 2 }, time: 300, sell: 670, xp: 105, look: "bowl", color: "#8fb3e8" },
+  potee_cristal: { name: "Potée de cristal", desc: "Une potée d’hiver aux feuilles bleutées, qui réchauffe jusqu’au bout des doigts.", lvl: 23, price: 585, need: { cristal: 2, carotte: 2 }, time: 300, sell: 530, xp: 85, look: "bowl", color: "#a9d4e8" },
 };
 const RORDER = Object.keys(RECIPES);
 

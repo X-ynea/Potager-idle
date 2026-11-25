@@ -11,7 +11,7 @@ const NEWS3_ITEMS = [
   ["⇄", "Des échanges", "Récoltes, plats ou pièces, pour une valeur à peu près égale. Tout arrive dans ta boîte aux lettres."],
   ["❤️", "« J’aime ton jardin »", "Un cœur par ami et par semaine, juste pour le plaisir."],
   ["🎯", "Les objectifs de la semaine", "Avec tes amis, et avec tous les jardiniers. La première réussite de chaque saison donne une déco rare."],
-  ["✨", "4 nouveaux hybrides", "Un par saison, à découvrir dans la Serre."],
+  ["✨", "4 hybrides et 4 recettes", "Un hybride par saison à découvrir dans la Serre, et un bon petit plat pour chacun."],
 ];
 function news3HTML() {
   return `<div class="gate-card news-card news3" role="dialog" aria-modal="true" aria-label="Du nouveau au potager">
