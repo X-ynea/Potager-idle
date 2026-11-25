@@ -8,11 +8,12 @@
    ensuite des graines (amis) ou des graines d'hybrides (tous). Un hybride pas encore découvert :
    ses graines sont mises de côté (« graines mystère ») jusqu'à sa découverte à la Serre. */
 const GOAL_KINDS = {
-  harvest: { text: n => `Récolter ${fmt(n)} plantes de saison`, base: 40, icon: () => QUEST_ICONS.harvest },
-  deliver: { text: n => `Livrer ${fmt(n)} commandes`, base: 12, icon: () => QUEST_ICONS.deliver },
-  cook: { text: n => `Cuisiner ${fmt(n)} plats`, base: 15, icon: () => QUEST_ICONS.cook },
-  visitor: { text: n => `Attraper ${fmt(n)} visiteurs du jardin`, base: 20, icon: () => visitorArt(VISITOR().key) },
+  harvest: { text: n => `Récolter ${fmt(n)} plantes de saison`, base: 120, icon: () => QUEST_ICONS.harvest },
+  deliver: { text: n => `Livrer ${fmt(n)} commandes`, base: 60, icon: () => QUEST_ICONS.deliver },
+  cook: { text: n => `Cuisiner ${fmt(n)} plats`, base: 60, icon: () => QUEST_ICONS.cook },
+  visitor: { text: n => `Attraper ${fmt(n)} visiteurs du jardin`, base: 50, icon: () => visitorArt(VISITOR().key) },
 };
+// base = part d'un joueur sur la semaine (environ 4 à 5 h de jeu actif ; 3.0.5 : ×2,5 à ×5, trop facile avant).
 const GOAL_ORDER = ["harvest", "deliver", "cook", "visitor"];
 const GOAL_TIERS = [.25, .6, 1]; // paliers de l'objectif de tous les joueurs
 const GOAL_DECOS = {

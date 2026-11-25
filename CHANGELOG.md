@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.5
+- Objectifs de la semaine plus ambitieux : il faut maintenant environ 4 à 5 heures de jeu par personne (60 commandes ou 60 plats, 50 visiteurs, 120 plantes de saison par joueur).
+
 ### 3.0.4
 - Le chiffre dans le titre de l'onglet du navigateur compte aussi les demandes d'ami, les messages non lus, les échanges reçus et les réponses à tes échanges.
 
