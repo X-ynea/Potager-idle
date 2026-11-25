@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.6
+- Cette semaine, l'objectif entre amis déjà terminé avec les anciennes cibles redevient actif avec les nouvelles, sans nouvelle récompense.
+
 ### 3.0.5
 - Objectifs de la semaine plus ambitieux : il faut maintenant environ 4 à 5 heures de jeu par personne (60 commandes ou 60 plats, 50 visiteurs, 120 plantes de saison par joueur).
 

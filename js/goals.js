@@ -39,6 +39,9 @@ function goalTarget(which) {
 function weekly() {
   const w = weekId();
   if (!S.weekly || S.weekly.week !== w) S.weekly = { week: w, f: 0, g: 0, cf: false, cg: [false, false, false] };
+  // 3.0.5 : semaine du 23 novembre, objectif entre amis fini avec les anciennes cibles (trop faciles) :
+  // il redevient actif avec la nouvelle cible, sans nouvelle récompense (déjà reçue).
+  if (S.weekly.week === "2026-11-23" && S.weekly.cf && !S.weekly.reopened) { S.weekly.cf = false; S.weekly.noRewardF = true; S.weekly.reopened = true; }
   return S.weekly;
 }
 const goalsOn = () => FRIENDS_ON && CLOUD.signedIn && !CLOUD.blocked;
@@ -100,7 +103,7 @@ const goalRewards = {
   f: () => goalDecoDone("f") ? { seeds: 6, xp: 20 + S.level * 2 } : { deco: goalDecoKey("f"), xp: 60 + S.level * 5 },
   g: i => i < 2 ? { hyb: i ? 4 : 2, xp: (i ? 40 : 20) + S.level * 2 } : goalDecoDone("g") ? { hyb: 6, xp: 60 + S.level * 3 } : { deco: goalDecoKey("g"), xp: 100 + S.level * 6 },
 };
-const rewardText = r => [r.deco ? `Déco « ${GOAL_DECOS[r.deco]} »` : "", r.seeds ? `${r.seeds} graines de saison` : "", r.hyb ? `${r.hyb} graines d’hybrides` : "", `+${r.xp} XP`].filter(Boolean).join(" · ");
+const rewardText = r => r.none ? "Récompense déjà reçue cette semaine" : [r.deco ? `Déco « ${GOAL_DECOS[r.deco]} »` : "", r.seeds ? `${r.seeds} graines de saison` : "", r.hyb ? `${r.hyb} graines d’hybrides` : "", `+${r.xp} XP`].filter(Boolean).join(" · ");
 
 /* ---------- Écran d'accueil ---------- */
 const goalDone = which => which === "f" ? weekly().cf : weekly().cg.every(Boolean);
@@ -114,7 +117,7 @@ function goalCard(which) {
     <div class="q-ico">${K.icon()}</div>
     <div class="q-txt"><small class="wk-who">${which === "f" ? "Entre amis" : "Tous les joueurs"} · ${sub}</small><b>${K.text(target)}</b><div class="pbar wk-bar"><i style="width:${pct.toFixed(1)}%"></i>${ticks}</div>
       <span class="small muted num">${fmt(total)} / ${fmt(target)}${which === "g" ? ` · palier ${GOAL_TIERS.filter(p => total >= target * p).length}/3` : ""}</span></div>
-    ${done ? `<span class="q-done">✓</span>` : ready ? `<button class="btn sm" data-act="claimGoal" data-arg="${which}">Récupérer</button>` : `<span class="wk-more" aria-hidden="true">›</span>`}
+    ${done ? `<span class="q-done">✓</span>` : ready ? `<button class="btn sm" data-act="claimGoal" data-arg="${which}">${which === "f" && W.noRewardF ? "Terminer" : "Récupérer"}</button>` : `<span class="wk-more" aria-hidden="true">›</span>`}
   </div>`;
 }
 function weeklyHTML() {
@@ -129,7 +132,7 @@ const weeklySig = () => goalsOn() ? JSON.stringify([weekly(), GOALS.data, GOALS.
 /* ---------- Fiche d'un objectif ---------- */
 function viewGoal(which) {
   const kind = goalKind(which), K = GOAL_KINDS[kind], target = goalTarget(which), total = Math.min(goalTotal(which), target), W = weekly(), cap = goalCap(which);
-  const tiers = which === "f" ? [{ p: 1, r: goalRewards.f(), got: W.cf }] : GOAL_TIERS.map((p, i) => ({ p, r: goalRewards.g(i), got: W.cg[i] }));
+  const tiers = which === "f" ? [{ p: 1, r: W.noRewardF ? { xp: 0, none: true } : goalRewards.f(), got: W.cf }] : GOAL_TIERS.map((p, i) => ({ p, r: goalRewards.g(i), got: W.cg[i] }));
   const members = which === "f" ? (GOALS.data?.members || []) : [];
   const left = seasonDaysLeft();
   return `<div class="sheet tall goal-sheet" role="dialog" aria-modal="true" aria-label="Objectif de la semaine">
@@ -141,7 +144,7 @@ function viewGoal(which) {
     <div class="goal-rewards">${tiers.map((t, i) => { const reached = total >= target * t.p, ok = reached && !t.got;
       return `<div class="goal-rw${t.got ? " got" : ok ? " ready" : ""}"><span class="goal-rw-p">${which === "g" ? `Palier ${i + 1} · ${Math.round(t.p * 100)} %` : "Objectif atteint"}</span>
         <span class="goal-rw-r">${t.r.deco ? `<img src="assets/img/deco-${t.r.deco}.webp" alt="">` : ""}${rewardText(t.r)}${t.r.deco ? `<small>Première réussite de la saison</small>` : ""}</span>
-        ${t.got ? `<span class="q-done">✓</span>` : ok ? `<button class="btn sm" data-act="claimGoal" data-arg="${which}">Récupérer</button>` : `<span class="small muted num">${Math.round(Math.min(1, total / (target * t.p)) * 100)} %</span>`}</div>`; }).join("")}</div>
+        ${t.got ? `<span class="q-done">✓</span>` : ok ? `<button class="btn sm" data-act="claimGoal" data-arg="${which}">${which === "f" && W.noRewardF ? "Terminer" : "Récupérer"}</button>` : `<span class="small muted num">${Math.round(Math.min(1, total / (target * t.p)) * 100)} %</span>`}</div>`; }).join("")}</div>
     ${which === "g" ? `<p class="small muted" style="margin:0">Graines d’hybrides : si tu n’as pas encore découvert l’hybride, elles sont mises de côté et t’attendent jusqu’à sa découverte à la Serre${mysteryCount() ? ` (${mysteryCount()} graine${mysteryCount() > 1 ? "s" : ""} mystère en attente)` : ""}.` : `<p class="small muted" style="margin:0">La première réussite de chaque saison donne sa déco exclusive. Ensuite, des graines de saison.</p>`}
     ${members.length ? `<h3 class="cat-title">Participants</h3><div class="goal-members">${members.map(m => `<div class="goal-m${m.me ? " me" : ""}"><span class="fr-av">${m.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/xp-leaf.webp")}" alt="">` : friendAvatar(m.avatar)}</span><b>${m.me ? "Toi" : esc(m.name)}</b><span class="num">${fmt(Math.min(m.n, cap))}</span></div>`).join("")}</div>` : ""}
   </div>`;
@@ -152,6 +155,7 @@ const GOAL_ACTS = {
     ev?.stopPropagation?.();
     const W = weekly(), target = goalTarget(which), total = goalTotal(which);
     let r;
+    if (which === "f" && W.noRewardF) { if (W.cf || total < target) return; W.cf = true; SFX.play("success"); toast("🎉 Objectif entre amis terminé ! (récompense déjà reçue cette semaine)"); commit(); return; }
     if (which === "f") { if (W.cf || total < target) return; r = goalRewards.f(); W.cf = true; S.stats.weeklyGoals = (S.stats.weeklyGoals || 0) + 1; }
     else { const i = GOAL_TIERS.findIndex((p, j) => !W.cg[j] && total >= target * p); if (i < 0) return; r = goalRewards.g(i); W.cg[i] = true; if (i === 2) S.stats.weeklyGoals = (S.stats.weeklyGoals || 0) + 1; }
     let msg = "";
