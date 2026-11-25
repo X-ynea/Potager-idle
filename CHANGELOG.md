@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.3
+- Conseils de Mamie Lapine : « Je me débrouille, merci » compte comme si tous ses conseils étaient terminés. À chaque mise à jour, elle ne présente que les nouveautés. « Revoir » dans les Paramètres reprend tout depuis le début.
+
 ### 3.0.2
 - Mamie Lapine ne présente plus que les nouveautés de la v3 aux anciens joueurs. Chez ceux qui l'avaient fait taire, elle reprenait les premiers pas depuis le début.
 

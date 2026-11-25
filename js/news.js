@@ -50,11 +50,13 @@ function resetTuto3() {
   for (const f of ["tab_friends", "visited", "trade_opened", "mail_opened"]) delete T.f[f];
   save();
 }
-// 3.0.2 : réparation des parties où la 3.0.1 avait relancé les premiers pas chez un ancien joueur.
+// Parties d'avant la 3.0.3 : Mamie coupée (ancien « off ») = conseils terminés, sauf ceux de la v3 tant
+// qu'elle ne les a pas présentés. Et réparation des parties où la 3.0.1 avait relancé les premiers pas.
 addEventListener("load", () => setTimeout(() => {
-  const T = tutoState(); if (T.f.v3fix || S.level < 2) return;
-  if (TUTO.some(t => t.basic && !T.seen[t.id])) onlyNewTips(T);
-  T.f.v3fix = true; save(); tutoUpdate();
+  const T = tutoState(); let changed = false;
+  if (T.off) { if (T.f.v3fix) for (const x of TUTO) T.seen[x.id] = true; else onlyNewTips(T); T.off = false; T.f.v3fix = true; changed = true; }
+  if (!T.f.v3fix && S.level >= 2) { if (TUTO.some(x => x.basic && !T.seen[x.id])) onlyNewTips(T); T.f.v3fix = true; changed = true; }
+  if (changed) { save(); tutoUpdate(); }
 }, 1500));
 const NEWS3_ACTS = {
   news3Close() { document.getElementById("gate")?.remove(); SFX.play("success"); render(true); },

@@ -1,4 +1,7 @@
 /* ---------------- Conseils de Mamie Lapine (tutoriel intégré) ----------------
+   Règles : couper Mamie (« Je me débrouille ») = tous les conseils actuels sont terminés ;
+   une mise à jour qui ajoute des conseils les présente à tout le monde (ceux qui l'avaient coupée compris) ;
+   « Revoir » dans les Paramètres reprend tout depuis le début.
    Mamie Lapine, la voisine, passe au potager et donne ses conseils dans une bulle,
    au fil de ce que fait le joueur. Pas de surcouche : chaque conseil disparaît
    dès que l'action est faite, et le suivant arrive tout seul.
@@ -106,7 +109,7 @@ const TUTO_BY = Object.fromEntries(TUTO.map(t => [t.id, t]));
 
 function tutoState() {
   if (!S.tuto) {
-    S.tuto = { seen: {}, f: {}, off: false };
+    S.tuto = { seen: {}, f: { v3fix: true }, off: false }; // v3fix : partie déjà à jour (pas de réparation 3.0.2)
     // Partie déjà commencée avant le tutoriel : on saute les premiers pas.
     if (S.stats.harvest > 0) TUTO.filter(t => t.basic).forEach(t => { S.tuto.seen[t.id] = true; });
   }
@@ -151,8 +154,11 @@ function tutoUpdate() {
 }
 const TUTO_ACTS = {
   tutoOk(id) { tutoState().seen[id] = true; save(); tutoUpdate(); },
-  tutoOff() { tutoState().off = true; save(); tutoUpdate(); toast("Mamie Lapine te laisse faire. Tu peux la rappeler dans les réglages."); },
-  tutoReset() { S.tuto = { seen: {}, f: {}, off: false }; closeModal(); tab = "garden"; commit(); toast("Mamie Lapine repasse te voir !"); },
+  // Couper Mamie Lapine = considérer tous ses conseils actuels comme terminés.
+  // Les conseils d'une future mise à jour (nouveaux) s'afficheront quand même.
+  tutoOff() { const T = tutoState(); for (const x of TUTO) T.seen[x.id] = true; T.off = false; save(); tutoUpdate(); toast("Mamie Lapine te laisse faire. Tu peux revoir tous ses conseils dans les Paramètres."); },
+  // Revoir depuis les Paramètres : tout reprend du début, premiers pas et nouveautés compris.
+  tutoReset() { S.tuto = { seen: {}, f: { v3fix: true }, off: false }; closeModal(); tab = "garden"; commit(); toast("Mamie Lapine repasse te voir !"); },
 };
 // Premiers pas pas encore terminés (le cadeau du jour attend la fin).
 function tutoBasicsPending() { const T = tutoState(); return !T.off && TUTO.some(t => t.basic && !T.seen[t.id]); }
