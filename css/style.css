@@ -1345,3 +1345,50 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .mail-news p.new { background: color-mix(in srgb, var(--leaf) 12%, var(--panel)); font-weight: 700; }
 .garden:has(.mailbox) { overflow: clip; overflow-clip-margin: 18px; }
 .mailbox { right: -2.5%; bottom: 0; width: 10%; height: 13cqw; }
+/* Liste d'amis : trois actions au même style (visiter, échanger, messages) */
+.fr-ico.fr-act { background: var(--panel); border: 1.5px solid var(--line); color: var(--leaf-deep); box-shadow: none; }
+.fr-ico.fr-act svg { width: 20px; height: 20px; }
+/* Conversation : retirer et bloquer, même style, avec fenêtre de confirmation */
+.chat-danger { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+.danger-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; border: 1.5px solid color-mix(in srgb, var(--bad) 35%, transparent); background: color-mix(in srgb, var(--bad) 7%, transparent); color: var(--bad); font: inherit; font-size: .76rem; font-weight: 800; cursor: pointer; }
+.danger-pill svg { width: 15px; height: 15px; }
+.sheet { position: relative; }
+.ask-pop { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(40,20,10,.45); border-radius: inherit; animation: fade .15s ease-out; }
+.ask-card { width: 100%; max-width: 340px; background: var(--panel); border-radius: 20px; padding: 18px; display: grid; gap: 10px; justify-items: center; text-align: center; border-top: 4px solid var(--bad); box-shadow: 0 12px 32px rgba(0,0,0,.3); }
+.ask-card h3 { margin: 0; color: var(--bad); font-size: 1.05rem; }
+.ask-card p { margin: 0; font-size: .85rem; color: var(--muted); line-height: 1.4; }
+.ask-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.ask-ico svg { width: 24px; height: 24px; }
+.ask-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+/* Message « 📬 » : l'échange annoncé, avec Annuler ou Voir */
+.msg.has-trade { max-width: 88%; }
+.msg-trade { display: grid; gap: 6px; margin-top: 4px; padding: 8px 10px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); justify-items: start; }
+.msg.mine .msg-trade { justify-items: end; }
+.msg.mine .msg-trade .tr-line { justify-content: flex-end; }
+.tr-state { font-size: .74rem; font-weight: 800; padding: 2px 10px; border-radius: 99px; background: var(--panel); color: var(--muted); }
+.tr-state.accepted { color: #3f9a4b; } .tr-state.refused, .tr-state.cancelled, .tr-state.expired { color: var(--bad); }
+/* Fenêtre d'échange : catégories, pièces en plus des objets, petite balance */
+.tr-side h3 { margin: 0; font-size: .95rem; }
+.tr-seg { width: 100%; }
+.tr-seg button { padding: 6px 10px; }
+.tr-seg button .num { opacity: .6; }
+.tr-coins { flex-wrap: wrap; font-size: .82rem; font-weight: 700; }
+.tr-coins input { width: 100px; font-size: 1rem; padding: 6px 10px; }
+.tr-coins.off { opacity: .45; }
+.tr-scale { width: 100%; max-width: 260px; justify-self: center; height: auto; }
+.tr-scale line, .tr-scale path, .tr-scale circle { transition: all .35s ease; }
+.tr-sv { font: 800 14px var(--f-body, sans-serif); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.tr-sl { font: 700 10px var(--f-body, sans-serif); fill: var(--muted); }
+.tr-balance > p.tr-verdict { color: var(--bad); }
+.tr-balance.ok > p.tr-verdict { color: #3f9a4b; }
+.tr-balance.ok { border-color: color-mix(in srgb, #3f9a4b 55%, var(--line)); background: color-mix(in srgb, #3f9a4b 8%, var(--panel)); }
+.tr-tag { display: inline-block; font-size: .66rem; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: #fdf0dc; color: #8a5a1c; border: 1px solid #e8b66a; }
+/* Boîte aux lettres : nouvel échange */
+.btn.tr-new { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #fdf0dc; color: #8a5a1c; border: 1.5px solid #e8b66a; box-shadow: none; }
+.btn.tr-new svg { width: 20px; height: 20px; }
+.tr-pick { display: grid; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.tr-pick-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tr-pick-f { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--panel); font: inherit; font-weight: 700; cursor: pointer; }
+.tr-pick-f .fr-av { width: 28px; height: 28px; }
+.tr-miss { margin: 0; }

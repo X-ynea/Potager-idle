@@ -53,6 +53,13 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
 - ✅ Fait (v2.19) : `docs/echanges.sql` (après `arrosage.sql`), puis `docs/echanges-valeurs.sql` (prix des objets). Après chaque changement de prix, de plante ou de recette : `node tools/trade-values.js`, puis relancer `echanges-valeurs.sql` dans Supabase.
 - Boîte aux lettres provisoire (dessin rouge) en bas à droite du jardin : Reçus, Envoyés (avec Annuler), Nouvelles (arrosages et échanges). Une proposition envoie aussi un message dans la conversation.
 - Au plus 8 objets différents de chaque côté. Si le compte de l'ami est supprimé, la proposition expire et les objets reviennent.
+- ✅ v2.20 :
+  - chaque côté peut mêler objets et pièces (jamais de pièces des deux côtés) ; objets rangés en deux onglets, Récoltes et Plats ;
+  - petite balance : le plateau le plus lourd descend, verte quand l'échange est équilibré ;
+  - **contre-proposition** depuis un échange reçu (pré-remplie à l'envers) : l'échange reçu est remplacé, son auteur récupère ses objets, la nouvelle proposition repart pour 48 h et ne compte pas dans les 3 échanges du jour ;
+  - boîte aux lettres : bouton « Nouvel échange » dans Envoyés ; nouvelles gardées 24 h (arrosages) et 7 jours (échanges) ;
+  - le message « 📬 » de la conversation montre l'échange, avec « Annuler l'échange » (ou son état) ;
+  - liste d'amis : visiter, échanger, messages (même style) ; retirer et bloquer dans la conversation, avec une fenêtre de confirmation.
 
 ## Avant la sortie : conseils de Mamie Lapine pour la v3
 
