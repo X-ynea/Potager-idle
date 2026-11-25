@@ -11,8 +11,8 @@
 const TR_MAX = 3000, TR_GAP = 1.2, TR_DAY = 3, TR_HOURS = 48, TR_ITEMS = 8;
 const TR = { list: [], loaded: false, draft: null, inv: null, invErr: "", sending: false, busy: false, mailTab: "in", fromMail: false };
 const TRADE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-// Boîte aux lettres provisoire (en attendant l'image définitive) : rouge vif, drapeau levé quand il y a du courrier.
-const MAIL_ICON = up => `<svg class="mb-art" viewBox="0 0 48 56" aria-hidden="true"><rect x="21" y="30" width="6" height="24" rx="1.5" fill="#8a5a33"/><path d="M8 14a10 10 0 0 1 20 0v18H8z" fill="#b3262b"/><path d="M18 4h12a12 12 0 0 1 12 12v16H28V14A10 10 0 0 0 18 4z" fill="#e2473b"/><path d="M8 32h34v4H8z" fill="#9c1f24"/><ellipse cx="18" cy="22" rx="5" ry="7" fill="#7a171b"/>${up ? `<path d="M38 8v-6" stroke="#5b3a1e" stroke-width="2" stroke-linecap="round"/><path d="M38 2h8l-2 3 2 3h-8z" fill="#ffd23f"/>` : `<path d="M38 22h7" stroke="#5b3a1e" stroke-width="2" stroke-linecap="round"/><path d="M45 22v6h-3z" fill="#ffd23f"/>`}</svg>`;
+// Boîte aux lettres : drapeau levé quand il y a du courrier.
+const MAIL_ICON = up => `<img class="mb-art" src="assets/img/ui-mail-${up ? "full" : "empty"}.webp" alt="">`;
 
 const trValue = k => (PLANTS[k] || RECIPES[k])?.sell || 0;
 const tradable = k => PLANTS[k] ? !PLANTS[k].tuto : !!RECIPES[k];

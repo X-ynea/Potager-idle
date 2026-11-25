@@ -1277,7 +1277,6 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 @keyframes fw-pop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 25% { transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -90%); } }
 @media (prefers-reduced-motion: reduce) { .fw-drop, .fw-splash { display: none; } }
 /* Boîte aux lettres : en bas à droite du jardin (hors des emplacements de déco) */
-.garden:has(.mailbox) .plots { margin-inline: var(--side); }
 .mailbox { position: absolute; right: 6%; bottom: 1%; z-index: 5; width: 11%; height: 15cqw; border: 0; padding: 0; background: none; cursor: pointer; display: grid; place-items: end center; }
 .mailbox .mb-art { width: 100%; height: 100%; filter: drop-shadow(0 4px 3px rgba(30,60,10,.45)); transform-origin: 50% 100%; }
 .mailbox.has .mb-art { animation: mb-wiggle 2.4s ease-in-out infinite; }
@@ -1343,8 +1342,6 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .mail-news p { margin: 0; padding: 8px 12px; border-radius: 12px; background: var(--panel-2); font-size: .85rem; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .mail-news p small { color: var(--muted); white-space: nowrap; font-size: .72rem; }
 .mail-news p.new { background: color-mix(in srgb, var(--leaf) 12%, var(--panel)); font-weight: 700; }
-.garden:has(.mailbox) { overflow: clip; overflow-clip-margin: 18px; }
-.mailbox { right: -2.5%; bottom: 0; width: 10%; height: 13cqw; }
 /* Liste d'amis : trois actions au même style (visiter, échanger, messages) */
 .fr-ico.fr-act { background: var(--panel); border: 1.5px solid var(--line); color: var(--leaf-deep); box-shadow: none; }
 .fr-ico.fr-act svg { width: 20px; height: 20px; }
@@ -1468,3 +1465,10 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .fr-id .title-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-head .fr-id small { overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 380px) { .fr-row { gap: 8px; padding: 10px; } .fr-acts { gap: 6px; } .fr-ico.fr-act { width: 36px; height: 36px; min-height: 36px; } }
+/* Boîte aux lettres : en bas à droite du jardin, un peu en dessous (marge ajoutée sous le jardin) */
+.panel:has(> .mailbox) { position: relative; }
+.panel:has(> .mailbox) > .garden { margin-bottom: 11%; }
+.mailbox { right: 1.5%; bottom: 2px; width: 19%; height: auto; aspect-ratio: 1; max-width: 120px; }
+.mailbox .mb-art { object-fit: contain; }
+.mailbox .fr-badge { top: 6%; right: 4%; }
+.fw-ico { object-fit: contain; }

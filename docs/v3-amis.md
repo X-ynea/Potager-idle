@@ -62,6 +62,7 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
   - liste d'amis : visiter, échanger, messages (même style) ; retirer et bloquer dans le menu ⋯ de la conversation, avec une fenêtre de confirmation.
 - ✅ v2.20.1 : balance en deux jauges rondes autour d'une petite balance ; « Nouvel échange » mène à l'onglet Amis ; croix au lieu des boutons « Fermer », plus de barre de glissement sur les fenêtres ; moins de messages en bas de l'écran ; nouvelles gardées dans la partie (une non lue reste, une lue s'efface après 24 h ou 7 jours).
 - ✅ v2.20.2 : toucher un ami ouvre la conversation ; recherche dans la liste d'amis ; code ami compact ; « Nouvel échange » ouvre l'onglet Amis avec les boutons ⇄ en couleur ; la conversation reste en bas après une action ; choix de la saison dans les Paramètres de la version de test.
+- ✅ v2.22 : images définitives de la boîte aux lettres (`ui-mail-empty`, `ui-mail-full`, drapeau levé quand il y a du courrier) et de l'arrosoir d'ami (`ui-friend-water`). La boîte est en bas à droite du jardin, plus grande, avec une marge sous le jardin.
 - Décos à remplacer (images à venir) : Arrosoir → bain d'oiseaux ou tonneau de pluie ; Boîte aux lettres → panneau du village ou moulin à vent. Même succès, déco échangée automatiquement chez ceux qui l'ont déjà.
 
 ## Conseils de Mamie Lapine pour la v3
