@@ -1446,3 +1446,18 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .fr-hint svg { width: 16px; height: 16px; vertical-align: -3px; }
 /* Paramètres de test : choix de la saison */
 .test-season button { font-size: .72rem; padding-inline: 2px; }
+/* La barre du haut passe devant le jardin (bouton Décorer, boîte aux lettres) */
+.top { z-index: 9; }
+/* Code ami : bien centré verticalement */
+.fr-code { align-items: center; }
+.fr-code small, .fr-code b { line-height: 1; display: block; }
+.fr-code b { padding-top: 2px; }
+/* Boutons d'échange aux couleurs de la saison (lisibles en clair comme en sombre) */
+.btn.tr-new, .btn.tr-btn, .fr-ico.fr-act.hl { background: color-mix(in srgb, var(--leaf) 16%, var(--panel)); color: var(--leaf-deep); border: 1.5px solid color-mix(in srgb, var(--leaf) 60%, var(--line)); }
+.fr-ico.fr-act.hl { animation: none; }
+.fr-ico.fr-act.hl.pulse { animation: hl-pulse .6s ease-in-out 1; }
+.fr-hint { color: var(--leaf-deep); }
+.tr-tag { background: color-mix(in srgb, var(--leaf) 16%, var(--panel)); color: var(--leaf-deep); border-color: color-mix(in srgb, var(--leaf) 60%, var(--line)); }
+/* Résumé d'échange dans un message : boutons et état à droite */
+.msg-trade > .btn, .msg-trade > .tr-state { justify-self: end; }
+.fr-hint svg { display: inline-block; }

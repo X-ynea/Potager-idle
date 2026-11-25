@@ -151,7 +151,7 @@ function trCheck(d) {
   else if (Math.max(va, vb) > TR_GAP * Math.min(va, vb)) msg = `Pas assez équilibré : l’écart est de ${gap} % (20 % au plus).`;
   else if (S.coins < d.giveCoins) msg = "Tu n’as pas assez de pièces.";
   else if (!haveItems(d.give, 0)) msg = "Tu n’en as pas assez.";
-  else if (!d.counter && TR.inv && TR.inv.today >= TR_DAY) msg = `Tu as déjà proposé ${TR_DAY} échanges aujourd’hui. Reviens demain !`;
+  else if (!d.counter && !IS_TEST && TR.inv && TR.inv.today >= TR_DAY) msg = `Tu as déjà proposé ${TR_DAY} échanges aujourd’hui. Reviens demain !`;
   return { va, vb, gap, msg };
 }
 function trSide(side, f) {
@@ -187,11 +187,11 @@ function trGauges(va, vb, state) {
   return `<div class="tr-gauges ${state}">${g(va, "Tu donnes")}<span class="tr-g-ico">${SCALE_ICON}</span>${g(vb, "Tu demandes")}</div>`;
 }
 function trBalanceHTML() {
-  const d = TR.draft, c = TR.sending && TR.sendCheck ? TR.sendCheck : trCheck(d), left = Math.max(0, TR_DAY - (TR.inv?.today || 0));
+  const d = TR.draft, c = TR.sending && TR.sendCheck ? TR.sendCheck : trCheck(d), left = Math.max(0, TR_DAY - (TR.inv?.today || 0)), unlimited = IS_TEST;
   return `<div class="tr-balance${c.msg ? "" : " ok"}" id="tr-balance">${trGauges(c.va, c.vb, !c.msg ? "ok" : c.va && c.vb ? "bad" : "")}
     <p class="tr-verdict">${c.msg ? esc(c.msg) : `Échange équilibré ✓${c.gap ? ` · écart ${c.gap} %` : ""}`}</p>
     <button class="btn big" data-act="trSend" ${c.msg || TR.sending || !TR.inv ? "disabled" : ""}>${TR.sending ? "Envoi…" : d.counter ? "Envoyer la contre-proposition" : "Proposer l’échange"}</button>
-    <p class="small muted" style="margin:0">Ce que tu donnes est mis de côté jusqu’à sa réponse (${TR_HOURS} h au plus).${d.counter ? " Une contre-proposition ne compte pas dans tes échanges du jour." : TR.inv ? ` · ${left} échange${left > 1 ? "s" : ""} possible${left > 1 ? "s" : ""} aujourd’hui` : ""}</p></div>`;
+    <p class="small muted" style="margin:0">Ce que tu donnes est mis de côté jusqu’à sa réponse (${TR_HOURS} h au plus).${d.counter ? " Une contre-proposition ne compte pas dans tes échanges du jour." : unlimited ? " · Version de test : pas de limite par jour." : TR.inv ? ` · ${left} échange${left > 1 ? "s" : ""} possible${left > 1 ? "s" : ""} aujourd’hui` : ""}</p></div>`;
 }
 function viewTrade() {
   const f = trFriend(); if (!f) { TR.draft = null; return TR.fromMail ? viewMail() : friendsRouter(); }
@@ -222,7 +222,10 @@ function trClose() {
 const TRADE_ACTS = {
   trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; FR.hlTrade = false; TR.fromMail = false; trStart(f); friendsOver(); },
   // Nouvel échange depuis la boîte aux lettres : on choisit l'ami dans l'onglet « Amis » (bouton ⇄).
-  trNew() { closeModal(); FR.tab = "friends"; FR.filter = ""; A.tab("friends"); FR.hlTrade = true; render(true); loadFriends(true); },
+  trNew() {
+    closeModal(); FR.tab = "friends"; FR.filter = ""; A.tab("friends"); FR.hlTrade = true; FR.hlPulse = true; render(true); loadFriends(true);
+    setTimeout(() => { FR.hlPulse = false; }, 1300); // les boutons ⇄ pulsent une seule fois
+  },
   trCloseAll() { TR.draft = null; TR.fromMail = false; closeModal(); },
   trCounter(id) {
     const r = TR.list.find(x => x.id === +id), f = r && FR.list.find(x => x.user_id === r.other && x.direction === "friend");

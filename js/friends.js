@@ -47,7 +47,7 @@ function friendRow(f) {
   if (f.direction === "out") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn ghost sm" data-act="frRemove" data-arg="${f.id}">Annuler</button></span></div>`;
   return `<div class="fr-row"><button class="fr-head" data-act="frChat" data-arg="${f.id}" aria-label="Messages avec ${esc(f.name)}">${head}</button><span class="fr-acts">
     <button class="btn fr-ico fr-act" data-act="frVisit" data-arg="${f.id}" aria-label="Visiter son jardin" title="Visiter">${VISIT_ICON}</button>
-    <button class="btn fr-ico fr-act${FR.hlTrade ? " hl" : ""}" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
+    <button class="btn fr-ico fr-act${FR.hlTrade ? ` hl${FR.hlPulse ? " pulse" : ""}` : ""}" data-act="trOpen" data-arg="${f.id}" aria-label="Proposer un échange" title="Échanger">${TRADE_ICON}</button>
     <button class="btn fr-ico fr-act fr-chat-btn" data-act="frChat" data-arg="${f.id}" aria-label="Messages" title="Messages">${FR_ICONS.chat}${FR.unread[f.user_id] ? `<span class="fr-badge">${FR.unread[f.user_id]}</span>` : ""}</button></span></div>`;
 }
 // Amis filtrés par la barre de recherche.
@@ -66,7 +66,7 @@ function viewFriends(inTab) {
   const friends = FR.list.filter(f => f.direction === "friend"), inn = incoming(), out = FR.list.filter(f => f.direction === "out");
   const tabs = [["friends", `Amis <span class="num">${friends.length}</span>`], ["requests", `Demandes${inn.length ? ` <span class="fr-badge">${inn.length}</span>` : ""}`], ["add", "Ajouter"]];
   let body = "";
-  if (FR.tab === "friends") body = friends.length ? `${friends.length > 1 ? `<input id="fr-filter" class="fr-filter" type="search" placeholder="Rechercher un ami" autocomplete="off" value="${esc(FR.filter || "")}">` : ""}
+  if (FR.tab === "friends") body = friends.length ? `${friends.length >= 1 ? `<input id="fr-filter" class="fr-filter" type="search" placeholder="Rechercher un ami" autocomplete="off" value="${esc(FR.filter || "")}">` : ""}
     ${FR.hlTrade ? `<p class="small fr-hint">Touche ${TRADE_ICON} à côté de l’ami avec qui tu veux échanger.</p>` : ""}<div class="fr-list" id="fr-list">${friendListHTML()}</div>` : `<div class="empty-note"><span>Pas encore d’amis. Partage ton code ou ajoute quelqu’un dans l’onglet « Ajouter ».</span></div>`;
   if (FR.tab === "requests") body = `<h3 class="cat-title">Reçues</h3>${inn.length ? `<div class="fr-list">${inn.map(friendRow).join("")}</div>` : `<p class="small muted" style="margin:0">Aucune demande reçue.</p>`}
     <h3 class="cat-title">Envoyées</h3>${out.length ? `<div class="fr-list">${out.map(friendRow).join("")}</div>` : `<p class="small muted" style="margin:0">Aucune demande en attente.</p>`}`;

@@ -4,7 +4,8 @@
 -- Règles :
 --   · chaque côté : des objets (plantes et plats), des pièces, ou les deux ; jamais de pièces des deux côtés ;
 --   · valeur = prix de vente au marché (table item_values) ; écart de 20 % au plus entre les deux côtés ;
---   · 3 000 pièces de valeur au plus de chaque côté ; 3 échanges proposés par jour (date de Paris),
+--   · 3 000 pièces de valeur au plus de chaque côté ; 3 échanges proposés par jour (date de Paris, sans compter les annulés ;
+--     pas de limite pour les comptes de la version de test),
 --     les contre-propositions ne comptent pas (autant d'allers-retours qu'on veut) ;
 --   · pas de graines, pas de récoltes dorées, pas de radis éclair (absents d'item_values) ;
 --   · anti-spoil : on ne propose que ce que l'autre a découvert, on ne demande que ce qu'on a découvert ;
@@ -89,7 +90,7 @@ begin
   return jsonb_build_object(
     'crops', coalesce(d->'crops', '{}'::jsonb), 'dishes', coalesce(d->'dishes', '{}'::jsonb),
     'level', coalesce(d->'level', '1'::jsonb), 'hybrids', coalesce(d->'hybrids', '[]'::jsonb),
-    'trades_today', (select count(*) from trades where a = me and day = paris_today()));
+    'trades_today', (select count(*) from trades where a = me and day = paris_today() and counter_of is null and status <> 'cancelled'));
 end $$;
 
 -- 4. Proposer un échange, ou faire une contre-proposition à un échange reçu (counter = son numéro).
@@ -112,7 +113,9 @@ begin
   if greatest(va, vb) > 1.2 * least(va, vb) then raise exception 'desequilibre'; end if;
   if not knows_items(target, give) or not knows_items(me, want) then raise exception 'spoil'; end if;
   if counter is null then
-    if (select count(*) from trades where a = me and day = paris_today() and counter_of is null) >= 3 then raise exception 'trop_echanges'; end if;
+    -- Les échanges annulés ne comptent pas ; pas de limite pour les comptes de la version de test.
+    if not coalesce((select is_test from profiles where user_id = me), false)
+       and (select count(*) from trades where a = me and day = paris_today() and counter_of is null and status <> 'cancelled') >= 3 then raise exception 'trop_echanges'; end if;
   else
     -- La proposition reçue est remplacée : celui qui l'avait faite récupère ce qu'il proposait (claim_trade).
     update trades set status = 'countered', decided_at = now()
