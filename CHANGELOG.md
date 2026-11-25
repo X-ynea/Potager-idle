@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.10
+- Jardin : un peu plus d’espace entre « Décorer » et le jardin ; sur grand écran, l’arrosage d’un ami et « L’eau tient… » sont sur la même ligne.
+
 ### 3.0.9
 - Jardin : les textes au-dessus du jardin reprennent leur place ; seul le bouton « Décorer » est posé juste au-dessus du jardin, à gauche.
 
