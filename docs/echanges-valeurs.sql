@@ -36,6 +36,7 @@ insert into public.item_values (key, value, lvl, needs) values
   ('etoile', 230, 0, array['etoile']::text[]),
   ('nuage', 215, 0, array['nuage']::text[]),
   ('rubis', 120, 0, array['rubis']::text[]),
+  ('cristal', 165, 0, array['cristal']::text[]),
   ('salade', 34, 2, array[]::text[]),
   ('puree', 49, 3, array[]::text[]),
   ('pain', 74, 6, array[]::text[]),

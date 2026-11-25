@@ -143,6 +143,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Melon étoilé | Melon + Tournesol | 50 min | 230 | 38 |
 | Champignon nuage | Champignon des bois + Myrtille | 51 min | 215 | 35 |
 | Asperge rubis | Asperge + Betterave | 35 min | 120 | 21 |
+| Chou de cristal | Chou d’hiver + Laitue | 56 min | 165 | 28 |
 
 ## Recettes
 
@@ -213,7 +214,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Ruée vers l’or | 1 | Récolter 10 légumes dorés au total | 800 | 150 |  |
 |  | 2 | Récolter 50 légumes dorés au total | 5 000 | 600 | titre « Orpailleur » |
 | Trésor de saison |  | Trouver une récolte dorée d’une plante de chaque saison | 2 000 | 300 |  |
-| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (31) | 20 000 | 1500 | titre « Roi Midas du potager » |
+| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (32) | 20 000 | 1500 | titre « Roi Midas du potager » |
 | Apprenti botaniste |  | Réussir son premier croisement | 100 | 25 | titre « Botaniste » |
 | Herbier complet |  | Découvrir tous les hybrides | 1 500 | 225 | titre « Grand botaniste », +5 % de pièces sur tout, déco Ruche |
 | Expérimentateur |  | Faire 25 croisements, même ratés | 300 | 60 |  |
