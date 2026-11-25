@@ -39,12 +39,23 @@ function checkNews3() {
 addEventListener("load", () => setTimeout(checkNews3, 2200));
 // Conseils de Mamie Lapine sur la v3 : ils (re)commencent avec la fenêtre, sans refaire les premiers pas.
 const TUTO3_IDS = ["friends", "friends2", "visit", "trade", "watered", "weekly", "hybrids3", "mail"];
+// Seuls les conseils de la v3 restent : les autres (premiers pas, Serre, cuisine…) sont marqués comme vus.
+function onlyNewTips(T) { for (const t of TUTO) if (!TUTO3_IDS.includes(t.id)) T.seen[t.id] = true; }
 function resetTuto3() {
-  const T = tutoState(); T.off = false;
+  const T = tutoState();
+  // Joueur qui avait coupé Mamie Lapine (ou sauté les premiers pas) : elle ne revient que pour la v3.
+  if (T.off || TUTO.some(t => t.basic && !T.seen[t.id])) onlyNewTips(T);
+  T.off = false; T.f.v3fix = true;
   for (const id of TUTO3_IDS) delete T.seen[id];
   for (const f of ["tab_friends", "visited", "trade_opened", "mail_opened"]) delete T.f[f];
   save();
 }
+// 3.0.2 : réparation des parties où la 3.0.1 avait relancé les premiers pas chez un ancien joueur.
+addEventListener("load", () => setTimeout(() => {
+  const T = tutoState(); if (T.f.v3fix || S.level < 2) return;
+  if (TUTO.some(t => t.basic && !T.seen[t.id])) onlyNewTips(T);
+  T.f.v3fix = true; save(); tutoUpdate();
+}, 1500));
 const NEWS3_ACTS = {
   news3Close() { document.getElementById("gate")?.remove(); SFX.play("success"); render(true); },
   news3Replay() { closeModal(); showNews3(); resetTuto3(); },
