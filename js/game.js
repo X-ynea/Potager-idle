@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.9" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.10" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -48,6 +48,8 @@ const itemVal = k => isGold(k) ? PLANTS[goldBase(k)].sell * 10 : PLANTS[k] ? PLA
 const itemXp = k => isGold(k) ? PLANTS[goldBase(k)].xp * 3 : PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
 const itemDesc = k => isGold(k) ? `Une ${PLANTS[goldBase(k)].name.toLowerCase()} rarissime, qui brille comme un trésor. Elle vaut dix fois le prix normal.` : (PLANTS[k] || RECIPES[k]).desc;
 // Une plante déjà récoltée reste disponible, même si son niveau de déblocage a changé.
+// Niveau à partir duquel une plante est accessible (pour un hybride : quand ses deux parents le sont).
+const plantLvl = k => PLANTS[k].hybrid ? Math.max(...PLANTS[k].parents.map(p => PLANTS[p].lvl)) : PLANTS[k].lvl;
 const seedAvailable = k => { const d = PLANTS[k]; return d.hybrid ? S.hybrids.includes(k) : d.lvl <= S.level || S.discovered.includes(k); };
 // Graines achetables maintenant : les plantes exclusives ne sont vendues que pendant leur saison.
 const seedBuyable = k => seedAvailable(k) && (!PLANTS[k].only || PLANTS[k].season === season());
@@ -1077,7 +1079,7 @@ function marketSeeds() {
   // Tri : achetables d'abord (débloquées, en vente et payables), prix de vente, ordre alphabétique ; les verrouillées à la fin.
   const sm = sortOf("seeds"), ok = x => seedBuyable(x) && S.coins >= PLANTS[x].cost;
   const sorter = (a, b) => (seedAvailable(b) - seedAvailable(a)) || (!seedAvailable(a) && PLANTS[a].lvl - PLANTS[b].lvl) || (sm === "name" ? byName(a, b, x => PLANTS[x].name) : sm === "price" ? PLANTS[b].sell - PLANTS[a].sell : sm === "cost" ? PLANTS[a].cost - PLANTS[b].cost : (ok(b) - ok(a)) || byName(a, b, x => PLANTS[x].name)) || (PLANTS[a].lvl - PLANTS[b].lvl);
-  const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && !PLANTS[a].hybrid && PLANTS[a].lvl - PLANTS[b].lvl)) : l.sort(sorter);
+  const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && plantLvl(a) - plantLvl(b))) : l.sort(sorter);
   const base = srt(ORDER.filter(x => !PLANTS[x].hybrid)), hyb = srt(ORDER.filter(x => PLANTS[x].hybrid));
   const found = hyb.filter(seedAvailable).length;
   return det + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
@@ -1158,7 +1160,8 @@ function views_lab() {
   const herbCard = k => { const d = PLANTS[k], known = isKnown(k); return `
       <button class="herb ${known ? "" : "unknown"} ${S.goldenFound.includes(k) ? "has-gold" : ""}" data-act="plantInfo" data-arg="${k}" aria-label="${known || !d.hybrid ? d.name : "Variété mystère"}">${cropArt(k)}${seasonBadge(k)}<b>${known || !d.hybrid ? d.name : "???"}</b>${known ? `<span class="muted">${fmt(d.sell)} pièces</span>` : d.hybrid ? "" : `<span class="muted">Niveau ${d.lvl}</span>`}</button>`; };
   // Les plantes pas encore découvertes vont à la fin, par niveau de déblocage.
-  const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort((a, b) => isKnown(b) - isKnown(a) || (!isKnown(a) && PLANTS[a].lvl - PLANTS[b].lvl)), hybK = ORDER.filter(k => PLANTS[k].hybrid);
+  const byKnown = (a, b) => isKnown(b) - isKnown(a) || plantLvl(a) - plantLvl(b); // découvertes d’abord, puis par niveau d’accès
+  const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort(byKnown), hybK = ORDER.filter(k => PLANTS[k].hybrid).sort(byKnown);
   const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
     <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
     <h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3>${hybK.some(k => !isKnown(k)) ? `<p class="small muted" style="margin:-4px 0 0">Touche un hybride inconnu pour un indice.</p>` : ""}<div class="herbier">${hybK.map(herbCard).join("")}</div></section>`;
