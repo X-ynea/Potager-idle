@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.11
+- Décorations : le choix d’une décoration se fait dans une grille, comme le reste de l’app, au lieu d’une bande à faire défiler.
+
 ### 2.16.10
 - Herbier : plantes et hybrides rangés par niveau (découverts d’abord). Un hybride a le niveau de son parent le plus tardif, donc les inconnus apparaissent dans l’ordre où ils deviennent possibles.
 - Marché › Graines : même ordre pour les hybrides pas encore trouvés.

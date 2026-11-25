@@ -785,11 +785,11 @@ button.herb:active { transform: scale(.97); }
 #modal:has(.deco-sheet) { background: rgba(45,25,10,.12); }
 .sheet.deco-sheet { max-height: 56dvh; gap: 10px; }
 .garden { scroll-margin-top: 84px; }
-.deco-grid.strip { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; scroll-snap-type: x proximity; overscroll-behavior-x: contain; }
-.deco-grid.strip .deco-card { flex: 0 0 92px; scroll-snap-align: start; padding: 6px 4px; align-content: start; }
-.deco-grid.strip .deco-card img { width: 54px; height: 54px; }
-.deco-grid.strip .deco-card b { font-size: .75rem; line-height: 1.15; text-align: center; }
-.deco-grid.strip .deco-card span { font-size: .62rem; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.deco-grid.compact { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+.deco-grid.compact .deco-card { padding: 6px 4px; align-content: start; }
+.deco-grid.compact .deco-card img { width: 54px; height: 54px; }
+.deco-grid.compact .deco-card b { font-size: .75rem; line-height: 1.15; text-align: center; }
+.deco-grid.compact .deco-card span { font-size: .62rem; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* Conseils de Mamie Lapine */
 #tuto { padding: 0 var(--pad, 14px); max-width: 760px; margin: 10px auto 0; }
 .tuto-bubble { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 18px; background: #fff8ec; border: 1.5px solid #ecd9b8;
