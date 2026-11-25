@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.11
+- Nouvelles images des plantes mûres, qui sortent de la terre : radis, pomme de terre, betterave, poireau, courgette, melon et champignon des bois.
+
 ### 3.0.10
 - Jardin : un peu plus d’espace entre « Décorer » et le jardin ; sur grand écran, l’arrosage d’un ami et « L’eau tient… » sont sur la même ligne.
 
