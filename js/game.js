@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.24.1" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.25.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -259,6 +259,7 @@ function dailyQuests() {
   return S.quests;
 }
 function questProgress(type, amount = 1, k = null) {
+  if (typeof weeklyProgress === "function") weeklyProgress(type, amount, k); // objectifs de la semaine
   const Q = dailyQuests();
   for (const q of Q.list) if (!q.claimed && q.type === type && (!q.k || q.k === k) && q.prog < q.n) q.prog = Math.min(q.n, q.prog + amount);
   if (type === "harvestK") questProgress("harvest", amount);
@@ -514,7 +515,7 @@ const A = {
     const h = HYBRID_BY_PAIR[pairKey(L.a, L.b)];
     if (h) {
       S.seeds[h] = cnt(S.seeds, h) + 2;
-      if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); }
+      if (!S.hybrids.includes(h)) { S.hybrids.push(h); addXp(25); openReveal(h, true); releaseMysterySeeds(h); }
       else { addXp(6); openReveal(h, false); }
     } else if (L.a === L.b) {
       S.seeds[L.a] = cnt(S.seeds, L.a) + 1; addXp(1); S.stats.selfCross = (S.stats.selfCross || 0) + 1;
@@ -865,6 +866,7 @@ function views_garden() {
     </div>${decoRowHTML()}${mailboxHTML()}</div>
   </section>
   ${dailyQuests().bonus ? "" : questsHTML()}
+  ${weeklyHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
     ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
@@ -922,7 +924,7 @@ function viewDecoPick(slot) {
     <p class="small muted" style="margin:0;max-width:none;justify-self:stretch">Choisis une décoration. Elle remplace celle déjà en place.</p>
     <div class="deco-grid strip">${[...DECO_ORDER].sort((a, b) => decoUnlocked(b) - decoUnlocked(a)).map(d => { const ok = decoUnlocked(d), src = decoSource(d);
       return `<button class="deco-card${ok ? "" : " locked"}${cur === d ? " sel" : ""}" ${ok ? `data-act="decoPlace" data-arg="${slot}:${d}:keep"` : "disabled"}>
-        <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : ""}</span></button>`; }).join("")}</div>
+        <img src="assets/img/deco-${d}.webp" alt=""><b>${ok ? DECOS[d] : "???"}</b><span>${ok ? (S.decoSlots.includes(d) && cur !== d ? "Déjà placée" : "") : src ? `Succès « ${src.ach.name}${src.ach.tiers.length > 1 ? " " + ROMAN[src.i + 1] : ""} »` : GOAL_DECO_SRC(d)}</span></button>`; }).join("")}</div>
     ${cur ? `<div class="d-acts"><button class="btn ghost" data-act="decoPlace" data-arg="${slot}:">Retirer</button></div>` : ""}
   </div>`;
 }
@@ -1214,7 +1216,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1463,7 +1465,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {

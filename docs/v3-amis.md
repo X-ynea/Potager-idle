@@ -89,7 +89,7 @@ Ces conseils n'attendent pas leur onglet : ils ne bloquent pas les autres consei
 - **Esprit d'équipe** (à venir avec les objectifs) : réussir 1 / 4 / 12 objectifs de la semaine.
 - Pas de succès sur le nombre d'amis (il pousserait à accepter des inconnus). Pas de coup de main contre les nuisibles (il gâcherait le succès de l'escargot gardé une heure).
 
-### Objectifs de la semaine (à faire)
+### Objectifs de la semaine ✅ (v2.25, `docs/objectifs.sql`, `js/goals.js`)
 Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent selon la saison (récolter des plantes de saison, livrer des commandes, cuisiner, attraper des visiteurs…). La part d'un même joueur est plafonnée.
 - **Objectif entre amis** : toi et tes amis (chacun voit le total de son propre cercle). Taille selon le nombre d'amis.
   - 1re réussite dans une saison : **déco exclusive de la saison + XP** (pas de graines).
@@ -98,4 +98,7 @@ Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent se
   - 1re réussite dans une saison : **déco exclusive de la saison, différente de celle des amis, + XP** (pas de graines).
   - Ensuite : **graines d'hybrides + XP**. Hybride pas encore découvert : graines mises de côté (« graines mystère »), données le jour de la découverte.
 - **Affichage** : sur l'écran d'accueil, section « Objectifs de la semaine » séparée des objectifs du jour, entre le jardin et l'inventaire. Quand rien n'est fini, elle est sous les objectifs du jour ; quand les objectifs du jour sont finis (ils descendent en bas), elle reste à sa place. Un objectif fini est grisé et passe en deuxième. Jauges de progression comme les objectifs du jour. Toucher un objectif montre ses récompenses. Rien dans l'onglet Amis, pas de rappel dans le jardin.
-- **Images à faire** : 8 décos (4 saisons × amis, 4 saisons × tous les joueurs).
+- **Images à faire** : 8 décos (images provisoires en attendant), noms à confirmer :
+  - entre amis : Arche fleurie (printemps), Table de pique-nique (été), Hérisson et feuilles (automne), Bonhomme de neige (hiver) — `deco-f_<saison>.webp` ;
+  - tous les joueurs : Fontaine fleurie (printemps), Moulin à vent (été), Montgolfière (automne), Sapin illuminé (hiver) — `deco-g_<saison>.webp`.
+- Réglages (js/goals.js) : types en rotation chaque semaine (récoltes de saison, commandes, plats, visiteurs ; l'objectif de tous a un type décalé de 2 semaines) ; base par joueur 40 / 12 / 15 / 20 ; entre amis : cible = base × taille du cercle (8 au plus), part d'un joueur ≤ 1,5 × base ; tous : cible = base × joueurs actifs de la semaine passée (5 au moins) × 0,6, part d'un joueur ≤ 2 × base ; paliers 25 / 60 / 100 %.

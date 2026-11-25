@@ -1497,3 +1497,30 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .visit-btns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
 .btn.like-btn { width: 48px; padding: 0; justify-content: center; }
 .btn.like-btn svg { width: 24px; height: 24px; }
+/* Objectifs de la semaine */
+.quest.wk { cursor: pointer; }
+.quest.wk:active { transform: scale(.99); }
+.wk-who { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--leaf-deep); margin-bottom: 1px; }
+.wk-bar { position: relative; overflow: visible; }
+.wk-bar > i { border-radius: 99px; }
+.wk-tick { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--line); }
+.wk-tick.on { background: #f4c03e; }
+.wk-more { font-size: 1.6rem; line-height: 1; color: var(--muted); padding: 0 4px; }
+.goal-head { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; }
+.goal-head .q-ico { width: 52px; height: 52px; }
+.goal-head b { display: block; margin-bottom: 6px; }
+.wk-bar.big { height: 12px; }
+.goal-rewards { display: grid; gap: 8px; }
+.goal-rw { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.goal-rw-p { grid-column: 1 / -1; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.goal-rw-r { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 700; font-size: .88rem; }
+.goal-rw-r img { width: 44px; height: 44px; object-fit: contain; }
+.goal-rw-r small { width: 100%; color: var(--muted); font-weight: 600; font-size: .72rem; }
+.goal-rw.ready { border-color: #f4c03e; background: linear-gradient(160deg, #fffaf0, #fff1c9); }
+.goal-rw.got { opacity: .6; }
+.goal-members { display: grid; gap: 6px; }
+.goal-m { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 10px; border-radius: 12px; background: var(--panel-2); }
+.goal-m .fr-av { width: 32px; height: 32px; }
+.goal-m b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal-m.me { border: 1.5px solid color-mix(in srgb, var(--leaf) 50%, var(--line)); }
+.sheet.goal-sheet { align-content: start; grid-auto-rows: max-content; grid-template-columns: minmax(0, 1fr); }
