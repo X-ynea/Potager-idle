@@ -1473,6 +1473,6 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .garden-bar { margin: 6px 0; }
 /* Boîte aux lettres en haut à droite du jardin, sur une bande d'herbe au-dessus des bacs :
    toujours visible, quel que soit le nombre de parcelles, sans cacher de bac. */
-.garden:has(> .mailbox) { --mtop: 12cqw; padding-top: calc(var(--g) + 12%); overflow: clip; overflow-clip-margin: 18px; }
+.garden:has(> .mailbox) { --mtop: 7cqw; padding-top: calc(var(--g) + 7%); overflow: clip; overflow-clip-margin: 20px; }
 .garden:has(> .mailbox) .deco-row .deco-slot.s1 { top: calc(var(--mtop) + var(--g) + (100cqw - 2 * var(--g)) * .93 / var(--cols) * 1.008 - 8cqw); }
-.garden > .mailbox { top: -16px; right: 2%; bottom: auto; width: 20%; height: auto; aspect-ratio: 1; max-width: none; } /* dépasse un peu au-dessus du jardin, sans toucher le texte */
+.garden > .mailbox { top: -18px; right: 2%; bottom: auto; width: 17%; height: auto; aspect-ratio: 1; max-width: none; } /* dépasse un peu au-dessus du jardin, sans toucher le texte */
