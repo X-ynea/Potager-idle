@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.8
+- Marché › Vendre : les récoltes dorées passent en premier, quel que soit le tri.
+
 ### 2.16.7
 - Grand écran : l’XP et les pièces restent affichées en détail dans la barre du haut. Le format court (1k, 13,3k) ne sert que sur les écrans étroits.
 

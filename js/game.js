@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.7" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.8" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1033,6 +1033,7 @@ function invBody(ctx, cat) {
   const bag = catBag(cat);
   const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
   if (ctx === "sell") { const m = sortOf("sell"); if (m !== "none") keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
+  if (ctx === "sell") keys.sort((a, b) => isGold(b) - isGold(a)); // à la vente, les dorées d’abord (elles ne servent qu’à ça)
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
