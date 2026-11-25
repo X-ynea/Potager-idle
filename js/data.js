@@ -34,6 +34,10 @@ const PLANTS = {
   lanterne: { name: "Tomate lanterne", desc: "Des tomates orange doré à côtes, lumineuses comme de petites lanternes suspendues.", hybrid: true, parents: ["tomate", "potiron"], time: 3000, sell: 200, xp: 33, shape: "round", color: "#f59a2a", hint: "Un fruit rouge qui voudrait devenir un potiron…" },
   azur:     { name: "Épi d’azur", desc: "Des épis aux grains bleu turquoise nacrés, sur des tiges argentées.", hybrid: true, parents: ["ble", "radis"], time: 960, sell: 55, xp: 11, shape: "grain", color: "#3fc4d6", hint: "Une céréale qui aurait croisé une racine croquante…" },
   amethyste: { name: "Carotte améthyste", desc: "Des carottes violet profond, translucides comme une pierre précieuse, aux fanes argentées.", hybrid: true, parents: ["carotte", "lavande"], time: 2160, sell: 140, xp: 24, shape: "root", color: "#9b3fd0", hint: "Une racine orange qui rêve de violet…" },
+  // v3 : hybrides de saison (au moins un parent ne se cultive qu'en saison : il faut garder des récoltes de côté)
+  etoile:   { name: "Melon étoilé", desc: "De petits melons jaune soleil à côtes, en forme d’étoile, au parfum de miel.", hybrid: true, parents: ["melon", "tournesol"], time: 3000, sell: 230, xp: 38, shape: "big", color: "#f7d046", hint: "Un fruit d’été qui voudrait suivre le soleil…" },
+  nuage:    { name: "Champignon nuage", desc: "Des champignons au chapeau bleu ciel, doux comme du coton, qui sentent la myrtille.", hybrid: true, parents: ["champignon", "myrtille"], time: 3060, sell: 215, xp: 35, shape: "big", color: "#8fb3e8", hint: "Un habitant des sous-bois qui rêve de baies bleues…" },
+  rubis:    { name: "Asperge rubis", desc: "Des pointes d’asperge rouge rubis, tendres et légèrement sucrées.", hybrid: true, parents: ["asperge", "betterave"], time: 2100, sell: 120, xp: 21, shape: "grain", color: "#c0304f", hint: "Une pousse de printemps jalouse d’une racine d’automne…" },
 };
 const ORDER = Object.keys(PLANTS).filter(k => !PLANTS[k].tuto); // la plante du tutoriel reste hors des listes
 const HYBRID_BY_PAIR = {};
