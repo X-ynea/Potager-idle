@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.6
+- Pas d’espace en plus pour une section placée juste sous un grand titre (Inventaire › Graines, Herbier › Plantes).
+
 ### 2.16.5
 - Plus d’espace au-dessus des titres de section (profil, réglages, marché, jardin) pour mieux les séparer.
 
