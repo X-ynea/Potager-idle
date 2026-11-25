@@ -5,7 +5,7 @@
    Version de test : Paramètres › « Revoir la fenêtre de la v3 ». */
 const NEWS3_KEY = "potager-news-v3" + (IS_TEST ? "-test" : "");
 const NEWS3_ITEMS = [
-  ["👥", "Un onglet Amis", "Partage ton code ami, ajoute tes proches et discutez ensemble."],
+  [() => FR_ICONS.people, "Un onglet Amis", "Partage ton code ami, ajoute tes proches et discutez ensemble."],
   ["🌱", "Visite leur jardin", "Découvre leurs bacs, leurs décos et leur herbier."],
   ["💧", "Un coup d’arrosoir", "Une fois par jour, arrose le jardin d’un ami : ses plantes poussent 20 % plus vite pendant 2 h."],
   ["⇄", "Des échanges", "Récoltes, plats ou pièces, pour une valeur à peu près égale. Tout arrive dans ta boîte aux lettres."],
@@ -18,7 +18,7 @@ function news3HTML() {
     <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
     <h1>Du nouveau au potager ! 🌱</h1>
     <p class="news3-sub">Le potager s’ouvre à tes amis.</p>
-    <div class="news3-list">${NEWS3_ITEMS.map(([i, t, d]) => `<div class="news3-item"><span class="news3-ico">${i}</span><span><b>${t}</b><small>${d}</small></span></div>`).join("")}</div>
+    <div class="news3-list">${NEWS3_ITEMS.map(([i, t, d]) => `<div class="news3-item"><span class="news3-ico">${typeof i === "function" ? i() : i}</span><span><b>${t}</b><small>${d}</small></span></div>`).join("")}</div>
     <p class="small muted" style="margin:0">Mamie Lapine te montrera tout ça au fil du jeu.</p>
     <button class="btn big" data-act="news3Close">C’est parti !</button>
   </div>`;
