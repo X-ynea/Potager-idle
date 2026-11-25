@@ -76,19 +76,19 @@ const RECIPES = {
 const RORDER = Object.keys(RECIPES);
 
 const UPG = {
-  water: { name: "Arrosoir", steps: [{ cost: 150, lvl: 6 }, { cost: 600, lvl: 12 }, { cost: 2000, lvl: 18 }], values: [5, 8, 15, 30],
+  water: { name: "Arrosoir", steps: [{ cost: 150, lvl: 6 }, { cost: 900, lvl: 12 }, { cost: 3000, lvl: 18 }], values: [5, 8, 15, 30],
            desc: v => `L’eau tient ${v} min dans la terre` },
   basket:{ name: "Panier en osier", steps: [{ cost: 100, lvl: 2 }], values: [0, 1], desc: () => "Débloque le bouton « Tout récolter »" },
   hose:  { name: "Tuyau d’arrosage", steps: [{ cost: 300, lvl: 3 }], values: [0, 1], desc: () => "Débloque le bouton « Tout arroser »" },
   gloves:{ name: "Gants de jardinage", steps: [{ cost: 250, lvl: 4 }], values: [0, 1], desc: () => "Débloque le bouton pour libérer d’un coup tous les bacs bloqués (escargots, herbes folles, feuilles, gel)" },
-  fert:  { name: "Compost maison", steps: [{ cost: 500, lvl: 9 }, { cost: 1800, lvl: 17 }, { cost: 5000, lvl: 24 }], values: [1, 1.15, 1.3, 1.5],
+  fert:  { name: "Compost maison", steps: [{ cost: 500, lvl: 9 }, { cost: 2700, lvl: 17 }, { cost: 7500, lvl: 24 }], values: [1, 1.15, 1.3, 1.5],
            desc: v => v === 1 ? "Vitesse de pousse normale" : `Les plantes poussent ${Math.round((v - 1) * 100)} % plus vite` },
-  stove: { name: "Fourneau", steps: [{ cost: 800, lvl: 7 }, { cost: 5000, lvl: 21 }], values: [1, 2, 3], desc: v => `${v} plat${v > 1 ? "s" : ""} en même temps` },
-  village: { name: "Banc des voisins", img: "deco-bench", steps: [{ cost: 1200, lvl: 11 }, { cost: 4000, lvl: 20 }], values: [3, 4, 5],
+  stove: { name: "Fourneau", steps: [{ cost: 800, lvl: 7 }, { cost: 7500, lvl: 21 }], values: [1, 2, 3], desc: v => `${v} plat${v > 1 ? "s" : ""} en même temps` },
+  village: { name: "Banc des voisins", img: "deco-bench", steps: [{ cost: 1200, lvl: 11 }, { cost: 6000, lvl: 20 }], values: [3, 4, 5],
            desc: v => `${v} voisins peuvent passer commander en même temps` },
-  auto:  { name: "Arroseur automatique", steps: [{ cost: 8000, lvl: 25 }], values: [0, 1], desc: v => v ? "Tes plantes n’ont plus jamais soif" : "Tes plantes n’auront plus jamais soif" },
+  auto:  { name: "Arroseur automatique", steps: [{ cost: 12000, lvl: 25 }], values: [0, 1], desc: v => v ? "Tes plantes n’ont plus jamais soif" : "Tes plantes n’auront plus jamais soif" },
 };
-const PLOT_STEPS = [{ cost: 120, lvl: 3 }, { cost: 350, lvl: 8 }, { cost: 900, lvl: 13 }, { cost: 2000, lvl: 19 }, { cost: 4000, lvl: 25 }, { cost: 7000, lvl: 29 }];
+const PLOT_STEPS = [{ cost: 120, lvl: 3 }, { cost: 350, lvl: 8 }, { cost: 1350, lvl: 13 }, { cost: 3000, lvl: 19 }, { cost: 6000, lvl: 25 }, { cost: 10500, lvl: 29 }];
 const MAX_PLOTS = 6 + PLOT_STEPS.length;
 const LAB_TIME = 90;
 

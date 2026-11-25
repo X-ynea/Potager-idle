@@ -61,6 +61,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.0 · Progression rééquilibrée
+- Il faut 25 % d’XP en plus pour monter de niveau. Chaque joueur garde son niveau, et sa barre d’XP reste remplie à la même proportion.
+- Commandes des voisins : un peu moins d’XP, et 20 % de pièces en moins (objectifs du jour aussi).
+- Les améliorations et les bacs débloqués à partir du niveau 12 coûtent 50 % de plus.
+
 ### 2.15.0 · Comptes
 - Un compte Discord est maintenant nécessaire pour jouer : la partie est sauvegardée en ligne et suit le joueur sur tous ses appareils. Une partie déjà commencée est reliée au compte à la première connexion.
 - Une fenêtre « Du nouveau au potager ! » explique le changement, une seule fois.
