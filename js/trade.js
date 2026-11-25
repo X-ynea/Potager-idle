@@ -220,7 +220,7 @@ function trClose() {
 }
 
 const TRADE_ACTS = {
-  trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; FR.hlTrade = false; TR.fromMail = false; trStart(f); friendsOver(); },
+  trOpen(id) { const f = FR.list.find(x => x.id === +id); if (!f) return; FR.hlTrade = false; tutoFlag("trade_opened"); TR.fromMail = false; trStart(f); friendsOver(); },
   // Nouvel échange depuis la boîte aux lettres : on choisit l'ami dans l'onglet « Amis » (bouton ⇄).
   trNew() {
     closeModal(); FR.tab = "friends"; FR.filter = ""; A.tab("friends"); FR.hlTrade = true; FR.hlPulse = true; render(true); loadFriends(true);
@@ -262,6 +262,7 @@ const TRADE_ACTS = {
     TR.sending = false; render(true);
   },
   openMail() {
+    tutoFlag("mail_opened");
     TR.mailTab = trIn().length ? "in" : mailNews().some(n => !n.read) || !trOut().length ? "news" : "out";
     if (TR.mailTab === "news") markNewsRead(); modalView = viewMail; $("#modal").innerHTML = viewMail(); openModal(); loadTrades();
   },

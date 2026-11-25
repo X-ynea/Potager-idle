@@ -64,15 +64,14 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
 - ✅ v2.20.2 : toucher un ami ouvre la conversation ; recherche dans la liste d'amis ; code ami compact ; « Nouvel échange » ouvre l'onglet Amis avec les boutons ⇄ en couleur ; la conversation reste en bas après une action ; choix de la saison dans les Paramètres de la version de test.
 - Décos à remplacer (images à venir) : Arrosoir → bain d'oiseaux ou tonneau de pluie ; Boîte aux lettres → panneau du village ou moulin à vent. Même succès, déco échangée automatiquement chez ceux qui l'ont déjà.
 
-## Avant la sortie : conseils de Mamie Lapine pour la v3
+## Conseils de Mamie Lapine pour la v3
 
-À préparer une fois les trois étapes terminées. Ils s'ajoutent aux conseils existants (`js/tuto.js`), sous forme de conseils « selon la situation » : ils arrivent quand c'est utile, pour les nouveaux joueurs comme pour les anciens, une seule fois chacun.
+✅ Fait (v2.21, `js/tuto.js`). Conseils « selon la situation », une seule fois chacun, pour les nouveaux comme pour les anciens joueurs, à partir du niveau 3 et une fois les premiers pas faits :
+1. **Onglet Amis** (jardin et autres onglets, la lueur montre l'onglet) : ce qu'on peut faire avec ses amis. Terminé en ouvrant l'onglet.
+2. **Code ami** (onglet Amis, tant qu'on n'a pas d'ami) : partager son code ou entrer celui d'un ami.
+3. **Visite** (premier ami) : la petite pousse, et l'arrosage une fois par jour (+20 % pendant 2 h, un peu d'XP). Terminé à la première visite.
+4. **Échange** (après la première visite) : le bouton ⇄, objets contre objets ou contre des pièces, valeur à peu près égale.
+5. **Arrosage reçu** (jardin, quand un ami vient d'arroser) : la ligne sous « L'eau tient… ».
+6. **Courrier** (jardin, quand la boîte aux lettres a une pastille) : ce qu'on y trouve. Terminé en ouvrant la boîte.
 
-Pistes à affiner ensemble :
-1. **Onglet Amis** (à partir d'un certain niveau, ou après les premiers pas) : Mamie montre l'onglet en bas et le code ami à partager.
-2. **Premier ami ajouté** : « Touche ton ami pour visiter son jardin ! »
-3. **Première visite** : l'arrosoir, une fois par jour, +20 % pendant 2 h pour lui, un peu d'XP pour toi.
-4. **Premier arrosage reçu** : expliquer la ligne sous « L'eau tient » (photo de l'ami, temps qui reste).
-5. **Échanges et boîte aux lettres** : proposer un échange depuis la visite ou la conversation, l'équivalence de valeur, la boîte aux lettres pour accepter ou annuler.
-
-Questions à trancher : à quel niveau Mamie présente les amis ? Un conseil séparé pour les anciens joueurs, ou seulement la fenêtre « Du nouveau au potager ! » de la v3 ?
+Ces conseils n'attendent pas leur onglet : ils ne bloquent pas les autres conseils. Ils n'apparaissent que là où les amis sont ouverts (`FRIENDS_ON`) et une fois connecté.

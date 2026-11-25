@@ -65,7 +65,35 @@ const TUTO = [
     when: () => typeof decoUnlocked === "function" && DECO_ORDER.some(decoUnlocked),
     text: "Quelle jolie récompense ! Touche « Décorer », juste au-dessus du jardin, pour installer ta décoration.",
     done: () => S.decoSlots.some(Boolean) || !!UI.editDeco },
+  // v3 : jouer avec ses amis (à partir du niveau 3, une fois les premiers pas faits ; aussi pour les anciens joueurs)
+  { id: "friends", free: true, tab: ["garden", "market", "kitchen", "lab", "village"], hl: '.tab[data-arg="friends"]',
+    when: () => tutoFriends() && S.level >= 3,
+    text: "Tu as vu le nouvel onglet « Amis », en bas ? Avec tes amis, vous pourrez visiter vos jardins, vous donner un coup d’arrosoir et échanger vos récoltes.",
+    done: () => tutoF("tab_friends") },
+  { id: "friends2", free: true, tab: "friends", hl: ".fr-code",
+    when: () => tutoFriends() && FR.loaded && !tutoFriendCount(),
+    text: "Voici ton code ami. Envoie-le à quelqu’un pour qu’il t’ajoute, ou entre le sien dans l’onglet « Ajouter ».",
+    done: () => tutoFriendCount() > 0, ok: "Compris" },
+  { id: "visit", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
+    when: () => tutoFriends() && tutoFriendCount() > 0,
+    text: "Touche la petite pousse pour visiter le jardin de ton ami. Une fois par jour, tu peux l’arroser : ses plantes poussent 20 % plus vite pendant 2 h, et toi tu gagnes un peu d’XP.",
+    done: () => tutoF("visited") },
+  { id: "trade", free: true, tab: "friends", hl: '.fr-act[data-act="trOpen"]',
+    when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
+    text: "Une plante qui n’est pas de saison chez toi ? Touche ⇄ pour proposer un échange : des récoltes ou des plats, contre d’autres ou contre des pièces, pour une valeur à peu près égale.",
+    done: () => tutoF("trade_opened"), ok: "Bon à savoir" },
+  { id: "watered", free: true, tab: "garden", hl: ".fw-line",
+    when: () => tutoFriends() && fwActive(now()).some(w => !w.mine),
+    text: "Un ami est passé arroser ton jardin ! Tant que le compteur tourne, sous « L’eau tient… », tes plantes poussent 20 % plus vite.",
+    ok: "Merci !" },
+  { id: "mail", free: true, tab: "garden", hl: ".mailbox",
+    when: () => tutoFriends() && mailCount() > 0,
+    text: "Tu as du courrier ! Touche la boîte aux lettres du jardin : tu y trouveras les échanges proposés par tes amis et les dernières nouvelles.",
+    done: () => tutoF("mail_opened") },
 ];
+// Conseils des amis : seulement là où les amis sont ouverts, une fois connecté.
+const tutoFriends = () => typeof FRIENDS_ON !== "undefined" && FRIENDS_ON && CLOUD.signedIn && !CLOUD.blocked;
+const tutoFriendCount = () => FR.list.filter(f => f.direction === "friend").length;
 const TUTO_BY = Object.fromEntries(TUTO.map(t => [t.id, t]));
 
 function tutoState() {
@@ -87,6 +115,7 @@ function tutoCurrent() {
     if (t.done && t.done()) { T.seen[t.id] = true; continue; }
     if (t.basic) return t;                       // premiers pas : dans l'ordre
     if (TUTO.some(b => b.basic && !T.seen[b.id])) return null;
+    if (t.free && ![].concat(t.tab).includes(tab)) continue; // conseils des amis : n'attendent pas leur onglet
     if (!t.when || t.when()) return t;
   }
   return null;
