@@ -1472,3 +1472,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .mailbox .mb-art { object-fit: contain; }
 .mailbox .fr-badge { top: 6%; right: 4%; }
 .fw-ico { object-fit: contain; }
+/* Boîte aux lettres décollée du bord de l'encadré ; plus d'air autour de la ligne « Décorer » */
+.mailbox { bottom: 12px; }
+.panel:has(> .mailbox) > .garden { margin-bottom: calc(11% + 10px); }
+.garden-bar { margin: 6px 0; }
