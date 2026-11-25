@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.5
+- Plus d’espace au-dessus des titres de section (profil, réglages, marché, jardin) pour mieux les séparer.
+
 ### 2.16.4
 - Barre du haut : l’XP s’affiche en court (1k / 1,5k). Le détail exact est dans le profil, avec une barre de progression sous la photo et la bannière ; toucher le niveau en haut ouvre le profil.
 - Pièces : « 38,9k » au lieu de « 38,9 k ».
