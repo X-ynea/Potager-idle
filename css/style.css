@@ -1228,3 +1228,10 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .news-card h1 { font-size: 1.5rem; }
 .news-list { display: grid; gap: 10px; text-align: left; font-size: .92rem; line-height: 1.4; }
 .news-list b { color: var(--leaf-deep); }
+/* Profil : progression détaillée */
+.pf-xp { display: grid; gap: 5px; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.pf-xp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pf-xp-top b { font-family: var(--f-display); font-weight: 600; }
+.pf-xp-top span { font-size: .85rem; font-weight: 700; color: var(--muted); }
+.pf-xp small { font-size: .75rem; }
+.top .lvl { cursor: pointer; }
