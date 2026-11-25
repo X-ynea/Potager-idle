@@ -74,7 +74,7 @@ function visitWaterHTML(f) {
     : w.received_today >= 2 ? "Des amis sont déjà passés par là !"
     : w.given_today >= 2 ? "Tu as déjà bien arrosé chez tes amis aujourd’hui, reviens demain !" : "";
   return `<div class="visit-acts"><div class="visit-btns"><button class="btn fw-btn${VISIT.watering ? " pouring" : ""}" data-act="visitWater" ${msg || VISIT.watering ? "disabled" : ""}>${FW_ICON}${w.mine_today ? "Arrosé" : "Arroser"}</button>
-    <button class="btn tr-btn" data-act="trOpen" data-arg="${f.id}">${TRADE_ICON}Échanger</button></div>
+    <button class="btn tr-btn" data-act="trOpen" data-arg="${f.id}">${TRADE_ICON}Échanger</button>${likeBtnHTML(f)}</div>
     <span class="small muted">${msg || `Arroser : ses bacs sont arrosés et ses plantes poussent +${Math.round(FW_BONUS * 100)} % pendant 2 h.`}</span></div>`;
 }
 // Effet d'arrosage : une pluie de gouttes sur chaque bac du jardin de l'ami, puis des éclaboussures.
@@ -106,7 +106,7 @@ const WATER_ACTS = {
       const meW = { id: "moi", at: t, mine: true, name: profileName(), avatar: profile().avatar?.startsWith("v:") ? profile().avatar : CLOUD.user?.avatar || null };
       asFriend(() => { S.plots.forEach(p => growPlot(p, t)); S.friendWater.push(meW); S.plots.forEach(p => { p.waterUntil = Math.max(p.waterUntil, t + waterMs()); }); });
       const xp = 5 + S.level * 2; addXp(xp);
-      SFX.play("water"); buzz?.([15, 40, 15]);
+      SFX.play("water"); buzz?.([15, 40, 15]); S.stats.friendWaters = (S.stats.friendWaters || 0) + 1;
       VISIT.at = Date.now(); // le serveur a déjà la bonne version : pas besoin de recharger tout de suite
       VISIT.watering = false; commit(); fwSplash(xp); return;
     } catch (e) {

@@ -76,3 +76,26 @@ Les jours changent à minuit, heure de Paris, et sont comptés par le serveur.
 6. **Courrier** (jardin, quand la boîte aux lettres a une pastille) : ce qu'on y trouve. Terminé en ouvrant la boîte.
 
 Ces conseils n'attendent pas leur onglet : ils ne bloquent pas les autres conseils. Ils n'apparaissent que là où les amis sont ouverts (`FRIENDS_ON`) et une fois connecté.
+
+## Étape 4 : plus de choses à faire entre amis
+
+### « J'aime ton jardin » ✅ (v2.24, `docs/jaime.sql`)
+- Bouton ❤️ dans la visite, une fois par semaine par ami (semaine du lundi au dimanche, heure de Paris). Aucun bonus.
+- Celui qui le reçoit voit quelques cœurs monter sur l'écran (environ 4 s) avec « Léa aime ton jardin », et une ligne dans les Nouvelles (gardée 7 jours une fois lue).
+
+### Succès « Entre amis » ✅ (v2.24)
+- **Coup d'arrosoir** : arroser 5 / 20 / 50 fois le jardin d'un ami. Titre au dernier palier : « Jardinier solidaire ».
+- **Troc** : conclure 3 / 10 / 30 échanges. Titre au dernier palier : « As du troc ».
+- **Esprit d'équipe** (à venir avec les objectifs) : réussir 1 / 4 / 12 objectifs de la semaine.
+- Pas de succès sur le nombre d'amis (il pousserait à accepter des inconnus). Pas de coup de main contre les nuisibles (il gâcherait le succès de l'escargot gardé une heure).
+
+### Objectifs de la semaine (à faire)
+Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent selon la saison (récolter des plantes de saison, livrer des commandes, cuisiner, attraper des visiteurs…). La part d'un même joueur est plafonnée.
+- **Objectif entre amis** : toi et tes amis (chacun voit le total de son propre cercle). Taille selon le nombre d'amis.
+  - 1re réussite dans une saison : **déco exclusive de la saison + XP** (pas de graines).
+  - Réussites suivantes : **graines + un peu d'XP**.
+- **Objectif de tous les joueurs** : même compteur pour tout le monde, récompenses meilleures, **3 paliers** (par ex. 25 %, 60 %, 100 %).
+  - 1re réussite dans une saison : **déco exclusive de la saison, différente de celle des amis, + XP** (pas de graines).
+  - Ensuite : **graines d'hybrides + XP**. Hybride pas encore découvert : graines mises de côté (« graines mystère »), données le jour de la découverte.
+- **Affichage** : sur l'écran d'accueil, section « Objectifs de la semaine » séparée des objectifs du jour, entre le jardin et l'inventaire. Quand rien n'est fini, elle est sous les objectifs du jour ; quand les objectifs du jour sont finis (ils descendent en bas), elle reste à sa place. Un objectif fini est grisé et passe en deuxième. Jauges de progression comme les objectifs du jour. Toucher un objectif montre ses récompenses. Rien dans l'onglet Amis, pas de rappel dans le jardin.
+- **Images à faire** : 8 décos (4 saisons × amis, 4 saisons × tous les joueurs).

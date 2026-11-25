@@ -1476,3 +1476,19 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .garden:has(> .mailbox) { --mtop: 4cqw; padding-top: calc(var(--g) + 4%); padding-bottom: calc(var(--g) + 4%); margin-top: 18px; overflow: clip; overflow-clip-margin: 40px; }
 .garden:has(> .mailbox) .deco-row .deco-slot.s1 { top: calc(var(--mtop) + var(--g) + (100cqw - 2 * var(--g)) * .93 / var(--cols) * 1.008 - 8cqw); }
 .garden > .mailbox { top: -38px; right: 2%; bottom: auto; width: 20%; height: auto; aspect-ratio: 1; max-width: none; } /* dépasse un peu au-dessus du jardin, sans toucher le texte */
+/* Visite : trois boutons (Arroser, Échanger, J'aime) */
+.visit-btns { grid-template-columns: 1fr 1fr auto; }
+.visit-btns .btn { padding-inline: 10px; }
+.btn.like-btn { display: inline-flex; align-items: center; gap: 5px; background: #fde8ee; color: #c2365f; border: 1.5px solid #f2a3b9; box-shadow: none; }
+.btn.like-btn svg { width: 20px; height: 20px; }
+.btn.like-btn.on { opacity: .7; }
+.like-pop { position: fixed; width: 18px; height: 18px; margin: -9px 0 0 -9px; color: #e0628f; animation: like-pop .9s ease-out forwards; }
+.like-pop svg { width: 100%; height: 100%; }
+@keyframes like-pop { 0% { transform: rotate(var(--a)) translateY(0) scale(.4); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-46px) scale(1); opacity: 0; } }
+/* Cœurs reçus : quelques cœurs montent sur l'écran, puis disparaissent */
+.heart-rain { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.heart-rain i { position: absolute; bottom: -40px; width: 28px; height: 28px; transform: scale(var(--s)); opacity: 0; animation: heart-up 3s ease-out forwards; filter: drop-shadow(0 2px 3px rgba(150,30,60,.25)); }
+.heart-rain i svg { width: 100%; height: 100%; }
+@keyframes heart-up { 0% { opacity: 0; transform: translate(0, 0) scale(var(--s)); } 15% { opacity: 1; } 80% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--dx), -85vh) scale(var(--s)); } }
+.heart-label { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 8px 16px; border-radius: 99px; background: #fff; color: #c2365f; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 18px rgba(150,30,60,.25); animation: fw-pop 3.6s ease-out forwards; }
+.heart-label b { color: #9c1f4a; }

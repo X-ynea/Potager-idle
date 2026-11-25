@@ -76,6 +76,16 @@ const ACHIEVEMENTS = [
   { id: "overwater", cat: "hidden", hidden: true, name: "Noyade", desc: "Arroser le même bac 10 fois d’affilée", value: () => st("overWater"), tiers: [{ n: 1, c: 100, x: 30 }] },
   { id: "refuser", cat: "hidden", hidden: true, name: "Difficile en affaires", desc: "Refuser 10 commandes de voisins", value: () => st("refused"), tiers: [{ n: 10, c: 150, x: 40 }] },
 ];
+// v3 : succès entre amis (seulement là où les amis sont ouverts).
+if (FRIENDS_ON) {
+  ACH_CATS.splice(ACH_CATS.length - 1, 0, ["friends", "Entre amis"]);
+  ACHIEVEMENTS.push(
+    { id: "friend_water", cat: "friends", name: "Coup d’arrosoir", desc: n => `Arroser ${n} fois le jardin d’un ami`, value: () => st("friendWaters"),
+      tiers: [{ n: 5, c: 100, x: 30 }, { n: 20, c: 400, x: 100 }, { n: 50, c: 1200, x: 250, title: "Jardinier solidaire" }] },
+    { id: "trader", cat: "friends", name: "Troc", desc: n => `Conclure ${n} échange${n > 1 ? "s" : ""} avec tes amis`, value: () => st("trades"),
+      tiers: [{ n: 3, c: 100, x: 30 }, { n: 10, c: 500, x: 120 }, { n: 30, c: 1500, x: 300, title: "As du troc" }] },
+  );
+}
 // XP des succès réduite d’un quart (2.12), arrondie à 5.
 ACHIEVEMENTS.forEach(ac => ac.tiers.forEach(t => { if (t.x) t.x = Math.max(5, Math.round(t.x * .75 / 5) * 5); }));
 const DECOS = {

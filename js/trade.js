@@ -52,7 +52,7 @@ async function loadTrades() {
       if (!st) continue;
       r.a_claimed = true;
       // Pas de message : la boîte aux lettres signale la nouvelle (pastille).
-      if (st === "accepted") { moveItems(r.want, r.want_coins, 1); SFX.play("success"); }
+      if (st === "accepted") { moveItems(r.want, r.want_coins, 1); S.stats.trades = (S.stats.trades || 0) + 1; SFX.play("success"); }
       else moveItems(r.give, r.give_coins, 1);
       save();
     }
@@ -69,11 +69,12 @@ const trIn = () => TR.list.filter(r => !r.mine && r.status === "pending");
 const trOut = () => TR.list.filter(r => r.mine && r.status === "pending");
 // Nouvelles : gardées dans la partie. Une nouvelle non lue reste ; une fois lue, elle disparaît
 // 24 h après l'arrosage, ou 7 jours après l'échange.
-const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3 };
+const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3, l: 7 * 24 * 3600e3 };
 function mailNews() {
   const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k));
   const add = (k, at, html, kind, read) => { if (!keys.has(k) && html) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
   for (const w of S.friendWater || []) if (!w.mine) add("w" + w.id, w.at, `💧 <b>${esc(w.name)}</b> a arrosé ton jardin.`, "w");
+  for (const l of S.likes || []) add("l" + l.id, l.at, `❤️ <b>${esc(l.name)}</b> aime ton jardin.`, "l");
   for (const r of TR.list) {
     if (r.status === "pending" || !r.decided_at) continue;
     const at = Date.parse(r.decided_at), who = `<b>${esc(r.name)}</b>`, k = `t${r.id}${r.status}`;
@@ -275,7 +276,7 @@ const TRADE_ACTS = {
     try {
       await CLOUD.rpc("respond_trade", { tid: r.id, accept });
       r.status = accept ? "accepted" : "refused"; r.decided_at = new Date().toISOString();
-      if (accept) { moveItems(r.want, r.want_coins, -1); moveItems(r.give, r.give_coins, 1); save(); SFX.play("success"); toast(`✅ Échange conclu avec <b>${esc(r.name)}</b> !`); }
+      if (accept) { S.stats.trades = (S.stats.trades || 0) + 1; moveItems(r.want, r.want_coins, -1); moveItems(r.give, r.give_coins, 1); save(); SFX.play("success"); toast(`✅ Échange conclu avec <b>${esc(r.name)}</b> !`); }
     } catch (e) { toast(trErr(String(e.message || e))); }
     TR.sending = false; loadTrades();
   },
