@@ -104,6 +104,8 @@ const DECO_ORDER = Object.keys(DECOS);
 const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
 const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25 };
+// Décos des objectifs de la semaine
+if (FRIENDS_ON) Object.assign(DECO_SCALE, { f_printemps: 1.1, f_ete: .9, f_automne: .75, f_hiver: .9, g_printemps: 1.05, g_ete: 1.2, g_automne: 1.15, g_hiver: 1.1 });
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
 const decoUnlocked = d => { if ((S.goalDecos || []).includes(d)) return true; const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 // Décos des objectifs de la semaine : d'où elles viennent (affiché tant qu'elles ne sont pas gagnées).

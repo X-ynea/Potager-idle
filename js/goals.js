@@ -41,7 +41,7 @@ function weekly() {
   return S.weekly;
 }
 const goalsOn = () => FRIENDS_ON && CLOUD.signedIn && !CLOUD.blocked;
-const goalTotal = which => Math.max(GOALS.data ? (which === "f" ? GOALS.data.ftotal : GOALS.data.gtotal) : 0, Math.min(weekly()[which], goalCap(which)));
+const goalTotal = which => Math.max(+(which === "f" ? GOALS.data?.ftotal : GOALS.data?.gtotal) || 0, Math.min(+weekly()[which] || 0, goalCap(which)));
 
 // Appelé à chaque progrès des objectifs du jour (récolte, commande, plat, visiteur).
 function weeklyProgress(type, amount, k) {
@@ -58,7 +58,8 @@ async function loadGoals() {
   const W = weekly();
   try {
     if (GOALS.dirty) { await CLOUD.rpc("report_progress", { p_week: W.week, p_f: W.f, p_g: W.g }); GOALS.dirty = false; }
-    GOALS.data = await CLOUD.rpc("week_goals", { p_week: W.week, cap_f: goalCap("f"), cap_g: goalCap("g") });
+    const d = await CLOUD.rpc("week_goals", { p_week: W.week, cap_f: goalCap("f"), cap_g: goalCap("g") });
+    GOALS.data = d && typeof d === "object" && !Array.isArray(d) ? d : null;
     GOALS.error = "";
   } catch (e) { GOALS.error = /function|does not exist|404/.test(String(e.message)) ? "Les objectifs de la semaine ne sont pas encore prêts sur le serveur (script docs/objectifs.sql)." : "Objectifs indisponibles pour le moment."; }
   GOALS.loading = false;

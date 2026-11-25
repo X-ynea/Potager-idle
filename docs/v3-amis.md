@@ -98,7 +98,7 @@ Deux objectifs par semaine, collaboratifs (jamais compétitifs), qui changent se
   - 1re réussite dans une saison : **déco exclusive de la saison, différente de celle des amis, + XP** (pas de graines).
   - Ensuite : **graines d'hybrides + XP**. Hybride pas encore découvert : graines mises de côté (« graines mystère »), données le jour de la découverte.
 - **Affichage** : sur l'écran d'accueil, section « Objectifs de la semaine » séparée des objectifs du jour, entre le jardin et l'inventaire. Quand rien n'est fini, elle est sous les objectifs du jour ; quand les objectifs du jour sont finis (ils descendent en bas), elle reste à sa place. Un objectif fini est grisé et passe en deuxième. Jauges de progression comme les objectifs du jour. Toucher un objectif montre ses récompenses. Rien dans l'onglet Amis, pas de rappel dans le jardin.
-- **Images à faire** : 8 décos (images provisoires en attendant), noms à confirmer :
+- ✅ **Images des 8 décos** ajoutées (v2.27) :
   - entre amis : Arche fleurie (printemps), Table de pique-nique (été), Hérisson et feuilles (automne), Bonhomme de neige (hiver) — `deco-f_<saison>.webp` ;
   - tous les joueurs : Fontaine fleurie (printemps), Moulin à vent (été), Montgolfière (automne), Sapin illuminé (hiver) — `deco-g_<saison>.webp`.
 - Réglages (js/goals.js) : types en rotation chaque semaine (récoltes de saison, commandes, plats, visiteurs ; l'objectif de tous a un type décalé de 2 semaines) ; base par joueur 40 / 12 / 15 / 20 ; entre amis : cible = base × taille du cercle (8 au plus), part d'un joueur ≤ 1,5 × base ; tous : cible = base × joueurs actifs de la semaine passée (5 au moins) × 0,6, part d'un joueur ≤ 2 × base ; paliers 25 / 60 / 100 %.
