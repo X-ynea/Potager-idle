@@ -61,6 +61,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 2.16.2
+- Barre du haut : au-delà de 100 000 pièces, la somme s’affiche en court (123 k, 4,56 M…). Le montant exact apparaît au survol.
+
 ### 2.16.1
 - Barre du haut : l’XP n’est plus coupée avec beaucoup de pièces. Si la place manque, « XP » puis « Niveau » se raccourcissent (« Niv. »).
 

@@ -1,11 +1,14 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "2.16.1" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "2.16.2" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
 const fmt = n => Math.floor(n).toLocaleString("fr-FR");
+// Version courte pour la barre du haut : 38 999, puis 123 k, 4,5 M… (arrondi vers le bas : jamais plus que ce qu'on a).
+const fmtShort = n => { n = Math.floor(n); const cut = (v, d) => (Math.floor(v * 10 ** d) / 10 ** d).toLocaleString("fr-FR");
+  return n < 1e5 ? fmt(n) : n < 1e6 ? cut(n / 1e3, 0) + " k" : n < 1e7 ? cut(n / 1e6, 2) + " M" : n < 1e9 ? cut(n / 1e6, n < 1e8 ? 1 : 0) + " M" : cut(n / 1e9, 1) + " Md"; };
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const coin = '<span class="coin" aria-hidden="true"></span>';
@@ -1252,7 +1255,7 @@ function render(force) {
   live(t);
 }
 function live(t) {
-  $("#coins").textContent = fmt(S.coins);
+  $("#coins").textContent = fmtShort(S.coins); $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
   updateBrand();
   $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>` + (S.title ? ` <span class="title-tag">${S.title}</span>` : "");
   $("#xpt").innerHTML = `${fmt(S.xp)} / ${fmt(xpNeed(S.level))}<span class="xp-unit"> XP</span>`;
