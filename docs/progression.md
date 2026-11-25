@@ -1,43 +1,43 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 2.13.3 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 2.16.0 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
-XP nécessaire pour passer au niveau suivant : `Math.round(6 * l * l + 30 * l)`. Un grand palier tous les 3 niveaux.
+XP nécessaire pour passer au niveau suivant : `Math.round(7.5 * l * l + 37.5 * l)`. Un grand palier tous les 3 niveaux.
 
 | Niveau | XP pour le suivant | XP totale pour l'atteindre | Grand palier |
 | --- | --- | --- | --- |
-| 1 | 36 | 0 |  |
-| 2 | 84 | 36 |  |
-| 3 | 144 | 120 | ★ |
-| 4 | 216 | 264 |  |
-| 5 | 300 | 480 |  |
-| 6 | 396 | 780 | ★ |
-| 7 | 504 | 1 176 |  |
-| 8 | 624 | 1 680 |  |
-| 9 | 756 | 2 304 | ★ |
-| 10 | 900 | 3 060 |  |
-| 11 | 1 056 | 3 960 |  |
-| 12 | 1 224 | 5 016 | ★ |
-| 13 | 1 404 | 6 240 |  |
-| 14 | 1 596 | 7 644 |  |
-| 15 | 1 800 | 9 240 | ★ |
-| 16 | 2 016 | 11 040 |  |
-| 17 | 2 244 | 13 056 |  |
-| 18 | 2 484 | 15 300 | ★ |
-| 19 | 2 736 | 17 784 |  |
-| 20 | 3 000 | 20 520 |  |
-| 21 | 3 276 | 23 520 | ★ |
-| 22 | 3 564 | 26 796 |  |
-| 23 | 3 864 | 30 360 |  |
-| 24 | 4 176 | 34 224 | ★ |
-| 25 | 4 500 | 38 400 |  |
-| 26 | 4 836 | 42 900 |  |
-| 27 | 5 184 | 47 736 | ★ |
-| 28 | 5 544 | 52 920 |  |
-| 29 | 5 916 | 58 464 |  |
-| 30 | 6 300 | 64 380 | ★ |
+| 1 | 45 | 0 |  |
+| 2 | 105 | 45 |  |
+| 3 | 180 | 150 | ★ |
+| 4 | 270 | 330 |  |
+| 5 | 375 | 600 |  |
+| 6 | 495 | 975 | ★ |
+| 7 | 630 | 1 470 |  |
+| 8 | 780 | 2 100 |  |
+| 9 | 945 | 2 880 | ★ |
+| 10 | 1 125 | 3 825 |  |
+| 11 | 1 320 | 4 950 |  |
+| 12 | 1 530 | 6 270 | ★ |
+| 13 | 1 755 | 7 800 |  |
+| 14 | 1 995 | 9 555 |  |
+| 15 | 2 250 | 11 550 | ★ |
+| 16 | 2 520 | 13 800 |  |
+| 17 | 2 805 | 16 320 |  |
+| 18 | 3 105 | 19 125 | ★ |
+| 19 | 3 420 | 22 230 |  |
+| 20 | 3 750 | 25 650 |  |
+| 21 | 4 095 | 29 400 | ★ |
+| 22 | 4 455 | 33 495 |  |
+| 23 | 4 830 | 37 950 |  |
+| 24 | 5 220 | 42 780 | ★ |
+| 25 | 5 625 | 48 000 |  |
+| 26 | 6 045 | 53 625 |  |
+| 27 | 6 480 | 59 670 | ★ |
+| 28 | 6 930 | 66 150 |  |
+| 29 | 7 395 | 73 080 |  |
+| 30 | 7 875 | 80 475 | ★ |
 
 ## Déblocages par niveau
 
@@ -56,24 +56,24 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 9 | Basilic | Soupe de betterave | Compost maison 1/3 (500 p) |
 | 10 | Poireau (hiver) | Salade pourpre | — |
 | 11 | Tomate | Fondue de poireaux | Banc des voisins 1/2 (1 200 p) |
-| 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (600 p) |
-| 13 | Myrtille | — | Bac n° 9 (900 p) |
+| 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (900 p) |
+| 13 | Myrtille | — | Bac n° 9 (1 350 p) |
 | 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes | — |
 | 15 | Lavande | Tarte aux asperges | — |
 | 16 | Melon (été) | Pizza du potager | — |
-| 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (1 800 p) |
-| 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (2 000 p) |
-| 19 | Potiron | Salade de melon | Bac n° 10 (2 000 p) |
-| 20 | Champignon des bois (automne) | Velouté de potiron | Banc des voisins 2/2 (4 000 p) |
-| 21 | — | Pain aux graines | Fourneau 2/2 (5 000 p) |
+| 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (2 700 p) |
+| 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (3 000 p) |
+| 19 | Potiron | Salade de melon | Bac n° 10 (3 000 p) |
+| 20 | Champignon des bois (automne) | Velouté de potiron | Banc des voisins 2/2 (6 000 p) |
+| 21 | — | Pain aux graines | Fourneau 2/2 (7 500 p) |
 | 22 | Chou d’hiver (hiver) | — | — |
 | 23 | — | Purée améthyste | — |
-| 24 | — | Soupe lanterne | Compost maison 3/3 (5 000 p) |
-| 25 | — | Tourte forestière | Arroseur automatique (8 000 p), Bac n° 11 (4 000 p) |
+| 24 | — | Soupe lanterne | Compost maison 3/3 (7 500 p) |
+| 25 | — | Tourte forestière | Arroseur automatique (12 000 p), Bac n° 11 (6 000 p) |
 | 26 | — | Potée au chou | — |
 | 27 | — | Sirop de soleil lilas | — |
 | 28 | — | Biscuits à la lavande | — |
-| 29 | — | — | Bac n° 12 (7 000 p) |
+| 29 | — | — | Bac n° 12 (10 500 p) |
 | 30 | — | Gâteau des moissons | — |
 
 ## Améliorations (Marché › Bonus)
@@ -81,25 +81,25 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | Amélioration | Palier | Niveau | Prix |
 | --- | --- | --- | --- |
 | Arrosoir | 1/3 | 6 | 150 |
-|  | 2/3 | 12 | 600 |
-|  | 3/3 | 18 | 2 000 |
+|  | 2/3 | 12 | 900 |
+|  | 3/3 | 18 | 3 000 |
 | Panier en osier | 1/1 | 2 | 100 |
 | Tuyau d’arrosage | 1/1 | 3 | 300 |
 | Gants de jardinage | 1/1 | 4 | 250 |
 | Compost maison | 1/3 | 9 | 500 |
-|  | 2/3 | 17 | 1 800 |
-|  | 3/3 | 24 | 5 000 |
+|  | 2/3 | 17 | 2 700 |
+|  | 3/3 | 24 | 7 500 |
 | Fourneau | 1/2 | 7 | 800 |
-|  | 2/2 | 21 | 5 000 |
+|  | 2/2 | 21 | 7 500 |
 | Banc des voisins | 1/2 | 11 | 1 200 |
-|  | 2/2 | 20 | 4 000 |
-| Arroseur automatique | 1/1 | 25 | 8 000 |
+|  | 2/2 | 20 | 6 000 |
+| Arroseur automatique | 1/1 | 25 | 12 000 |
 | Nouvelle parcelle | bac 7/12 | 3 | 120 |
 |  | bac 8/12 | 8 | 350 |
-|  | bac 9/12 | 13 | 900 |
-|  | bac 10/12 | 19 | 2 000 |
-|  | bac 11/12 | 25 | 4 000 |
-|  | bac 12/12 | 29 | 7 000 |
+|  | bac 9/12 | 13 | 1 350 |
+|  | bac 10/12 | 19 | 3 000 |
+|  | bac 11/12 | 25 | 6 000 |
+|  | bac 12/12 | 29 | 10 500 |
 
 ## Plantes
 
@@ -177,7 +177,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 
 ## Autres gains
 
-- **Commandes du village** : XP = (XP des objets × 1,1 + 3) × bonus de difficulté (×1,15 à ×1,9) ; ×1,3 pour une commande « Hors saison ».
+- **Commandes du village** : XP = (XP des objets × 0,8 + 3) × bonus de difficulté (×1,15 à ×1,9) ; pièces = (valeur des objets × bonus + 2) × 0,8 ; ×1,3 (XP et pièces) pour une commande « Hors saison ».
 - **Cadeau du jour** : pièces = (10 + 4 × niveau) × (1 + 0,15 par jour d'affilée, jusqu'au 6ᵉ) ; XP = (5 + 2 × niveau) × le même bonus. Le 7ᵉ jour : ×2,5, plus 1 graine de saison et 1 graine d'hybride.
 - **Serre** : croisement en 2 min ; nouvel hybride +25 XP, hybride déjà connu +6 XP.
 - **Récoltes** : 8 % de chances de récolte double, 2 % de récolte dorée (vaut 10 fois le prix).
