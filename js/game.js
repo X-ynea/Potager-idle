@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.7" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.8" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -690,7 +690,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
   const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
   if (d.tuto) tutoFlag("eclair");
-  const gold = !d.tuto && Math.random() < GOLD_CHANCE;
+  const gold = !d.tuto && Math.random() < GOLD_CHANCE, firstGold = gold && !S.goldenFound.includes(k);
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
@@ -707,7 +707,7 @@ function harvest(i, x, y) {
   if (!S.discovered.includes(k)) S.discovered.push(k);
   addXp(d.xp);
   Object.assign(p, { seed: null, grown: 0, weed: false, lastSeed: k, wasDry: false, ripeAt: 0 });
-  if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); setTimeout(() => showGoldPop(k), 450); return; }
+  if (gold) { buzz([20, 60, 20, 60, 20, 60, 50]); SFX.play("discover"); doubleBurst(i, k, true); setTimeout(() => showGoldPop(k, firstGold), 450); return; }
   buzz(n > 1 ? [15, 50, 15, 50, 30] : 12); SFX.play(n > 1 ? "double" : "harvest");
   if (n > 1) doubleBurst(i, k);
   else if (x != null) floatText(`+1 ${d.name} · +${d.xp} XP`, x, y);
@@ -736,9 +736,10 @@ function showSeason() {
 }
 /* Récolte dorée : petite fenêtre au centre de l'écran, avec halo tournant et étincelles.
    Elle se ferme d'un toucher, ou toute seule au bout de quelques secondes. */
-function showGoldPop(k) {
+// « Première trouvaille » : jamais trouvée avant (et pas seulement absente du stock, qu’on a pu vendre).
+function showGoldPop(k, first) {
   document.querySelector(".goldpop")?.remove();
-  const d = PLANTS[k], first = cnt(S.golden, "gold_" + k) <= 1;
+  const d = PLANTS[k];
   const el = document.createElement("div"); el.className = "goldpop"; el.setAttribute("role", "status");
   el.innerHTML = `<div class="gp-card">
     <div class="gp-stage"><div class="gp-rays"></div>${Array.from({ length: 8 }, (_, j) => `<i class="gp-spark" style="--a:${j * 45}deg;--d:${(j % 3) * .25}s"></i>`).join("")}<div class="gp-art">${goldArt(k)}</div></div>

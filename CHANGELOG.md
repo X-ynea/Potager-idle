@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.8
+- Récolte dorée : « première trouvaille » ne s’affiche plus quand on en avait déjà trouvé une puis vendue.
+
 ### 3.0.7
 - Décorations : le choix d’une décoration se fait dans une grille, comme le reste de l’app, au lieu d’une bande à faire défiler.
 - Jardin : le bouton « Décorer » est collé au jardin. Le texte à droite s’écarte de la boîte aux lettres.
