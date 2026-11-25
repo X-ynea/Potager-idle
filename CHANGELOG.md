@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.12
+- Plantes mûres : tailles harmonisées (le champignon des bois était bien trop grand).
+
 ### 3.0.11
 - Nouvelles images des plantes mûres, qui sortent de la terre : radis, pomme de terre, betterave, poireau, courgette, melon et champignon des bois.
 
