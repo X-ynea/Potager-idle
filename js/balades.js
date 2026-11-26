@@ -222,7 +222,8 @@ const foretMain = () => FORET_SEASON[season()] || "ail";
 const foretPts = k => k === foretMain() ? 1 : 3;
 // Les buissons, la lisière et le chemin changent avec la saison (4 variantes de buisson).
 const BUSH = () => `<img class="bush-svg" src="assets/img/balades/bush-${season()}-${1 + Math.floor(Math.random() * 4)}.webp" alt="" draggable="false">`;
-const TREES = () => `<img class="forest-bg" src="assets/img/balades/foret-${season()}.webp" alt="" draggable="false">`;
+const TREES = () => `<div class="forest-bg" style="background-image:url('assets/img/balades/foret-${season()}.webp')"></div>`;
+const FORET_DEPTH = .5; // la lisière défile deux fois moins vite que le chemin : effet de profondeur
 function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
 /* ---------------- Memory des graines ----------------
@@ -372,7 +373,9 @@ const GAME_IMPL = {
       if (e >= FORET_T) { gameEnd(); return; }
       if (g.st !== "walk") return;
       const field = g.el.querySelector(".foret-field"), W = field.clientWidth;
-      g.el.querySelector(".path").style.backgroundPositionX = (-(e / FORET_CROSS) * W * FORET_SPAN).toFixed(1) + "px"; // même vitesse que les buissons
+      const dx = -(e / FORET_CROSS) * W * FORET_SPAN;
+      g.el.querySelector(".path").style.backgroundPositionX = dx.toFixed(1) + "px"; // même vitesse que les buissons
+      g.el.querySelector(".forest-bg").style.backgroundPositionX = (dx * FORET_DEPTH).toFixed(1) + "px";
       if (e >= g.next) {
         // Un buisson sur trois environ cache quelque chose ; trois rangées.
         const lane = Math.floor(Math.random() * 3), item = Math.random() < .3 ? foretPick() : null;

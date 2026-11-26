@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.58 (version de test, préparation de la v4)
+
+- Pêche : nouveau dessin du bouchon.
+
+### 3.1.57 (version de test, préparation de la v4)
+
+- Balade en forêt : la lisière défile aussi, deux fois moins vite que le chemin, pour donner de la profondeur.
+
 ### 3.1.56 (version de test, préparation de la v4)
 
 - Balade en forêt : la lisière et le chemin vont d'un bord à l'autre de l'écran.
