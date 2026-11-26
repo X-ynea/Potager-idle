@@ -208,7 +208,7 @@ const RUCHE_T = 30000;
    Score : algues 1, cresson 2, menthe d'eau 3, + 1 par seconde restante quand le panier est plein. */
 const PECHE_T = 30000, PECHE_BASKET = 5, PECHE_WIN = 900;
 const PECHE_PTS = { algue: 1, cresson: 2, menthe: 3 };
-const BOBBER = `<svg viewBox="0 0 40 52"><path d="M20 2v10" stroke="#3a2c1f" stroke-width="2"/><circle cx="20" cy="24" r="13" fill="#fff"/><path d="M7 24a13 13 0 0 1 26 0z" fill="#e2483d"/><circle cx="16" cy="19" r="3" fill="#fff" opacity=".6"/></svg>`;
+const BOBBER = `<img src="assets/img/balades/peche-bobber.webp" alt="" draggable="false">`;
 
 /* ---------------- La balade en forêt ----------------
    30 s ou 5 trouvailles. Les buissons défilent ; ceux qui frémissent cachent une trouvaille,
@@ -239,8 +239,8 @@ function memoPool() {
    30 s. Des légumes (débloqués) tombent de plus en plus vite ; on déplace le panier du doigt.
    Légume 1 point, légume doré 3, caillou -2. Pièces : 1 + niveau / 5 par point, au plus 8 × (4 + niveau). */
 const CUEI_T = 30000;
-const STONE = `<svg viewBox="0 0 40 32"><path d="M6 22c-3-8 4-16 14-17s17 5 15 14-9 11-17 11S8 28 6 22z" fill="#9aa3a8"/><path d="M10 14c3-4 8-6 13-5" stroke="#c4cbcf" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M14 24c5 2 12 1 15-3" stroke="#7d868b" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
-const BASKET = `<svg viewBox="0 0 120 70"><path d="M30 26c0-22 60-22 60 0" stroke="#a3743a" stroke-width="6" fill="none"/><path d="M8 24h104l-12 42H20z" fill="#d9a066"/><path d="M8 24h104v8H8z" fill="#b07a45"/><path d="M26 34l4 30M44 34l2 30M60 34v30M76 34l-2 30M94 34l-4 30" stroke="#b07a45" stroke-width="3"/></svg>`;
+const STONE = () => `<img src="assets/img/balades/cuei-stone${1 + Math.floor(Math.random() * 3)}.webp" alt="" draggable="false">`; // trois cailloux différents
+const BASKET = `<img src="assets/img/balades/cuei-basket.webp" alt="" draggable="false">`;
 
 const GAME_IMPL = {
   cueillette: {
@@ -265,12 +265,12 @@ const GAME_IMPL = {
       if (e >= g.next) {
         const r = Math.random(), kind = r < .2 ? "stone" : r < .28 ? "gold" : "veg", k = pick(g.pool);
         const el = document.createElement("span"); el.className = "fall " + kind;
-        el.innerHTML = kind === "stone" ? STONE : kind === "gold" ? goldArt(k) : cropArt(k);
+        el.innerHTML = kind === "stone" ? STONE() : kind === "gold" ? goldArt(k) : cropArt(k);
         f.appendChild(el);
         g.items.push({ el, kind, x: .08 + Math.random() * .84, y: -50, vy: 170 + 170 * d + Math.random() * 40 });
         g.next = e + 720 - 330 * d + Math.random() * 120;
       }
-      const top = bk.offsetTop + bk.offsetHeight * .25; // haut du panier
+      const top = bk.offsetTop + bk.offsetHeight * .5; // ouverture du panier (sous l'anse)
       g.items = g.items.filter(it => {
         it.y += it.vy * dt;
         if (it.y >= top && it.y <= top + 30 && Math.abs(it.x * W - g.bx * W) < bw * .45) {

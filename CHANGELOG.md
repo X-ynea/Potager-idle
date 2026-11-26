@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.53 (version de test, préparation de la v4)
+
+- Images définitives du bouchon (pêche), du panier et de trois cailloux différents (cueillette).
+
 ### 3.1.52 (version de test, préparation de la v4)
 - La ruche : les fleurs ont la même taille que la fleur dorée (sans ses étincelles), et une seule abeille vole de fleur en fleur au lieu de repartir chaque fois de la ruche.
 

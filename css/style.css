@@ -1696,13 +1696,13 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .rod { position: absolute; right: 2px; bottom: -14px; width: 150px; aspect-ratio: 337 / 360; z-index: 3; pointer-events: none; transform: rotate(30deg); transform-origin: 86% 92%; filter: drop-shadow(0 4px 4px rgba(0,0,0,.25)); }
 .rod img { width: 100%; height: 100%; display: block; }
 .rod-tip { position: absolute; left: 5%; top: 4%; width: 1px; height: 1px; }
-.bobber { position: absolute; width: 40px; height: 52px; transform: translate(-50%, -50%); z-index: 2; pointer-events: none; }
-.bobber svg { width: 100%; height: 100%; animation: bob 1.6s ease-in-out infinite; }
+.bobber { position: absolute; width: 50px; height: 50px; transform: translate(-50%, -50%); z-index: 2; pointer-events: none; }
+.bobber svg, .bobber img { width: 100%; height: 100%; animation: bob 1.6s ease-in-out infinite; }
 .bobber::after { content: ""; position: absolute; left: 50%; top: 62%; width: 46px; height: 14px; margin-left: -23px; border-radius: 50%; border: 2px solid rgba(255,255,255,.75); opacity: 0; }
 @keyframes bob { 50% { transform: translateY(3px); } }
 .bobber.land::after { animation: ripple .8s ease-out; }
-.bobber.nibble svg { animation: nibble .35s ease-in-out; }
-.bobber.bite svg { animation: plunge .25s ease-in forwards; }
+.bobber.nibble img { animation: nibble .35s ease-in-out; }
+.bobber.bite img { animation: plunge .25s ease-in forwards; }
 .bobber.bite::after { animation: ripple .6s ease-out infinite; }
 @keyframes ripple { from { opacity: 1; transform: scale(.4); } to { opacity: 0; transform: scale(1.8); } }
 @keyframes nibble { 30% { transform: translateY(6px) rotate(-8deg); } 60% { transform: translateY(-1px) rotate(6deg); } }
@@ -1754,14 +1754,14 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 /* Cueillette express */
 .g-cueillette { background: linear-gradient(#cfeefc, #e8f7d8 55%, #a9d68a); }
 .cuei-field { position: relative; overflow: hidden; touch-action: none; }
-.cuei-basket { position: absolute; left: 0; bottom: 12%; width: 120px; height: 70px; z-index: 3; pointer-events: none; transition: transform .06s linear; }
-.cuei-basket svg { width: 100%; height: 100%; }
-.cuei-basket.bump svg { animation: bump .25s; }
-.cuei-basket.ouch svg { animation: gNope .35s; }
+.cuei-basket { position: absolute; left: 0; bottom: 12%; width: 110px; height: 110px; z-index: 3; pointer-events: none; transition: transform .06s linear; }
+.cuei-basket svg, .cuei-basket img { width: 100%; height: 100%; filter: drop-shadow(0 4px 4px rgba(0,0,0,.25)); }
+.cuei-basket.bump img { animation: bump .25s; }
+.cuei-basket.ouch img { animation: gNope .35s; }
 @keyframes bump { 40% { transform: scaleY(.88) translateY(4px); } }
 .fall { position: absolute; left: -28px; top: 0; width: 56px; height: 56px; pointer-events: none; z-index: 2; }
 .fall svg, .fall img, .fall .gold-art { width: 100%; height: 100%; }
-.fall.stone { width: 46px; height: 38px; left: -23px; }
+.fall.stone { width: 48px; height: 48px; left: -24px; }
 .fall.gold { filter: drop-shadow(0 0 8px #ffe27a); }
 .g-pop.bad { color: #c9563f; text-shadow: 0 2px 0 rgba(255,255,255,.6); }
 
