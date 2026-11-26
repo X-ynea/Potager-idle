@@ -220,8 +220,9 @@ const FORET_SEASON = { printemps: "ail", ete: "mure", automne: "chataigne", hive
 const FORET_ITEMS = ["ail", "mure", "chataigne", "noisette"];
 const foretMain = () => FORET_SEASON[season()] || "ail";
 const foretPts = k => k === foretMain() ? 1 : 3;
-const BUSH = `<svg viewBox="0 0 120 80" class="bush-svg"><ellipse cx="60" cy="74" rx="52" ry="6" fill="rgba(0,0,0,.12)"/><circle cx="34" cy="50" r="26" fill="#4f9a3a"/><circle cx="86" cy="50" r="26" fill="#4f9a3a"/><circle cx="60" cy="38" r="32" fill="#5fae4a"/><circle cx="48" cy="28" r="8" fill="#7cc24a" opacity=".7"/></svg>`;
-const TREES = `<svg class="forest-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#6f9f55"><path d="M30 200l40-150 40 150z"/><path d="M150 200l30-120 30 120z"/><path d="M300 200l45-170 45 170z"/></g><g fill="#5c8a45"><path d="M90 200l35-130 35 130z"/><path d="M230 200l38-140 38 140z"/><path d="M360 200l25-100 25 100z"/></g><g fill="#7a5a3a"><rect x="66" y="185" width="8" height="15"/><rect x="176" y="185" width="8" height="15"/><rect x="341" y="185" width="8" height="15"/></g></svg>`;
+// Les buissons, la lisière et le chemin changent avec la saison (4 variantes de buisson).
+const BUSH = () => `<img class="bush-svg" src="assets/img/balades/bush-${season()}-${1 + Math.floor(Math.random() * 4)}.webp" alt="" draggable="false">`;
+const TREES = () => `<img class="forest-bg" src="assets/img/balades/foret-${season()}.webp" alt="" draggable="false">`;
 function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
 /* ---------------- Memory des graines ----------------
@@ -344,7 +345,7 @@ const GAME_IMPL = {
       g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.foret.name}</b><span class="g-score"><span class="g-pts">Points</span><b class="num">0</b></span></div>
         <div class="g-time"><i></i></div>
         <div class="g-basket" aria-label="Ton panier">${Array.from({ length: FORET_BASKET }, () => `<span class="gb-slot"></span>`).join("")}</div>
-        <div class="g-field foret-field">${TREES}<div class="path"></div><span class="p-msg"></span></div>
+        <div class="g-field foret-field"><div class="path" style="background-image:url('assets/img/balades/chemin-${season()}.webp')"></div>${TREES()}<span class="p-msg"></span></div>
         <p class="g-hint">Touche les buissons qui frémissent !</p>`;
       g.el.querySelector(".foret-field").addEventListener("pointerdown", ev => {
         const b = ev.target.closest(".bush"); if (!b || g.state !== "play") return; ev.preventDefault(); GAME_IMPL.foret.tap(g, b);
@@ -376,7 +377,7 @@ const GAME_IMPL = {
         // Un buisson sur trois environ cache quelque chose ; trois rangées.
         const lane = Math.floor(Math.random() * 3), item = Math.random() < .3 ? foretPick() : null;
         const el = document.createElement("button"); el.className = "bush lane" + lane + (item ? " has" : ""); el.setAttribute("aria-label", "Buisson");
-        el.style.setProperty("--d", (Math.random() * -1.4).toFixed(2) + "s"); el.innerHTML = BUSH;
+        el.style.setProperty("--d", (Math.random() * -1.4).toFixed(2) + "s"); el.innerHTML = BUSH();
         field.appendChild(el); g.bushes.push({ el, t: e, item });
         g.next = e + rand(650, 1100);
       }

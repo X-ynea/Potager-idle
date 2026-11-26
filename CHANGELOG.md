@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.55 (version de test, préparation de la v4)
+
+- Balade en forêt : nouvelle lisière, nouveau chemin et quatre sortes de buissons, qui changent avec la saison.
+
 ### 3.1.54 (version de test, préparation de la v4)
 
 - Balade en forêt et cueillette express : le ciel change avec la saison (neige, pétales, feuilles mortes, soleil).

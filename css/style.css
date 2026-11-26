@@ -1717,16 +1717,14 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .g-foret { background: #a9d68a center top / cover; } /* le ciel de la saison */
 .g-foret .g-hint, .g-cueillette .g-hint { margin: 6px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(255,255,255,.85); width: max-content; max-width: 100%; }
 .foret-field { position: relative; overflow: hidden; border-radius: 18px; }
-.forest-bg { position: absolute; left: 0; right: 0; top: 0; width: 100%; height: 42%; }
-.foret-field .path { position: absolute; left: 0; right: 0; top: 42%; bottom: 0; background-color: #a9d68a;
-  background-image: linear-gradient(transparent 30%, #e0c08a 30%, #e0c08a 52%, transparent 52%), radial-gradient(circle at 20px 20px, #98cb78 6px, transparent 7px);
-  background-size: 120px 100%, 80px 60px; }
+.forest-bg { position: absolute; left: 50%; bottom: calc(58% - 4px); height: 34%; width: auto; max-width: none; transform: translateX(-50%); pointer-events: none; }
+.foret-field .path { position: absolute; left: 0; right: 0; top: 42%; bottom: 0; background: #8fbf4a repeat-x 0 0 / auto 100%; }
 .bush { position: absolute; left: 0; width: 150px; height: 125px; border: 0; background: none; padding: 0; -webkit-tap-highlight-color: transparent; }
 /* Les buissons poussent dans l'herbe : derrière le chemin (lane0) ou devant (lane1, lane2), jamais dessus. */
-.bush.lane0 { top: auto; bottom: 44%; z-index: 1; width: 120px; height: 100px; }
-.bush.lane1 { top: auto; bottom: 12%; z-index: 2; }
-.bush.lane2 { top: auto; bottom: 0; z-index: 3; width: 170px; height: 140px; }
-.bush-svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 80%; }
+.bush.lane0 { top: auto; bottom: 42%; z-index: 1; width: 120px; height: 110px; }
+.bush.lane1 { top: auto; bottom: 6%; z-index: 2; }
+.bush.lane2 { top: auto; bottom: -2%; z-index: 3; width: 170px; height: 155px; }
+.bush-svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.18)); }
 .bush-item { position: absolute; left: 50%; top: 0; width: 44%; aspect-ratio: 1; transform: translateX(-50%); z-index: 4; animation: reveal .8s ease-out forwards; pointer-events: none; }
 .bush-item svg, .bush-item .wild-ph { width: 100%; height: 100%; font-size: 1.6rem; }
 @keyframes reveal { 0% { transform: translate(-50%, 30%) scale(.5); opacity: 0; } 30% { transform: translate(-50%, -40%) scale(1.1); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(-50%, -90%) scale(1); opacity: 0; } }
