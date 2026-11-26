@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.12 (version de test, préparation de la v4)
+- Les jeux des Balades se débloquent au fur et à mesure : ruche au niveau 4, pêche au 5, forêt au 6, memory au 7, cueillette au 8. Avant, la carte est grisée avec « Niveau X », et la fenêtre de niveau annonce chaque nouveau jeu.
+
 ### 3.1.11 (version de test, préparation de la v4)
 - Nouveau jeu : **le memory des graines**. 8 paires de sachets à retrouver en 60 s. Chaque paire rapporte quelques pièces (4 + niveau), un peu d’XP, et un sachet de graines si tout est trouvé.
 - La noisette a une image provisoire de noisette (et plus de cacahuète).

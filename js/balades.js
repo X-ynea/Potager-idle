@@ -3,18 +3,18 @@
    Cinq petits jeux (pêche, forêt, memory, cueillette, ruche), 3 parties par jeu et par jour (jour de Paris).
    Les récompenses restent petites : des ingrédients de balade (WILD, js/data.js), un peu d'XP, parfois des pièces.
    S.games = { day, plays: { ruche: 2 }, best: { ruche: { week, score } } } */
-const BALADES_LVL = 4;
+const BALADES_LVL = 4; // ouverture de l'onglet ; chaque jeu a ensuite son niveau (GAMES[id].lvl)
 const GAME_PLAYS = 3;
 const GAMES = {
-  ruche:      { name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
+  ruche:      { lvl: 4, name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
     rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
-  peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
+  peche:      { lvl: 5, name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
     rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "La partie dure 5 prises ou 30 secondes.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
-  foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
+  foret:      { lvl: 6, name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
     rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
-  memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0",
+  memory:     { lvl: 7, name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0",
     rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 60 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
-  cueillette: { name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
+  cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
 const GORDER = Object.keys(GAMES);
 
@@ -38,14 +38,14 @@ function views_balades() {
   const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${IS_TEST ? "Parties illimitées (test)" : `${GAME_PLAYS} parties par jeu et par jour`}</span></div></section>`;
   if (S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
-    const G = GAMES[id], left = playsLeft(id), best = weekBest(id);
+    const G = GAMES[id], left = playsLeft(id), best = weekBest(id), locked = S.level < G.lvl;
     const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("") : `<span class="g-give">${coin}Pièces et XP</span>`;
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
     const btn = left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
-    return `<div class="game-card${G.soon ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>
-      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span>${G.soon ? `<span class="g-tag g-soon">Bientôt</span>` : ""}</div>
+    return `<div class="game-card${G.soon || locked ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>
+      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span>${G.soon ? `<span class="g-tag g-soon">Bientôt</span>` : locked ? `<span class="g-tag g-soon">Niveau ${G.lvl}</span>` : ""}</div>
         <div class="g-gives">${gives}</div>
-        ${G.soon ? "" : `<div class="g-foot"><span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>${best ? `<span class="small muted" title="Record de la semaine">Record : <b class="num">${best}</b></span>` : ""}<span class="g-btn">${btn}</span></div>`}</div></div>`;
+        ${G.soon || locked ? "" : `<div class="g-foot"><span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>${best ? `<span class="small muted" title="Record de la semaine">Record : <b class="num">${best}</b></span>` : ""}<span class="g-btn">${btn}</span></div>`}</div></div>`;
   }).join("");
   return head + `<div class="game-list">${cards}</div>`;
 }
@@ -53,7 +53,7 @@ function views_balades() {
 /* ---------------- Moteur commun ---------------- */
 let GAME = null; // partie en cours
 function gameOpen(id, help) {
-  if (GAME || !playsLeft(id) || GAMES[id].soon || S.level < BALADES_LVL) return;
+  if (GAME || !playsLeft(id) || GAMES[id].soon || S.level < GAMES[id].lvl) return;
   const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
