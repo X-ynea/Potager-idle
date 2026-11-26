@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.25" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.26" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -356,6 +356,9 @@ const ORDER_TYPES = [
   { id: "hc",  label: "Difficile", stars: 3, lvl: 4, w: 3, bonus: 1.6,  plan: ["h", "c"], need: "hyb" },
   { id: "hcc", label: "Difficile", stars: 3, lvl: 7, w: 2, bonus: 1.75, plan: ["h", "c", "c"], need: "hyb" },
   { id: "dh",  label: "Difficile", stars: 3, lvl: 6, w: 2, bonus: 1.9,  plan: ["d", "h"], need: "dish+hyb" },
+  // Grands jardins (8 parcelles et plus) : commandes de plusieurs plats.
+  { id: "dd",  label: "Difficile", stars: 3, lvl: 8, w: 3, bonus: 1.7,  plan: ["d", "d"], need: "dish", plots: 8 },
+  { id: "ddc", label: "Difficile", stars: 3, lvl: 12, w: 2, bonus: 1.85, plan: ["d", "d", "c"], need: "dish", plots: 10 },
 ];
 /* Effort pour obtenir un objet : prix de vente, corrigé par le temps de pousse et la rareté. */
 function itemEffort(k, q) {
@@ -377,17 +380,19 @@ function genOrder() {
   const hybs = ORDER.filter(k => PLANTS[k].hybrid && seedAvailable(k));
   // Toutes les recettes accessibles à ce niveau (apprises ou non) : ça donne envie d’acheter celles qui manquent.
   const dishes = RORDER.filter(r => RECIPES[r].lvl <= S.level && dishFeasible(r));
-  const ok = t => S.level >= t.lvl && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
+  const ok = t => S.level >= t.lvl && S.plots.length >= (t.plots || 0) && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
     && t.plan.filter(x => x === "c").length <= crops.length;
   const types = ORDER_TYPES.filter(ok);
   const type = weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
   const items = {};
-  const qtyCrop = k => Math.max(1, Math.min(5, Math.round(rand(.7, 1.3) * 900 / PLANTS[k].time))); // pousses courtes : on en demande plus
+  // Plus le jardin est grand, plus les voisins en demandent : ×1 à 6 parcelles, jusqu’à ×2 à 12.
+  const big = Math.min(2, S.plots.length / 6);
+  const qtyCrop = k => Math.max(1, Math.min(Math.round(5 * big), Math.round(rand(.7, 1.3) * 900 / PLANTS[k].time * big))); // pousses courtes : on en demande plus
   const take = (list, w = freshness) => weightedPick(list.filter(x => !items[x]), w);
   for (const slot of type.plan) {
     if (slot === "c") { const k = take(crops); if (k) items[k] = qtyCrop(k); }
-    if (slot === "h") { const k = take(hybs); if (k) items[k] = Math.random() < .7 ? 1 : 2; }
-    if (slot === "d") { const r = take(dishes); if (r) items[r] = 1; }
+    if (slot === "h") { const k = take(hybs); if (k) items[k] = Math.max(1, Math.round((Math.random() < .7 ? 1 : 2) * big)); }
+    if (slot === "d") { const r = take(dishes); if (r) items[r] = Math.random() < big - 1 ? 2 : 1; } // grand jardin : parfois deux fois le même plat
   }
   if (!Object.keys(items).length) { const k = pick(crops); items[k] = qtyCrop(k); }
   // Hors saison (1 commande sur 8) : un voisin réclame une plante exclusive déjà récoltée, ou un plat qui en contient.
@@ -866,6 +871,8 @@ function views_garden() {
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
   const decoKeys = DECO_ORDER.filter(decoUnlocked), goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), wildKeys = WORDER.filter(k => cnt(S.wild, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  // Inventaire de l’accueil : par ordre alphabétique.
+  const abc = (a, b) => byName(a, b, itemName); goldKeys.sort(abc); cropKeys.sort(abc); wildKeys.sort(abc); dishKeys.sort(abc); seedKeys.sort(abc);
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k), badge: PLANTS[k] ? seasonBadge(k) : "" })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k), badge: seasonBadge(k) })).join("")}</div>`;
@@ -1038,6 +1045,7 @@ const mystery = k => `<div class="sil">${plantArt(k, 3)}</div>`;
 function tile(art, o) {
   return `<div class="tile-wrap"><button class="tile${o.sel ? " sel" : ""}${o.locked ? " locked" : ""}" data-act="${o.act}" data-arg="${o.arg || ""}" aria-pressed="${!!o.sel}" aria-label="${o.label}">${art}${o.badge || ""}` +
     (o.count ? `<span class="cnt num">${fmt(o.count)}</span>` : "") +
+    (o.want ? `<span class="dot want${o.dot ? " beside" : ""}" title="Demandé par un voisin"></span>` : "") +
     (o.check ? `<span class="tb">${CHECK}</span>` : o.locked ? `<span class="tb">${LOCK}</span>` : o.dot ? `<span class="dot"></span>` : "") +
     `</button>${o.under != null ? `<span class="under">${o.under}</span>` : ""}</div>`;
 }
@@ -1185,7 +1193,7 @@ function views_kitchen() {
   const km = sortOf("kitchen"), rec = [...S.recipes];
   if (km !== "none") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
-  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
+  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, count: cnt(S.dishes, x), dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
   return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }
@@ -1240,7 +1248,7 @@ function sig(t) {
   switch (tab) {
     case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.wild, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.wild, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
-    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.wild, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
+    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.wild, S.dishes, S.cooking.map(c => c.r + (c.end <= t)), S.orders.map(o => o.id)]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.wild, S.dishes, S.orders.length < maxOrders()]);
     case "balades": return base + JSON.stringify([S.games, S.wild, parisDay(), weekId(), BOARD.data, BOARD.error, CLOUD.signedIn]);

@@ -41,7 +41,7 @@ async function loadVisit() {
     VISIT.at = Date.now();
   } catch (e) {
     const m = String(e.message || e);
-    VISIT.error = /pas ami/.test(m) ? "Vous n’êtes plus amis." : /function|does not exist|404/.test(m) ? "La visite n’est pas encore prête sur le serveur (script docs/visites.sql)." : "Visite impossible pour le moment.";
+    VISIT.error = offlineErr(e) ? "Pas de connexion : les visites ont besoin d’internet." : /pas ami/.test(m) ? "Vous n’êtes plus amis." : /function|does not exist|404/.test(m) ? "La visite n’est pas encore prête sur le serveur (script docs/visites.sql)." : "Visite impossible pour le moment.";
   } finally { VISIT.loading = false; }
   if (VISIT.id === f.id && !$("#modal").hidden) render(true);
 }

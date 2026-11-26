@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.26 (version de test, préparation de la v4)
+- Reprend les corrections de la version des joueurs jusqu’à la 3.0.23 (commandes selon le nombre de parcelles, pastille dorée en cuisine, valeurs dans les échanges, inventaire par ordre alphabétique).
+
 ### 3.1.25 (version de test, préparation de la v4)
 - Rangement des images en sous-dossiers (`assets/img/plantes`, `plats`, `decos`, `voisins`, `interface`, `ameliorations`, `jardin`, `atelier`, `balades`). Rien ne change à l’écran.
 
@@ -211,6 +214,27 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ### 3.1.0 (version de test, préparation de la v4)
 - Cuisine et Serre sont réunies dans un nouvel onglet « Atelier », avec un sous-onglet pour chacune. L’onglet du bas additionne leurs pastilles et montre deux petites jauges : pêche pour la cuisson, verte pour le croisement.
+### 3.0.23
+- Cuisine : chaque plat affiche le nombre déjà en stock dans l’inventaire, en bas à gauche de sa case.
+
+### 3.0.22
+- Échanges : « Tu donnes », « Contre » et leur valeur sont bien alignés.
+
+### 3.0.21
+- Échanges : dans la boîte aux lettres et les messages, chaque côté affiche aussi sa valeur totale, et chaque objet sa valeur.
+
+### 3.0.20
+- Échanges : la valeur totale de chaque côté s’affiche à côté de « Tu donnes » et « Tu demandes », et chaque objet choisi montre sa valeur (quantité comprise).
+
+### 3.0.19
+- Cuisine : une pastille dorée signale les plats demandés par les commandes en cours (à côté de la pastille bleue des plats faisables).
+
+### 3.0.18
+- Commandes des voisins : elles grandissent avec le jardin. Au-delà de 6 parcelles, les voisins demandent plus de légumes, parfois deux fois le même plat, et de nouvelles commandes « Difficile » de plusieurs plats arrivent (à partir de 8 et 10 parcelles). Les récompenses suivent.
+- Amis et visites hors-ligne : un message clair indique qu’il faut internet.
+
+### 3.0.17
+- Inventaire de l’accueil : récoltes dorées, graines, ingrédients et plats rangés par ordre alphabétique.
 
 ### 3.0.16
 - Hors-ligne : toutes les images du jeu sont téléchargées une fois en arrière-plan, pour que les plantes, plats et décos s’affichent sans réseau.
