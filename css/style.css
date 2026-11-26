@@ -1872,8 +1872,9 @@ button.sg-card { cursor: pointer; }
 .sg-chat-fab svg { width: 28px; height: 28px; }
 .sg-chat-fab .fr-badge { position: absolute; top: -2px; right: -2px; box-shadow: 0 0 0 2px #fff; }
 .sg-chat-back { position: fixed; inset: 0; z-index: 4; background: rgba(40,25,15,.35); }
-.sg-chat-panel { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; z-index: 5; width: min(100%, 760px); height: 55dvh; display: grid; grid-template-rows: auto 1fr auto auto; gap: 10px;
-  background: var(--panel); border-radius: 22px 22px 0 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(0,0,0,.18); animation: sgUp .22s ease-out; }
+.sg-chat-panel { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; z-index: 5; width: min(100%, 760px); height: 55dvh; display: grid; grid-template-rows: auto 1fr auto; gap: 10px;
+  background: var(--panel); border-radius: 22px 22px 0 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(0,0,0,.18); }
+.sg-chat-panel.anim { animation: sgUp .22s ease-out; }
 @keyframes sgUp { from { transform: translate(-50%, 30%); opacity: 0; } }
 .sg-chat-head { display: flex; align-items: center; justify-content: space-between; }
 .sg-chat-panel .sg-chat { display: grid; align-content: start; gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
@@ -1881,3 +1882,13 @@ button.sg-card { cursor: pointer; }
 .sg-pop { width: min(100%, 360px); background: var(--panel); border-radius: 20px; padding: 18px; display: grid; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 .sg-pop p { margin: 0; }
 .sg-pop .row { justify-content: flex-end; gap: 8px; }
+.sg-title { display: flex; align-items: center; gap: 8px; }
+.sg-title .g-help { margin-left: 2px; }
+.sg-help { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: .9rem; }
+.sg-who { display: flex; align-items: center; gap: 8px; grid-column: 1 / -1; }
+.sg-who .avatar { width: 40px; height: 40px; flex: none; border-radius: 50%; overflow: hidden; }
+.sg-who .avatar img, .sg-who .avatar svg { width: 100%; height: 100%; }
+.sg-who b { font-family: var(--f-display); font-weight: 600; }
+.sg-says-wrap { display: grid; gap: 6px; }
+.sg-cool { margin: 0; font-size: .78rem; font-weight: 800; color: var(--muted); text-align: center; }
+.sg-says.cooling .chip { opacity: .55; }

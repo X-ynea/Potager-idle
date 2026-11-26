@@ -98,14 +98,18 @@ function sgChatHTML() {
   const n = sgChatNew();
   if (!SG.chatOpen) return `<button class="sg-chat-fab" data-act="sgChatOpen" aria-label="Discussion${n ? ` : ${n} nouveau${n > 1 ? "x" : ""} message${n > 1 ? "s" : ""}` : ""}">${CHAT_ICON}${n ? `<span class="fr-badge">${n}</span>` : ""}</button>`;
   const list = sgChat().slice(-20), mine = (SG.data?.allowed || []).filter(k => PLANTS[k]);
-  return `<div class="sg-chat-back" data-act="sgChatClose"></div><div class="sg-chat-panel" role="dialog" aria-label="Discussion">
+  return `<div class="sg-chat-back" data-act="sgChatClose"></div><div class="sg-chat-panel${SG.chatAnim ? " anim" : ""}" role="dialog" aria-label="Discussion">
     <div class="sg-chat-head"><b>Discussion</b><button class="sheet-x" data-act="sgChatClose" aria-label="Fermer la discussion">${X_SVG}</button></div>
-    <div class="sg-chat" id="sg-chat">${list.length ? list.map(m => { const who = sgMember(m.by);
+    <div class="sg-chat" id="chat-body">${list.length ? list.map(m => { const who = sgMember(m.by);
       return `<div class="sg-msg${who?.me ? " mine" : ""}"><span class="fr-av">${who ? sgAv(who) : friendAvatar(null)}</span><span class="sg-bubble"><b>${who?.me ? "Toi" : esc(who?.name || "Un ancien jardinier")}</b><span class="sg-txt">${esc(sgSayText(m.code, m.arg))}${m.code === "jemoccupe" && PLANTS[m.arg] ? `<span class="sg-say-plant">${cropArt(m.arg)}</span>` : ""}</span><small>${sgAgo(m.at)}</small></span></div>`; }).join("")
       : `<p class="small muted" style="margin:0">Pas encore de message. Dis coucou à tes amis jardiniers !</p>`}</div>
-    <div class="sg-says">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${SG.busy ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}">Je m’occupe de…</button></div>
-    ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}">${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}</div>`;
+    <div class="sg-says-wrap">${sgWait() ? `<p class="sg-cool"><span data-sgcool>${sgWait()}</span> s avant ton prochain message</p>` : ""}
+    <div class="sg-says${sgWait() ? " cooling" : ""}">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${sgWait() ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}" ${sgWait() ? "disabled" : ""}>Je m’occupe de…</button></div>
+    ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}" ${sgWait() ? "disabled" : ""}>${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}</div></div>`;
 }
+const SG_SAY_GAP = 5000; // un message toutes les 5 s au plus
+const sgWait = () => Math.max(0, Math.ceil(((SG.sayAt || 0) + SG_SAY_GAP - Date.now()) / 1000));
+setInterval(() => { const el = document.querySelector("[data-sgcool]"); if (!el) return; const w = sgWait(); if (w) el.textContent = w; else render(true); }, 250);
 const sgChatSeen = () => { const top = sgChat().length ? sgChat()[sgChat().length - 1].id : 0; if (top > (S.sgChatSeen || 0)) { S.sgChatSeen = top; save(); } };
 
 /* ---------- Carte de l'onglet Amis ---------- */
@@ -157,6 +161,12 @@ function sgPlotInner(p, i, t) {
   return asSG(() => { const f = sgFake(p), st = plotState(f, t), by = p?.by ? sgMember(p.by) : null;
     return { st, sig: st + (f.seed || "") + (f.seed ? plotStage(f) : "") + (by ? by.id : ""), html: plotHTML(f, i, t) + (by && st !== "empty" ? `<span class="sg-by fr-av" title="Planté par ${esc(by.me ? "toi" : by.name)}">${sgAv(by)}</span>` : "") }; });
 }
+// Chaque commande du jardin commun est passée par un voisin (illustré), le même pour tous les jardiniers.
+function sgVillager(g, i) {
+  const pool = VILLAGERS.map((v, k) => k).filter(k => k < VILLAGER_IMAGES && !VILLAGERS[k].season);
+  const seed = `${g.id}:${parisDay()}:${i}`; let h = 0; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return VILLAGERS[pool[h % pool.length]];
+}
 function sgGardenHTML(g) {
   const t = sgNow(), saison = SG.data.season || season();
   return `<div class="garden sg-garden" data-season="${saison}">${seasonFxHTML(saison)}<div class="plots">${g.plots.map((p, i) => { const r = sgPlotInner(p, i, t);
@@ -168,6 +178,11 @@ function sgPopHTML(g) {
     <div class="row"><button class="btn ghost" data-act="sgConfirm" data-arg="">Annuler</button><button class="btn danger" data-act="${act}" data-arg="${arg}">${ok}</button></div></div></div>`;
   if (m) return pop(`Retirer ${esc(m.name)} ?`, `${esc(m.name)} quittera « ${esc(g.name)} ». Ses récoltes restent dans le panier commun.`, "sgKick", m.id, "Retirer");
   if (c === "leave") return pop("Quitter le jardin ?", `Tu quittes « ${esc(g.name)} ». Tes récoltes restent dans le panier commun.${(SG.data.members || []).length === 1 ? " Tu es le dernier jardinier : le jardin sera effacé." : ""}`, "sgLeave", "", "Quitter");
+  if (c === "help") return `<div class="sg-pop-back" data-act="sgConfirm" data-arg=""><div class="sg-pop" role="dialog"><b>Les commandes du jardin commun</b>
+    <ul class="sg-help"><li>2 commandes par jour, à faire avec le panier commun.</li><li>Le bonus est facultatif : livré avec lui, la commande rapporte 50 % de plus.</li>
+      <li>Chaque jardinier qui a planté au moins ${SG_CONTRIB} graines depuis la commande précédente reçoit la récompense.</li>
+      <li>À la 10ᵉ commande livrée ensemble (${g.delivered} / 10), chacun gagne la déco <b>${DECOS.friend_bench}</b>.</li></ul>
+    <div class="row"><button class="btn" data-act="sgConfirm" data-arg="">Compris</button></div></div></div>`;
   if (c === "delete") return pop("Supprimer le jardin ?", `« ${esc(g.name)} » sera effacé pour tout le monde : bacs, panier et commandes. Tous les jardiniers en sortent.`, "sgDelete", "", "Supprimer");
   return "";
 }
@@ -192,7 +207,8 @@ function viewSG() {
       : bonusOk ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:1" ${SG.busy ? "disabled" : ""}>Livrer avec le bonus</button><button class="btn ghost sm" data-act="sgDeliver" data-arg="${i}:0" ${SG.busy ? "disabled" : ""}>Sans le bonus</button></span>`
       : SG.confirm === "deliver:" + i ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:0:ok">Livrer quand même</button><button class="btn ghost sm" data-act="sgConfirm" data-arg="">Attendre</button></span>`
       : `<button class="btn sm" data-act="sgDeliver" data-arg="${i}:0" ${ok && !SG.busy ? "" : "disabled"}>Livrer</button>`;
-    return `<div class="sg-order${o.done ? " done" : ""}"><div class="sg-need">${chips(o.items, o.done)}</div>
+    const v = sgVillager(g, i);
+    return `<div class="sg-order${o.done ? " done" : ""}"><div class="sg-who"><span class="avatar">${avatar(v)}</span><b>${v.name}</b></div><div class="sg-need">${chips(o.items, o.done)}</div>
       ${bonus ? `<div class="sg-bonus"><span class="sg-bonus-t">Bonus +50 %</span>${chips(bonus, o.done && o.with_bonus)}${!o.done && growing ? `<small class="muted">${growing} ${PLANTS[bk].name.toLowerCase()} en train de pousser</small>` : !o.done ? `<small class="muted">facultatif</small>` : ""}</div>` : ""}
       ${SG.confirm === "deliver:" + i ? `<p class="small sg-warn">${growing} ${PLANTS[bk].name.toLowerCase()} pousse${growing > 1 ? "nt" : ""} pour le bonus. Livrer sans attendre ?</p>` : ""}
       <div class="sg-reward"><small class="muted">Récompense :</small> ${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span>${o.wild && WILD[o.wild] ? ` <span class="g-give">+ ${wildArt(o.wild)}${WILD[o.wild].name}</span>` : ""}</div>
@@ -207,9 +223,8 @@ function viewSG() {
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>
     <h3 class="cat-title">Panier commun <span class="muted num">${sgBasketN()} / ${SG_BASKET}</span></h3>
     ${basket.length ? `<div class="sg-basket">${basket.map(([k, q]) => `<span class="chip">${cropArt(k)}<b class="num">${q}</b></span>`).join("")}</div>` : `<p class="small muted" style="margin:0">Le panier est vide. Les récoltes du jardin commun arrivent ici, et ne servent qu’aux commandes.</p>`}
-    <h3 class="cat-title">Commandes du jour <span class="muted num">${(g.orders || []).filter(o => o.done).length} / ${(g.orders || []).length}</span></h3>
+    <h3 class="cat-title sg-title">Commandes du jour <span class="muted num">${(g.orders || []).filter(o => o.done).length} / ${(g.orders || []).length}</span><button class="g-help" data-act="sgConfirm" data-arg="help" aria-label="Comment ça marche">?</button></h3>
     <div class="sg-orders">${orders}</div>
-    <p class="small muted" style="margin:0">Chaque jardinier qui a planté au moins ${SG_CONTRIB} graines depuis la commande précédente reçoit la récompense.${g.delivered < 10 ? `<br>À la 10ᵉ commande livrée ensemble (${g.delivered} / 10), chacun gagne la déco <b>${DECOS.friend_bench}</b>.` : ""}</p>
     <h3 class="cat-title">Jardiniers <span class="muted num">${members.length} / 4</span></h3>
     <div class="fr-list">${members.map(m => `<div class="fr-row"><span class="fr-av">${sgAv(m)}</span><span class="fr-id"><b>${m.me ? "Toi" : esc(m.name)}${m.owner ? ` <span class="tr-tag">Créateur</span>` : ""}</b><small>Niv. ${m.level} · ${m.planted || 0} / ${SG_PLANTS_DAY} graines aujourd’hui</small></span>
       ${owner && !m.me ? `<span class="fr-acts"><button class="sg-round no" data-act="sgConfirm" data-arg="kick:${m.id}" aria-label="Retirer ${esc(m.name)} du jardin">${CROSS_ICON}</button></span>` : ""}</div>`).join("")}
@@ -239,8 +254,16 @@ async function sgCall(fn, args, after) {
   catch (e) { SG.busy = false; SG.error = sgErr(e); toast(esc(SG.error)); render(true); }
 }
 const SG_ACTS = {
-  sgSay(arg) { const [c, k] = String(arg).split(":"); SG.say = false; sgCall("sg_say", { p_code: c, p_arg: k || null }, () => { SFX.play("click"); setTimeout(() => { const el = document.getElementById("sg-chat"); if (el) el.scrollTop = el.scrollHeight; }, 400); }); },
-  sgSayPlant() { SG.say = !SG.say; render(true); },
+  async sgSay(arg) {
+    if (sgWait() || SG.busy) return;
+    const [c, k] = String(arg).split(":"); SG.say = false; SG.sayAt = Date.now(); SG.chatAnim = false;
+    // Le message s'affiche tout de suite ; le serveur confirme ensuite (pas de fenêtre qui saute).
+    const me = sgMe(); if (SG.data && me) SG.data.chat = [...sgChat(), { id: (sgChat().at(-1)?.id || 0) + .5, by: me.id, code: c, arg: k || null, at: new Date().toISOString(), local: true }];
+    render(true); const el = document.getElementById("chat-body"); if (el) el.scrollTop = el.scrollHeight;
+    try { await CLOUD.rpc("sg_say", { p_code: c, p_arg: k || null }); SFX.play("click"); SG.at = 0; loadSG(true); }
+    catch (e) { SG.data.chat = sgChat().filter(m => !m.local); toast(esc(sgErr(e))); render(true); }
+  },
+  sgSayPlant() { if (sgWait()) return; SG.say = !SG.say; SG.chatAnim = false; render(true); },
   sgOpen() { if (!sgOn()) return; SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {
     i = +i; const p = sgG()?.plots[i], s = sgPlot(p);
@@ -263,7 +286,7 @@ const SG_ACTS = {
   sgConfirm(v) { SG.confirm = v || null; render(true); },
   sgKick(id) { SG.confirm = null; sgCall("sg_leave", { target: id }, () => toast("Jardinier retiré du jardin.")); },
   sgDelete() { SG.confirm = null; const name = sgG()?.name || ""; sgCall("sg_delete", {}, () => { closeModal(); toast(`Le jardin « ${esc(name)} » a été supprimé.`); }); },
-  sgChatOpen() { SG.chatOpen = true; SG.say = false; sgChatSeen(); render(true); setTimeout(() => { const c = document.getElementById("sg-chat"); if (c) c.scrollTop = c.scrollHeight; }, 30); },
+  sgChatOpen() { SG.chatOpen = true; SG.chatAnim = true; SG.say = false; sgChatSeen(); render(true); SG.chatAnim = false; const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgChatClose() { SG.chatOpen = false; SG.say = false; render(true); },
   sgLeave() { SG.confirm = null; sgCall("sg_leave", {}, () => { closeModal(); toast("Tu as quitté le jardin commun."); }); },
   sgNew() { if (!sgOn()) return; SG.name = ""; SG.newPick = []; SG.error = ""; if (typeof loadFriends === "function") loadFriends(); modalView = viewSGNew; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); },
