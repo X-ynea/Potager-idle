@@ -295,6 +295,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ### 3.1.0 (version de test, préparation de la v4)
 - Cuisine et Serre sont réunies dans un nouvel onglet « Atelier », avec un sous-onglet pour chacune. L’onglet du bas additionne leurs pastilles et montre deux petites jauges : pêche pour la cuisson, verte pour le croisement.
+### 3.0.25
+- Échanges : on ne peut plus demander une plante qu’on n’a pas encore débloquée à son niveau, ni en proposer une à un ami qui ne l’a pas débloquée.
+
 ### 3.0.24
 - Boîte aux lettres : une nouvelle d’arrosage de plus d’un jour revenait sans cesse comme non lue, avec un badge « 1 » impossible à faire partir. C’est corrigé : ouvrir les Nouvelles la fait disparaître pour de bon.
 
