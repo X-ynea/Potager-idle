@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.36 (version de test, préparation de la v4)
+- Nouvelle image du portail du jardin commun, en haut à droite du jardin ; la boîte aux lettres passe à sa gauche et le chevauche un peu.
+
 ### 3.1.35 (version de test, préparation de la v4)
 - Discussion du jardin commun : les messages tout prêts sont dans une zone de saisie à part, en bas, et le délai s’affiche en petit (« 0:04 ») entre la discussion et cette zone.
 

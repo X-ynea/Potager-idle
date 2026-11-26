@@ -1817,7 +1817,9 @@ button.sg-card { cursor: pointer; }
 .sg-invite { display: grid; gap: 8px; }
 .fr-row.pending { opacity: .7; }
 .sg-leave { color: #c9563f; justify-self: center; }
-.garden > .sg-portal { top: -34px; left: 34%; bottom: auto; width: min(17%, 72px); } /* en haut à gauche, comme la boîte aux lettres à droite */
+/* Portail du jardin commun en haut à droite ; la boîte aux lettres à sa gauche, devant, le chevauche un peu */
+.garden > .sg-portal { top: -30px; right: 1%; left: auto; bottom: auto; width: min(26%, 112px); aspect-ratio: 480 / 274; z-index: 4; }
+.garden:has(> .sg-portal) > .mailbox { right: calc(1% + min(26%, 112px) - min(7%, 30px)); z-index: 6; }
 .sg-done { font-size: .8rem; font-weight: 800; color: #3d7a2a; background: #e3f4d8; border-radius: 99px; padding: 4px 10px; white-space: nowrap; }
 .btn.ghost.sg-leave { color: #c9563f; }
 .sg-bonus { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 8px; border-radius: 12px; background: var(--sun-soft); border: 1px dashed #e0b84a; }
