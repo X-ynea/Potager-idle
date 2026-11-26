@@ -1,6 +1,6 @@
 /* Service worker de Potager idle : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v347";
+const VERSION = "potager-v348";
 const FILES = [
   "./",
   "index.html",
@@ -61,14 +61,33 @@ self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
   // Réseau d'abord : on a toujours la dernière version quand on est en ligne.
-  // Hors-ligne seulement, on se rabat sur la copie en cache.
-  event.respondWith(
+  // Sans réseau, ou si le réseau ne répond pas au bout de 3 s (réseau très faible, mode avion
+  // qui fait attendre), on prend la copie en cache : le jeu ne reste jamais bloqué au démarrage.
+  const fallback = () => caches.match(req, { ignoreSearch: true }).then(hit => hit || (req.mode === "navigate" ? caches.match("index.html") : null));
+  event.respondWith(new Promise(resolve => {
+    let done = false; const finish = r => { if (!done && r) { done = true; resolve(r); } };
     fetch(req).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
-      return res;
-    }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || (req.mode === "navigate" ? caches.match("index.html") : Response.error())))
-  );
+      finish(res);
+    }).catch(() => fallback().then(hit => finish(hit || Response.error())));
+    setTimeout(() => fallback().then(finish), 3000);
+  }));
 });
+
+// Toutes les images du jeu, gardées pour jouer hors-ligne (une seule fois chacune).
+// La liste (assets/img/files.txt) est créée à la publication du site.
+self.addEventListener("message", event => { if (event.data === "precache") event.waitUntil(precacheImages()); });
+async function precacheImages() {
+  const r = await fetch("assets/img/files.txt", { cache: "no-store" }).catch(() => null);
+  if (!r || !r.ok) return;
+  const names = (await r.text()).split(/\s+/).filter(n => /\.(webp|png)$/.test(n));
+  const c = await caches.open(VERSION);
+  for (const n of names) {
+    const url = "assets/img/" + n;
+    if (await c.match(url, { ignoreSearch: true })) continue;
+    try { const res = await fetch(url); if (res.ok) await c.put(url, res); } catch (e) { return; } // plus de réseau : on reprendra plus tard
+  }
+}
 
 // Toucher une notification ouvre (ou ramène au premier plan) le jeu.
 self.addEventListener("notificationclick", event => {

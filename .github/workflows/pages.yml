@@ -33,6 +33,11 @@ jobs:
           fi
       - name: Nettoyage
         run: rm -rf _site/.git _site/test/.git _site/assets/raw _site/test/assets/raw _site/.github _site/test/.github
+      - name: Liste des images (pour jouer hors-ligne)
+        run: |
+          for d in _site _site/test; do
+            if [ -d "$d/assets/img" ]; then (cd "$d/assets/img" && ls *.webp *.png 2>/dev/null > files.txt || true); fi
+          done
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

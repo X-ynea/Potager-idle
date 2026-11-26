@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.16
+- Hors-ligne : toutes les images du jeu sont téléchargées une fois en arrière-plan, pour que les plantes, plats et décos s’affichent sans réseau.
+- Le jeu ne reste plus bloqué sur l’écran du logo quand le réseau ne répond pas : au bout de 3 secondes, il démarre avec sa copie gardée sur l’appareil.
+
 ### 3.0.15
 - Hors-ligne plus solide : après une mise à jour, le jeu garde les images déjà téléchargées, et la liste des images fait partie des fichiers gardés pour jouer sans réseau.
 

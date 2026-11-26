@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.15" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.16" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1536,6 +1536,8 @@ A.install = async () => {
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register("sw.js").catch(() => {});
+  // Une fois le jeu chargé, toutes ses images sont gardées pour jouer hors-ligne.
+  addEventListener("load", () => setTimeout(() => { if (navigator.onLine) navigator.serviceWorker.ready.then(r => r.active?.postMessage("precache")).catch(() => {}); }, 4000));
   // Nouvelle version déployée : on sauvegarde puis on recharge une seule fois.
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (!hadController || reloaded) return; reloaded = true; save(); location.reload(); });
