@@ -91,12 +91,12 @@ const PEST_SVG = {
     <g stroke="#7cc3f2" stroke-width="1.4" stroke-linecap="round" fill="none">${[0, 60, 120].map(a => `<line x1="32" y1="9" x2="32" y2="55" transform="rotate(${a} 32 32)"/>`).join("")}</g></svg>`,
 };
 function pestArt(key) {
-  if (SEASON_IMG.has("ui-" + key)) return `<img class="pest pest-${key}" src="assets/img/ui-${key}.webp" alt="">`;
+  if (SEASON_IMG.has("ui-" + key)) return `<img class="pest pest-${key}" src="assets/img/interface/ui-${key}.webp" alt="">`;
   return `<span class="pest pest-${key}">${PEST_SVG[key] || ""}</span>`;
 }
 
 // Même élément, en simple icône (objectifs du jour, fiche de saison).
-const pestIcon = key => SEASON_IMG.has("ui-" + key) ? `<img src="assets/img/ui-${key}.webp" alt="">` : PEST_SVG[key] || "";
+const pestIcon = key => SEASON_IMG.has("ui-" + key) ? `<img src="assets/img/interface/ui-${key}.webp" alt="">` : PEST_SVG[key] || "";
 /* Visiteurs ailés : papillon, libellule, coccinelle, rouge-gorge. */
 const VISITOR_SVG = {
   dragonfly: `<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#bfe6ff" fill-opacity=".85" stroke="#6bb6e6" stroke-width="1.2">
@@ -115,8 +115,8 @@ const VISITOR_SVG = {
     <path d="M28 51l-2 7M36 51l1 7" stroke="#5a3a24" stroke-width="2" stroke-linecap="round"/></svg>`,
 };
 function visitorArt(key) {
-  if (SEASON_IMG.has("ui-" + key)) return `<img src="assets/img/ui-${key}.webp" alt="">`;
-  return VISITOR_SVG[key] || `<img src="assets/img/ui-butterfly.webp" alt="">`;
+  if (SEASON_IMG.has("ui-" + key)) return `<img src="assets/img/interface/ui-${key}.webp" alt="">`;
+  return VISITOR_SVG[key] || `<img src="assets/img/interface/ui-butterfly.webp" alt="">`;
 }
 
 /* Particules de saison : pétales, pollen doré, feuilles mortes, flocons. Boucles CSS infinies. */

@@ -15,7 +15,7 @@ const NEWS3_ITEMS = [
 ];
 function news3HTML() {
   return `<div class="gate-card news-card news3" role="dialog" aria-modal="true" aria-label="Du nouveau au potager">
-    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <img class="gate-logo" src="assets/img/interface/xp-leaf.webp" alt="">
     <h1>Du nouveau au potager ! 🌱</h1>
     <p class="news3-sub">Le potager s’ouvre à tes amis.</p>
     <div class="news3-list">${NEWS3_ITEMS.map(([i, t, d]) => `<div class="news3-item"><span class="news3-ico">${typeof i === "function" ? i() : i}</span><span><b>${t}</b><small>${d}</small></span></div>`).join("")}</div>
@@ -26,7 +26,7 @@ function news3HTML() {
 function showNews3() {
   let g = document.getElementById("gate");
   if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
-  g.style.backgroundImage = `url("assets/img/bg-${season()}.webp")`;
+  g.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`;
   g.innerHTML = news3HTML();
 }
 function checkNews3() {

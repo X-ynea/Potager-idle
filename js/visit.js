@@ -60,7 +60,7 @@ function visitGardenHTML(t, f) {
     const ripe = n("ripe"), dry = n("dry"), weed = n("weed"), grow = n("growing");
     const bits = [ripe && `<span>${STAR} ${ripe} prête${ripe > 1 ? "s" : ""}</span>`, grow && `<span>${grow} en train de pousser</span>`,
       dry && `<span>${DROP} ${dry} ${dry > 1 ? "ont" : "a"} soif</span>`, weed && `<span>${weed} envahi${weed > 1 ? "s" : ""}</span>`].filter(Boolean);
-    const deco = S.decoSlots.some(Boolean) ? `<div class="deco-row">${S.decoSlots.map((d, i) => d ? `<span class="deco-slot full s${i}" style="${decoStyle(d, i)}"><img src="assets/img/deco-${d}.webp" alt="${DECOS[d]}"></span>` : "").join("")}</div>` : "";
+    const deco = S.decoSlots.some(Boolean) ? `<div class="deco-row">${S.decoSlots.map((d, i) => d ? `<span class="deco-slot full s${i}" style="${decoStyle(d, i)}"><img src="assets/img/decos/deco-${d}.webp" alt="${DECOS[d]}"></span>` : "").join("")}</div>` : "";
     const ago = VISIT.updated ? Math.round((Date.now() - Date.parse(VISIT.updated)) / 60000) : null;
     return `<div class="visit-bar"><p class="visit-sum">${bits.length ? bits.join("") : "<span>Aucune plante en ce moment</span>"}</p>
         <p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p></div>

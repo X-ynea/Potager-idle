@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.25 (version de test, préparation de la v4)
+- Rangement des images en sous-dossiers (`assets/img/plantes`, `plats`, `decos`, `voisins`, `interface`, `ameliorations`, `jardin`, `atelier`, `balades`). Rien ne change à l’écran.
+
 ### 3.1.24 (version de test, préparation de la v4)
 - **2 nouveaux voisins** : **Margot la Cane** (dès que la pêche est ouverte) et **Firmin le Renard** (dès que la forêt est ouverte). Ils passent volontiers chercher leurs plats préférés de balade. Le succès « Ami de tous » demande maintenant les 14 voisins.
 - **Succès des Balades**, dans une nouvelle catégorie : « Bon pêcheur » (déco Petite barque), « Promeneur » (déco Panier de cueillette), « Butineur » (déco Hôtel à insectes) et « Grand promeneur » (titre « Promeneur du dimanche »).

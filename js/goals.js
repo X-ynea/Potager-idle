@@ -143,10 +143,10 @@ function viewGoal(which) {
     <h3 class="cat-title">Récompenses</h3>
     <div class="goal-rewards">${tiers.map((t, i) => { const reached = total >= target * t.p, ok = reached && !t.got;
       return `<div class="goal-rw${t.got ? " got" : ok ? " ready" : ""}"><span class="goal-rw-p">${which === "g" ? `Palier ${i + 1} · ${Math.round(t.p * 100)} %` : "Objectif atteint"}</span>
-        <span class="goal-rw-r">${t.r.deco ? `<img src="assets/img/deco-${t.r.deco}.webp" alt="">` : ""}${rewardText(t.r)}${t.r.deco ? `<small>Première réussite de la saison</small>` : ""}</span>
+        <span class="goal-rw-r">${t.r.deco ? `<img src="assets/img/decos/deco-${t.r.deco}.webp" alt="">` : ""}${rewardText(t.r)}${t.r.deco ? `<small>Première réussite de la saison</small>` : ""}</span>
         ${t.got ? `<span class="q-done">✓</span>` : ok ? `<button class="btn sm" data-act="claimGoal" data-arg="${which}">${which === "f" && W.noRewardF ? "Terminer" : "Récupérer"}</button>` : `<span class="small muted num">${Math.round(Math.min(1, total / (target * t.p)) * 100)} %</span>`}</div>`; }).join("")}</div>
     ${which === "g" ? `<p class="small muted" style="margin:0">Graines d’hybrides : si tu n’as pas encore découvert l’hybride, elles sont mises de côté et t’attendent jusqu’à sa découverte à la Serre${mysteryCount() ? ` (${mysteryCount()} graine${mysteryCount() > 1 ? "s" : ""} mystère en attente)` : ""}.` : `<p class="small muted" style="margin:0">La première réussite de chaque saison donne sa déco exclusive. Ensuite, des graines de saison.</p>`}
-    ${members.length ? `<h3 class="cat-title">Participants</h3><div class="goal-members">${members.map(m => `<div class="goal-m${m.me ? " me" : ""}"><span class="fr-av">${m.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/xp-leaf.webp")}" alt="">` : friendAvatar(m.avatar)}</span><b>${m.me ? "Toi" : esc(m.name)}</b><span class="num">${fmt(Math.min(m.n, cap))}</span></div>`).join("")}</div>` : ""}
+    ${members.length ? `<h3 class="cat-title">Participants</h3><div class="goal-members">${members.map(m => `<div class="goal-m${m.me ? " me" : ""}"><span class="fr-av">${m.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/interface/xp-leaf.webp")}" alt="">` : friendAvatar(m.avatar)}</span><b>${m.me ? "Toi" : esc(m.name)}</b><span class="num">${fmt(Math.min(m.n, cap))}</span></div>`).join("")}</div>` : ""}
   </div>`;
 }
 const GOAL_ACTS = {

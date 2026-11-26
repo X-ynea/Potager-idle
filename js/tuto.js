@@ -141,7 +141,7 @@ function tutoUpdate() {
     tutoKey = key;
     box.hidden = !show;
     box.innerHTML = show ? `<div class="tuto-bubble" role="note">
-      <img class="tuto-face" src="assets/img/villager-6.webp" alt="">
+      <img class="tuto-face" src="assets/img/voisins/villager-6.webp" alt="">
       <div class="tuto-body"><b>Mamie Lapine</b><p>${typeof t.text === "function" ? t.text() : t.text}</p>
         <div class="tuto-acts">${t.ok ? `<button class="btn sm" data-act="tutoOk" data-arg="${t.id}">${t.ok}</button>` : ""}<button class="tuto-skip" data-act="tutoOff">Je me débrouille, merci</button></div>
       </div></div>` : "";

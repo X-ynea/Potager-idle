@@ -3,8 +3,8 @@
    Pseudo, photo de profil, bannière et titre. Les images importées sont recadrées
    et compressées sur l'appareil, puis gardées dans la sauvegarde (rien n'est envoyé en ligne). */
 const BANNERS = [
-  ["garden", "Jardin", "assets/img/bg-garden.webp"], ["printemps", "Printemps", "assets/img/bg-printemps.webp"],
-  ["ete", "Été", "assets/img/bg-ete.webp"], ["automne", "Automne", "assets/img/bg-automne.webp"], ["hiver", "Hiver", "assets/img/bg-hiver.webp"],
+  ["garden", "Jardin", "assets/img/jardin/bg-garden.webp"], ["printemps", "Printemps", "assets/img/jardin/bg-printemps.webp"],
+  ["ete", "Été", "assets/img/jardin/bg-ete.webp"], ["automne", "Automne", "assets/img/jardin/bg-automne.webp"], ["hiver", "Hiver", "assets/img/jardin/bg-hiver.webp"],
 ];
 const profile = () => { S.profile = Object.assign({ name: "", avatar: null, banner: "garden" }, S.profile || {}); return S.profile; };
 // Compte Discord connecté : son pseudo et sa photo servent par défaut.
@@ -13,9 +13,9 @@ const profileName = () => profile().name || discordUser()?.name || "Jardinier";
 // Photo : importée (data:…), portrait de voisin (v:<n>), feuille dorée ("leaf"),
 // ou par défaut la photo Discord (sinon la feuille).
 function avatarSrc(a = profile().avatar) {
-  if (!a) return discordUser()?.avatar || "assets/img/xp-leaf.webp";
-  if (a === "leaf") return "assets/img/xp-leaf.webp";
-  if (a.startsWith("v:")) return `assets/img/villager-${+a.slice(2)}.webp`;
+  if (!a) return discordUser()?.avatar || "assets/img/interface/xp-leaf.webp";
+  if (a === "leaf") return "assets/img/interface/xp-leaf.webp";
+  if (a.startsWith("v:")) return `assets/img/voisins/villager-${+a.slice(2)}.webp`;
   return a;
 }
 const bannerSrc = (b = profile().banner) => b && b.startsWith("data:") ? b : (BANNERS.find(x => x[0] === b) || BANNERS[0])[2];
@@ -44,8 +44,8 @@ function viewProfile() {
       <div class="pf-grid">
         <label class="pf-opt upload"><input type="file" accept="image/*" data-file="avatar" hidden><span>+</span><small>Ma photo</small></label>
         ${discordUser()?.avatar ? `<button class="pf-opt${!P.avatar ? " sel" : ""}" data-act="profileSet" data-arg="avatar:"><img src="${discordUser().avatar}" alt=""><small>Discord</small></button>` : ""}
-        <button class="pf-opt${P.avatar === "leaf" || (!P.avatar && !discordUser()?.avatar) ? " sel" : ""}" data-act="profileSet" data-arg="avatar:leaf"><img src="assets/img/xp-leaf.webp" alt=""><small>Feuille</small></button>
-        ${VILLAGERS.slice(0, VILLAGER_IMAGES).map((v, i) => `<button class="pf-opt${P.avatar === "v:" + i ? " sel" : ""}" data-act="profileSet" data-arg="avatar:v:${i}"><img src="assets/img/villager-${i}.webp" alt=""><small>${shortName(v.name)}</small></button>`).join("")}
+        <button class="pf-opt${P.avatar === "leaf" || (!P.avatar && !discordUser()?.avatar) ? " sel" : ""}" data-act="profileSet" data-arg="avatar:leaf"><img src="assets/img/interface/xp-leaf.webp" alt=""><small>Feuille</small></button>
+        ${VILLAGERS.slice(0, VILLAGER_IMAGES).map((v, i) => `<button class="pf-opt${P.avatar === "v:" + i ? " sel" : ""}" data-act="profileSet" data-arg="avatar:v:${i}"><img src="assets/img/voisins/villager-${i}.webp" alt=""><small>${shortName(v.name)}</small></button>`).join("")}
       </div></div>` : ""}
     ${pick === "banner" ? `<div class="set-group"><h3>Bannière</h3>
       <div class="pf-grid banners">

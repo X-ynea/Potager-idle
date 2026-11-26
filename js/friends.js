@@ -19,7 +19,7 @@ async function publicAvatar() {
   }
   return CLOUD.user?.avatar || null;
 }
-const friendAvatar = a => `<img src="${!a ? "assets/img/xp-leaf.webp" : a.startsWith("v:") ? `assets/img/villager-${+a.slice(2)}.webp` : a.replace(/"/g, "")}" alt="" loading="lazy">`;
+const friendAvatar = a => `<img src="${!a ? "assets/img/interface/xp-leaf.webp" : a.startsWith("v:") ? `assets/img/voisins/villager-${+a.slice(2)}.webp` : a.replace(/"/g, "")}" alt="" loading="lazy">`;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const seenAgo = iso => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 5 ? "en ligne récemment" : m < 60 ? `vu il y a ${m} min` : m < 1440 ? `vu il y a ${Math.round(m / 60)} h` : `vu il y a ${Math.round(m / 1440)} j`; };
 // Onglet « Amis » en bas de l'écran (version de test pour l'instant).

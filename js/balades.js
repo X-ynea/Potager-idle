@@ -35,7 +35,7 @@ const playsLeft = id => IS_TEST ? GAME_PLAYS : Math.max(0, GAME_PLAYS - (gamesSt
 const weekBest = id => { const b = gamesState().best[id]; return b && b.week === weekId() ? b.score : 0; };
 
 const SIGNPOST = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="2.5" width="2.4" height="19" rx="1" fill="currentColor"/><path d="M4 5.5h11.5l3 2.6-3 2.6H4z" fill="currentColor"/><path d="M20 12.5H8.5l-3 2.6 3 2.6H20z" fill="currentColor" opacity=".6"/></svg>`;
-const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
+const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/balades/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
 
 function views_balades() {
   if (friendsReady() && Date.now() - BOARD.at > 60e3) setTimeout(() => loadBoard(), 0);
@@ -174,7 +174,7 @@ function viewBoard(id) {
     : BOARD.error || (rows.filter(r => !r.me).length ? "" : "Aucun ami n’a encore joué cette semaine. Invite-les à te battre, sans pression !");
   return `<div class="sheet board-sheet" role="dialog" aria-modal="true" aria-label="Scores de la semaine">
     <div class="sheet-head"><div><h2>${G.name}</h2><span class="small muted">Meilleurs scores de la semaine · encore ${left} jour${left > 1 ? "s" : ""}</span></div>${SHEET_X}</div>
-    ${rows.length ? `<div class="goal-members">${rows.map((r, i) => `<div class="goal-m board-row${r.me ? " me" : ""}"><span class="b-rank">${i === 0 && rows.length > 1 ? "👑" : i + 1}</span><span class="fr-av">${r.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/xp-leaf.webp")}" alt="">` : friendAvatar(r.avatar)}</span><b>${r.me ? "Toi" : esc(r.name)}</b><span class="num">${r.score}</span></div>`).join("")}</div>`
+    ${rows.length ? `<div class="goal-members">${rows.map((r, i) => `<div class="goal-m board-row${r.me ? " me" : ""}"><span class="b-rank">${i === 0 && rows.length > 1 ? "👑" : i + 1}</span><span class="fr-av">${r.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/interface/xp-leaf.webp")}" alt="">` : friendAvatar(r.avatar)}</span><b>${r.me ? "Toi" : esc(r.name)}</b><span class="num">${r.score}</span></div>`).join("")}</div>`
       : `<p class="small muted" style="margin:0">Personne n’a encore joué cette semaine.</p>`}
     ${note ? `<p class="small muted" style="margin:0">${esc(note)}</p>` : ""}
     <p class="small muted" style="margin:0">Le tableau repart à zéro chaque lundi.<br>Pas de récompense, juste le plaisir !</p></div>`;

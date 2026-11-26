@@ -1,1 +1,3 @@
 Dépose ici les images générées, avec les noms indiqués dans docs/prompts-images.md.
+
+Les images prêtes sont rangées dans assets/img/ par sous-dossier : plantes, plats, decos, voisins, interface, ameliorations, jardin, atelier, balades.

@@ -207,10 +207,10 @@ let VEC_ONLY = false; // dessin vectoriel forcé (image qui n’a pas pu se char
 const hasImg = (kind, k) => !VEC_ONLY && IMG[kind].includes(k);
 /* Une image dans un <svg> : elle se place exactement comme les dessins vectoriels. */
 const imgSvg = (src, cls = "") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><image href="${src}" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></svg>`;
-function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
+function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/plantes/${k}-crop.webp`) : plantArt(k, 3); }
 // v4 : ingrédients de balade (image si fournie, sinon un petit disque provisoire).
-function wildArt(k) { return !VEC_ONLY && (IMG.wild || []).includes(k) ? imgSvg(`assets/img/wild-${k}.webp`) : `<span class="wild-ph" style="--c:${WILD[k].color}">${WILD[k].svg || WILD[k].emoji}</span>`; }
-function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
+function wildArt(k) { return !VEC_ONLY && (IMG.wild || []).includes(k) ? imgSvg(`assets/img/balades/wild-${k}.webp`) : `<span class="wild-ph" style="--c:${WILD[k].color}">${WILD[k].svg || WILD[k].emoji}</span>`; }
+function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/plantes/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */
 // Seulement les plantes qui ont déjà leurs images (les nouvelles gardent leur dessin de secours).
@@ -219,10 +219,10 @@ const SPROUTS = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 const RIPE_NO_SOIL = new Set(Object.keys(PLANTS).filter(k => hasImg("plants", k)));
 function plantArt(k, stage, inPlot) {
   k = PLANTS[k]?.img || k; // la plante du tutoriel emprunte les images du radis
-  if (stage === 1 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-sprout.webp`, "art img sprout");
-  if (stage === 2 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/${k}-young.webp`, "art img young");
-  if (stage === 3 && RIPE_NO_SOIL.has(k) && hasImg("plants", k)) return imgSvg(`assets/img/${k}-3.webp`, "art img ripe");
-  if (hasImg("plants", k)) return stage === 0 ? imgSvg(`assets/img/${k}-grain.webp`, "art img grain") : imgSvg(`assets/img/${k}-${stage}.webp`, "art img");
+  if (stage === 1 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/plantes/${k}-sprout.webp`, "art img sprout");
+  if (stage === 2 && !VEC_ONLY && SPROUTS.has(k)) return imgSvg(`assets/img/plantes/${k}-young.webp`, "art img young");
+  if (stage === 3 && RIPE_NO_SOIL.has(k) && hasImg("plants", k)) return imgSvg(`assets/img/plantes/${k}-3.webp`, "art img ripe");
+  if (hasImg("plants", k)) return stage === 0 ? imgSvg(`assets/img/plantes/${k}-grain.webp`, "art img grain") : imgSvg(`assets/img/plantes/${k}-${stage}.webp`, "art img");
   const d = PLANTS[k];
   let g;
   if (stage === 0) {
@@ -251,7 +251,7 @@ function packetArt(k) {
 /* ---- Plats ---- */
 const CERAMIC = "#fbf5ea";
 function dishArt(r) {
-  if (hasImg("dishes", r)) return imgSvg(`assets/img/dish-${r}.webp`);
+  if (hasImg("dishes", r)) return imgSvg(`assets/img/plats/dish-${r}.webp`);
   const d = RECIPES[r], c = d.color;
   const steam = (x) => `<path d="M${x} 16c-2 3 2 5 0 8M${x + 6} 14c-2 3 2 5 0 8" stroke="#b9c4c0" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/>`;
   let g = shadow(32, 54, 22, 5);
@@ -289,12 +289,12 @@ function face(cx, cy, s) {
 const VILLAGER_IMAGES = 12;
 function avatar(v) {
   const i = VILLAGERS.indexOf(v);
-  if (i >= 0 && i < VILLAGER_IMAGES && !VEC_ONLY) return `<img src="assets/img/villager-${i}.webp" alt="" loading="lazy">`;
+  if (i >= 0 && i < VILLAGER_IMAGES && !VEC_ONLY) return `<img src="assets/img/voisins/villager-${i}.webp" alt="" loading="lazy">`;
   return `<svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="${v.color}" opacity=".22"/><circle cx="12" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="34" cy="13" r="6" fill="${vol(v.ear)}"/><circle cx="23" cy="25" r="15" fill="${vol(v.color)}"/><ellipse cx="23" cy="31" rx="7" ry="5" fill="#fff" opacity=".55"/><circle cx="23" cy="29" r="2.2" fill="${INK}"/>${face(23, 23, 3.2)}</svg>`;
 }
 
-const DROP = `<img class="ico-img" src="assets/img/ui-drop.webp" alt="">`;
-const STAR = `<img class="ico-img" src="assets/img/ui-star.webp" alt="">`;
+const DROP = `<img class="ico-img" src="assets/img/interface/ui-drop.webp" alt="">`;
+const STAR = `<img class="ico-img" src="assets/img/interface/ui-star.webp" alt="">`;
 const WEED = `<g>${leaf(17, 61, -20, 15, 3, "#6e9a3a")}${leaf(21, 61, 8, 18, 3.2, "#5d8a30")}${leaf(25, 61, 30, 13, 2.8, "#7aa845")}` +
   `<ellipse cx="45" cy="56" rx="10" ry="4.5" fill="${vol("#d9bf94")}"/><circle cx="47" cy="50.5" r="6.5" fill="${vol("#b07a48")}"/>` +
   `<path d="M47 50.5m-3 0a3 3 0 1 0 3-3" stroke="#7d5230" stroke-width="1.3" fill="none"/><path d="M37 53l-3-5M39 52l-1-6" stroke="#c9a77a" stroke-width="1.5" stroke-linecap="round"/></g>`;

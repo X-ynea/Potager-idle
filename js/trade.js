@@ -12,7 +12,7 @@ const TR_MAX = 3000, TR_GAP = 1.2, TR_DAY = 3, TR_HOURS = 48, TR_ITEMS = 8;
 const TR = { list: [], loaded: false, draft: null, inv: null, invErr: "", sending: false, busy: false, mailTab: "in", fromMail: false };
 const TRADE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 // Boîte aux lettres : drapeau levé quand il y a du courrier.
-const MAIL_ICON = up => `<img class="mb-art" src="assets/img/ui-mail-${up ? "full" : "empty"}.webp" alt="">`;
+const MAIL_ICON = up => `<img class="mb-art" src="assets/img/interface/ui-mail-${up ? "full" : "empty"}.webp" alt="">`;
 
 const trValue = k => (PLANTS[k] || WILD[k] || RECIPES[k])?.sell || 0;
 const tradable = k => PLANTS[k] ? !PLANTS[k].tuto : !!(WILD[k] || RECIPES[k]);

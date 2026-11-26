@@ -4,9 +4,9 @@
 - sheet-<plante>.png : planche 3 colonnes x 2 lignes
     ligne 1 : graine, pousse, jeune plant
     ligne 2 : plante mûre dans la terre, récolte, sac de graines
-  -> assets/img/<plante>-0..3.webp (stades), <plante>-crop.webp, <plante>-seeds.webp
+  -> assets/img/plantes/<plante>-0..3.webp (stades), <plante>-crop.webp, <plante>-seeds.webp
 - dish-<recette>.png, ui-<nom>.png : une image par fichier
-  -> assets/img/dish-<recette>.webp, ui-<nom>.webp
+  -> assets/img/plats/dish-<recette>.webp, assets/img/interface/ui-<nom>.webp
 - override-<plante>-<0..3|crop|seeds>.png : remplace une image d'une planche
   (ex. override-ble-3.png pour le blé mûr)
 - Écrit assets/img/manifest.js pour que le jeu sache quelles images existent.
@@ -97,7 +97,9 @@ def icon(im):
 
 
 def save(im, name):
-    im.save(OUT / name, "WEBP", quality=86, method=6)
+    sub = "plats" if name.startswith("dish-") else "interface" if name.startswith("ui-") else "plantes"
+    (OUT / sub).mkdir(parents=True, exist_ok=True)
+    im.save(OUT / sub / name, "WEBP", quality=86, method=6)
 
 
 # Planches qui ne suivent pas exactement la grille : quelle vignette sert à quoi.

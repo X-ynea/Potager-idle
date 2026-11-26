@@ -165,7 +165,7 @@ function checkNews() {
 function newsHTML() {
   const signed = CLOUD.signedIn;
   return `<div class="gate-card news-card" role="dialog" aria-modal="true" aria-label="Du nouveau au potager">
-    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <img class="gate-logo" src="assets/img/interface/xp-leaf.webp" alt="">
     <h1>Du nouveau au potager ! 🌱</h1>
     <div class="news-list">
       <p><b>Ton jardin a maintenant un compte.</b> ${signed ? "" : "Connecte-toi avec Discord pour continuer à jouer. "}Ta partie est sauvegardée en ligne et tu la retrouves sur tous tes appareils : téléphone, ordinateur, tablette.</p>
@@ -181,15 +181,15 @@ function showGate() {
   const need = CLOUD.enabled() && (!CLOUD.signedIn || CLOUD.blocked);
   if (newsNow && CLOUD.enabled() && !CLOUD.blocked) {
     if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
-    g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
+    g.style.backgroundImage = `url("assets/img/jardin/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
     g.innerHTML = newsHTML(); return;
   }
   if (!need) { if (!g?.querySelector(".news3")) g?.remove(); return; } // la fenêtre « Du nouveau » de la v3 reste affichée
   if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
-  g.style.backgroundImage = `url("assets/img/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
+  g.style.backgroundImage = `url("assets/img/jardin/bg-${typeof season === "function" ? season() : "printemps"}.webp")`;
   const hasLocal = !CLOUD.signedIn && typeof S !== "undefined" && ((S.stats?.harvest || 0) > 0 || S.level > 1);
   g.innerHTML = `<div class="gate-card" role="dialog" aria-modal="true" aria-label="Connexion">
-    <img class="gate-logo" src="assets/img/xp-leaf.webp" alt="">
+    <img class="gate-logo" src="assets/img/interface/xp-leaf.webp" alt="">
     <h1>Potager idle</h1>
     ${CLOUD.blocked ? `<p class="cloud-warn">${CLOUD.blocked}</p><button class="btn discord big" data-act="gateSwitch">${DISCORD_ICON}Changer de compte</button>`
       : `<p>Connecte-toi avec Discord pour jouer : ta partie est sauvegardée en ligne et te suit sur tous tes appareils.</p>
