@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.7 (version de test, préparation de la v4)
+- Nouveau jeu : **la balade en forêt**. Les buissons défilent sur le sentier ; touche ceux où dépasse une mûre (1 point), une noisette (2) ou une châtaigne (3). Ce qu’on trouve change un peu avec la saison. La partie dure 5 trouvailles ou 30 secondes, et on garde tout.
+
 ### 3.1.6 (version de test, préparation de la v4)
 - Pêche : règles plus courtes (« La partie dure 5 prises ou 30 secondes »).
 
