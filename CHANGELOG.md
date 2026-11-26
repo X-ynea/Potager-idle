@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.41 (version de test, préparation de la v4)
+- Jardin : la boîte aux lettres est juste à gauche du portail, sans le chevaucher.
+
 ### 3.1.40 (version de test, préparation de la v4)
 - Fenêtre de niveau : l’image d’un nouveau jeu des Balades tient dans son cadre.
 - Jardin : le portail et la boîte aux lettres sont plus hauts, décollés des bacs ; la boîte est un peu plus grande et chevauche davantage le portail.
