@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.17 (version de test, préparation de la v4)
+- Nouveau jeu : **la cueillette express**. Fais glisser ton doigt pour déplacer le panier et attrape les légumes qui tombent (doré : 3 points), en évitant les cailloux (−2). 30 s. Elle rapporte quelques pièces et un peu d’XP.
+- Les 5 jeux des Balades sont jouables.
+
 ### 3.1.16 (version de test, préparation de la v4)
 - Carte du memory : les récompenses affichent « Pièces » et « Graines ».
 

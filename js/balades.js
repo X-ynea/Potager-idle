@@ -14,7 +14,8 @@ const GAMES = {
     rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
   memory:     { lvl: 7, name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, seeds: true, emoji: "🃏", color: "#9a6cf0",
     rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 25 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
-  cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
+  cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e",
+    rules: ["Fais glisser ton doigt pour déplacer le panier.", "Attrape les légumes qui tombent. Un légume doré vaut 3 points.", "Évite les cailloux : ils font perdre 2 points.", "La partie dure 30 secondes."] },
 };
 const GORDER = Object.keys(GAMES);
 // Version de test : tous les jeux ouverts, quel que soit le niveau.
@@ -185,7 +186,62 @@ function memoPool() {
   return [...pool].sort(() => Math.random() - .5).slice(0, MEMO_PAIRS);
 }
 
+/* ---------------- Cueillette express ----------------
+   30 s. Des légumes (débloqués) tombent de plus en plus vite ; on déplace le panier du doigt.
+   Légume 1 point, légume doré 3, caillou -2. Pièces : 1 + niveau / 5 par point, au plus 8 × (4 + niveau). */
+const CUEI_T = 30000;
+const STONE = `<svg viewBox="0 0 40 32"><path d="M6 22c-3-8 4-16 14-17s17 5 15 14-9 11-17 11S8 28 6 22z" fill="#9aa3a8"/><path d="M10 14c3-4 8-6 13-5" stroke="#c4cbcf" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M14 24c5 2 12 1 15-3" stroke="#7d868b" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const BASKET = `<svg viewBox="0 0 120 70"><path d="M30 26c0-22 60-22 60 0" stroke="#a3743a" stroke-width="6" fill="none"/><path d="M8 24h104l-12 42H20z" fill="#d9a066"/><path d="M8 24h104v8H8z" fill="#b07a45"/><path d="M26 34l4 30M44 34l2 30M60 34v30M76 34l-2 30M94 34l-4 30" stroke="#b07a45" stroke-width="3"/></svg>`;
+
 const GAME_IMPL = {
+  cueillette: {
+    setup(g) {
+      const pool = ORDER.filter(k => !PLANTS[k].hybrid && (PLANTS[k].lvl <= S.level || IS_TEST));
+      g.pool = pool.length ? pool : ["radis", "laitue"]; g.items = []; g.next = 300; g.last = 0; g.bx = .5;
+      g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.cueillette.name}</b><span class="g-score"><span class="g-pts">Points</span><b class="num">0</b></span></div>
+        <div class="g-time"><i></i></div>
+        <div class="g-field cuei-field"><span class="p-msg"></span><div class="cuei-basket">${BASKET}</div></div>
+        <p class="g-hint">Fais glisser ton doigt pour déplacer le panier</p>`;
+      const f = g.el.querySelector(".cuei-field");
+      const move = ev => { if (g.state !== "play" && g.state !== "count") return; const r = f.getBoundingClientRect(); g.bx = Math.min(.92, Math.max(.08, (ev.clientX - r.left) / r.width)); ev.preventDefault(); };
+      f.addEventListener("pointerdown", move); f.addEventListener("pointermove", move);
+    },
+    frame(g, e) {
+      g.el.querySelector(".g-time i").style.width = Math.max(0, 100 - e / CUEI_T * 100).toFixed(1) + "%";
+      if (e >= CUEI_T) { gameEnd(); return; }
+      const f = g.el.querySelector(".cuei-field"), W = f.clientWidth, H = f.clientHeight, dt = Math.min(60, e - g.last) / 1000; g.last = e;
+      const bk = g.el.querySelector(".cuei-basket"), bw = bk.offsetWidth;
+      bk.style.transform = `translateX(${(g.bx * W - bw / 2).toFixed(1)}px)`;
+      const d = Math.min(1, e / CUEI_T);
+      if (e >= g.next) {
+        const r = Math.random(), kind = r < .2 ? "stone" : r < .28 ? "gold" : "veg", k = pick(g.pool);
+        const el = document.createElement("span"); el.className = "fall " + kind;
+        el.innerHTML = kind === "stone" ? STONE : kind === "gold" ? goldArt(k) : cropArt(k);
+        f.appendChild(el);
+        g.items.push({ el, kind, x: .08 + Math.random() * .84, y: -50, vy: 170 + 170 * d + Math.random() * 40 });
+        g.next = e + 720 - 330 * d + Math.random() * 120;
+      }
+      const top = H - bk.offsetHeight * .75; // haut du panier
+      g.items = g.items.filter(it => {
+        it.y += it.vy * dt;
+        if (it.y >= top && it.y <= top + 30 && Math.abs(it.x * W - g.bx * W) < bw * .45) {
+          const v = it.kind === "stone" ? -2 : it.kind === "gold" ? 3 : 1;
+          g.score = Math.max(0, g.score + v); g.el.querySelector(".g-score b").textContent = g.score;
+          bk.classList.remove("bump", "ouch"); void bk.offsetWidth; bk.classList.add(v < 0 ? "ouch" : "bump");
+          const pop = document.createElement("span"); pop.className = "g-pop" + (v > 1 ? " gold" : v < 0 ? " bad" : ""); pop.textContent = (v > 0 ? "+" : "") + v;
+          pop.style.left = (it.x * W) + "px"; pop.style.top = (top - 10) + "px"; f.appendChild(pop); g.timers.push(setTimeout(() => pop.remove(), 800));
+          SFX.play(v < 0 ? "snail" : v > 1 ? "coin" : "harvest"); buzz(v < 0 ? [20, 30, 20] : 8);
+          it.el.remove(); return false;
+        }
+        if (it.y > H + 40) { it.el.remove(); return false; }
+        it.el.style.transform = `translate(${(it.x * W).toFixed(1)}px, ${it.y.toFixed(1)}px)`; return true;
+      });
+    },
+    reward(score) {
+      return { coins: Math.min(8 * (4 + S.level), Math.round(score * (1 + S.level / 5))), xp: Math.min(4 + S.level, Math.round(score / 2)) };
+    },
+    cheer: s => s >= 40 ? "Des réflexes d’écureuil !" : s >= 25 ? "Quelle récolte !" : s >= 10 ? "Bien attrapé !" : "Quelques légumes !",
+  },
   memory: {
     setup(g) {
       g.kinds = memoPool(); g.found = 0; g.open = []; g.lock = false;
