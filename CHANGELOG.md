@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.6 (version de test, préparation de la v4)
+- Pêche : règles plus courtes (« La partie dure 5 prises ou 30 secondes »).
+
 ### 3.1.5 (version de test, préparation de la v4)
 - Pêche : 5 prises au plus, et on les garde toutes. La partie s’arrête quand le panier est plein, ou au bout de 30 s (assez pour se tromper un peu). Le score ajoute 1 point par seconde restante.
 
