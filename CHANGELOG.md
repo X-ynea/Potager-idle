@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.22
+- Échanges : « Tu donnes », « Contre » et leur valeur sont bien alignés.
+
 ### 3.0.21
 - Échanges : dans la boîte aux lettres et les messages, chaque côté affiche aussi sa valeur totale, et chaque objet sa valeur.
 
