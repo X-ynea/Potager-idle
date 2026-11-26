@@ -1596,3 +1596,78 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .atelier-sw [data-sp="lab"] i { background: #5fae4a; }
 .atelier-sw button[aria-pressed="true"] .tab-prog { background: rgba(255,255,255,.3); }
 .atelier-sw button[aria-pressed="true"] .tab-prog i { background: #fff; }
+
+/* v4 · Balades : ingrédients provisoires, cartes des jeux */
+.wild-ph { display: grid; place-items: center; width: 100%; height: 100%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--c) 22%, transparent); font-size: 1.6em; line-height: 1; }
+.tile .wild-ph { font-size: 2rem; width: 78%; height: auto; margin: auto; }
+.game-list { display: grid; gap: 12px; margin-top: 12px; }
+.game-card { display: grid; grid-template-columns: 84px 1fr; gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; box-shadow: var(--shadow); }
+.game-card.soon { opacity: .72; }
+.g-art { width: 84px; height: 84px; display: grid; place-items: center; }
+.g-art img { width: 100%; height: 100%; object-fit: contain; }
+.game-ph { width: 84px; height: 84px; border-radius: 22px; display: grid; place-items: center; font-size: 2.6rem; background: color-mix(in srgb, var(--c) 22%, var(--panel)); border: 2px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.g-body { min-width: 0; display: grid; gap: 6px; }
+.g-body p { margin: 0; }
+.g-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.g-title b { font-size: 1.05rem; }
+.g-tag { font-size: .72rem; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); }
+.g-gives { display: flex; flex-wrap: wrap; gap: 6px; }
+.g-give { display: inline-flex; align-items: center; gap: 4px; font-size: .78rem; font-weight: 700; padding: 2px 8px 2px 3px; border-radius: 99px; background: var(--panel-2); }
+.g-give svg, .g-give .wild-ph, .g-give .coin { width: 20px; height: 20px; font-size: .8rem; }
+.g-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.g-btn { margin-left: auto; }
+.g-dots { display: inline-flex; gap: 4px; }
+.g-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.g-dots i.on { background: var(--leaf); }
+
+/* v4 · Mini-jeu en plein écran */
+.game { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; background: linear-gradient(#cfeefc, #e8f7d8 45%, #a9d68a); color: #3a2c1f; touch-action: none; user-select: none; -webkit-user-select: none;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
+.g-top { display: flex; align-items: center; gap: 10px; }
+.g-x { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.8); color: #3a2c1f; display: grid; place-items: center; }
+.g-x svg { width: 20px; height: 20px; }
+.g-name { flex: 1; font-size: 1.1rem; }
+.g-score { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.85); border-radius: 99px; padding: 4px 14px 4px 4px; font-size: 1.3rem; }
+.g-score svg, .g-score .wild-ph { width: 32px; height: 32px; font-size: 1.1rem; }
+.g-time { height: 8px; border-radius: 99px; background: rgba(255,255,255,.6); margin: 10px 0; overflow: hidden; }
+.g-time i { display: block; height: 100%; width: 100%; background: #f2b632; border-radius: 99px; }
+.g-field { position: relative; flex: 1; min-height: 0; }
+.g-hint { text-align: center; margin: 6px 0 0; font-weight: 700; color: #5a4a3a; }
+.g-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 6rem; font-weight: 900; color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,.15); pointer-events: none; z-index: 5; }
+.g-count.pop { animation: gCount .7s ease-out; }
+@keyframes gCount { from { transform: scale(1.6); opacity: 0; } 30% { opacity: 1; } to { transform: scale(.9); opacity: .3; } }
+.g-pop { position: absolute; transform: translate(-50%, -50%); font-weight: 900; font-size: 1.4rem; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); pointer-events: none; animation: gPop .8s ease-out forwards; }
+.g-pop.gold { color: #ffd84a; font-size: 1.8rem; }
+@keyframes gPop { to { transform: translate(-50%, -160%); opacity: 0; } }
+.g-end { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(58,44,31,.35); z-index: 6; animation: gFade .25s; }
+@keyframes gFade { from { opacity: 0; } }
+.g-card { width: min(100%, 380px); background: var(--panel); color: var(--ink); border-radius: 22px; padding: 20px; text-align: center; display: grid; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+.g-card h2 { margin: 0; }
+.g-card p { margin: 0; }
+.g-final { font-size: 1.15rem; }
+.g-rec { display: inline-block; font-size: .8rem; font-weight: 800; background: var(--sun-soft); color: #8a5a00; border-radius: 99px; padding: 2px 10px; }
+.g-rews { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.g-rew { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 6px 12px 6px 6px; }
+.g-rew svg, .g-rew .wild-ph, .g-rew .coin { width: 34px; height: 34px; font-size: 1.1rem; }
+.g-xp { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--leaf); color: var(--leaf-ink); font-size: .75rem; font-weight: 900; }
+.g-acts { display: flex; gap: 10px; justify-content: center; }
+.g-acts .btn { flex: 1; }
+
+/* La ruche */
+.hive { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 64px; height: 64px; }
+.ruche-field { margin-top: 10px; }
+.flower { position: absolute; width: min(26vw, 120px); aspect-ratio: 1; transform: translate(-50%, -50%); border: 0; background: radial-gradient(circle at 50% 70%, rgba(80,140,50,.25), transparent 65%); border-radius: 50%; padding: 0; -webkit-tap-highlight-color: transparent; }
+.flower svg { position: absolute; inset: 8%; width: 84%; height: 84%; transition: transform .2s, opacity .2s; }
+.flower .fl-wrap { position: absolute; inset: 0; }
+.flower .fl-open { transform: scale(.2) rotate(-40deg); opacity: 0; }
+.flower.open .fl-open { transform: scale(1) rotate(0); opacity: 1; }
+.flower.open .fl-bud { opacity: 0; transform: scale(.6); }
+.flower.gold { filter: drop-shadow(0 0 10px #ffe27a); }
+.flower.nope .fl-bud { animation: gNope .3s; }
+.flower.wilt .fl-bud { animation: gWilt .3s; }
+@keyframes gNope { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes gWilt { from { transform: scale(.85); } }
+.bee { position: absolute; width: 36px; height: 30px; margin: -15px 0 0 -18px; transition: transform .45s cubic-bezier(.3,.7,.4,1); pointer-events: none; z-index: 3; }
+.bee svg { width: 100%; height: 100%; animation: gBuzz .12s infinite alternate; }
+@keyframes gBuzz { to { transform: translateY(-2px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .bee svg, .g-count.pop { animation: none; } }

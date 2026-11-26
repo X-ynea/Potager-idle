@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.0" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.1" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -44,12 +44,12 @@ const GOLD_CHANCE = .02;
 const isGold = k => typeof k === "string" && k.startsWith("gold_");
 const goldBase = k => k.slice(5);
 const goldArt = k => `<span class="gold-art">${cropArt(k)}</span>`;
-const itemName = k => isGold(k) ? `${PLANTS[goldBase(k)].name} d’or` : PLANTS[k] ? PLANTS[k].name : RECIPES[k].name;
-const itemArt = k => isGold(k) ? goldArt(goldBase(k)) : PLANTS[k] ? cropArt(k) : dishArt(k);
-const itemBag = k => isGold(k) ? S.golden : PLANTS[k] ? S.crops : S.dishes;
-const itemVal = k => isGold(k) ? PLANTS[goldBase(k)].sell * 10 : PLANTS[k] ? PLANTS[k].sell : RECIPES[k].sell;
+const itemName = k => isGold(k) ? `${PLANTS[goldBase(k)].name} d’or` : PLANTS[k] ? PLANTS[k].name : WILD[k] ? WILD[k].name : RECIPES[k].name;
+const itemArt = k => isGold(k) ? goldArt(goldBase(k)) : PLANTS[k] ? cropArt(k) : WILD[k] ? wildArt(k) : dishArt(k);
+const itemBag = k => isGold(k) ? S.golden : PLANTS[k] ? S.crops : WILD[k] ? S.wild : S.dishes;
+const itemVal = k => isGold(k) ? PLANTS[goldBase(k)].sell * 10 : PLANTS[k] ? PLANTS[k].sell : WILD[k] ? WILD[k].sell : RECIPES[k].sell;
 const itemXp = k => isGold(k) ? PLANTS[goldBase(k)].xp * 3 : PLANTS[k] ? PLANTS[k].xp : RECIPES[k].xp;
-const itemDesc = k => isGold(k) ? `Une ${PLANTS[goldBase(k)].name.toLowerCase()} rarissime, qui brille comme un trésor. Elle vaut dix fois le prix normal.` : (PLANTS[k] || RECIPES[k]).desc;
+const itemDesc = k => isGold(k) ? `Une ${PLANTS[goldBase(k)].name.toLowerCase()} rarissime, qui brille comme un trésor. Elle vaut dix fois le prix normal.` : (PLANTS[k] || WILD[k] || RECIPES[k]).desc;
 // Une plante déjà récoltée reste disponible, même si son niveau de déblocage a changé.
 // Niveau à partir duquel une plante est accessible (pour un hybride : quand ses deux parents le sont).
 const plantLvl = k => PLANTS[k].hybrid ? Math.max(...PLANTS[k].parents.map(p => PLANTS[p].lvl)) : PLANTS[k].lvl;
@@ -68,7 +68,7 @@ function fresh() {
   const s = {
     v: 1, xpCurve2: true, xpCurve3: true, xpCurve4: true, xpCurve5: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
-    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null], friendWater: [],
+    seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, wild: {}, games: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null], friendWater: [],
     upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
@@ -654,7 +654,7 @@ const A = {
   sellCat(c) { UI.sellCat = c; render(true); },
   invGo(arg) {
     if (arg.startsWith("seed:")) { msub = "seeds"; UI.sel.seeds = arg.slice(5); }
-    else { msub = "sell"; UI.sellCat = PLANTS[arg] || isGold(arg) ? "crops" : "dishes"; UI.sel.sell = arg; }
+    else { msub = "sell"; UI.sellCat = PLANTS[arg] || isGold(arg) ? "crops" : WILD[arg] ? "wild" : "dishes"; UI.sel.sell = arg; }
     tab = "market"; render(true); window.scrollTo({ top: 0 });
   },
   openInv(k) {
@@ -858,7 +858,7 @@ function views_garden() {
   const ripe = S.plots.filter(p => plotState(p, t) === "ripe").length;
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
-  const decoKeys = DECO_ORDER.filter(decoUnlocked), goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  const decoKeys = DECO_ORDER.filter(decoUnlocked), goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), wildKeys = WORDER.filter(k => cnt(S.wild, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k), badge: PLANTS[k] ? seasonBadge(k) : "" })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k), badge: seasonBadge(k) })).join("")}</div>`;
@@ -881,7 +881,7 @@ function views_garden() {
   ${weeklyHTML()}
   <section class="panel">
     <h2>Inventaire</h2>
-    ${cropKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    ${cropKeys.length || wildKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${wildKeys.length ? `<h3 class="cat-title">Trouvailles de balade</h3>${miniTiles(wildKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section>
   ${dailyQuests().bonus ? questsHTML() : ""}
 `;
@@ -1048,8 +1048,8 @@ function ingList(need) {
 }
 
 /* ---------------- Inventaire (récoltes, graines, plats) ---------------- */
-const CATS = [["crops", "Récoltes"], ["seeds", "Graines"], ["dishes", "Plats"]];
-const catBag = c => c === "seeds" ? S.seeds : c === "dishes" ? S.dishes : S.crops;
+const CATS = [["crops", "Récoltes"], ["wild", "Balades"], ["seeds", "Graines"], ["dishes", "Plats"]];
+const catBag = c => c === "seeds" ? S.seeds : c === "dishes" ? S.dishes : c === "wild" ? S.wild : S.crops;
 const catCount = c => Object.values(catBag(c)).reduce((a, b) => a + b, 0);
 function catTabs(cats, cur, act) {
   return `<div class="subtabs" style="grid-template-columns:repeat(${cats.length},1fr)">${cats.map(([c, l]) => `<button data-act="${act}" data-arg="${c}" aria-pressed="${cur === c}">${l} <span class="num">${catCount(c)}</span></button>`).join("")}</div>`;
@@ -1063,20 +1063,20 @@ function sortBar(ctx, opts) {
 const sortOf = ctx => (S.settings.sort || {})[ctx] || "none"; // "none" = ordre de base
 function invBody(ctx, cat) {
   const bag = catBag(cat);
-  const keys = (cat === "dishes" ? RORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
+  const keys = (cat === "dishes" ? RORDER : cat === "wild" ? WORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
   if (ctx === "sell") { const m = sortOf("sell"); if (m !== "none") keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
   if (ctx === "sell") keys.sort((a, b) => isGold(b) - isGold(a)); // à la vente, les dorées d’abord (elles ne servent qu’à ça)
   let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
-    det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
+    det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", wild: "Rien de la balade pour l’instant. Pêche, promène-toi ou aide les abeilles dans l’onglet Balades !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
   } else if (cat === "seeds") {
     const d = PLANTS[k];
     det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)),
       "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
   } else {
     const n = cnt(itemBag(k), k), v = itemVal(k);
-    const uses = cat === "crops" && !isGold(k) ? RORDER.filter(r => RECIPES[r].need[k]) : [];
+    const uses = (cat === "crops" || cat === "wild") && !isGold(k) ? RORDER.filter(r => RECIPES[r].need[k]) : [];
     det = detail(ctx, itemArt(k), itemName(k), itemDesc(k), mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
       `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout · ${priceTag(n * v)}</button>`);
@@ -1134,7 +1134,7 @@ function marketRecipes() {
 }
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
-  return `${catTabs([["crops", "Récoltes"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
+  return `${catTabs([["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
     ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte · ${priceTag(tot)}</button>` : ""}
     ${invBody("sell", UI.sellCat)}
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
@@ -1225,16 +1225,17 @@ function views_village() {
 }
 
 /* ---------------- Render loop ---------------- */
-const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierBar() + views_kitchen(), lab: () => atelierBar() + views_lab(), village: views_village, friends: views_friends };
+const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierBar() + views_kitchen(), lab: () => atelierBar() + views_lab(), village: views_village, friends: views_friends, balades: views_balades };
 let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
-    case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
+    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.wild, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "market": return base + JSON.stringify([S.seeds, S.crops, S.wild, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
+    case "balades": return base + JSON.stringify([S.games, S.wild, parisDay(), weekId()]);
     case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, FR.hlTrade, CLOUD.signedIn, CLOUD.blocked]);
   }
 }
@@ -1492,7 +1493,7 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#mod
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); else { tick(now()); render(); } });
 addEventListener("pagehide", save);
 
-Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS, NEWS3_ACTS);
+Object.assign(A, TUTO_ACTS, PROFILE_ACTS, CLOUD_ACTS, FRIENDS_ACTS, VISIT_ACTS, WATER_ACTS, TRADE_ACTS, LIKE_ACTS, GOAL_ACTS, NEWS3_ACTS, BALADES_ACTS);
 /* ---------------- Boot ---------------- */
 let nextButterfly = 0, nextWeed = 0;
 function start() {

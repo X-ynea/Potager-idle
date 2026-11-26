@@ -122,6 +122,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.1 (version de test, préparation de la v4)
+- Nouvel onglet « Balades » (icône du panneau en bois), à partir du niveau 4 : cinq petits jeux, 3 parties par jeu et par jour, avec le record de la semaine.
+- Premier jeu jouable : **la ruche**. Touche les fleurs qui s’ouvrent pour faire butiner les abeilles (30 s, fleur dorée +3). Elle rapporte du miel (1 à 4 pots) et un peu d’XP.
+- 7 ingrédients de balade (algues, cresson, menthe d’eau, châtaignes, mûres, noisettes, miel), rangés dans l’inventaire et au marché, onglet « Balades ». Images provisoires en attendant les vraies.
+
 ### 3.1.0 (version de test, préparation de la v4)
 - Cuisine et Serre sont réunies dans un nouvel onglet « Atelier », avec un sous-onglet pour chacune. L’onglet du bas additionne leurs pastilles et montre deux petites jauges : pêche pour la cuisson, verte pour le croisement.
 

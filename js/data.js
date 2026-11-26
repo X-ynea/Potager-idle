@@ -86,6 +86,18 @@ const RECIPES = {
 };
 const RORDER = Object.keys(RECIPES);
 
+/* v4 : ingrédients de balade. Ils ne se cultivent pas : on les trouve dans les mini-jeux de l'onglet Balades. */
+const WILD = {
+  algue:     { name: "Algues", desc: "De longues algues vertes et brillantes, repêchées au bord de l’étang.", sell: 16, src: "peche", color: "#3f8f6a", emoji: "🌿" },
+  cresson:   { name: "Cresson", desc: "Une botte de cresson poivré, cueillie les pieds dans l’eau fraîche.", sell: 20, src: "peche", color: "#5fae4a", emoji: "🌱" },
+  menthe:    { name: "Menthe d’eau", desc: "Ses petites feuilles sentent bon dès qu’on les froisse.", sell: 24, src: "peche", color: "#4fb39a", emoji: "🍃" },
+  chataigne: { name: "Châtaignes", desc: "Bien à l’abri dans leur bogue piquante, elles n’attendent que le feu.", sell: 22, src: "foret", color: "#8a5a3a", emoji: "🌰" },
+  mure:      { name: "Mûres", desc: "Des mûres sauvages, noires et sucrées. Gare aux ronces !", sell: 18, src: "foret", color: "#4a2a5a", emoji: "🫐" },
+  noisette:  { name: "Noisettes", desc: "Ramassées sous le noisetier, avant que les écureuils ne passent.", sell: 20, src: "foret", color: "#b08350", emoji: "🥜" },
+  miel:      { name: "Miel", desc: "Un pot de miel doré, butiné sur les fleurs du jardin.", sell: 30, src: "ruche", color: "#f2b632", emoji: "🍯" },
+};
+const WORDER = Object.keys(WILD);
+
 const UPG = {
   water: { name: "Arrosoir", steps: [{ cost: 150, lvl: 6 }, { cost: 900, lvl: 12 }, { cost: 3000, lvl: 18 }], values: [5, 8, 15, 30],
            desc: v => `L’eau tient ${v} min dans la terre` },

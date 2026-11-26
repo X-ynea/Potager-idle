@@ -208,6 +208,8 @@ const hasImg = (kind, k) => !VEC_ONLY && IMG[kind].includes(k);
 /* Une image dans un <svg> : elle se place exactement comme les dessins vectoriels. */
 const imgSvg = (src, cls = "") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><image href="${src}" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></svg>`;
 function cropArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-crop.webp`) : plantArt(k, 3); }
+// v4 : ingrédients de balade (image si fournie, sinon un petit disque provisoire).
+function wildArt(k) { return !VEC_ONLY && (IMG.wild || []).includes(k) ? imgSvg(`assets/img/wild-${k}.webp`) : `<span class="wild-ph" style="--c:${WILD[k].color}">${WILD[k].emoji}</span>`; }
 function seedArt(k) { k = PLANTS[k]?.img || k; return hasImg("plants", k) ? imgSvg(`assets/img/${k}-seeds.webp`) : packetArt(k); }
 
 /* Pousses et jeunes plants dessinés sans terre, posés directement dans le bac. */

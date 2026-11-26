@@ -6,13 +6,13 @@
   <title>Potager idle</title>
   <meta name="description" content="Un petit jeu idle de potager : plante, arrose, récolte, cuisine et découvre des variétés hybrides.">
   <meta name="theme-color" content="#fdf3e7" id="theme-color">
-  <link rel="manifest" href="manifest.webmanifest?v=400">
+  <link rel="manifest" href="manifest.webmanifest?v=401">
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
   <link rel="preload" href="fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=400">
+  <link rel="stylesheet" href="css/style.css?v=401">
 </head>
 <body>
 <div id="app">
@@ -35,6 +35,7 @@
 <nav class="tabs" role="tablist" aria-label="Écrans">
   <button class="tab" role="tab" data-act="tab" data-arg="garden" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13c-5 0-7-3-7-7 4 0 7 2 7 7zm0 0c0-5 3-8 7-8 0 5-2 8-7 8z" fill="currentColor"/></svg>Jardin<span class="badge" id="b-garden" hidden></span></button>
   <button class="tab" role="tab" data-act="tab" data-arg="atelier" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18v1.5a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7z" fill="currentColor"/><path d="M12 12V8m0 0c-3.2 0-4.5-2-4.5-4.5 3 0 4.5 2 4.5 4.5zm0 0c0-3 1.6-4.6 4.6-4.6 0 2.8-1.6 4.6-4.6 4.6z" fill="currentColor" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>Atelier<span class="badge" id="b-atelier" hidden></span><span class="tab-prog k" id="p-kitchen" hidden><i></i></span><span class="tab-prog l" id="p-lab" hidden><i></i></span></button>
+  <button class="tab" role="tab" data-act="tab" data-arg="balades" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="2.5" width="2.4" height="19" rx="1" fill="currentColor"/><path d="M4 5.5h11.5l3 2.6-3 2.6H4z" fill="currentColor"/><path d="M20 12.5H8.5l-3 2.6 3 2.6H20z" fill="currentColor" opacity=".6"/></svg>Balades</button>
   <button class="tab" role="tab" data-act="tab" data-arg="market" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z" fill="currentColor"/><path d="M5 13v7h14v-7" stroke="currentColor" stroke-width="2" fill="none"/></svg>Marché</button>
   <button class="tab" role="tab" data-act="tab" data-arg="village" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M3 10h18l-2 9a2 2 0 0 1-2 1.6H7A2 2 0 0 1 5 19z" fill="currentColor"/><path d="M9 13v5M12 13v5M15 13v5" stroke="var(--panel)" stroke-width="1.6" stroke-linecap="round"/></svg>Village<span class="badge" id="b-village" hidden></span></button>
   <button class="tab" role="tab" data-act="tab" data-arg="friends" aria-selected="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5" fill="currentColor"/><path d="M2.5 20c0-3.8 2.9-6.5 6.5-6.5s6.5 2.7 6.5 6.5z" fill="currentColor"/><circle cx="17" cy="9" r="2.8" fill="currentColor" opacity=".55"/><path d="M15.5 14.2c3.3-.6 6 1.8 6 5.3h-4.4" fill="currentColor" opacity=".55"/></svg>Amis<span class="badge" id="b-friends" hidden></span></button>
@@ -44,25 +45,26 @@
 <div id="fx"></div>
 <div id="toasts" aria-live="polite"></div>
 
-<script src="js/env.js?v=400"></script>
-<script src="js/typo.js?v=400"></script>
-<script src="js/data.js?v=400"></script>
-<script src="assets/img/manifest.js?v=400"></script>
-<script src="js/art.js?v=400"></script>
-<script src="js/seasons.js?v=400"></script>
-<script src="js/sound.js?v=400"></script>
-<script src="js/achievements.js?v=400"></script>
-<script src="js/cloud-config.js?v=400"></script>
-<script src="js/cloud.js?v=400"></script>
-<script src="js/profile.js?v=400"></script>
-<script src="js/friends.js?v=400"></script>
-<script src="js/visit.js?v=400"></script>
-<script src="js/water.js?v=400"></script>
-<script src="js/trade.js?v=400"></script>
-<script src="js/like.js?v=400"></script>
-<script src="js/goals.js?v=400"></script>
-<script src="js/news.js?v=400"></script>
-<script src="js/tuto.js?v=400"></script>
-<script src="js/game.js?v=400"></script>
+<script src="js/env.js?v=401"></script>
+<script src="js/typo.js?v=401"></script>
+<script src="js/data.js?v=401"></script>
+<script src="assets/img/manifest.js?v=401"></script>
+<script src="js/art.js?v=401"></script>
+<script src="js/seasons.js?v=401"></script>
+<script src="js/sound.js?v=401"></script>
+<script src="js/achievements.js?v=401"></script>
+<script src="js/cloud-config.js?v=401"></script>
+<script src="js/cloud.js?v=401"></script>
+<script src="js/profile.js?v=401"></script>
+<script src="js/friends.js?v=401"></script>
+<script src="js/visit.js?v=401"></script>
+<script src="js/water.js?v=401"></script>
+<script src="js/trade.js?v=401"></script>
+<script src="js/like.js?v=401"></script>
+<script src="js/goals.js?v=401"></script>
+<script src="js/news.js?v=401"></script>
+<script src="js/balades.js?v=401"></script>
+<script src="js/tuto.js?v=401"></script>
+<script src="js/game.js?v=401"></script>
 </body>
 </html>
