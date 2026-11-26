@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.19
+- Cuisine : une pastille dorée signale les plats demandés par les commandes en cours (à côté de la pastille bleue des plats faisables).
+
 ### 3.0.18
 - Commandes des voisins : elles grandissent avec le jardin. Au-delà de 6 parcelles, les voisins demandent plus de légumes, parfois deux fois le même plat, et de nouvelles commandes « Difficile » de plusieurs plats arrivent (à partir de 8 et 10 parcelles). Les récompenses suivent.
 - Amis et visites hors-ligne : un message clair indique qu’il faut internet.

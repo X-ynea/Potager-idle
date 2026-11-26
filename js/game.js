@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.18" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.19" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1038,6 +1038,7 @@ const mystery = k => `<div class="sil">${plantArt(k, 3)}</div>`;
 function tile(art, o) {
   return `<div class="tile-wrap"><button class="tile${o.sel ? " sel" : ""}${o.locked ? " locked" : ""}" data-act="${o.act}" data-arg="${o.arg || ""}" aria-pressed="${!!o.sel}" aria-label="${o.label}">${art}${o.badge || ""}` +
     (o.count ? `<span class="cnt num">${fmt(o.count)}</span>` : "") +
+    (o.want ? `<span class="dot want${o.dot ? " beside" : ""}" title="Demandé par un voisin"></span>` : "") +
     (o.check ? `<span class="tb">${CHECK}</span>` : o.locked ? `<span class="tb">${LOCK}</span>` : o.dot ? `<span class="dot"></span>` : "") +
     `</button>${o.under != null ? `<span class="under">${o.under}</span>` : ""}</div>`;
 }
@@ -1184,7 +1185,7 @@ function views_kitchen() {
   const km = sortOf("kitchen"), rec = [...S.recipes];
   if (km !== "none") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
-  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x) })).join("") +
+  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
   return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }
@@ -1239,7 +1240,7 @@ function sig(t) {
   switch (tab) {
     case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
-    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
+    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t)), S.orders.map(o => o.id)]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
     case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
     case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, FR.hlTrade, CLOUD.signedIn, CLOUD.blocked]);
