@@ -166,8 +166,8 @@ function trSide(side, f) {
   const keys = keysOf(cat), picked = trItems(items);
   const hidden = give && TR.inv ? [...ORDER, ...RORDER].filter(k => tradable(k) && bagOf(k) > 0 && !knowsItem(who, k)).length : 0;
   return `<section class="tr-side">
-    <h3>${give ? "Tu donnes" : `Tu demandes à ${esc(f.name)}`}</h3>
-    ${picked.length ? `<div class="tr-picked">${picked.map(([k, q]) => `<button class="tr-chip on" data-act="trSub" data-arg="${side}:${k}" aria-label="Retirer un ${itemName(k)}">${itemArt(k)}<b class="num">${q}</b><small>${itemName(k)}</small><span class="tr-x">−</span></button>`).join("")}</div>` : ""}
+    <h3 class="tr-head"><span>${give ? "Tu donnes" : `Tu demandes à ${esc(f.name)}`}</span><span class="tr-total num" id="tr-total-${side}" title="Valeur totale (prix de vente au marché)">${coin}${fmt(sideValue(items, coins))}</span></h3>
+    ${picked.length ? `<div class="tr-picked">${picked.map(([k, q]) => `<button class="tr-chip on" data-act="trSub" data-arg="${side}:${k}" aria-label="Retirer un ${itemName(k)}">${itemArt(k)}<b class="num">${q}</b><small>${itemName(k)}</small><small class="tr-val num">${fmt(trValue(k) * q)}</small><span class="tr-x">−</span></button>`).join("")}</div>` : ""}
     <div class="seg tr-seg">${[["crops", "Récoltes"], ["dishes", "Plats"]].map(([c, l]) => `<button data-act="trCat" data-arg="${side}:${c}" aria-pressed="${cat === c}">${l} <span class="num">${(!give && !TR.inv) ? "" : keysOf(c).length}</span></button>`).join("")}</div>
     ${!give && !TR.inv ? `<p class="small muted" style="margin:0">${TR.invErr ? esc(TR.invErr) : "Chargement de son inventaire…"}</p>`
       : keys.length ? `<div class="tr-grid">${keys.map(k => { const left = bagOf(k) - (items[k] || 0);
@@ -208,6 +208,7 @@ document.addEventListener("input", ev => {
   const other = document.getElementById(`tr-coins-${m[1] === "give" ? "want" : "give"}`);
   if (other) { other.disabled = v > 0; other.closest(".tr-coins")?.classList.toggle("off", v > 0); }
   const b = document.getElementById("tr-balance"); if (b) b.outerHTML = trBalanceHTML();
+  const t = document.getElementById(`tr-total-${m[1]}`); if (t) t.innerHTML = coin + fmt(m[1] === "give" ? sideValue(TR.draft.give, TR.draft.giveCoins) : sideValue(TR.draft.want, TR.draft.wantCoins));
 });
 // Ouvre la fenêtre d'échange avec un ami (brouillon vide, ou contre-proposition pré-remplie).
 function trStart(f, draft) {

@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.20
+- Échanges : la valeur totale de chaque côté s’affiche à côté de « Tu donnes » et « Tu demandes », et chaque objet choisi montre sa valeur (quantité comprise).
+
 ### 3.0.19
 - Cuisine : une pastille dorée signale les plats demandés par les commandes en cours (à côté de la pastille bleue des plats faisables).
 
