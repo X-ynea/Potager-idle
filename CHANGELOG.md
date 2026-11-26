@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.51 (version de test, préparation de la v4)
+- La ruche : l’herbe de la saison remplit tout l’écran. Chaque emplacement garde la couleur de sa fleur toute la partie (plus de clignotement) ; plus de bouton jaune, la fleur dorée s’ouvre n’importe où.
+
 ### 3.1.50 (version de test, préparation de la v4)
 - Pêche : la canne est plus droite, et l’herbe de la saison (comme au jardin) remplit tout l’écran autour de l’étang.
 

@@ -7,7 +7,7 @@ const BALADES_LVL = 4; // ouverture de l'onglet ; chaque jeu a ensuite son nivea
 const GAME_PLAYS = 3;
 const GAMES = {
   ruche:      { lvl: 4, name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
-    rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Un bouton doré donne une fleur dorée, qui vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
+    rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
   peche:      { lvl: 5, name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
     rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "La partie dure 5 prises ou 30 secondes.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
   foret:      { lvl: 6, name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
@@ -59,7 +59,7 @@ function views_balades() {
 let GAME = null; // partie en cours
 function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
-  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
+  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche" || id === "ruche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
@@ -198,7 +198,7 @@ const RIMG = n => `<img src="assets/img/balades/ruche-${n}.webp" alt="" draggabl
 const FLOWER = c => RIMG("fl-" + c).replace("<img ", '<img class="fl-open" ');
 const BUDIMG = c => RIMG("bud-" + c).replace("<img ", '<img class="fl-bud" ');
 const BEE = RIMG("bee");
-const rucheColor = () => Math.random() < .12 ? "or" : pick(["rose", "bleue", "blanche"]);
+const rucheColor = () => pick(["rose", "bleue", "blanche"]); // couleur d'un emplacement, gardée toute la partie
 const RUCHE_SPOTS = [[50, 50], [24, 36], [76, 36], [24, 66], [76, 66], [50, 22], [50, 80]]; // une fleur au centre, six autour
 const RUCHE_T = 30000;
 
@@ -464,7 +464,7 @@ const GAME_IMPL = {
       g.next = 400; g.combo = 0;
       g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.ruche.name}</b><span class="g-score">${wildArt("miel")}<b class="num">0</b></span></div>
         <div class="g-time"><i></i></div>
-        <div class="g-field ruche-field" style="background-image:url('assets/img/jardin/bg-${season()}.webp')"><div class="hive" aria-hidden="true">${RIMG("hive")}</div>
+        <div class="g-field ruche-field"><div class="hive" aria-hidden="true">${RIMG("hive")}</div>
         ${RUCHE_SPOTS.map(([x, y], i) => `<button class="flower" data-i="${i}" style="left:${x}%;top:${y}%" aria-label="Fleur"><span class="bud-wrap">${BUDIMG(g.flowers[i].color)}</span><span class="fl-wrap"></span></button>`).join("")}</div>
         <p class="g-hint">Touche les fleurs dès qu’elles s’ouvrent !</p>`;
       g.el.querySelector(".ruche-field").addEventListener("pointerdown", ev => {
@@ -474,14 +474,13 @@ const GAME_IMPL = {
     },
     open(g, i, e) {
       const f = g.flowers[i], b = g.el.querySelector(`.flower[data-i="${i}"]`);
-      f.open = true; f.gold = f.color === "or"; f.until = e + 1700 - 750 * Math.min(1, e / RUCHE_T);
-      b.querySelector(".fl-wrap").innerHTML = FLOWER(f.color);
+      f.open = true; f.gold = Math.random() < .12; f.until = e + 1700 - 750 * Math.min(1, e / RUCHE_T);
+      b.querySelector(".fl-wrap").innerHTML = FLOWER(f.gold ? "or" : f.color); // la fleur dorée peut s'ouvrir n'importe où
       b.classList.add("open"); b.classList.toggle("gold", f.gold);
     },
     close(g, i, missed) {
       const f = g.flowers[i], b = g.el.querySelector(`.flower[data-i="${i}"]`);
       f.open = false; b.classList.remove("open", "gold");
-      f.color = rucheColor(); setTimeout(() => { if (!f.open) b.querySelector(".bud-wrap").innerHTML = BUDIMG(f.color); }, 220); // un nouveau bouton pousse
       if (missed) { g.combo = 0; b.classList.add("wilt"); g.timers.push(setTimeout(() => b.classList.remove("wilt"), 300)); }
     },
     tap(g, i, b) {

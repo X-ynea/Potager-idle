@@ -1917,7 +1917,9 @@ button.sg-card { cursor: pointer; }
 /* v4 · Images définitives des Balades */
 .wild-img, .tile .wild-img { width: 100%; height: 100%; }
 .g-art img, .lv-art img { width: 100%; height: 100%; object-fit: contain; }
-.ruche-field { border-radius: 22px; background-size: cover; background-position: center; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(60,120,30,.25); }
+.ruche-field { overflow: hidden; }
+.g-ruche { background: #98cb78 center / cover; } /* l'herbe de la saison sur tout l'écran */
+.g-ruche .g-hint { margin: 6px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(255,255,255,.85); width: max-content; max-width: 100%; }
 .hive { width: 84px; height: 84px; top: 6px; filter: drop-shadow(0 4px 4px rgba(40,60,10,.35)); }
 .hive img { width: 100%; height: 100%; object-fit: contain; }
 .flower { background: none; }
