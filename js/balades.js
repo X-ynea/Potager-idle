@@ -26,14 +26,15 @@ function gamesState() {
   g.plays = g.plays || {}; g.best = g.best || {};
   return g;
 }
-const playsLeft = id => Math.max(0, GAME_PLAYS - (gamesState().plays[id] || 0));
+// Version de test : parties illimitées (la limite revient d'elle-même sur la version des joueurs).
+const playsLeft = id => IS_TEST ? GAME_PLAYS : Math.max(0, GAME_PLAYS - (gamesState().plays[id] || 0));
 const weekBest = id => { const b = gamesState().best[id]; return b && b.week === weekId() ? b.score : 0; };
 
 const SIGNPOST = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="2.5" width="2.4" height="19" rx="1" fill="currentColor"/><path d="M4 5.5h11.5l3 2.6-3 2.6H4z" fill="currentColor"/><path d="M20 12.5H8.5l-3 2.6 3 2.6H20z" fill="currentColor" opacity=".6"/></svg>`;
 const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
 
 function views_balades() {
-  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${GAME_PLAYS} parties par jeu et par jour</span></div></section>`;
+  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${IS_TEST ? "Parties illimitées (test)" : `${GAME_PLAYS} parties par jeu et par jour`}</span></div></section>`;
   if (S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
     const G = GAMES[id], left = playsLeft(id), best = weekBest(id);
@@ -112,7 +113,7 @@ function gameEnd() {
     <h2>${g.score ? GAME_IMPL[g.id].cheer(g.score) : "Oh, pas cette fois !"}</h2>
     <p class="g-final">Score : <b class="num">${g.score}</b>${rec ? ` <span class="g-rec">Record de la semaine !</span>` : prev ? ` <span class="small muted">(record : ${prev})</span>` : ""}</p>
     ${items.length ? `<div class="g-rews">${items.join("")}</div>` : `<p class="small muted">Rien de rapporté cette fois.</p>`}
-    <p class="small muted">${left ? `Encore ${left} partie${left > 1 ? "s" : ""} aujourd’hui.` : "Plus de partie aujourd’hui pour ce jeu : reviens demain !"}</p>
+    <p class="small muted">${IS_TEST ? "Version de test : parties illimitées." : left ? `Encore ${left} partie${left > 1 ? "s" : ""} aujourd’hui.` : "Plus de partie aujourd’hui pour ce jeu : reviens demain !"}</p>
     <div class="g-acts">${left ? `<button class="btn ghost" data-act="gameAgain">Rejouer</button>` : ""}<button class="btn" data-act="gameClose">Retour</button></div></div></div>`);
   SFX.play(items.length ? "success" : "click"); if (rec) buzz([20, 40, 20]);
 }

@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.10 (version de test, préparation de la v4)
+- Version de test : parties des Balades illimitées, pour essayer les jeux autant qu’on veut. La version des joueurs garde 3 parties par jeu et par jour.
+
 ### 3.1.9 (version de test, préparation de la v4)
 - Balade en forêt : l’herbe et le chemin défilent à la même vitesse que les buissons.
 
