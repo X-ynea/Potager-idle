@@ -104,6 +104,7 @@ const DECOS = {
   hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", signpost: "Panneau du village", lantern: "Lanterne",
   rabbit: "Lapin doré", well: "Puits",
   boat: "Petite barque", forage_basket: "Panier de cueillette", insect_hotel: "Hôtel à insectes", // v4 : Balades
+  friend_bench: "Banc de l’amitié", // v4 : 10 commandes livrées au jardin commun
 };
 // Décos des objectifs de la semaine (là où les amis sont ouverts) : une par saison, entre amis (f_) et de tous (g_).
 if (FRIENDS_ON) Object.assign(DECOS, { f_printemps: "Arche fleurie", f_ete: "Table de pique-nique", f_automne: "Hérisson et feuilles", f_hiver: "Bonhomme de neige",
@@ -113,13 +114,13 @@ const DECO_ORDER = Object.keys(DECOS);
 // (pour ne pas les confondre avec l'arrosage d'un ami et la boîte aux lettres du jardin).
 const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25, boat: 1.15, forage_basket: .8, insect_hotel: .95 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25, boat: 1.15, forage_basket: .8, insect_hotel: .95, friend_bench: 1.05 };
 // Décos des objectifs de la semaine
 if (FRIENDS_ON) Object.assign(DECO_SCALE, { f_printemps: 1.1, f_ete: .9, f_automne: .75, f_hiver: .9, g_printemps: 1.05, g_ete: 1.2, g_automne: 1.15, g_hiver: 1.1 });
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
 const decoUnlocked = d => { if ((S.goalDecos || []).includes(d)) return true; const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 // Décos des objectifs de la semaine : d'où elles viennent (affiché tant qu'elles ne sont pas gagnées).
-const GOAL_DECO_SRC = d => { const m = /^([fg])_(\w+)$/.exec(d); return m && SEASONS[m[2]] ? `Objectif ${m[1] === "f" ? "entre amis" : "de tous"} · ${SEASONS[m[2]].name.toLowerCase()}` : ""; };
+const GOAL_DECO_SRC = d => { if (d === "friend_bench") return "Jardin commun · 10 commandes livrées ensemble"; const m = /^([fg])_(\w+)$/.exec(d); return m && SEASONS[m[2]] ? `Objectif ${m[1] === "f" ? "entre amis" : "de tous"} · ${SEASONS[m[2]].name.toLowerCase()}` : ""; };
 const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };
 const hasBonus = b => ACHIEVEMENTS.some(a => a.tiers.some((t, i) => t.bonus === b && (S.ach || {})[a.id] > i));
 const xpMult = () => hasBonus("xp") ? 1.05 : 1;

@@ -81,6 +81,7 @@ function viewFriends(inTab) {
         : `<p class="small muted" style="margin:0">Aucun joueur trouvé.</p>`}`;
   }
   return shell(`<div class="fr-code"><small>Ton code ami</small><b class="num">${esc(FR.code)}</b><button class="btn fr-ico ghost" data-act="frCopy" aria-label="Copier le code" title="Copier">${FR_ICONS.copy}</button>${navigator.share ? `<button class="btn fr-ico ghost" data-act="frShare" aria-label="Partager le code" title="Partager">${FR_ICONS.share}</button>` : ""}</div>
+    ${typeof sgCardHTML === "function" ? sgCardHTML() : ""}
     <div class="subtabs" style="grid-template-columns:repeat(3,1fr)">${tabs.map(([k, l]) => `<button data-act="frTab" data-arg="${k}" aria-pressed="${FR.tab === k}">${l}</button>`).join("")}</div>
     ${FR.error ? `<p class="cloud-warn">${esc(FR.error)}</p>` : ""}${body}`);
 }

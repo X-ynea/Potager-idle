@@ -122,6 +122,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.27 (version de test, préparation de la v4)
+- **Jardin commun** : un petit jardin de 6 bacs partagé avec 3 amis au plus. On le crée (ou on accepte une invitation) depuis l’onglet Amis, et on y va aussi par le petit portail au-dessus de son jardin.
+- Graines gratuites (8 par jour chacun), plantes de base débloquées par tous, jamais d’hybride. Les récoltes vont dans un panier commun qui ne sert qu’aux 2 commandes du jour.
+- Chaque jardinier qui a planté au moins 3 graines depuis la commande précédente reçoit la récompense (pièces, XP, parfois un ingrédient de balade), et la déco **Banc de l’amitié** à partir de 10 commandes livrées ensemble. Serveur : `docs/jardin-commun.sql`, puis `docs/jardin-commun-plantes.sql`.
+
 ### 3.1.26 (version de test, préparation de la v4)
 - Reprend les corrections de la version des joueurs jusqu’à la 3.0.23 (commandes selon le nombre de parcelles, pastille dorée en cuisine, valeurs dans les échanges, inventaire par ordre alphabétique).
 

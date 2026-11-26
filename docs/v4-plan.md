@@ -76,5 +76,5 @@ Les 7 ingrédients, les recettes, les 2 hybrides (plante et jeunes plants), les 
    - ✅ 9 recettes de balade (v3.1.21–22), ingrédients de balade échangeables (`docs/echanges-balades.sql`).
    - ✅ 3 hybrides de saison : Courgette cerise, Poireau soleil, Pois sucré, avec 3 recettes (v3.1.23).
    - ✅ 2 voisins (Margot la Cane, Firmin le Renard), 4 succès des Balades et 3 décos (v3.1.24).
-5. Jardin commun : base de données (`docs/jardin-commun.sql`), création et invitations, bacs, panier, commandes partagées.
+5. ✅ Jardin commun (v3.1.27) : `docs/jardin-commun.sql` + `docs/jardin-commun-plantes.sql` (généré par `tools/jardin-plantes.js`), carte dans l'onglet Amis, portail au-dessus du jardin, déco Banc de l'amitié. Pousse : eau 10 min, terre sèche ×0,25, saison ×1,25. Commandes : 2 à 4 plantes, quantité de 1 à (1 + nombre de membres) ; récompense = valeur × 1,6 + 10 pièces, XP × 1,3 + 5, ingrédient de balade 1 fois sur 3.
 6. Succès, conseils de Mamie Lapine, fenêtre « Du nouveau », CHANGELOG, puis sortie (fusion de `test` dans `main` quand tu le décides).

@@ -78,3 +78,8 @@ Lancer **`docs/balades.sql`** dans *SQL Editor* (après `docs/objectifs.sql` ; p
 - les fonctions `report_score` (envoyer son record, il ne peut que monter) et `week_scores` (moi et mes amis, par jeu).
 
 Pour que les ingrédients de balade s'échangent : lancer **`docs/echanges-balades.sql`** (l'inventaire d'un ami montre aussi ses trouvailles), puis relancer **`docs/echanges-valeurs.sql`** (leurs prix et ceux des nouvelles recettes).
+
+## Jardin commun (v4, en test)
+
+Lancer **`docs/jardin-commun.sql`** (après `docs/balades.sql`), puis **`docs/jardin-commun-plantes.sql`** (les plantes, leur temps de pousse et leur saison). Les deux peuvent être relancés sans risque.
+Après chaque changement de plante : `node tools/jardin-plantes.js`, puis relancer `docs/jardin-commun-plantes.sql`.
