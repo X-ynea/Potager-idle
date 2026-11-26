@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.26" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.27" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -241,8 +241,10 @@ const GIFT = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="10" y="26" wi
 
 /* ---------------- Objectifs du jour ---------------- */
 // Chaque jour, 3 petites quêtes de types différents, adaptées au niveau.
+// Plante exclusive d'une autre saison : on ne peut pas en acheter les graines, donc pas d'objectif dessus.
+const offSeasonPlant = k => !!PLANTS[k].only && PLANTS[k].season !== season();
 const QUEST_TYPES = [
-  { id: "harvestK", w: 5, make: () => { const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level); const k = pick(pool);
+  { id: "harvestK", w: 5, make: () => { const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level && !offSeasonPlant(k)); const k = pick(pool);
       const n = Math.max(3, Math.min(15, Math.round(2400 / PLANTS[k].time * (1 + S.level / 10)))); return { k, n, text: `Récolter ${n} ${PLANTS[k].name.toLowerCase()}${n > 1 && !/s$/.test(PLANTS[k].name) ? "s" : ""}`, base: PLANTS[k].sell * n }; } },
   { id: "harvest", w: 3, make: () => { const n = 10 + S.level * 2; return { n, text: `Faire ${n} récoltes`, base: n * 8 }; } },
   { id: "cook", w: 4, lvl: 2, make: () => { const n = 2 + Math.floor(S.level / 4); return { n, text: `Cuisiner ${n} plats`, base: n * 45 }; } },
@@ -255,13 +257,14 @@ const QUEST_TYPES = [
 ];
 function dailyQuests() {
   const today = dayKey();
-  if (S.quests && S.quests.day === today) return S.quests;
-  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
-  while (list.length < 3) {
-    const t = weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w);
-    const q = t.make();
-    list.push({ type: t.id, k: q.k || null, n: q.n, text: q.text, prog: 0, claimed: false, coins: Math.round((q.base * .6 + 20 + S.level * 4) * .8), xp: Math.round(8 + S.level * 3) });
+  const makeQuest = t => { const q = t.make(); return { type: t.id, k: q.k || null, n: q.n, text: q.text, prog: 0, claimed: false, coins: Math.round((q.base * .6 + 20 + S.level * 4) * .8), xp: Math.round(8 + S.level * 3) }; };
+  if (S.quests && S.quests.day === today) {
+    // Réparation (3.0.27) : un objectif sur une plante hors saison (ex. petits pois en hiver) est remplacé.
+    S.quests.list = S.quests.list.map(q => q.type === "harvestK" && !q.claimed && q.k && PLANTS[q.k] && offSeasonPlant(q.k) ? makeQuest(QUEST_TYPES[0]) : q);
+    return S.quests;
   }
+  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
+  while (list.length < 3) list.push(makeQuest(weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w)));
   S.quests = { day: today, list, bonus: false };
   return S.quests;
 }

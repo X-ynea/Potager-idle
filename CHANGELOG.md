@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.27
+- Objectifs du jour : plus d’objectif « Récolter » sur une plante d’une autre saison (comme les petits pois en hiver). Un tel objectif déjà reçu est remplacé à la prochaine ouverture du jeu.
+
 ### 3.0.26
 - Objectif entre amis : chaque jardinier compte pour 1,25 part au plus (par exemple 75 commandes au lieu de 90).
 
