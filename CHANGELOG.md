@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.39 (version de test, préparation de la v4)
+- Jardin : la boîte aux lettres est un peu plus petite à côté du portail, et leurs pieds sont au même niveau.
+
 ### 3.1.38 (version de test, préparation de la v4)
 - Portail du jardin commun : nouvelle image plus modeste (un portillon), à l’échelle de la boîte aux lettres, qui dépasse du jardin sans être coupé en haut.
 

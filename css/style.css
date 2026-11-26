@@ -1818,8 +1818,9 @@ button.sg-card { cursor: pointer; }
 .fr-row.pending { opacity: .7; }
 .sg-leave { color: #c9563f; justify-self: center; }
 /* Portail du jardin commun en haut à droite ; la boîte aux lettres à sa gauche, devant, le chevauche un peu */
-.garden > .sg-portal { top: -46px; right: 1%; left: auto; bottom: auto; width: min(27%, 116px); aspect-ratio: 440 / 337; z-index: 4; }
-.garden:has(> .sg-portal) > .mailbox { right: calc(1% + min(27%, 116px) - min(5%, 22px)); z-index: 6; }
+/* Portail et boîte aux lettres posés sur la même ligne (pieds à 42 px sous le haut du jardin) */
+.garden > .sg-portal { top: auto; bottom: calc(100% - 42px); right: 1%; left: auto; width: min(27%, 116px); aspect-ratio: 440 / 337; z-index: 4; }
+.garden:has(> .sg-portal) > .mailbox { top: auto; bottom: calc(100% - 36px); width: min(15%, 64px); right: calc(1% + min(27%, 116px) - min(4%, 16px)); z-index: 6; }
 .sg-done { font-size: .8rem; font-weight: 800; color: #3d7a2a; background: #e3f4d8; border-radius: 99px; padding: 4px 10px; white-space: nowrap; }
 .btn.ghost.sg-leave { color: #c9563f; }
 .sg-bonus { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 8px; border-radius: 12px; background: var(--sun-soft); border: 1px dashed #e0b84a; }
