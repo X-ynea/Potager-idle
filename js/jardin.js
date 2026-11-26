@@ -103,7 +103,7 @@ function sgChatHTML() {
     <div class="sg-chat" id="chat-body">${list.length ? list.map(m => { const who = sgMember(m.by);
       return `<div class="sg-msg${who?.me ? " mine" : ""}"><span class="fr-av">${who ? sgAv(who) : friendAvatar(null)}</span><span class="sg-bubble"><b>${who?.me ? "Toi" : esc(who?.name || "Un ancien jardinier")}</b><span class="sg-txt">${esc(sgSayText(m.code, m.arg))}${m.code === "jemoccupe" && PLANTS[m.arg] ? `<span class="sg-say-plant">${cropArt(m.arg)}</span>` : ""}</span><small>${sgAgo(m.at)}</small></span></div>`; }).join("")
       : `<p class="small muted" style="margin:0">Pas encore de message. Dis coucou à tes amis jardiniers !</p>`}</div>
-    <div class="sg-says-wrap">${sgWait() ? `<p class="sg-cool"><span data-sgcool>${sgWait()}</span> s avant ton prochain message</p>` : ""}
+    <div class="sg-says-wrap">${sgWait() ? `<span class="sg-cool" data-sgcool aria-label="Secondes avant le prochain message">${sgWait()}</span>` : ""}
     <div class="sg-says${sgWait() ? " cooling" : ""}">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${sgWait() ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}" ${sgWait() ? "disabled" : ""}>Je m’occupe de…</button></div>
     ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}" ${sgWait() ? "disabled" : ""}>${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}</div></div>`;
 }

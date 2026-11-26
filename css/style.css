@@ -1890,5 +1890,6 @@ button.sg-card { cursor: pointer; }
 .sg-who .avatar img, .sg-who .avatar svg { width: 100%; height: 100%; }
 .sg-who b { font-family: var(--f-display); font-weight: 600; }
 .sg-says-wrap { display: grid; gap: 6px; }
-.sg-cool { margin: 0; font-size: .78rem; font-weight: 800; color: var(--muted); text-align: center; }
+.sg-says-wrap { position: relative; }
+.sg-cool { position: absolute; right: 0; bottom: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .8rem; font-weight: 900; color: var(--muted); background: var(--panel-2); border: 1px solid var(--line); }
 .sg-says.cooling .chip { opacity: .55; }

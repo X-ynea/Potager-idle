@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.34 (version de test, préparation de la v4)
+- Discussion du jardin commun : le délai avant le prochain message est un simple petit chiffre en bas à droite.
+
 ### 3.1.33 (version de test, préparation de la v4)
 - Jardin commun : chaque commande est passée par un voisin, avec son portrait, comme au Village. Les explications des commandes passent dans un « ? » à côté du titre.
 - Discussion : la fenêtre ne saute plus quand on envoie un message (il s’affiche tout de suite), et un petit compte à rebours indique le temps avant le prochain message (5 s).
