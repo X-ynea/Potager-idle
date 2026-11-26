@@ -1911,3 +1911,20 @@ button.sg-card { cursor: pointer; }
 .lv-art .game-ph { width: 100%; height: 100%; border-radius: 14px; font-size: 1.8rem; } /* nouveau jeu dans la fenêtre de niveau */
 .garden:has(> .mailbox) .deco-row .deco-slot.s0 { top: calc(.5% + 4cqw); }
 .garden:has(> .mailbox) .deco-row .deco-slot.s2 { bottom: calc(.5% + 4cqw); }
+
+/* v4 · Images définitives des Balades */
+.wild-img, .tile .wild-img { width: 100%; height: 100%; }
+.g-art img, .lv-art img { width: 100%; height: 100%; object-fit: contain; }
+.ruche-field { border-radius: 22px; background-size: cover; background-position: center; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(60,120,30,.25); }
+.hive { width: 84px; height: 84px; top: 6px; filter: drop-shadow(0 4px 4px rgba(40,60,10,.35)); }
+.hive img { width: 100%; height: 100%; object-fit: contain; }
+.flower { background: none; }
+.flower img { position: absolute; inset: 4%; width: 92%; height: 92%; object-fit: contain; transition: transform .2s, opacity .2s; filter: drop-shadow(0 3px 3px rgba(40,60,10,.3)); pointer-events: none; }
+.flower .bud-wrap, .flower .fl-wrap { position: absolute; inset: 0; }
+.flower .fl-bud { inset: 12% 18% 6%; width: 64%; height: 82%; }
+.flower.open .fl-bud { opacity: 0; transform: scale(.6); }
+.flower .fl-open { transform: scale(.2) rotate(-40deg); opacity: 0; }
+.flower.open .fl-open { transform: scale(1) rotate(0); opacity: 1; }
+.flower.nope .bud-wrap, .flower.wilt .bud-wrap { animation: gNope .3s; }
+.bee { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+.bee img { width: 100%; height: 100%; object-fit: contain; animation: gBuzz .12s infinite alternate; }

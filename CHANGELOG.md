@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.48 (version de test, préparation de la v4)
+- Images définitives : les 8 ingrédients de balade, les vignettes des 5 jeux, et le jeu de la ruche (ruche, abeille, boutons et fleurs rose, bleue, blanche et dorée).
+- La ruche se joue sur l’herbe de la saison, comme le jardin. Un bouton doré donne une fleur dorée (3 points).
+
 ### 3.1.47 (version de test, préparation de la v4)
 - Échanges : on ne peut plus demander une plante qu’on n’a pas encore débloquée à son niveau, ni en proposer une à un ami qui ne l’a pas débloquée (comme pour les plats et les hybrides). Serveur : relancer `docs/echanges-valeurs.sql`.
 
