@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.22" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.23" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1185,7 +1185,7 @@ function views_kitchen() {
   const km = sortOf("kitchen"), rec = [...S.recipes];
   if (km !== "none") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
-  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
+  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, count: cnt(S.dishes, x), dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
   return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }

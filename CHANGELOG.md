@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.23
+- Cuisine : chaque plat affiche le nombre déjà en stock dans l’inventaire, en bas à gauche de sa case.
+
 ### 3.0.22
 - Échanges : « Tu donnes », « Contre » et leur valeur sont bien alignés.
 
