@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.45 (version de test, préparation de la v4)
+- Bacs du jardin commun : la photo de celui qui a planté n’a plus que le cercle de couleur, sans cadre blanc.
+
 ### 3.1.44 (version de test, préparation de la v4)
 - Discussion du jardin commun plus haute, avec une petite flèche pour replier les messages tout prêts.
 - Sur les bacs du jardin commun, la photo de celui qui a planté a un cercle de la couleur de la saison.
