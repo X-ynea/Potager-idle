@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.46 (version de test, préparation de la v4)
+- Discussion du jardin commun : la flèche pour replier les messages tout prêts est en haut à droite de leur zone.
+- Bacs du jardin commun : un cercle blanc très fin sous le cercle de couleur autour de la photo.
+
 ### 3.1.45 (version de test, préparation de la v4)
 - Bacs du jardin commun : la photo de celui qui a planté n’a plus que le cercle de couleur, sans cadre blanc.
 

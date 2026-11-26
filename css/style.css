@@ -1859,7 +1859,7 @@ button.sg-card { cursor: pointer; }
 .sg-sheet { position: relative; padding-bottom: 96px; }
 .sg-garden { margin: 0; }
 .sg-garden .plot.sel { outline: 4px solid #fff; outline-offset: -4px; box-shadow: 0 0 0 4px var(--leaf); border-radius: 12%; }
-.sg-garden .plot .sg-by { position: absolute; right: 8%; bottom: 10%; left: auto; top: auto; width: 24%; height: auto; aspect-ratio: 1; z-index: 3; box-shadow: 0 0 0 3px var(--leaf); background: var(--leaf); }
+.sg-garden .plot .sg-by { position: absolute; right: 8%; bottom: 10%; left: auto; top: auto; width: 24%; height: auto; aspect-ratio: 1; z-index: 3; box-shadow: 0 0 0 1px #fff, 0 0 0 3.5px var(--leaf); background: #fff; }
 .sg-end { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .sg-round { width: 40px; height: 40px; border-radius: 50%; border: 0; display: grid; place-items: center; padding: 0; cursor: pointer; flex: none; }
 .sg-round svg { width: 20px; height: 20px; }
@@ -1893,12 +1893,14 @@ button.sg-card { cursor: pointer; }
 .sg-who .avatar img, .sg-who .avatar svg { width: 100%; height: 100%; }
 .sg-who b { font-family: var(--f-display); font-weight: 600; }
 .sg-says-wrap { display: grid; gap: 6px; }
-.sg-cool-row { display: flex; align-items: center; justify-content: space-between; min-height: 26px; margin: -4px 2px -6px; }
-.sg-fold { width: 30px; height: 26px; border: 0; background: none; color: var(--muted); padding: 0; display: grid; place-items: center; cursor: pointer; }
+.sg-cool-row { display: flex; align-items: center; justify-content: flex-end; min-height: 20px; margin: -4px 2px -6px; }
+.sg-says-wrap { position: relative; }
+.sg-fold { position: absolute; top: 8px; right: 10px; width: 32px; height: 32px; border: 0; background: none; color: var(--muted); padding: 0; display: grid; place-items: center; cursor: pointer; }
+.sg-says-wrap > .sg-says:first-of-type { padding-right: 36px; }
 .sg-fold svg { width: 22px; height: 22px; transition: transform .2s; }
 .sg-fold.up svg { transform: rotate(180deg); }
-.sg-says-wrap.folded > * { display: none; }
-.sg-says-wrap.folded { padding-top: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sg-says-wrap.folded > :not(.sg-fold) { display: none; }
+.sg-says-wrap.folded { min-height: calc(48px + env(safe-area-inset-bottom, 0px)); }
 .sg-cool { font-size: .85rem; font-variant-numeric: tabular-nums; color: var(--muted); }
 /* Zone de saisie : les messages tout prêts, à part de la discussion */
 .sg-says-wrap { display: grid; gap: 6px; margin: 0 -16px calc(-14px - env(safe-area-inset-bottom, 0px)); padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
