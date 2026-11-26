@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.56 (version de test, préparation de la v4)
+
+- Balade en forêt : la lisière et le chemin vont d'un bord à l'autre de l'écran.
+
 ### 3.1.55 (version de test, préparation de la v4)
 
 - Balade en forêt : nouvelle lisière, nouveau chemin et quatre sortes de buissons, qui changent avec la saison.
