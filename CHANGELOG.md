@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.18
+- Commandes des voisins : elles grandissent avec le jardin. Au-delà de 6 parcelles, les voisins demandent plus de légumes, parfois deux fois le même plat, et de nouvelles commandes « Difficile » de plusieurs plats arrivent (à partir de 8 et 10 parcelles). Les récompenses suivent.
+- Amis et visites hors-ligne : un message clair indique qu’il faut internet.
+
 ### 3.0.17
 - Inventaire de l’accueil : récoltes dorées, graines, ingrédients et plats rangés par ordre alphabétique.
 

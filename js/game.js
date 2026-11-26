@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.17" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.18" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -353,6 +353,9 @@ const ORDER_TYPES = [
   { id: "hc",  label: "Difficile", stars: 3, lvl: 4, w: 3, bonus: 1.6,  plan: ["h", "c"], need: "hyb" },
   { id: "hcc", label: "Difficile", stars: 3, lvl: 7, w: 2, bonus: 1.75, plan: ["h", "c", "c"], need: "hyb" },
   { id: "dh",  label: "Difficile", stars: 3, lvl: 6, w: 2, bonus: 1.9,  plan: ["d", "h"], need: "dish+hyb" },
+  // Grands jardins (8 parcelles et plus) : commandes de plusieurs plats.
+  { id: "dd",  label: "Difficile", stars: 3, lvl: 8, w: 3, bonus: 1.7,  plan: ["d", "d"], need: "dish", plots: 8 },
+  { id: "ddc", label: "Difficile", stars: 3, lvl: 12, w: 2, bonus: 1.85, plan: ["d", "d", "c"], need: "dish", plots: 10 },
 ];
 /* Effort pour obtenir un objet : prix de vente, corrigé par le temps de pousse et la rareté. */
 function itemEffort(k, q) {
@@ -373,17 +376,19 @@ function genOrder() {
   const hybs = ORDER.filter(k => PLANTS[k].hybrid && seedAvailable(k));
   // Toutes les recettes accessibles à ce niveau (apprises ou non) : ça donne envie d’acheter celles qui manquent.
   const dishes = RORDER.filter(r => RECIPES[r].lvl <= S.level && dishFeasible(r));
-  const ok = t => S.level >= t.lvl && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
+  const ok = t => S.level >= t.lvl && S.plots.length >= (t.plots || 0) && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
     && t.plan.filter(x => x === "c").length <= crops.length;
   const types = ORDER_TYPES.filter(ok);
   const type = weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
   const items = {};
-  const qtyCrop = k => Math.max(1, Math.min(5, Math.round(rand(.7, 1.3) * 900 / PLANTS[k].time))); // pousses courtes : on en demande plus
+  // Plus le jardin est grand, plus les voisins en demandent : ×1 à 6 parcelles, jusqu’à ×2 à 12.
+  const big = Math.min(2, S.plots.length / 6);
+  const qtyCrop = k => Math.max(1, Math.min(Math.round(5 * big), Math.round(rand(.7, 1.3) * 900 / PLANTS[k].time * big))); // pousses courtes : on en demande plus
   const take = (list, w = freshness) => weightedPick(list.filter(x => !items[x]), w);
   for (const slot of type.plan) {
     if (slot === "c") { const k = take(crops); if (k) items[k] = qtyCrop(k); }
-    if (slot === "h") { const k = take(hybs); if (k) items[k] = Math.random() < .7 ? 1 : 2; }
-    if (slot === "d") { const r = take(dishes); if (r) items[r] = 1; }
+    if (slot === "h") { const k = take(hybs); if (k) items[k] = Math.max(1, Math.round((Math.random() < .7 ? 1 : 2) * big)); }
+    if (slot === "d") { const r = take(dishes); if (r) items[r] = Math.random() < big - 1 ? 2 : 1; } // grand jardin : parfois deux fois le même plat
   }
   if (!Object.keys(items).length) { const k = pick(crops); items[k] = qtyCrop(k); }
   // Hors saison (1 commande sur 8) : un voisin réclame une plante exclusive déjà récoltée, ou un plat qui en contient.

@@ -24,6 +24,8 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 const seenAgo = iso => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 5 ? "en ligne récemment" : m < 60 ? `vu il y a ${m} min` : m < 1440 ? `vu il y a ${Math.round(m / 60)} h` : `vu il y a ${Math.round(m / 1440)} j`; };
 // Onglet « Amis » en bas de l'écran (version de test pour l'instant).
 if (FRIENDS_ON) { const b = document.querySelector('.tab[data-arg="friends"]'); if (b) { b.hidden = false; b.parentElement.classList.add("six"); } }
+// Pas de réseau (appareil hors-ligne, ou requête qui n’a pas pu partir).
+const offlineErr = e => !navigator.onLine || e instanceof TypeError;
 const friendsReady = () => FRIENDS_ON && CLOUD.enabled() && CLOUD.signedIn && !CLOUD.blocked;
 const incoming = () => FR.list.filter(f => f.direction === "in");
 
@@ -34,7 +36,7 @@ async function loadFriends(force) {
     FR.code = await CLOUD.rpc("upsert_profile", { p_name: profileName(), p_avatar: await publicAvatar(), p_title: S.title || null, p_level: S.level, p_test: IS_TEST });
     FR.list = await CLOUD.rpc("list_friends") || [];
     FR.loaded = true; FR.error = ""; FR.lastLoad = Date.now();
-  } catch (e) { FR.error = /function|does not exist|404/.test(String(e.message)) ? "Le serveur des amis n’est pas encore prêt (script docs/amis.sql)." : "Connexion impossible pour le moment."; }
+  } catch (e) { FR.error = offlineErr(e) ? "Pas de connexion : la liste d’amis a besoin d’internet." : /function|does not exist|404/.test(String(e.message)) ? "Le serveur des amis n’est pas encore prêt (script docs/amis.sql)." : "Connexion impossible pour le moment."; }
   FR.loading = false;
   if (typeof render === "function") { if (!$("#modal").hidden) render(true); updateBrand?.(); }
 }
