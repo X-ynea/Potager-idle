@@ -30,7 +30,8 @@ async function loadSG(force) {
   SG.loading = true;
   try {
     const d = await CLOUD.rpc("sg_state");
-    if (d && typeof d === "object") { SG.data = d; SG.off = (+d.now || Date.now()) - Date.now(); }
+    if (d && typeof d === "object") { SG.data = d; SG.off = (+d.now || Date.now()) - Date.now();
+      if (S.sgHas !== !!d.garden) { S.sgHas = !!d.garden; save(); } } // gardé pour la prochaine ouverture du jeu
     SG.error = ""; SG.at = Date.now();
     await claimSG(); await takeSGNews(false);
   } catch (e) { SG.error = sgErr(e); SG.at = Date.now(); }
@@ -66,7 +67,8 @@ async function takeSGNews(notify) {
   save(); render(true);
 }
 setInterval(() => { if (!document.hidden && sgOn()) loadSG(sgOpen()); }, 30e3);
-addEventListener("load", () => setTimeout(() => loadSG(true), 4500));
+// Au démarrage : le jardin commun est cherché tout de suite (dès que la connexion est prête).
+addEventListener("load", () => { for (const ms of [300, 1200, 3000, 6000]) setTimeout(() => { if (!SG.data) loadSG(true); }, ms); });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) setTimeout(() => loadSG(), 2500); });
 
 /* ---------- Bacs : même calcul que le serveur ---------- */
@@ -149,7 +151,9 @@ function viewSGNew() {
   </div>`;
 }
 // Petit portail au bord de son jardin, pour y aller directement.
-const sgPortalHTML = () => sgOn() && sgG() ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG().plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
+// Tant que le serveur n'a pas répondu, on se fie à la dernière ouverture (pas de portail qui surgit après coup).
+const sgKnown = () => !!SG.data || !!SG.error || S.sgHas !== undefined;
+const sgPortalHTML = () => sgOn() && (sgG() || (!SG.data && S.sgHas)) ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG()?.plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
 
 /* ---------- Page du jardin commun ---------- */
 const sgOpen = () => modalView === viewSG && !$("#modal").hidden;

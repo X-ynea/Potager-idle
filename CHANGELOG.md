@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.43 (version de test, préparation de la v4)
+- Accueil : la boîte aux lettres et le portail du jardin commun apparaissent ensemble, sans décalage. Le jeu se souvient s’il y a un jardin commun pour les afficher tout de suite à l’ouverture suivante.
+
 ### 3.1.42 (version de test, préparation de la v4)
 - Jardin : la boîte aux lettres est collée au portail, comme avant, en gardant leur nouvelle hauteur.
 
