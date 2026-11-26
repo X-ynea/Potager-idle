@@ -30,7 +30,8 @@ function weekId(t = Date.now()) {
 }
 const weekIndex = () => Math.round((Date.parse(weekId() + "T12:00:00Z") - Date.parse("2026-11-16T12:00:00Z")) / (7 * 864e5));
 const goalKind = which => GOAL_ORDER[(((weekIndex() + (which === "g" ? 2 : 0)) % 4) + 4) % 4];
-const goalCap = which => Math.round(GOAL_KINDS[goalKind(which)].base * (which === "g" ? 2 : 1.5)); // part maximale d'un joueur
+// Part maximale d'un joueur. Tous les joueurs : une part « normale » (3.0.25, avant ×2 : un ou deux joueurs suffisaient).
+const goalCap = which => Math.round(GOAL_KINDS[goalKind(which)].base * (which === "g" ? 1 : 1.5));
 function goalTarget(which) {
   const base = GOAL_KINDS[goalKind(which)].base, d = GOALS.data;
   if (which === "f") return base * Math.min(8, Math.max(1, d?.members?.length || 1));
