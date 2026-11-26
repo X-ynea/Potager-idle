@@ -76,3 +76,5 @@ Les comptes de la version de test ne voient que les comptes de test, et inversem
 Lancer **`docs/balades.sql`** dans *SQL Editor* (après `docs/objectifs.sql` ; peut être relancé sans risque). Il crée :
 - `game_scores` : le meilleur score de la semaine de chaque joueur, pour chaque mini-jeu ;
 - les fonctions `report_score` (envoyer son record, il ne peut que monter) et `week_scores` (moi et mes amis, par jeu).
+
+Pour que les ingrédients de balade s'échangent : lancer **`docs/echanges-balades.sql`** (l'inventaire d'un ami montre aussi ses trouvailles), puis relancer **`docs/echanges-valeurs.sql`** (leurs prix et ceux des nouvelles recettes).

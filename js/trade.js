@@ -14,12 +14,12 @@ const TRADE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13
 // Boîte aux lettres : drapeau levé quand il y a du courrier.
 const MAIL_ICON = up => `<img class="mb-art" src="assets/img/ui-mail-${up ? "full" : "empty"}.webp" alt="">`;
 
-const trValue = k => (PLANTS[k] || RECIPES[k])?.sell || 0;
-const tradable = k => PLANTS[k] ? !PLANTS[k].tuto : !!RECIPES[k];
+const trValue = k => (PLANTS[k] || WILD[k] || RECIPES[k])?.sell || 0;
+const tradable = k => PLANTS[k] ? !PLANTS[k].tuto : !!(WILD[k] || RECIPES[k]);
 // Un joueur « connaît » un objet : plante de base toujours, hybride découvert, plat débloqué à son niveau (et ses hybrides découverts).
 const knowsItem = (who, k) => PLANTS[k] ? (!PLANTS[k].hybrid || who.hybrids.includes(k)) : WILD[k] ? true : RECIPES[k].lvl <= who.level && Object.keys(RECIPES[k].need).every(i => knowsItem(who, i));
 const meWho = () => ({ level: S.level, hybrids: S.hybrids || [] });
-const trItems = items => Object.entries(items || {}).filter(([k, q]) => (PLANTS[k] || RECIPES[k]) && q > 0);
+const trItems = items => Object.entries(items || {}).filter(([k, q]) => (PLANTS[k] || WILD[k] || RECIPES[k]) && q > 0);
 const sideValue = (items, coins) => trItems(items).reduce((n, [k, q]) => n + trValue(k) * q, 0) + (coins > 0 ? coins : 0);
 const haveItems = (items, coins) => S.coins >= (coins || 0) && trItems(items).every(([k, q]) => cnt(itemBag(k), k) >= q);
 function moveItems(items, coins, sign) { // sign = -1 : retirer de ma partie, +1 : ajouter
@@ -136,7 +136,7 @@ const trFriend = () => FR.list.find(x => x.id === TR.draft?.fid);
 async function loadInventory() {
   const f = trFriend(); if (!f) return;
   try { const d = await CLOUD.rpc("friend_inventory", { target: f.user_id }); if (TR.draft?.fid !== f.id) return;
-    TR.inv = { crops: d?.crops || {}, dishes: d?.dishes || {}, level: +d?.level || 1, hybrids: Array.isArray(d?.hybrids) ? d.hybrids : [], today: +d?.trades_today || 0 }; TR.invErr = ""; }
+    TR.inv = { crops: d?.crops || {}, wild: d?.wild || {}, dishes: d?.dishes || {}, level: +d?.level || 1, hybrids: Array.isArray(d?.hybrids) ? d.hybrids : [], today: +d?.trades_today || 0 }; TR.invErr = ""; }
   catch (e) { TR.invErr = trErr(String(e.message || e)); }
   render(true);
 }
@@ -160,19 +160,19 @@ function trSide(side, f) {
   const otherCoins = give ? d.wantCoins > 0 : d.giveCoins > 0, cat = d.cat[side];
   // Inventaire : le mien (filtré par ce que l'ami connaît), ou le sien (filtré par ce que je connais).
   const who = give ? { level: TR.inv?.level || 1, hybrids: TR.inv?.hybrids || [] } : meWho();
-  const bagOf = k => give ? cnt(itemBag(k), k) : cnt(PLANTS[k] ? TR.inv?.crops || {} : TR.inv?.dishes || {}, k);
-  const pool = { crops: ORDER, dishes: RORDER };
+  const bagOf = k => give ? cnt(itemBag(k), k) : cnt(PLANTS[k] ? TR.inv?.crops || {} : WILD[k] ? TR.inv?.wild || {} : TR.inv?.dishes || {}, k);
+  const pool = { crops: ORDER, wild: WORDER, dishes: RORDER };
   const keysOf = c => pool[c].filter(k => tradable(k) && bagOf(k) > 0 && knowsItem(who, k));
   const keys = keysOf(cat), picked = trItems(items);
   const hidden = give && TR.inv ? [...ORDER, ...RORDER].filter(k => tradable(k) && bagOf(k) > 0 && !knowsItem(who, k)).length : 0;
   return `<section class="tr-side">
     <h3>${give ? "Tu donnes" : `Tu demandes à ${esc(f.name)}`}</h3>
     ${picked.length ? `<div class="tr-picked">${picked.map(([k, q]) => `<button class="tr-chip on" data-act="trSub" data-arg="${side}:${k}" aria-label="Retirer un ${itemName(k)}">${itemArt(k)}<b class="num">${q}</b><small>${itemName(k)}</small><span class="tr-x">−</span></button>`).join("")}</div>` : ""}
-    <div class="seg tr-seg">${[["crops", "Récoltes"], ["dishes", "Plats"]].map(([c, l]) => `<button data-act="trCat" data-arg="${side}:${c}" aria-pressed="${cat === c}">${l} <span class="num">${(!give && !TR.inv) ? "" : keysOf(c).length}</span></button>`).join("")}</div>
+    <div class="seg tr-seg">${[["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]].map(([c, l]) => `<button data-act="trCat" data-arg="${side}:${c}" aria-pressed="${cat === c}">${l} <span class="num">${(!give && !TR.inv) ? "" : keysOf(c).length}</span></button>`).join("")}</div>
     ${!give && !TR.inv ? `<p class="small muted" style="margin:0">${TR.invErr ? esc(TR.invErr) : "Chargement de son inventaire…"}</p>`
       : keys.length ? `<div class="tr-grid">${keys.map(k => { const left = bagOf(k) - (items[k] || 0);
         return `<button class="tr-item" data-act="trAdd" data-arg="${side}:${k}" ${left > 0 && (items[k] || picked.length < TR_ITEMS) ? "" : "disabled"} aria-label="${itemName(k)}">${itemArt(k)}<span class="cnt num">${fmt(left)}</span><small>${fmt(trValue(k))}</small></button>`; }).join("")}</div>`
-      : `<p class="small muted" style="margin:0">${cat === "dishes" ? "Aucun plat" : "Aucune récolte"} à ${give ? "proposer" : "demander"} pour l’instant.</p>`}
+      : `<p class="small muted" style="margin:0">${cat === "dishes" ? "Aucun plat" : cat === "wild" ? "Aucune trouvaille de balade" : "Aucune récolte"} à ${give ? "proposer" : "demander"} pour l’instant.</p>`}
     ${hidden ? `<p class="small muted" style="margin:0">${hidden} objet${hidden > 1 ? "s" : ""} que ${esc(f.name)} n’a pas encore découvert${hidden > 1 ? "s" : ""} ${hidden > 1 ? "sont" : "est"} masqué${hidden > 1 ? "s" : ""}.</p>` : ""}
     <label class="tr-coins${otherCoins ? " off" : ""}">${coin}<span>${give ? "Et des pièces" : "Et des pièces"}</span><input id="tr-coins-${side}" type="number" inputmode="numeric" min="0" max="${TR_MAX}" step="1" value="${coins || ""}" placeholder="0" ${otherCoins ? "disabled" : ""}>
       <small class="muted">${otherCoins ? "Déjà des pièces de l’autre côté" : give ? `Tu as ${fmt(S.coins)}` : ""}</small></label>

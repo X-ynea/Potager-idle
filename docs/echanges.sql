@@ -2,7 +2,7 @@
 -- À lancer une fois dans Supabase › SQL Editor, après docs/arrosage.sql, puis lancer docs/echanges-valeurs.sql.
 -- Peut être relancé sans risque.
 -- Règles :
---   · chaque côté : des objets (plantes et plats), des pièces, ou les deux ; jamais de pièces des deux côtés ;
+--   · chaque côté : des objets (plantes, ingrédients de balade et plats), des pièces, ou les deux ; jamais de pièces des deux côtés ;
 --   · valeur = prix de vente au marché (table item_values) ; écart de 20 % au plus entre les deux côtés ;
 --   · 3 000 pièces de valeur au plus de chaque côté ; 3 échanges proposés par jour (date de Paris, sans compter les annulés ;
 --     pas de limite pour les comptes de la version de test),
@@ -88,7 +88,7 @@ begin
   if me is null or target is null or not are_friends(me, target) or is_blocked(me, target) then raise exception 'pas ami'; end if;
   select s.data into d from saves s where s.user_id = target;
   return jsonb_build_object(
-    'crops', coalesce(d->'crops', '{}'::jsonb), 'dishes', coalesce(d->'dishes', '{}'::jsonb),
+    'crops', coalesce(d->'crops', '{}'::jsonb), 'wild', coalesce(d->'wild', '{}'::jsonb), 'dishes', coalesce(d->'dishes', '{}'::jsonb),
     'level', coalesce(d->'level', '1'::jsonb), 'hybrids', coalesce(d->'hybrids', '[]'::jsonb),
     'trades_today', (select count(*) from trades where a = me and day = paris_today() and counter_of is null and status <> 'cancelled'));
 end $$;

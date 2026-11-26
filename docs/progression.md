@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 3.1.20 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.1.21 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -58,7 +58,7 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 11 | Tomate | Fondue de poireaux, Pesto d’ail des ours | Banc des voisins 1/2 (1 200 p) |
 | 12 | — | Gnocchis roses, Sauce tomate, Confiture de mûres | Arrosoir 2/3 (900 p) |
 | 13 | Myrtille | — | Bac n° 9 (1 350 p) |
-| 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes, Crème de châtaigne | — |
+| 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes, Velouté de châtaignes | — |
 | 15 | Lavande | Tarte aux asperges, Tarte rubis | — |
 | 16 | Melon (été) | Pizza du potager, Gâteau aux noisettes | — |
 | 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (2 700 p) |
@@ -157,7 +157,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Pain de campagne | 6 | 80 | 3 blé | 3 min | 74 | 22 |
 | Soupe de cresson | 6 | 80 | 2 cresson, 1 pomme de terre | 3 min | 74 | 18 |
 | Tarte aux fraises | 7 | 130 | 2 fraise, 2 blé | 3 min | 117 | 32 |
-| Thé à la menthe | 7 | 125 | 2 menthe d’eau, 1 miel | 3 min | 112 | 26 |
+| Thé à la menthe | 7 | 110 | 3 menthe d’eau | 3 min | 100 | 24 |
 | Pain d’azur | 8 | 270 | 3 épi d’azur | 4 min | 247 | 47 |
 | Soupe de betterave | 9 | 92 | 2 betterave, 1 pomme de terre | 3 min | 83 | 19 |
 | Salade de la mer | 9 | 90 | 3 algues, 1 laitue | 3 min | 82 | 20 |
@@ -166,10 +166,10 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Pesto d’ail des ours | 11 | 110 | 2 ail des ours, 1 basilic | 3 min | 98 | 24 |
 | Gnocchis roses | 12 | 325 | 3 patate cœur, 1 blé | 4 min | 294 | 58 |
 | Sauce tomate | 12 | 155 | 2 tomate, 1 basilic | 4 min | 142 | 34 |
-| Confiture de mûres | 12 | 130 | 3 mûres, 1 miel | 3 min | 120 | 28 |
+| Confiture de mûres | 12 | 125 | 3 mûres, 1 fraise | 3 min | 112 | 27 |
 | Muffins myrtille | 14 | 175 | 2 myrtille, 1 blé | 4 min | 161 | 37 |
 | Gratin de courgettes | 14 | 135 | 2 courgette, 1 pomme de terre, 1 tomate | 3 min | 123 | 28 |
-| Crème de châtaigne | 14 | 150 | 3 châtaignes, 1 miel | 4 min | 138 | 32 |
+| Velouté de châtaignes | 14 | 108 | 2 châtaignes, 1 pomme de terre, 1 carotte | 4 min | 98 | 24 |
 | Tarte aux asperges | 15 | 220 | 2 asperge, 2 blé | 4 min | 200 | 42 |
 | Tarte rubis | 15 | 445 | 2 asperge rubis, 2 blé | 4 min | 405 | 68 |
 | Pizza du potager | 16 | 210 | 2 blé, 2 tomate, 1 basilic | 4 min | 189 | 47 |

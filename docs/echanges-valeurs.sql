@@ -1,6 +1,6 @@
 -- Prix des objets échangeables (généré par tools/trade-values.js : ne pas modifier à la main).
 -- À lancer dans Supabase › SQL Editor après docs/echanges.sql, et de nouveau après chaque changement de prix.
--- key = plante ou recette, value = prix de vente au marché, lvl = niveau où un plat se débloque,
+-- key = plante, ingrédient de balade ou recette, value = prix de vente au marché, lvl = niveau où un plat se débloque,
 -- needs = hybrides à avoir découverts pour recevoir l'objet.
 begin;
 delete from public.item_values;
@@ -37,6 +37,14 @@ insert into public.item_values (key, value, lvl, needs) values
   ('nuage', 215, 0, array['nuage']::text[]),
   ('rubis', 120, 0, array['rubis']::text[]),
   ('cristal', 165, 0, array['cristal']::text[]),
+  ('algue', 16, 0, array[]::text[]),
+  ('cresson', 20, 0, array[]::text[]),
+  ('menthe', 24, 0, array[]::text[]),
+  ('ail', 20, 0, array[]::text[]),
+  ('chataigne', 22, 0, array[]::text[]),
+  ('mure', 18, 0, array[]::text[]),
+  ('noisette', 20, 0, array[]::text[]),
+  ('miel', 30, 0, array[]::text[]),
   ('salade', 34, 2, array[]::text[]),
   ('puree', 49, 3, array[]::text[]),
   ('pain', 74, 6, array[]::text[]),
@@ -71,11 +79,11 @@ insert into public.item_values (key, value, lvl, needs) values
   ('veloute_nuage', 670, 21, array['nuage']::text[]),
   ('tartine_miel', 92, 5, array[]::text[]),
   ('soupe_cresson', 74, 6, array[]::text[]),
-  ('the_menthe', 112, 7, array[]::text[]),
+  ('the_menthe', 100, 7, array[]::text[]),
   ('salade_mer', 82, 9, array[]::text[]),
   ('pesto_ail', 98, 11, array[]::text[]),
-  ('confiture_mure', 120, 12, array[]::text[]),
-  ('creme_chataigne', 138, 14, array[]::text[]),
+  ('confiture_mure', 112, 12, array[]::text[]),
+  ('veloute_chataigne', 98, 14, array[]::text[]),
   ('gateau_noisette', 150, 16, array[]::text[]),
   ('pique_nique', 260, 24, array[]::text[]),
   ('potee_cristal', 530, 23, array['cristal']::text[]);
