@@ -9,7 +9,7 @@ const GAMES = {
   ruche:      { name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
     rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
   peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
-    rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare).", "Tu as 40 secondes. Ton panier garde tes 5 plus belles prises."] },
+    rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "Ton panier contient 5 prises, et tu les gardes toutes. Tu as 30 secondes pour le remplir : de quoi te tromper un peu.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
   foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["chataigne", "mure", "noisette"], emoji: "🍂", color: "#8a5a3a", soon: true },
   memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0", soon: true },
   cueillette: { name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
@@ -144,9 +144,10 @@ const RUCHE_SPOTS = [[50, 50], [24, 36], [76, 36], [24, 66], [76, 66], [50, 22],
 const RUCHE_T = 30000;
 
 /* ---------------- La pêche ----------------
-   40 s. On touche l'étang pour lancer, le bouchon frétille parfois (il ne faut pas toucher), puis plonge :
-   il faut toucher dans la seconde. Algues 1 pt, cresson 2, menthe d'eau 3. Le panier garde les 5 plus belles prises. */
-const PECHE_T = 40000, PECHE_BASKET = 5, PECHE_WIN = 900;
+   30 s ou 5 prises. On touche l'étang pour lancer, le bouchon frétille parfois (il ne faut pas toucher), puis plonge :
+   il faut toucher dans la seconde. On garde toutes ses prises (5 au plus).
+   Score : algues 1, cresson 2, menthe d'eau 3, + 1 par seconde restante quand le panier est plein. */
+const PECHE_T = 30000, PECHE_BASKET = 5, PECHE_WIN = 900;
 const PECHE_PTS = { algue: 1, cresson: 2, menthe: 3 };
 const BOBBER = `<svg viewBox="0 0 40 52"><path d="M20 2v10" stroke="#3a2c1f" stroke-width="2"/><circle cx="20" cy="24" r="13" fill="#fff"/><path d="M7 24a13 13 0 0 1 26 0z" fill="#e2483d"/><circle cx="16" cy="19" r="3" fill="#fff" opacity=".6"/></svg>`;
 const POND = `<svg class="pond-bg" viewBox="0 0 400 300" preserveAspectRatio="none"><ellipse cx="200" cy="150" rx="196" ry="146" fill="#6fb6df"/><ellipse cx="200" cy="150" rx="176" ry="128" fill="#7fc3e8"/>
@@ -180,7 +181,7 @@ const GAME_IMPL = {
       // Le bouchon tombe près de l'endroit touché, en restant dans l'étang.
       const x = Math.min(.78, Math.max(.2, (ev.clientX - fr.left) / fr.width)), y = Math.min(.72, Math.max(.22, (ev.clientY - fr.top) / fr.height));
       b.style.left = (x * 100) + "%"; b.style.top = (y * 100) + "%"; b.hidden = false; b.className = "bobber land";
-      g.st = "wait"; g.bite = e + rand(1400, 4200); g.nibbles = [];
+      g.st = "wait"; g.bite = e + rand(1200, 3500); g.nibbles = [];
       const n = Math.floor(Math.random() * 3); for (let i = 0; i < n; i++) g.nibbles.push(e + rand(500, g.bite - e - 300));
       GAME_IMPL.peche.hint(g, "Attends que le bouchon plonge…"); SFX.play("water");
     },
@@ -192,10 +193,15 @@ const GAME_IMPL = {
       if (g.st === "bite") {
         const r = Math.random(), k = r < .5 ? "algue" : r < .82 ? "cresson" : "menthe", v = PECHE_PTS[k];
         g.score += v; g.caught.push(k); g.el.querySelector(".g-score b").textContent = g.score;
-        const best = [...g.caught].sort((a, b) => PECHE_PTS[b] - PECHE_PTS[a]).slice(0, PECHE_BASKET);
-        g.el.querySelectorAll(".gb-slot").forEach((sl, i) => { sl.innerHTML = best[i] ? wildArt(best[i]) : ""; });
+        g.el.querySelectorAll(".gb-slot")[g.caught.length - 1].innerHTML = wildArt(k);
         GAME_IMPL.peche.msg(g, `${WILD[k].name} ! +${v}`, k === "menthe" ? "gold" : "");
         SFX.play(v > 2 ? "coin" : "harvest"); buzz(12); GAME_IMPL.peche.reset(g);
+        if (g.caught.length >= PECHE_BASKET) { // panier plein : bonus du temps restant
+          const left = Math.floor((PECHE_T - e) / 1000); g.score += left; g.st = "done";
+          g.el.querySelector(".g-score b").textContent = g.score;
+          GAME_IMPL.peche.hint(g, `Panier plein ! +${left} pour le temps restant`);
+          g.timers.push(setTimeout(gameEnd, 900));
+        }
       }
     },
     frame(g, e) {
@@ -208,13 +214,13 @@ const GAME_IMPL = {
       } else if (g.st === "bite" && e >= g.until) { GAME_IMPL.peche.msg(g, "Il s’est échappé…", "miss"); GAME_IMPL.peche.reset(g); }
       GAME_IMPL.peche.line(g);
     },
-    // Le panier garde les 5 plus belles prises ; un peu d'XP selon les points.
+    // On garde toutes ses prises (5 au plus) ; un peu d'XP selon le score.
     reward(score) {
-      const g = GAME, best = [...(g?.caught || [])].sort((a, b) => PECHE_PTS[b] - PECHE_PTS[a]).slice(0, PECHE_BASKET), wild = {};
-      for (const k of best) wild[k] = (wild[k] || 0) + 1;
+      const wild = {};
+      for (const k of GAME?.caught || []) wild[k] = (wild[k] || 0) + 1;
       return { wild, xp: Math.min(4 + S.level, Math.round(score / 2)) };
     },
-    cheer: s => s >= 24 ? "Pêcheur de légende !" : s >= 14 ? "Belle pêche !" : s >= 6 ? "Ça mord !" : "Quelques prises !",
+    cheer: s => s >= 25 ? "Pêcheur de légende !" : s >= 15 ? "Belle pêche !" : s >= 6 ? "Ça mord !" : "Quelques prises !",
   },
   ruche: {
     setup(g) {
