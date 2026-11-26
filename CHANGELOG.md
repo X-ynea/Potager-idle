@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.15 (version de test, préparation de la v4)
+- Memory : 25 secondes.
+
 ### 3.1.14 (version de test, préparation de la v4)
 - Memory : 40 secondes au lieu de 60.
 

@@ -13,7 +13,7 @@ const GAMES = {
   foret:      { lvl: 6, name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
     rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
   memory:     { lvl: 7, name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0",
-    rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 40 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
+    rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 25 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
   cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
 const GORDER = Object.keys(GAMES);
@@ -173,9 +173,9 @@ const TREES = `<svg class="forest-bg" viewBox="0 0 400 200" preserveAspectRatio=
 function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
 /* ---------------- Memory des graines ----------------
-   16 cartes (8 paires de sachets de graines), 40 s. Score : 3 par paire + 1 par seconde restante si tout est trouvé.
+   16 cartes (8 paires de sachets de graines), 25 s. Score : 3 par paire + 1 par seconde restante si tout est trouvé.
    Pièces : (4 + niveau) par paire ; tout trouvé = 1 sachet de graines d'une des plantes débloquées. */
-const MEMO_T = 40000, MEMO_PAIRS = 8;
+const MEMO_T = 25000, MEMO_PAIRS = 8;
 const CARD_BACK = `<svg viewBox="0 0 60 80"><rect width="60" height="80" rx="8" fill="#9a6cf0"/><rect x="4" y="4" width="52" height="72" rx="6" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/><path d="M30 58V36m0 0c-7 0-10-5-10-11 7 0 10 5 10 11zm0 0c0-7 3-11 10-11 0 6-3 11-10 11z" fill="#fff" opacity=".85"/></svg>`;
 function memoPool() {
   const base = ORDER.filter(k => !PLANTS[k].hybrid).sort((a, b) => PLANTS[a].lvl - PLANTS[b].lvl);
@@ -229,7 +229,7 @@ const GAME_IMPL = {
       }
       return out;
     },
-    cheer: s => s >= 45 ? "Mémoire d’éléphant !" : s >= 30 ? "Tout retrouvé !" : s >= 15 ? "Bien joué !" : "Quelques paires !",
+    cheer: s => s >= 34 ? "Mémoire d’éléphant !" : s >= 24 ? "Tout retrouvé !" : s >= 12 ? "Bien joué !" : "Quelques paires !",
   },
   foret: {
     setup(g) {
