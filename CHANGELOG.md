@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.24
+- Boîte aux lettres : une nouvelle d’arrosage de plus d’un jour revenait sans cesse comme non lue, avec un badge « 1 » impossible à faire partir. C’est corrigé : ouvrir les Nouvelles la fait disparaître pour de bon.
+
 ### 3.0.23
 - Cuisine : chaque plat affiche le nombre déjà en stock dans l’inventaire, en bas à gauche de sa case.
 
