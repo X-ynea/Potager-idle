@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.2 (version de test, préparation de la v4)
+- Avant la première partie d’un jeu, une petite fenêtre explique comment jouer. On peut la revoir avec le bouton « ? » de la carte du jeu.
+
 ### 3.1.1 (version de test, préparation de la v4)
 - Nouvel onglet « Balades » (icône du panneau en bois), à partir du niveau 4 : cinq petits jeux, 3 parties par jeu et par jour, avec le record de la semaine.
 - Premier jeu jouable : **la ruche**. Touche les fleurs qui s’ouvrent pour faire butiner les abeilles (30 s, fleur dorée +3). Elle rapporte du miel (1 à 4 pots) et un peu d’XP.

@@ -1671,3 +1671,11 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .bee svg { width: 100%; height: 100%; animation: gBuzz .12s infinite alternate; }
 @keyframes gBuzz { to { transform: translateY(-2px) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .bee svg, .g-count.pop { animation: none; } }
+.g-btn { display: inline-flex; gap: 6px; }
+.g-help { min-width: 38px; padding: 6px 0; font-size: 1rem; }
+.g-rules .g-card { text-align: left; }
+.g-rules h2 { text-align: center; }
+.g-rules-art { justify-self: center; width: 84px; height: 84px; }
+.g-rules-art img { width: 100%; height: 100%; object-fit: contain; }
+.g-steps { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
+.g-steps li::marker { font-weight: 900; color: var(--leaf); }

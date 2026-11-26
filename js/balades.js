@@ -6,7 +6,8 @@
 const BALADES_LVL = 4;
 const GAME_PLAYS = 3;
 const GAMES = {
-  ruche:      { name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"], emoji: "🐝", color: "#f2b632" },
+  ruche:      { name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
+    rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
   peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee", soon: true },
   foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["chataigne", "mure", "noisette"], emoji: "🍂", color: "#8a5a3a", soon: true },
   memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0", soon: true },
@@ -38,7 +39,7 @@ function views_balades() {
     const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("") : `<span class="g-give">${coin}Pièces et XP</span>`;
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
     const btn = G.soon ? `<button class="btn ghost sm" disabled>Bientôt</button>`
-      : left ? `<button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
+      : left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
     return `<div class="game-card${G.soon ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>
       <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span></div>
         <p class="small muted">${G.desc}</p><div class="g-gives">${gives}</div>
@@ -49,14 +50,24 @@ function views_balades() {
 
 /* ---------------- Moteur commun ---------------- */
 let GAME = null; // partie en cours
-function gameOpen(id) {
+function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || S.level < BALADES_LVL) return;
   const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
   GAME_IMPL[id].setup(GAME);
-  gameCountdown();
+  const seen = gamesState().seen = gamesState().seen || {};
+  if (seen[id] && !help) gameCountdown(); else gameRules(); // la première fois : comment on joue
+}
+// Petite fenêtre « Comment jouer », avant la première partie (et depuis le bouton « ? » de la carte).
+function gameRules() {
+  const g = GAME, G = GAMES[g.id];
+  g.el.insertAdjacentHTML("beforeend", `<div class="g-end g-rules"><div class="g-card">
+    <div class="g-rules-art">${gameArt(g.id)}</div><h2>${G.name}</h2>
+    <ol class="g-steps">${G.rules.map(r => `<li>${r}</li>`).join("")}</ol>
+    <p class="small muted">${GAME_PLAYS} parties par jour. Une partie compte dès qu’elle commence.</p>
+    <div class="g-acts"><button class="btn" data-act="gameGo">C’est parti !</button></div></div></div>`);
 }
 function gameCountdown() {
   const g = GAME; let n = 3;
@@ -116,6 +127,8 @@ addEventListener("popstate", () => { if (GAME) { if (GAME.state === "play") game
 
 const BALADES_ACTS = {
   gamePlay(id) { gameOpen(id); },
+  gameHelp(id) { gameOpen(id, true); },
+  gameGo() { if (!GAME || GAME.state !== "count") return; GAME.el.querySelector(".g-rules")?.remove(); gamesState().seen = { ...gamesState().seen, [GAME.id]: true }; save(); gameCountdown(); },
   gameStop() { if (GAME && GAME.state === "play") gameEnd(); else gameClose(); },
   gameClose() { gameClose(); },
   gameAgain() { const id = GAME?.id; gameClose(); if (id) setTimeout(() => gameOpen(id), 350); },
