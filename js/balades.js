@@ -38,6 +38,7 @@ const SIGNPOST = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="
 const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
 
 function views_balades() {
+  if (friendsReady() && Date.now() - BOARD.at > 60e3) setTimeout(() => loadBoard(), 0);
   const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${IS_TEST ? "Tout ouvert, parties illimitées (test)" : `${GAME_PLAYS} parties par jeu et par jour`}</span></div></section>`;
   if (!IS_TEST && S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
@@ -45,11 +46,11 @@ function views_balades() {
     const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("")
       : `<span class="g-give">${coin}Pièces</span>` + (G.seeds ? `<span class="g-give">${seedArt("radis")}Graines</span>` : "");
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
-    const btn = left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
+    const btn = left ? `<button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
     return `<div class="game-card${G.soon || locked ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>
-      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span>${G.soon ? `<span class="g-tag g-soon">Bientôt</span>` : locked ? `<span class="g-tag g-soon">Niveau ${G.lvl}</span>` : ""}</div>
+      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span>${!G.soon && !locked && left ? `<button class="g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button>` : ""}${G.soon ? `<span class="g-tag g-soon">Bientôt</span>` : locked ? `<span class="g-tag g-soon">Niveau ${G.lvl}</span>` : ""}</div>
         <div class="g-gives">${gives}</div>
-        ${G.soon || locked ? "" : `<div class="g-foot"><span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>${best ? `<span class="small muted" title="Record de la semaine">Record : <b class="num">${best}</b></span>` : ""}<span class="g-btn">${btn}</span></div>`}</div></div>`;
+        ${G.soon || locked ? "" : `<div class="g-foot"><span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>${boardChip(id, best)}<span class="g-btn">${btn}</span></div>`}</div></div>`;
   }).join("");
   return head + `<div class="game-list">${cards}</div>`;
 }
@@ -105,6 +106,7 @@ function gameEnd() {
   if (!played) { gameClose(); return; } // arrêté pendant le compte à rebours : la partie ne compte pas
   const s = gamesState(), prev = weekBest(g.id), rec = g.score > prev;
   if (rec) s.best[g.id] = { week: weekId(), score: g.score };
+  if (rec) setTimeout(() => loadBoard(true), 300); // nouveau record : on l'envoie au tableau des amis
   const r = GAME_IMPL[g.id].reward(g.score);
   for (const k in r.wild || {}) S.wild[k] = cnt(S.wild, k) + r.wild[k];
   if (r.coins) S.coins += r.coins;
@@ -131,7 +133,50 @@ function gameClose(fromBack) {
 }
 addEventListener("popstate", () => { if (GAME) { if (GAME.state === "play") gameEnd(); gameClose(true); } });
 
+/* ---------------- Tableau des scores entre amis (docs/balades.sql) ----------------
+   Le meilleur score de la semaine de chacun, par jeu. Sans récompense : juste une couronne pour le premier. */
+const BOARD = { data: null, error: "", loading: false, at: 0 };
+async function loadBoard(force) {
+  if (!friendsReady() || BOARD.loading || (!force && Date.now() - BOARD.at < 60e3)) return;
+  BOARD.loading = true;
+  try {
+    const g = gamesState(), sent = g.sent = g.sent || {};
+    for (const id of GORDER) { const b = weekBest(id), key = `${weekId()}:${b}`; if (b > 0 && sent[id] !== key) { await CLOUD.rpc("report_score", { p_game: id, p_score: b }); sent[id] = key; } }
+    const d = await CLOUD.rpc("week_scores");
+    BOARD.data = d && typeof d === "object" && !Array.isArray(d) ? d : {}; BOARD.error = ""; BOARD.at = Date.now(); save();
+  } catch (e) { BOARD.error = /function|does not exist|404/.test(String(e.message)) ? "Le tableau des scores n’est pas encore prêt sur le serveur (script docs/balades.sql)." : "Scores des amis indisponibles pour le moment."; BOARD.at = Date.now(); }
+  BOARD.loading = false; render(true);
+}
+setInterval(() => { if (!document.hidden && (tab === "balades" || (modalBoard && modalView))) loadBoard(); }, 20e3);
+// Lignes du tableau d'un jeu : celles du serveur, avec mon record local s'il est plus récent.
+function boardRows(id) {
+  const rows = [...((BOARD.data || {})[id] || [])].map(r => ({ ...r })), best = weekBest(id);
+  let me = rows.find(r => r.me);
+  if (best > 0) { if (me) me.score = Math.max(me.score, best); else rows.push(me = { name: "Toi", score: best, me: true }); }
+  return rows.sort((a, b) => b.score - a.score);
+}
+const BOARD_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10 13h4l-.5 4h-3z" fill="currentColor"/><rect x="7.5" y="17" width="9" height="3" rx="1" fill="currentColor"/></svg>`;
+function boardChip(id, best) {
+  const rows = friendsReady() ? boardRows(id) : [], rank = rows.findIndex(r => r.me) + 1, crown = rank === 1 && rows.length > 1;
+  if (!best && rows.length < 1) return "";
+  const txt = best ? `${crown ? "👑 " : ""}<b class="num">${best}</b>${rows.length > 1 && rank ? ` <span class="g-rank">· ${rank}${rank === 1 ? "ᵉʳ" : "ᵉ"}</span>` : ""}` : `<span class="g-rank">Scores des amis</span>`;
+  return `<button class="g-board" data-act="gameBoard" data-arg="${id}" aria-label="Scores de la semaine">${BOARD_ICON}${txt}</button>`;
+}
+let modalBoard = null;
+function viewBoard(id) {
+  const G = GAMES[id], rows = friendsReady() ? boardRows(id) : (weekBest(id) ? [{ name: "Toi", score: weekBest(id), me: true }] : []), left = seasonDaysLeft();
+  const note = !friendsReady() ? "Connecte-toi et ajoute des amis pour comparer vos scores."
+    : BOARD.error || (rows.filter(r => !r.me).length ? "" : "Aucun ami n’a encore joué cette semaine. Invite-les à te battre, sans pression !");
+  return `<div class="sheet board-sheet" role="dialog" aria-modal="true" aria-label="Scores de la semaine">
+    <div class="sheet-head"><div><h2>${G.name}</h2><span class="small muted">Meilleurs scores de la semaine · encore ${left} jour${left > 1 ? "s" : ""}</span></div>${SHEET_X}</div>
+    ${rows.length ? `<div class="goal-members">${rows.map((r, i) => `<div class="goal-m board-row${r.me ? " me" : ""}"><span class="b-rank">${i === 0 && rows.length > 1 ? "👑" : i + 1}</span><span class="fr-av">${r.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/xp-leaf.webp")}" alt="">` : friendAvatar(r.avatar)}</span><b>${r.me ? "Toi" : esc(r.name)}</b><span class="num">${r.score}</span></div>`).join("")}</div>`
+      : `<p class="small muted" style="margin:0">Personne n’a encore joué cette semaine.</p>`}
+    ${note ? `<p class="small muted" style="margin:0">${esc(note)}</p>` : ""}
+    <p class="small muted" style="margin:0">Le tableau repart à zéro chaque lundi. Pas de récompense, juste le plaisir !</p></div>`;
+}
+
 const BALADES_ACTS = {
+  gameBoard(id) { modalBoard = id; modalView = () => viewBoard(id); $("#modal").innerHTML = modalView(); openModal(); loadBoard(true); },
   gamePlay(id) { gameOpen(id); },
   gameHelp(id) { gameOpen(id, true); },
   gameGo() { if (!GAME || GAME.state !== "count") return; GAME.el.querySelector(".g-rules")?.remove(); gamesState().seen = { ...gamesState().seen, [GAME.id]: true }; save(); gameCountdown(); },

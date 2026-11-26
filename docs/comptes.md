@@ -70,3 +70,9 @@ Lancer **`docs/amis.sql`** dans *SQL Editor* (une fois, peut être relancé sans
 - les fonctions `upsert_profile`, `search_players`, `send_friend_request`, `respond_friend_request`, `remove_friendship`, `list_friends`.
 
 Les comptes de la version de test ne voient que les comptes de test, et inversement.
+
+## Balades (v4, en test)
+
+Lancer **`docs/balades.sql`** dans *SQL Editor* (après `docs/objectifs.sql` ; peut être relancé sans risque). Il crée :
+- `game_scores` : le meilleur score de la semaine de chaque joueur, pour chaque mini-jeu ;
+- les fonctions `report_score` (envoyer son record, il ne peut que monter) et `week_scores` (moi et mes amis, par jeu).

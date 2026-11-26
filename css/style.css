@@ -1672,7 +1672,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 @keyframes gBuzz { to { transform: translateY(-2px) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .bee svg, .g-count.pop { animation: none; } }
 .g-btn { display: inline-flex; gap: 6px; }
-.g-help { min-width: 38px; padding: 6px 0; font-size: 1rem; }
+.g-help { margin-left: auto; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); font-weight: 900; font-size: .85rem; padding: 0; display: grid; place-items: center; }
 .g-rules .g-card { text-align: left; }
 .g-rules h2 { text-align: center; }
 .g-rules-art { justify-self: center; width: 84px; height: 84px; }
@@ -1762,3 +1762,12 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .fall.stone { width: 46px; height: 38px; left: -23px; }
 .fall.gold { filter: drop-shadow(0 0 8px #ffe27a); }
 .g-pop.bad { color: #c9563f; text-shadow: 0 2px 0 rgba(255,255,255,.6); }
+
+/* Balades : tableau des scores entre amis */
+.g-board { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); border-radius: 99px; padding: 4px 10px; font: inherit; font-size: .82rem; min-height: 32px; }
+.g-board svg { width: 16px; height: 16px; color: #d6a21e; }
+.g-rank { color: var(--muted); font-weight: 700; }
+.board-sheet { display: grid; gap: 12px; }
+.board-row { grid-template-columns: 26px 32px minmax(0, 1fr) auto; }
+.b-rank { text-align: center; font-weight: 900; color: var(--muted); }
+.board-row .num { font-weight: 900; font-size: 1.05rem; }
