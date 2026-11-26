@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.17
+- Inventaire de l’accueil : récoltes dorées, graines, ingrédients et plats rangés par ordre alphabétique.
+
 ### 3.0.16
 - Hors-ligne : toutes les images du jeu sont téléchargées une fois en arrière-plan, pour que les plantes, plats et décos s’affichent sans réseau.
 - Le jeu ne reste plus bloqué sur l’écran du logo quand le réseau ne répond pas : au bout de 3 secondes, il démarre avec sa copie gardée sur l’appareil.

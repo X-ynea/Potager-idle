@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.16" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.17" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -859,6 +859,8 @@ function views_garden() {
   const thirsty = S.plots.filter(p => plotState(p, t) === "dry").length;
   const snails = S.plots.filter(p => plotState(p, t) === "weed").length;
   const decoKeys = DECO_ORDER.filter(decoUnlocked), goldKeys = ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0), cropKeys = ORDER.filter(k => cnt(S.crops, k) > 0), dishKeys = RORDER.filter(r => cnt(S.dishes, r) > 0), seedKeys = ORDER.filter(k => cnt(S.seeds, k) > 0);
+  // Inventaire de l’accueil : par ordre alphabétique.
+  const abc = (a, b) => byName(a, b, itemName); goldKeys.sort(abc); cropKeys.sort(abc); dishKeys.sort(abc); seedKeys.sort(abc);
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k), badge: PLANTS[k] ? seasonBadge(k) : "" })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k), badge: seasonBadge(k) })).join("")}</div>`;
