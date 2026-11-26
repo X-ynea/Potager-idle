@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.9 (version de test, préparation de la v4)
+- Balade en forêt : l’herbe et le chemin défilent à la même vitesse que les buissons.
+
 ### 3.1.8 (version de test, préparation de la v4)
 - Balade en forêt : une trouvaille par saison (nouvel ingrédient : l’**ail des ours** au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver). Celle de la saison vaut 1 point, les autres, plus rares, 3.
 - Les buissons poussent dans l’herbe, plus sur le chemin. Ceux qui cachent quelque chose frémissent, et la surprise n’apparaît qu’en les touchant.

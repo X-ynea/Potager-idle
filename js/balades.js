@@ -158,7 +158,7 @@ const POND = `<svg class="pond-bg" viewBox="0 0 400 300" preserveAspectRatio="no
 /* ---------------- La balade en forêt ----------------
    30 s ou 5 trouvailles. Les buissons défilent ; ceux qui frémissent cachent une trouvaille,
    révélée seulement quand on les touche. Score : trouvaille de la saison 1, les autres 3, + 1 par seconde restante quand le panier est plein. */
-const FORET_T = 30000, FORET_BASKET = 5, FORET_CROSS = 3800;
+const FORET_T = 30000, FORET_BASKET = 5, FORET_CROSS = 3800, FORET_SPAN = 1.35; // un buisson parcourt 1,35 largeur d'écran en 3,8 s
 // Une trouvaille par saison (fréquente, 1 point) ; les trois autres sont plus rares (3 points).
 const FORET_SEASON = { printemps: "ail", ete: "mure", automne: "chataigne", hiver: "noisette" };
 const FORET_ITEMS = ["ail", "mure", "chataigne", "noisette"];
@@ -202,7 +202,7 @@ const GAME_IMPL = {
       if (e >= FORET_T) { gameEnd(); return; }
       if (g.st !== "walk") return;
       const field = g.el.querySelector(".foret-field"), W = field.clientWidth;
-      g.el.querySelector(".path").style.backgroundPositionX = (-(e / FORET_CROSS) * W) + "px";
+      g.el.querySelector(".path").style.backgroundPositionX = (-(e / FORET_CROSS) * W * FORET_SPAN).toFixed(1) + "px"; // même vitesse que les buissons
       if (e >= g.next) {
         // Un buisson sur trois environ cache quelque chose ; trois rangées.
         const lane = Math.floor(Math.random() * 3), item = Math.random() < .3 ? foretPick() : null;
@@ -212,7 +212,7 @@ const GAME_IMPL = {
         g.next = e + rand(650, 1100);
       }
       g.bushes = g.bushes.filter(b => {
-        const x = W * 1.1 - (e - b.t) / FORET_CROSS * W * 1.35;
+        const x = W * 1.1 - (e - b.t) / FORET_CROSS * W * FORET_SPAN;
         if (x < -W * .3) { b.el.remove(); return false; }
         b.el.style.transform = `translateX(${x.toFixed(1)}px)`; return true;
       });
