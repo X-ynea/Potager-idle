@@ -103,13 +103,14 @@ function sgChatHTML() {
     <div class="sg-chat" id="chat-body">${list.length ? list.map(m => { const who = sgMember(m.by);
       return `<div class="sg-msg${who?.me ? " mine" : ""}"><span class="fr-av">${who ? sgAv(who) : friendAvatar(null)}</span><span class="sg-bubble"><b>${who?.me ? "Toi" : esc(who?.name || "Un ancien jardinier")}</b><span class="sg-txt">${esc(sgSayText(m.code, m.arg))}${m.code === "jemoccupe" && PLANTS[m.arg] ? `<span class="sg-say-plant">${cropArt(m.arg)}</span>` : ""}</span><small>${sgAgo(m.at)}</small></span></div>`; }).join("")
       : `<p class="small muted" style="margin:0">Pas encore de message. Dis coucou à tes amis jardiniers !</p>`}</div>
-    <div class="sg-says-wrap">${sgWait() ? `<span class="sg-cool" data-sgcool aria-label="Secondes avant le prochain message">${sgWait()}</span>` : ""}
+    <div class="sg-cool-row"><span class="sg-cool" data-sgcool aria-label="Secondes avant le prochain message">${sgWait() ? `0:${String(sgWait()).padStart(2, "0")}` : ""}</span></div>
+    <div class="sg-says-wrap">
     <div class="sg-says${sgWait() ? " cooling" : ""}">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${sgWait() ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}" ${sgWait() ? "disabled" : ""}>Je m’occupe de…</button></div>
     ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}" ${sgWait() ? "disabled" : ""}>${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}</div></div>`;
 }
 const SG_SAY_GAP = 5000; // un message toutes les 5 s au plus
 const sgWait = () => Math.max(0, Math.ceil(((SG.sayAt || 0) + SG_SAY_GAP - Date.now()) / 1000));
-setInterval(() => { const el = document.querySelector("[data-sgcool]"); if (!el) return; const w = sgWait(); if (w) el.textContent = w; else render(true); }, 250);
+setInterval(() => { const el = document.querySelector("[data-sgcool]"); if (!el || !el.textContent) return; const w = sgWait(); if (w) el.textContent = `0:${String(w).padStart(2, "0")}`; else render(true); }, 250);
 const sgChatSeen = () => { const top = sgChat().length ? sgChat()[sgChat().length - 1].id : 0; if (top > (S.sgChatSeen || 0)) { S.sgChatSeen = top; save(); } };
 
 /* ---------- Carte de l'onglet Amis ---------- */

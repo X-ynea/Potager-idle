@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.35 (version de test, préparation de la v4)
+- Discussion du jardin commun : les messages tout prêts sont dans une zone de saisie à part, en bas, et le délai s’affiche en petit (« 0:04 ») entre la discussion et cette zone.
+
 ### 3.1.34 (version de test, préparation de la v4)
 - Discussion du jardin commun : le délai avant le prochain message est un simple petit chiffre en bas à droite.
 
