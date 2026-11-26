@@ -209,9 +209,6 @@ const RUCHE_T = 30000;
 const PECHE_T = 30000, PECHE_BASKET = 5, PECHE_WIN = 900;
 const PECHE_PTS = { algue: 1, cresson: 2, menthe: 3 };
 const BOBBER = `<svg viewBox="0 0 40 52"><path d="M20 2v10" stroke="#3a2c1f" stroke-width="2"/><circle cx="20" cy="24" r="13" fill="#fff"/><path d="M7 24a13 13 0 0 1 26 0z" fill="#e2483d"/><circle cx="16" cy="19" r="3" fill="#fff" opacity=".6"/></svg>`;
-const POND = `<svg class="pond-bg" viewBox="0 0 400 300" preserveAspectRatio="none"><ellipse cx="200" cy="150" rx="196" ry="146" fill="#6fb6df"/><ellipse cx="200" cy="150" rx="176" ry="128" fill="#7fc3e8"/>
-  <g fill="#5fae4a"><path d="M70 70a26 18 0 1 0 1 0l-8 14z"/><path d="M320 220a30 20 0 1 0 1 0l-9 15z"/><path d="M300 70a20 14 0 1 0 1 0l-6 10z"/></g><circle cx="78" cy="66" r="6" fill="#ff9fc0"/>
-  <g stroke="#4f9a3a" stroke-width="5" stroke-linecap="round"><path d="M28 230l-10-70M40 236l4-80M52 240l14-66"/><path d="M372 120l8-60M360 116l-6-70"/></g></svg>`;
 
 /* ---------------- La balade en forêt ----------------
    30 s ou 5 trouvailles. Les buissons défilent ; ceux qui frémissent cachent une trouvaille,
@@ -400,8 +397,8 @@ const GAME_IMPL = {
       g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.peche.name}</b><span class="g-score"><span class="g-pts">Points</span><b class="num">0</b></span></div>
         <div class="g-time"><i></i></div>
         <div class="g-basket" aria-label="Ton panier">${Array.from({ length: PECHE_BASKET }, () => `<span class="gb-slot"></span>`).join("")}</div>
-        <div class="g-field peche-field">${POND}<svg class="line" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="0"/></svg><div class="bobber" hidden>${BOBBER}</div><span class="p-msg"></span>
-          <svg class="rod" viewBox="0 0 120 160" aria-hidden="true"><path d="M110 158L18 10" stroke="#8a5a3a" stroke-width="7" stroke-linecap="round"/><circle cx="96" cy="134" r="11" fill="#5e3a22"/><circle cx="96" cy="134" r="4" fill="#c9a26b"/></svg></div>
+        <div class="g-field peche-field"><img class="pond-bg" src="assets/img/balades/pond-${season()}.webp" alt="" draggable="false"><svg class="line" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="0"/></svg><div class="bobber" hidden>${BOBBER}</div><span class="p-msg"></span>
+          <img class="rod" src="assets/img/balades/peche-rod.webp" alt="" draggable="false"></div>
         <p class="g-hint">Touche l’étang pour lancer ta ligne</p>`;
       g.el.querySelector(".peche-field").addEventListener("pointerdown", ev => { if (g.state !== "play") return; ev.preventDefault(); GAME_IMPL.peche.tap(g, ev); });
     },
@@ -412,7 +409,7 @@ const GAME_IMPL = {
       const rod = g.el.querySelector(".rod").getBoundingClientRect();
       if (b.hidden) { ln.setAttribute("x2", 0); ln.setAttribute("y2", 0); ln.setAttribute("x1", 0); ln.setAttribute("y1", 0); return; }
       const br = b.getBoundingClientRect();
-      ln.setAttribute("x1", rod.left + rod.width * .15 - fr.left); ln.setAttribute("y1", rod.top + rod.height * .06 - fr.top);
+      ln.setAttribute("x1", rod.left + rod.width * .05 - fr.left); ln.setAttribute("y1", rod.top + rod.height * .04 - fr.top); // bout de la canne
       ln.setAttribute("x2", br.left + br.width / 2 - fr.left); ln.setAttribute("y2", br.top + br.height * .1 - fr.top);
     },
     cast(g, e, ev) {
