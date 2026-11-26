@@ -1679,3 +1679,5 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .g-rules-art img { width: 100%; height: 100%; object-fit: contain; }
 .g-steps { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
 .g-steps li::marker { font-weight: 900; color: var(--leaf); }
+.g-tag.g-soon { background: var(--sun-soft); color: #8a5a00; border-color: transparent; }
+.game-card.soon .g-body { align-content: center; }

@@ -31,19 +31,17 @@ const SIGNPOST = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="
 const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
 
 function views_balades() {
-  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${GAME_PLAYS} parties par jeu et par jour</span></div>
-    <p class="small muted" style="margin:6px 0 0">Prends l’air ! Pêche, promène-toi ou aide les abeilles : tu rapporteras des ingrédients qu’on ne trouve pas au potager.</p></section>`;
+  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${GAME_PLAYS} parties par jeu et par jour</span></div></section>`;
   if (S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
     const G = GAMES[id], left = playsLeft(id), best = weekBest(id);
     const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("") : `<span class="g-give">${coin}Pièces et XP</span>`;
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
-    const btn = G.soon ? `<button class="btn ghost sm" disabled>Bientôt</button>`
-      : left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
+    const btn = left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
     return `<div class="game-card${G.soon ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>
-      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span></div>
-        <p class="small muted">${G.desc}</p><div class="g-gives">${gives}</div>
-        <div class="g-foot">${G.soon ? "" : `<span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>`}${best ? `<span class="small muted">Record de la semaine : <b class="num">${best}</b></span>` : ""}<span class="g-btn">${btn}</span></div></div></div>`;
+      <div class="g-body"><div class="g-title"><b>${G.name}</b><span class="g-tag">${G.tag}</span>${G.soon ? `<span class="g-tag g-soon">Bientôt</span>` : ""}</div>
+        <div class="g-gives">${gives}</div>
+        ${G.soon ? "" : `<div class="g-foot"><span class="g-dots" title="Parties restantes aujourd’hui">${dots}</span>${best ? `<span class="small muted" title="Record de la semaine">Record : <b class="num">${best}</b></span>` : ""}<span class="g-btn">${btn}</span></div>`}</div></div>`;
   }).join("");
   return head + `<div class="game-list">${cards}</div>`;
 }

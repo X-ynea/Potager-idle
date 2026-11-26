@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.3 (version de test, préparation de la v4)
+- Balades : cartes plus courtes, sans la description (elle reste dans le « ? »), en-tête raccourci, « Record : 44 » sur une ligne et une étiquette « Bientôt » pour les jeux à venir.
+
 ### 3.1.2 (version de test, préparation de la v4)
 - Avant la première partie d’un jeu, une petite fenêtre explique comment jouer. On peut la revoir avec le bouton « ? » de la carte du jeu.
 
