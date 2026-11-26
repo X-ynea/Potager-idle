@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.15
+- Hors-ligne plus solide : après une mise à jour, le jeu garde les images déjà téléchargées, et la liste des images fait partie des fichiers gardés pour jouer sans réseau.
+
 ### 3.0.14
 - Nouvelles images de jeunes plants, qui sortent de la terre : radis, betterave, poireau, pomme de terre et champignon des bois.
 

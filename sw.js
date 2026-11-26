@@ -1,6 +1,6 @@
 /* Service worker de Potager idle : rend le jeu jouable hors-ligne.
    À chaque mise à jour du jeu, augmente VERSION pour que les téléphones téléchargent la nouvelle version. */
-const VERSION = "potager-v346";
+const VERSION = "potager-v347";
 const FILES = [
   "./",
   "index.html",
@@ -26,6 +26,8 @@ const FILES = [
   "js/env.js",
   "js/typo.js",
   "js/game.js",
+  "assets/img/manifest.js",
+  "assets/img/xp-leaf.webp",
   "fonts/fredoka-latin.woff2",
   "fonts/nunito-latin.woff2",
   "icons/favicon-32.png",
@@ -41,8 +43,16 @@ self.addEventListener("install", event => {
 
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    caches.keys().then(async keys => {
+      // Avant d'effacer l'ancienne version, on garde ce qu'elle avait déjà (images vues, etc.) :
+      // le jeu reste complet hors-ligne juste après une mise à jour.
+      const now = await caches.open(VERSION);
+      for (const k of keys.filter(k => k !== VERSION)) {
+        const old = await caches.open(k);
+        for (const req of await old.keys()) if (!(await now.match(req, { ignoreSearch: true }))) await now.put(req, await old.match(req));
+        await caches.delete(k);
+      }
+    })
       .then(() => self.clients.claim())
   );
 });
@@ -56,7 +66,7 @@ self.addEventListener("fetch", event => {
     fetch(req).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
       return res;
-    }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("index.html")))
+    }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || (req.mode === "navigate" ? caches.match("index.html") : Response.error())))
   );
 });
 
