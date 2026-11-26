@@ -1818,8 +1818,8 @@ button.sg-card { cursor: pointer; }
 .fr-row.pending { opacity: .7; }
 .sg-leave { color: #c9563f; justify-self: center; }
 /* Portail du jardin commun en haut à droite ; la boîte aux lettres à sa gauche, devant, le chevauche un peu */
-.garden > .sg-portal { top: -50px; right: 1%; left: auto; bottom: auto; width: min(36%, 156px); aspect-ratio: 520 / 308; z-index: 4; }
-.garden:has(> .sg-portal) > .mailbox { top: -24px; width: min(14%, 60px); right: calc(1% + min(36%, 156px) - min(6%, 26px)); z-index: 6; }
+.garden > .sg-portal { top: -46px; right: 1%; left: auto; bottom: auto; width: min(27%, 116px); aspect-ratio: 440 / 337; z-index: 4; }
+.garden:has(> .sg-portal) > .mailbox { right: calc(1% + min(27%, 116px) - min(5%, 22px)); z-index: 6; }
 .sg-done { font-size: .8rem; font-weight: 800; color: #3d7a2a; background: #e3f4d8; border-radius: 99px; padding: 4px 10px; white-space: nowrap; }
 .btn.ghost.sg-leave { color: #c9563f; }
 .sg-bonus { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 8px; border-radius: 12px; background: var(--sun-soft); border: 1px dashed #e0b84a; }
@@ -1899,3 +1899,4 @@ button.sg-card { cursor: pointer; }
   background: var(--panel-2); border-top: 1px solid var(--line); }
 .sg-says-wrap .chip { background: var(--panel); }
 .sg-says.cooling .chip { opacity: .55; }
+.garden:has(> .sg-portal) { overflow-clip-margin: 60px; margin-top: 30px; } /* le portail dépasse du jardin sans être coupé */
