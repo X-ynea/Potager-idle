@@ -8,7 +8,8 @@ const GAME_PLAYS = 3;
 const GAMES = {
   ruche:      { name: "La ruche", tag: "Rythme", desc: "Touche les fleurs qui s’ouvrent pour que les abeilles viennent butiner.", gives: ["miel"],
     rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
-  peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee", soon: true },
+  peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
+    rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare).", "Tu as 40 secondes. Ton panier garde tes 5 plus belles prises."] },
   foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["chataigne", "mure", "noisette"], emoji: "🍂", color: "#8a5a3a", soon: true },
   memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0", soon: true },
   cueillette: { name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
@@ -142,7 +143,79 @@ const RUCHE_COLORS = ["#ff8fab", "#c9a5ff", "#ffffff", "#9fd0ff", "#ffb36b"];
 const RUCHE_SPOTS = [[50, 50], [24, 36], [76, 36], [24, 66], [76, 66], [50, 22], [50, 80]]; // une fleur au centre, six autour
 const RUCHE_T = 30000;
 
+/* ---------------- La pêche ----------------
+   40 s. On touche l'étang pour lancer, le bouchon frétille parfois (il ne faut pas toucher), puis plonge :
+   il faut toucher dans la seconde. Algues 1 pt, cresson 2, menthe d'eau 3. Le panier garde les 5 plus belles prises. */
+const PECHE_T = 40000, PECHE_BASKET = 5, PECHE_WIN = 900;
+const PECHE_PTS = { algue: 1, cresson: 2, menthe: 3 };
+const BOBBER = `<svg viewBox="0 0 40 52"><path d="M20 2v10" stroke="#3a2c1f" stroke-width="2"/><circle cx="20" cy="24" r="13" fill="#fff"/><path d="M7 24a13 13 0 0 1 26 0z" fill="#e2483d"/><circle cx="16" cy="19" r="3" fill="#fff" opacity=".6"/></svg>`;
+const POND = `<svg class="pond-bg" viewBox="0 0 400 300" preserveAspectRatio="none"><ellipse cx="200" cy="150" rx="196" ry="146" fill="#6fb6df"/><ellipse cx="200" cy="150" rx="176" ry="128" fill="#7fc3e8"/>
+  <g fill="#5fae4a"><path d="M70 70a26 18 0 1 0 1 0l-8 14z"/><path d="M320 220a30 20 0 1 0 1 0l-9 15z"/><path d="M300 70a20 14 0 1 0 1 0l-6 10z"/></g><circle cx="78" cy="66" r="6" fill="#ff9fc0"/>
+  <g stroke="#4f9a3a" stroke-width="5" stroke-linecap="round"><path d="M28 230l-10-70M40 236l4-80M52 240l14-66"/><path d="M372 120l8-60M360 116l-6-70"/></g></svg>`;
+
 const GAME_IMPL = {
+  peche: {
+    setup(g) {
+      g.st = "ready"; g.caught = []; g.until = 0;
+      g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.peche.name}</b><span class="g-score"><span class="g-pts">Points</span><b class="num">0</b></span></div>
+        <div class="g-time"><i></i></div>
+        <div class="g-basket" aria-label="Ton panier">${Array.from({ length: PECHE_BASKET }, () => `<span class="gb-slot"></span>`).join("")}</div>
+        <div class="g-field peche-field">${POND}<svg class="line" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="0"/></svg><div class="bobber" hidden>${BOBBER}</div><span class="p-msg"></span>
+          <svg class="rod" viewBox="0 0 120 160" aria-hidden="true"><path d="M110 158L18 10" stroke="#8a5a3a" stroke-width="7" stroke-linecap="round"/><circle cx="96" cy="134" r="11" fill="#5e3a22"/><circle cx="96" cy="134" r="4" fill="#c9a26b"/></svg></div>
+        <p class="g-hint">Touche l’étang pour lancer ta ligne</p>`;
+      g.el.querySelector(".peche-field").addEventListener("pointerdown", ev => { if (g.state !== "play") return; ev.preventDefault(); GAME_IMPL.peche.tap(g, ev); });
+    },
+    msg(g, txt, cls) { const m = g.el.querySelector(".p-msg"); m.textContent = txt; m.className = "p-msg show " + (cls || ""); clearTimeout(g.msgT); g.msgT = setTimeout(() => { m.className = "p-msg"; }, 1100); },
+    hint(g, txt) { g.el.querySelector(".g-hint").textContent = txt; },
+    line(g) {
+      const f = g.el.querySelector(".peche-field"), fr = f.getBoundingClientRect(), b = g.el.querySelector(".bobber"), ln = g.el.querySelector(".line line");
+      const rod = g.el.querySelector(".rod").getBoundingClientRect();
+      if (b.hidden) { ln.setAttribute("x2", 0); ln.setAttribute("y2", 0); ln.setAttribute("x1", 0); ln.setAttribute("y1", 0); return; }
+      const br = b.getBoundingClientRect();
+      ln.setAttribute("x1", rod.left + rod.width * .15 - fr.left); ln.setAttribute("y1", rod.top + rod.height * .06 - fr.top);
+      ln.setAttribute("x2", br.left + br.width / 2 - fr.left); ln.setAttribute("y2", br.top + br.height * .1 - fr.top);
+    },
+    cast(g, e, ev) {
+      const f = g.el.querySelector(".peche-field"), fr = f.getBoundingClientRect(), b = g.el.querySelector(".bobber");
+      // Le bouchon tombe près de l'endroit touché, en restant dans l'étang.
+      const x = Math.min(.78, Math.max(.2, (ev.clientX - fr.left) / fr.width)), y = Math.min(.72, Math.max(.22, (ev.clientY - fr.top) / fr.height));
+      b.style.left = (x * 100) + "%"; b.style.top = (y * 100) + "%"; b.hidden = false; b.className = "bobber land";
+      g.st = "wait"; g.bite = e + rand(1400, 4200); g.nibbles = [];
+      const n = Math.floor(Math.random() * 3); for (let i = 0; i < n; i++) g.nibbles.push(e + rand(500, g.bite - e - 300));
+      GAME_IMPL.peche.hint(g, "Attends que le bouchon plonge…"); SFX.play("water");
+    },
+    reset(g) { const b = g.el.querySelector(".bobber"); b.hidden = true; b.className = "bobber"; g.st = "ready"; GAME_IMPL.peche.hint(g, "Touche l’étang pour lancer ta ligne"); },
+    tap(g, ev) {
+      const e = performance.now() - g.t0 - g.paused;
+      if (g.st === "ready") return GAME_IMPL.peche.cast(g, e, ev);
+      if (g.st === "wait") { GAME_IMPL.peche.msg(g, "Trop tôt, ça a filé !", "miss"); GAME_IMPL.peche.reset(g); buzz(15); return; }
+      if (g.st === "bite") {
+        const r = Math.random(), k = r < .5 ? "algue" : r < .82 ? "cresson" : "menthe", v = PECHE_PTS[k];
+        g.score += v; g.caught.push(k); g.el.querySelector(".g-score b").textContent = g.score;
+        const best = [...g.caught].sort((a, b) => PECHE_PTS[b] - PECHE_PTS[a]).slice(0, PECHE_BASKET);
+        g.el.querySelectorAll(".gb-slot").forEach((sl, i) => { sl.innerHTML = best[i] ? wildArt(best[i]) : ""; });
+        GAME_IMPL.peche.msg(g, `${WILD[k].name} ! +${v}`, k === "menthe" ? "gold" : "");
+        SFX.play(v > 2 ? "coin" : "harvest"); buzz(12); GAME_IMPL.peche.reset(g);
+      }
+    },
+    frame(g, e) {
+      g.el.querySelector(".g-time i").style.width = Math.max(0, 100 - e / PECHE_T * 100).toFixed(1) + "%";
+      if (e >= PECHE_T) { gameEnd(); return; }
+      const b = g.el.querySelector(".bobber");
+      if (g.st === "wait") {
+        if (g.nibbles.length && e >= g.nibbles[0]) { g.nibbles.shift(); b.className = "bobber"; void b.offsetWidth; b.className = "bobber nibble"; }
+        if (e >= g.bite) { g.st = "bite"; g.until = e + PECHE_WIN; b.className = "bobber bite"; GAME_IMPL.peche.hint(g, "Plouf ! Touche vite !"); buzz([30, 30, 30]); }
+      } else if (g.st === "bite" && e >= g.until) { GAME_IMPL.peche.msg(g, "Il s’est échappé…", "miss"); GAME_IMPL.peche.reset(g); }
+      GAME_IMPL.peche.line(g);
+    },
+    // Le panier garde les 5 plus belles prises ; un peu d'XP selon les points.
+    reward(score) {
+      const g = GAME, best = [...(g?.caught || [])].sort((a, b) => PECHE_PTS[b] - PECHE_PTS[a]).slice(0, PECHE_BASKET), wild = {};
+      for (const k of best) wild[k] = (wild[k] || 0) + 1;
+      return { wild, xp: Math.min(4 + S.level, Math.round(score / 2)) };
+    },
+    cheer: s => s >= 24 ? "Pêcheur de légende !" : s >= 14 ? "Belle pêche !" : s >= 6 ? "Ça mord !" : "Quelques prises !",
+  },
   ruche: {
     setup(g) {
       g.flowers = RUCHE_SPOTS.map(() => ({ open: false, until: 0, gold: false }));

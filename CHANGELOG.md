@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.4 (version de test, préparation de la v4)
+- L’onglet Balades passe après le Village.
+- Nouveau jeu : **la pêche à l’étang**. Touche l’étang pour lancer, attends que le bouchon plonge pour de bon (pas quand il frétille) et touche vite. Algues 1 point, cresson 2, menthe d’eau 3. 40 s ; le panier garde les 5 plus belles prises, avec un peu d’XP.
+
 ### 3.1.3 (version de test, préparation de la v4)
 - Balades : cartes plus courtes, sans la description (elle reste dans le « ? »), en-tête raccourci, « Record : 44 » sur une ligne et une étiquette « Bientôt » pour les jeux à venir.
 
