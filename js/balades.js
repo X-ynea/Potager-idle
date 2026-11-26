@@ -12,7 +12,7 @@ const GAMES = {
     rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "La partie dure 5 prises ou 30 secondes.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
   foret:      { lvl: 6, name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
     rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
-  memory:     { lvl: 7, name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0",
+  memory:     { lvl: 7, name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, seeds: true, emoji: "🃏", color: "#9a6cf0",
     rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 25 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
   cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
@@ -41,7 +41,8 @@ function views_balades() {
   if (!IS_TEST && S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
     const G = GAMES[id], left = playsLeft(id), best = weekBest(id), locked = gameLocked(id);
-    const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("") : `<span class="g-give">${coin}Pièces et XP</span>`;
+    const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("")
+      : `<span class="g-give">${coin}Pièces</span>` + (G.seeds ? `<span class="g-give">${seedArt("radis")}Graines</span>` : "");
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
     const btn = left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
     return `<div class="game-card${G.soon || locked ? " soon" : ""}"><div class="g-art">${gameArt(id)}</div>

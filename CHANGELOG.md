@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.16 (version de test, préparation de la v4)
+- Carte du memory : les récompenses affichent « Pièces » et « Graines ».
+
 ### 3.1.15 (version de test, préparation de la v4)
 - Memory : 25 secondes.
 
