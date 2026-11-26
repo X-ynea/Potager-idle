@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.21 (version de test, préparation de la v4)
+- **9 nouvelles recettes** avec les ingrédients de balade : Tartine au miel (niv. 5), Soupe de cresson (6), Thé à la menthe (7), Salade de la mer (9), Pesto d’ail des ours (11), Confiture de mûres (12), Crème de châtaigne (14), Gâteau aux noisettes (16) et le Grand pique-nique (24), qui réunit les 8 trouvailles.
+- Les voisins peuvent commander ces plats, une fois le jeu qui donne leurs ingrédients ouvert.
+
 ### 3.1.20 (version de test, préparation de la v4)
 - Tableau des scores : « Pas de récompense, juste le plaisir ! » passe à la ligne.
 

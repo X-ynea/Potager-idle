@@ -82,6 +82,16 @@ const RECIPES = {
   tarte_rubis: { name: "Tarte rubis", desc: "Une tarte dorée garnie de pointes rouge rubis, croustillante et fondante.", lvl: 15, price: 445, need: { rubis: 2, ble: 2 }, time: 240, sell: 405, xp: 68, look: "pie", color: "#c0304f" },
   sorbet_etoile: { name: "Sorbet étoilé", desc: "Des boules de sorbet jaune soleil en forme d’étoile, au parfum de miel.", lvl: 19, price: 785, need: { etoile: 2, fraise: 1 }, time: 300, sell: 715, xp: 110, look: "cup", color: "#f7d046" },
   veloute_nuage: { name: "Velouté nuage", desc: "Un velouté bleu pâle, léger comme un nuage, au parfum de sous-bois.", lvl: 21, price: 735, need: { nuage: 2, patate: 2 }, time: 300, sell: 670, xp: 105, look: "bowl", color: "#8fb3e8" },
+  // v4 : recettes avec les ingrédients de balade (WILD, plus bas), qu'on trouve dans les mini-jeux
+  tartine_miel: { name: "Tartine au miel", desc: "Une tranche de pain bien dorée, nappée de miel qui coule sur les doigts.", lvl: 5, price: 100, need: { miel: 1, ble: 2 }, time: 120, sell: 92, xp: 22, look: "bread", color: "#f2b632" },
+  soupe_cresson: { name: "Soupe de cresson", desc: "Un velouté vert vif, poivré juste ce qu’il faut.", lvl: 6, price: 80, need: { cresson: 2, patate: 1 }, time: 150, sell: 74, xp: 18, look: "bowl", color: "#5fae4a" },
+  the_menthe: { name: "Thé à la menthe", desc: "Une tasse fumante de menthe d’eau, adoucie d’une cuillère de miel.", lvl: 7, price: 125, need: { menthe: 2, miel: 1 }, time: 150, sell: 112, xp: 26, look: "cup", color: "#4fb39a" },
+  salade_mer: { name: "Salade de la mer", desc: "Des algues croquantes sur un lit de laitue : un air de bord de mer.", lvl: 9, price: 90, need: { algue: 3, laitue: 1 }, time: 150, sell: 82, xp: 20, look: "bowl", color: "#3f8f6a" },
+  pesto_ail: { name: "Pesto d’ail des ours", desc: "Un pesto vert intense, à tartiner ou à mélanger aux pâtes.", lvl: 11, price: 110, need: { ail: 2, basilic: 1 }, time: 180, sell: 98, xp: 24, look: "jar", color: "#6fbf5a" },
+  confiture_mure: { name: "Confiture de mûres", desc: "Un pot de confiture noire et brillante, pour les tartines du dimanche.", lvl: 12, price: 130, need: { mure: 3, miel: 1 }, time: 200, sell: 120, xp: 28, look: "jar", color: "#4a2a5a" },
+  creme_chataigne: { name: "Crème de châtaigne", desc: "Douce et veloutée, elle sent bon les après-midi d’automne.", lvl: 14, price: 150, need: { chataigne: 3, miel: 1 }, time: 220, sell: 138, xp: 32, look: "jar", color: "#8a5a3a" },
+  gateau_noisette: { name: "Gâteau aux noisettes", desc: "Un gâteau moelleux, croquant de noisettes grillées et parfumé au miel.", lvl: 16, price: 165, need: { noisette: 2, ble: 2, miel: 1 }, time: 240, sell: 150, xp: 36, look: "cake", color: "#b08350" },
+  pique_nique: { name: "Grand pique-nique", desc: "Un panier garni de toutes les trouvailles des balades, à partager au bord de l’étang.", lvl: 24, price: 480, need: { miel: 1, algue: 1, cresson: 1, menthe: 1, ail: 1, mure: 1, chataigne: 1, noisette: 1 }, time: 300, sell: 260, xp: 64, look: "pie", color: "#e8a83a" },
   potee_cristal: { name: "Potée de cristal", desc: "Une potée d’hiver aux feuilles bleutées, qui réchauffe jusqu’au bout des doigts.", lvl: 23, price: 585, need: { cristal: 2, carotte: 2 }, time: 300, sell: 530, xp: 85, look: "bowl", color: "#a9d4e8" },
 };
 const RORDER = Object.keys(RECIPES);

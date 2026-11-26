@@ -5,10 +5,10 @@
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 global.window = {};
-eval(fs.readFileSync(path.join(ROOT, "js/data.js"), "utf8") + "\n;Object.assign(global,{PLANTS,RECIPES});");
+eval(fs.readFileSync(path.join(ROOT, "js/data.js"), "utf8") + "\n;Object.assign(global,{PLANTS,RECIPES,WILD});");
 
 // Hybrides nécessaires pour « connaître » un objet (anti-spoil).
-const hybNeeds = k => PLANTS[k] ? (PLANTS[k].hybrid ? [k] : []) : [...new Set(Object.keys(RECIPES[k].need).flatMap(hybNeeds))];
+const hybNeeds = k => PLANTS[k] ? (PLANTS[k].hybrid ? [k] : []) : WILD[k] ? [] : [...new Set(Object.keys(RECIPES[k].need).flatMap(hybNeeds))];
 const rows = [];
 for (const [k, d] of Object.entries(PLANTS)) if (!d.tuto) rows.push([k, d.sell, 0, hybNeeds(k)]);
 for (const [k, d] of Object.entries(RECIPES)) rows.push([k, d.sell, d.lvl, hybNeeds(k)]);

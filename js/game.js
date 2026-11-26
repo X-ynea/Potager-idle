@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.20" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.21" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -332,9 +332,11 @@ const ORDER_LINES = [
   "Je te paierai bien, promis !", "Mon panier est tout vide…", "Une petite douceur pour aujourd’hui ?",
 ];
 /* Un hybride encore inconnu ne doit jamais apparaître (pas de spoiler), même via une recette. */
-const knownItem = k => PLANTS[k] ? (!PLANTS[k].hybrid || S.hybrids.includes(k)) : Object.keys(RECIPES[k].need).every(knownItem);
+const knownItem = k => PLANTS[k] ? (!PLANTS[k].hybrid || S.hybrids.includes(k)) : WILD[k] ? true : Object.keys(RECIPES[k].need).every(knownItem);
+// Ingrédient de balade : on peut s'en procurer si on en a, ou si son jeu est ouvert.
+const wildReachable = k => cnt(S.wild, k) > 0 || GORDER.some(id => !gameLocked(id) && (GAMES[id].gives || []).includes(k));
 function dishFeasible(r) {
-  return knownItem(r) && Object.keys(RECIPES[r].need).every(k => seedBuyable(k) || cnt(S.crops, k) > 0);
+  return knownItem(r) && Object.keys(RECIPES[r].need).every(k => WILD[k] ? wildReachable(k) : seedBuyable(k) || cnt(S.crops, k) > 0);
 }
 function weightedPick(items, weight) {
   const w = items.map(weight), tot = w.reduce((a, b) => a + b, 0);
@@ -361,6 +363,7 @@ function itemEffort(k, q) {
     const d = PLANTS[k];
     return d.sell * q * (1 + d.time / 3600) * (d.hybrid ? 1.5 : 1);
   }
+  if (WILD[k]) return WILD[k].sell * q * 1.6; // ingrédient de balade : parties limitées par jour
   const r = RECIPES[k]; // un plat : sa valeur + l'effort de ses ingrédients + le temps de cuisson
   const ing = Object.entries(r.need).reduce((t, [i, n]) => t + itemEffort(i, n), 0);
   return (r.sell * .6 + ing * .5) * (1 + r.time / 1200) * q;
@@ -393,7 +396,7 @@ function genOrder() {
   const outEx = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season !== season() && S.discovered.includes(k));
   if (outEx.length && Math.random() < 1 / 8) {
     const outDish = RORDER.filter(r => RECIPES[r].lvl <= S.level && knownItem(r) && Object.keys(RECIPES[r].need).some(k => outEx.includes(k))
-      && Object.keys(RECIPES[r].need).every(k => outEx.includes(k) || seedBuyable(k) || cnt(S.crops, k) > 0));
+      && Object.keys(RECIPES[r].need).every(k => outEx.includes(k) || (WILD[k] ? wildReachable(k) : seedBuyable(k) || cnt(S.crops, k) > 0)));
     for (const k in items) delete items[k];
     if (outDish.length && Math.random() < .4) items[pick(outDish)] = 1;
     else { const k = pick(outEx); items[k] = Math.max(1, qtyCrop(k) - 1); }
@@ -494,8 +497,8 @@ const A = {
   openPlotShop() { modalView = viewPlotShop; $("#modal").innerHTML = viewPlotShop(); openModal(); },
   cook(r) {
     const d = RECIPES[r]; if (S.cooking.length >= stoves()) return;
-    for (const k in d.need) if (cnt(S.crops, k) < d.need[k]) return;
-    for (const k in d.need) S.crops[k] -= d.need[k];
+    for (const k in d.need) if (cnt(itemBag(k), k) < d.need[k]) return;
+    for (const k in d.need) itemBag(k)[k] -= d.need[k];
     S.cooking.push({ r, end: now() + d.time * 1000 * cookMult() }); commit();
   },
   serve(i, ev) {
@@ -1026,7 +1029,7 @@ const UI = { sel: {}, invCat: "crops", sellCat: "crops" };
 const CHECK = `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" style="fill:var(--leaf)"/><path d="M4.5 8.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const LOCK = `<svg viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="7" rx="1.6" fill="#8a9a80"/><path d="M5.5 7V5.5a2.5 2.5 0 0 1 5 0V7" stroke="#8a9a80" stroke-width="1.6" fill="none"/></svg>`;
 const priceTag = n => `${coin}<span class="num">${fmt(n)}</span>`;
-const canCook = r => Object.entries(RECIPES[r].need).every(([k, q]) => cnt(S.crops, k) >= q);
+const canCook = r => Object.entries(RECIPES[r].need).every(([k, q]) => cnt(itemBag(k), k) >= q);
 const mystery = k => `<div class="sil">${plantArt(k, 3)}</div>`;
 
 function tile(art, o) {
@@ -1043,6 +1046,7 @@ function detail(ctx, art, title, desc, meta, body = "", actions = "") {
 const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="num">${val}</b></span>`;
 function ingList(need) {
   return `<div class="ings"><h4>Ingrédients</h4>${Object.entries(need).map(([k, q]) => {
+    if (WILD[k]) { const h = cnt(S.wild, k); return `<div class="ing ${h >= q ? "ok" : "miss"}">${wildArt(k)}<span>${WILD[k].name} <small class="muted">· Balades</small></span><b class="num">${h}/${q}</b></div>`; }
     const h = cnt(S.crops, k), known = !PLANTS[k].hybrid || S.hybrids.includes(k);
     return `<div class="ing ${h >= q ? "ok" : "miss"}">${known ? cropArt(k) : mystery(k)}<span>${known ? PLANTS[k].name : "Hybride à découvrir"}</span><b class="num">${h}/${q}</b></div>`;
   }).join("")}</div>`;
@@ -1115,7 +1119,7 @@ function marketSeeds() {
     <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
 }
 // Hybrides d'une recette pas encore découverts : on ne peut pas l'apprendre avant.
-const missingHyb = r => Object.keys(RECIPES[r].need).filter(k => PLANTS[k].hybrid && !S.hybrids.includes(k));
+const missingHyb = r => Object.keys(RECIPES[r].need).filter(k => PLANTS[k]?.hybrid && !S.hybrids.includes(k));
 function marketRecipes() {
   let r = UI.sel.recipes;
   if (!RECIPES[r]) r = RORDER.find(x => !S.recipes.includes(x) && RECIPES[x].lvl <= S.level) || RORDER[0];
@@ -1233,9 +1237,9 @@ function sig(t) {
   switch (tab) {
     case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.wild, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.wild, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
-    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
+    case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.wild, S.dishes, S.cooking.map(c => c.r + (c.end <= t))]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
-    case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.dishes, S.orders.length < maxOrders()]);
+    case "village": return base + JSON.stringify([S.orders.map(o => o.id), S.crops, S.wild, S.dishes, S.orders.length < maxOrders()]);
     case "balades": return base + JSON.stringify([S.games, S.wild, parisDay(), weekId(), BOARD.data, BOARD.error, CLOUD.signedIn]);
     case "friends": return base + JSON.stringify([FR.list, FR.unread, FR.tab, FR.results, FR.searching, FR.loaded, FR.error, FR.code, FR.confirm, FR.hlTrade, CLOUD.signedIn, CLOUD.blocked]);
   }

@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 3.0.0 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.1.20 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -49,18 +49,18 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 2 | Pomme de terre | Salade croquante | Panier en osier (100 p) |
 | 3 | Petits pois (printemps) | Purée maison | Tuyau d’arrosage (300 p), Bac n° 7 (120 p), Serre à hybrides |
 | 4 | Carotte | Velouté de petits pois | Gants de jardinage (250 p) |
-| 5 | Blé | Soupe de carottes | — |
-| 6 | Courgette (été) | Pain de campagne | Arrosoir 1/3 (150 p) |
-| 7 | Fraise | Tarte aux fraises | Fourneau 1/2 (800 p) |
+| 5 | Blé | Soupe de carottes, Tartine au miel | — |
+| 6 | Courgette (été) | Pain de campagne, Soupe de cresson | Arrosoir 1/3 (150 p) |
+| 7 | Fraise | Tarte aux fraises, Thé à la menthe | Fourneau 1/2 (800 p) |
 | 8 | Betterave (automne) | Pain d’azur | Bac n° 8 (350 p) |
-| 9 | Basilic | Soupe de betterave | Compost maison 1/3 (500 p) |
+| 9 | Basilic | Soupe de betterave, Salade de la mer | Compost maison 1/3 (500 p) |
 | 10 | Poireau (hiver) | Salade pourpre | — |
-| 11 | Tomate | Fondue de poireaux | Banc des voisins 1/2 (1 200 p) |
-| 12 | — | Gnocchis roses, Sauce tomate | Arrosoir 2/3 (900 p) |
+| 11 | Tomate | Fondue de poireaux, Pesto d’ail des ours | Banc des voisins 1/2 (1 200 p) |
+| 12 | — | Gnocchis roses, Sauce tomate, Confiture de mûres | Arrosoir 2/3 (900 p) |
 | 13 | Myrtille | — | Bac n° 9 (1 350 p) |
-| 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes | — |
+| 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes, Crème de châtaigne | — |
 | 15 | Lavande | Tarte aux asperges, Tarte rubis | — |
-| 16 | Melon (été) | Pizza du potager | — |
+| 16 | Melon (été) | Pizza du potager, Gâteau aux noisettes | — |
 | 17 | — | Tisane lavande, Velouté lunaire | Compost maison 2/3 (2 700 p) |
 | 18 | Tournesol | Smoothie fraisille | Arrosoir 3/3 (3 000 p) |
 | 19 | Potiron | Salade de melon, Sorbet étoilé | Bac n° 10 (3 000 p) |
@@ -68,7 +68,7 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 21 | — | Pain aux graines, Velouté nuage | Fourneau 2/2 (7 500 p) |
 | 22 | Chou d’hiver (hiver) | — | — |
 | 23 | — | Purée améthyste, Potée de cristal | — |
-| 24 | — | Soupe lanterne | Compost maison 3/3 (7 500 p) |
+| 24 | — | Soupe lanterne, Grand pique-nique | Compost maison 3/3 (7 500 p) |
 | 25 | — | Tourte forestière | Arroseur automatique (12 000 p), Bac n° 11 (6 000 p) |
 | 26 | — | Potée au chou | — |
 | 27 | — | Sirop de soleil lilas | — |
@@ -153,19 +153,27 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Purée maison | 3 | 55 | 3 pomme de terre | 2 min | 49 | 14 |
 | Velouté de petits pois | 4 | 86 | 3 petits pois, 1 laitue | 3 min | 78 | 18 |
 | Soupe de carottes | 5 | 65 | 2 carotte, 1 pomme de terre | 2 min | 57 | 16 |
+| Tartine au miel | 5 | 100 | 1 miel, 2 blé | 2 min | 92 | 22 |
 | Pain de campagne | 6 | 80 | 3 blé | 3 min | 74 | 22 |
+| Soupe de cresson | 6 | 80 | 2 cresson, 1 pomme de terre | 3 min | 74 | 18 |
 | Tarte aux fraises | 7 | 130 | 2 fraise, 2 blé | 3 min | 117 | 32 |
+| Thé à la menthe | 7 | 125 | 2 menthe d’eau, 1 miel | 3 min | 112 | 26 |
 | Pain d’azur | 8 | 270 | 3 épi d’azur | 4 min | 247 | 47 |
 | Soupe de betterave | 9 | 92 | 2 betterave, 1 pomme de terre | 3 min | 83 | 19 |
+| Salade de la mer | 9 | 90 | 3 algues, 1 laitue | 3 min | 82 | 20 |
 | Salade pourpre | 10 | 185 | 2 laitue poivrée, 2 radis | 3 min | 170 | 36 |
 | Fondue de poireaux | 11 | 145 | 3 poireau, 1 blé | 3 min | 140 | 30 |
+| Pesto d’ail des ours | 11 | 110 | 2 ail des ours, 1 basilic | 3 min | 98 | 24 |
 | Gnocchis roses | 12 | 325 | 3 patate cœur, 1 blé | 4 min | 294 | 58 |
 | Sauce tomate | 12 | 155 | 2 tomate, 1 basilic | 4 min | 142 | 34 |
+| Confiture de mûres | 12 | 130 | 3 mûres, 1 miel | 3 min | 120 | 28 |
 | Muffins myrtille | 14 | 175 | 2 myrtille, 1 blé | 4 min | 161 | 37 |
 | Gratin de courgettes | 14 | 135 | 2 courgette, 1 pomme de terre, 1 tomate | 3 min | 123 | 28 |
+| Crème de châtaigne | 14 | 150 | 3 châtaignes, 1 miel | 4 min | 138 | 32 |
 | Tarte aux asperges | 15 | 220 | 2 asperge, 2 blé | 4 min | 200 | 42 |
 | Tarte rubis | 15 | 445 | 2 asperge rubis, 2 blé | 4 min | 405 | 68 |
 | Pizza du potager | 16 | 210 | 2 blé, 2 tomate, 1 basilic | 4 min | 189 | 47 |
+| Gâteau aux noisettes | 16 | 165 | 2 noisettes, 2 blé, 1 miel | 4 min | 150 | 36 |
 | Tisane lavande | 17 | 180 | 2 lavande | 3 min | 163 | 34 |
 | Velouté lunaire | 17 | 275 | 2 radis lune, 2 pomme de terre | 5 min | 251 | 49 |
 | Smoothie fraisille | 18 | 315 | 2 fraisille | 3 min | 285 | 50 |
@@ -177,6 +185,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Purée améthyste | 23 | 495 | 2 carotte améthyste, 2 pomme de terre | 5 min | 448 | 75 |
 | Potée de cristal | 23 | 585 | 2 chou de cristal, 2 carotte | 5 min | 530 | 85 |
 | Soupe lanterne | 24 | 695 | 2 tomate lanterne, 1 basilic | 5 min | 631 | 100 |
+| Grand pique-nique | 24 | 480 | 1 miel, 1 algues, 1 cresson, 1 menthe d’eau, 1 ail des ours, 1 mûres, 1 châtaignes, 1 noisettes | 5 min | 260 | 64 |
 | Tourte forestière | 25 | 360 | 2 champignon des bois, 2 blé, 1 pomme de terre | 5 min | 326 | 62 |
 | Potée au chou | 26 | 240 | 1 chou d’hiver, 2 carotte, 2 pomme de terre | 5 min | 218 | 45 |
 | Sirop de soleil lilas | 27 | 760 | 2 soleil lilas, 1 lavande | 5 min | 689 | 109 |

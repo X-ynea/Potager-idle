@@ -6,7 +6,7 @@ const ROOT = path.join(__dirname, "..");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 
 global.window = {};
-eval(read("js/data.js") + "\n;Object.assign(global,{PLANTS,ORDER,RECIPES,RORDER,UPG,PLOT_STEPS,MAX_PLOTS,LAB_TIME,VILLAGERS});");
+eval(read("js/data.js") + "\n;Object.assign(global,{PLANTS,ORDER,RECIPES,RORDER,WILD,UPG,PLOT_STEPS,MAX_PLOTS,LAB_TIME,VILLAGERS});");
 const game = read("js/game.js");
 const xpExpr = /const xpNeed = l => (.+?);/.exec(game)[1];
 const xpNeed = new Function("l", "return " + xpExpr);
@@ -18,7 +18,7 @@ eval(read("js/achievements.js").replace(/^(const|let) /gm, "global.$1_".replace(
 const fr = n => Math.round(n).toLocaleString("fr-FR").replace(/ /g, " ");
 const dur = s => s < 60 ? `${s} s` : s < 3600 ? `${Math.round(s / 60)} min` : `${Math.floor(s / 3600)} h ${String(Math.round(s % 3600 / 60)).padStart(2, "0")}`;
 const SEASON = { printemps: "Printemps", ete: "Été", automne: "Automne", hiver: "Hiver" };
-const name = k => PLANTS[k]?.name || RECIPES[k]?.name || k;
+const name = k => PLANTS[k]?.name || WILD[k]?.name || RECIPES[k]?.name || k;
 const base = ORDER.filter(k => !PLANTS[k].hybrid), hyb = ORDER.filter(k => PLANTS[k].hybrid);
 const out = [];
 const p = s => out.push(s);

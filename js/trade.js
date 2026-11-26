@@ -17,7 +17,7 @@ const MAIL_ICON = up => `<img class="mb-art" src="assets/img/ui-mail-${up ? "ful
 const trValue = k => (PLANTS[k] || RECIPES[k])?.sell || 0;
 const tradable = k => PLANTS[k] ? !PLANTS[k].tuto : !!RECIPES[k];
 // Un joueur « connaît » un objet : plante de base toujours, hybride découvert, plat débloqué à son niveau (et ses hybrides découverts).
-const knowsItem = (who, k) => PLANTS[k] ? (!PLANTS[k].hybrid || who.hybrids.includes(k)) : RECIPES[k].lvl <= who.level && Object.keys(RECIPES[k].need).every(i => knowsItem(who, i));
+const knowsItem = (who, k) => PLANTS[k] ? (!PLANTS[k].hybrid || who.hybrids.includes(k)) : WILD[k] ? true : RECIPES[k].lvl <= who.level && Object.keys(RECIPES[k].need).every(i => knowsItem(who, i));
 const meWho = () => ({ level: S.level, hybrids: S.hybrids || [] });
 const trItems = items => Object.entries(items || {}).filter(([k, q]) => (PLANTS[k] || RECIPES[k]) && q > 0);
 const sideValue = (items, coins) => trItems(items).reduce((n, [k, q]) => n + trValue(k) * q, 0) + (coins > 0 ? coins : 0);

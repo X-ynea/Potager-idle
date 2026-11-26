@@ -69,5 +69,14 @@ insert into public.item_values (key, value, lvl, needs) values
   ('tarte_rubis', 405, 15, array['rubis']::text[]),
   ('sorbet_etoile', 715, 19, array['etoile']::text[]),
   ('veloute_nuage', 670, 21, array['nuage']::text[]),
+  ('tartine_miel', 92, 5, array[]::text[]),
+  ('soupe_cresson', 74, 6, array[]::text[]),
+  ('the_menthe', 112, 7, array[]::text[]),
+  ('salade_mer', 82, 9, array[]::text[]),
+  ('pesto_ail', 98, 11, array[]::text[]),
+  ('confiture_mure', 120, 12, array[]::text[]),
+  ('creme_chataigne', 138, 14, array[]::text[]),
+  ('gateau_noisette', 150, 16, array[]::text[]),
+  ('pique_nique', 260, 24, array[]::text[]),
   ('potee_cristal', 530, 23, array['cristal']::text[]);
 commit;
