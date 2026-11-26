@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.29" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.30" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -816,7 +816,7 @@ function viewSettings() {
       <div class="set-row"><span>Sons</span><button class="switch" role="switch" data-act="toggleSound" aria-checked="${S.settings.sound}" aria-label="Sons"></button></div>
       ${S.settings.sound ? `<div class="set-row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" value="${S.settings.volume ?? .6}" data-input="setVolume" aria-label="Volume"></div>` : ""}
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
-      <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
+      <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés${FRIENDS_ON ? ", messages, échanges reçus et jardin commun" : ""}</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
       <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
@@ -1330,7 +1330,7 @@ function live(t) {
   const kN = S.cooking.filter(c => c.end <= t).length;
   const lN = S.lab && S.lab.end <= t ? 1 : 0;
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
-  badge("b-garden", gN); badge("b-atelier", kN + lN); subBadge("kitchen", kN); subBadge("lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal());
+  badge("b-garden", gN); badge("b-atelier", kN + lN); subBadge("kitchen", kN); subBadge("lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal() + (typeof sgChatNew === "function" && sgOn() ? sgChatNew() : 0));
   // Barre de progression sur les onglets Cuisine et Serre pendant une préparation.
   const running = S.cooking.filter(c => c.end > t).map(c => ({ end: c.end, d: RECIPES[c.r].time * 1000 }));
   const next = running.sort((a, b) => a.end - b.end)[0];

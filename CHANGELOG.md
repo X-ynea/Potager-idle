@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.30 (version de test, préparation de la v4)
+- Jardin commun : un petit **tchat de groupe** avec des messages tout prêts (« Coucou ! », « On livre la commande 1 ? », « Oui ! », « Pas encore, j’attends », « Je m’occupe de planter : … »…). Une pastille signale les nouveaux messages sur l’onglet Amis, la carte du jardin et le portail. Serveur : relancer `docs/jardin-commun.sql`.
+- **Notifications** (si elles sont activées dans les Paramètres, jeu en arrière-plan) : nouveaux messages privés, échanges reçus et messages du jardin commun.
+
 ### 3.1.29 (version de test, préparation de la v4)
 - Jardin commun : chacun plante les plantes de son propre niveau (toujours sans hybride).
 - Les commandes gardent une partie que tout le monde peut faire, et ont souvent une ligne **Bonus +50 %** facultative, avec une plante que seuls les plus avancés peuvent planter. On choisit de livrer avec ou sans le bonus ; si une plante du bonus pousse encore, livrer sans lui demande une confirmation. Serveur : relancer `docs/jardin-commun.sql`.

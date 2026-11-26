@@ -15,7 +15,7 @@ const SG_ERR = {
   graine_interdite: "Cette graine n’est pas disponible au jardin commun.", bac_occupe: "Ce bac est déjà planté.", pas_mur: "Ce n’est pas encore mûr.",
   panier_plein: "Le panier est plein : livrez une commande !", panier_incomplet: "Il manque des récoltes dans le panier.",
   commande_expiree: "Cette commande est terminée.", commande_introuvable: "Cette commande est déjà livrée.", invitation_introuvable: "Cette invitation n’existe plus.",
-  "pas ami": "Vous n’êtes plus amis.", pas_de_bonus: "Cette commande n’a pas de bonus.",
+  "pas ami": "Vous n’êtes plus amis.", trop_vite: "Doucement, un message à la fois !", pas_de_bonus: "Cette commande n’a pas de bonus.",
 };
 function sgErr(e) {
   const m = String(e?.message || e);
@@ -69,6 +69,23 @@ const sgAv = m => m?.me ? `<img src="${esc(avatarSrc())}" alt="">` : friendAvata
 const sgBasketN = () => Object.values(sgG()?.basket || {}).reduce((a, b) => a + (+b || 0), 0);
 const sgOrderOk = o => Object.entries(o.items || {}).every(([k, q]) => (+sgG()?.basket?.[k] || 0) >= q);
 
+/* ---------- Petit tchat du jardin commun : messages tout prêts ---------- */
+const SG_SAY = [["coucou", "Coucou ! 👋"], ["livrer1", "On livre la commande 1 ?"], ["livrer2", "On livre la commande 2 ?"], ["oui", "Oui ! 👍"], ["non", "Pas encore, j’attends"],
+  ["merci", "Merci ! 💚"], ["arrose", "J’ai arrosé 💧"], ["bonne_nuit", "Bonne nuit ! 🌙"]];
+const sgSayText = (c, arg) => c === "jemoccupe" ? `Je m’occupe de planter : ${PLANTS[arg] ? PLANTS[arg].name.toLowerCase() : "…"}` : (SG_SAY.find(x => x[0] === c) || [, "…"])[1];
+const sgChat = () => SG.data?.chat || [];
+const sgChatNew = () => { const seen = S.sgChatSeen || 0; return sgChat().filter(m => m.id > seen && !sgMember(m.by)?.me).length; };
+const sgAgo = iso => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? "à l’instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
+function sgChatHTML() {
+  const list = sgChat().slice(-8), mine = (SG.data?.allowed || []).filter(k => PLANTS[k]);
+  return `<h3 class="cat-title">Discussion ${sgChatNew() ? `<span class="fr-badge">${sgChatNew()}</span>` : ""}</h3>
+    <div class="sg-chat">${list.length ? list.map(m => { const who = sgMember(m.by);
+      return `<div class="sg-msg${who?.me ? " mine" : ""}"><span class="fr-av">${who ? sgAv(who) : friendAvatar(null)}</span><span class="sg-bubble"><b>${who?.me ? "Toi" : esc(who?.name || "Un ancien jardinier")}</b><span class="sg-txt">${esc(sgSayText(m.code, m.arg))}${m.code === "jemoccupe" && PLANTS[m.arg] ? `<span class="sg-say-plant">${cropArt(m.arg)}</span>` : ""}</span><small>${sgAgo(m.at)}</small></span></div>`; }).join("")
+      : `<p class="small muted" style="margin:0">Pas encore de message. Dis coucou à tes amis jardiniers !</p>`}</div>
+    <div class="sg-says">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${SG.busy ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}">Je m’occupe de…</button></div>
+    ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}">${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}`;
+}
+
 /* ---------- Carte de l'onglet Amis ---------- */
 const SG_ICON = `<img class="sg-ico" src="assets/img/interface/ui-portal.webp" alt="">`;
 function sgCardHTML() {
@@ -79,7 +96,7 @@ function sgCardHTML() {
     const ripe = g.plots.filter(p => sgPlot(p).st === "ripe").length, left = (g.orders || []).filter(o => !o.done).length;
     return `<button class="sg-card open" data-act="sgOpen">${SG_ICON}<div class="sg-card-t"><b>${esc(g.name)}</b>
       <small class="muted">${ripe ? `${ripe} bac${ripe > 1 ? "s" : ""} à récolter · ` : ""}${left ? `${left} commande${left > 1 ? "s" : ""} à livrer` : "Commandes du jour livrées"}</small></div>
-      <span class="sg-avs">${(SG.data.members || []).map(m => `<span class="fr-av">${sgAv(m)}</span>`).join("")}</span></button>`;
+      <span class="sg-avs">${(SG.data.members || []).map(m => `<span class="fr-av">${sgAv(m)}</span>`).join("")}</span>${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : ""}</button>`;
   }
   return `<div class="sg-card">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">Un petit jardin à cultiver avec 3 amis au plus, pour livrer ensemble des commandes.</small></div></div>
     ${inv.map(i => `<div class="sg-inv"><span class="fr-av">${friendAvatar(i.avatar)}</span><span class="fr-id"><b>${esc(i.by)} t’invite</b><small>au jardin « ${esc(i.name)} » · ${i.members} jardinier${i.members > 1 ? "s" : ""}</small></span>
@@ -87,7 +104,7 @@ function sgCardHTML() {
     <form class="sg-create" data-form="sgCreate"><input id="sg-name" maxlength="24" placeholder="Nom du jardin" value="${esc(SG.name)}" autocomplete="off"><button class="btn" type="submit" ${SG.busy ? "disabled" : ""}>Créer</button></form>`;
 }
 // Petit portail au bord de son jardin, pour y aller directement.
-const sgPortalHTML = () => sgOn() && sgG() ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgG().plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
+const sgPortalHTML = () => sgOn() && sgG() ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG().plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
 
 /* ---------- Fenêtre du jardin commun ---------- */
 const sgOpen = () => modalView === viewSG && !$("#modal").hidden;
@@ -102,6 +119,7 @@ function sgPlotHTML(p, i) {
 }
 function viewSG() {
   const g = sgG();
+  const top = sgChat().length ? sgChat()[sgChat().length - 1].id : 0; if (top > (S.sgChatSeen || 0)) { S.sgChatSeen = top; save(); } // messages lus
   if (!g) return `<div class="sheet sg-sheet" role="dialog" aria-modal="true" aria-label="Jardin commun"><div class="sheet-head"><h2>Jardin commun</h2>${SHEET_X}</div>
     <p class="small muted" style="margin:0">${SG.error ? esc(SG.error) : "Tu ne fais plus partie de ce jardin."}</p></div>`;
   const me = sgMe(), members = SG.data.members || [], owner = me?.owner, planted = me?.planted || 0, leftSeeds = Math.max(0, SG_PLANTS_DAY - planted);
@@ -139,6 +157,7 @@ function viewSG() {
     <h3 class="cat-title">Commandes du jour <span class="muted num">${(g.orders || []).filter(o => o.done).length} / ${(g.orders || []).length}</span></h3>
     <div class="sg-orders">${orders}</div>
     <p class="small muted" style="margin:0">Chaque jardinier qui a planté au moins ${SG_CONTRIB} graines depuis la commande précédente reçoit la récompense. Toi : <b>${Math.min(SG_CONTRIB, me?.contrib || 0)} / ${SG_CONTRIB}</b>.${g.delivered < 10 ? ` À la 10ᵉ commande livrée ensemble (${g.delivered} / 10), chacun gagne la déco <b>${DECOS.friend_bench}</b>.` : ""}</p>
+    ${sgChatHTML()}
     <h3 class="cat-title">Jardiniers <span class="muted num">${members.length} / 4</span></h3>
     <div class="fr-list">${members.map(m => `<div class="fr-row"><span class="fr-av">${sgAv(m)}</span><span class="fr-id"><b>${m.me ? "Toi" : esc(m.name)}${m.owner ? ` <span class="tr-tag">Créateur</span>` : ""}</b><small>Niv. ${m.level} · ${m.planted || 0} / ${SG_PLANTS_DAY} graines aujourd’hui</small></span>
       ${owner && !m.me ? `<span class="fr-acts">${conf === "kick:" + m.id ? `<button class="btn danger sm" data-act="sgKick" data-arg="${m.id}">Retirer</button><button class="btn ghost sm" data-act="sgConfirm" data-arg="">Non</button>` : `<button class="btn ghost sm" data-act="sgConfirm" data-arg="kick:${m.id}">Retirer</button>`}</span>` : ""}</div>`).join("")}
@@ -169,6 +188,8 @@ async function sgCall(fn, args, after) {
   catch (e) { SG.busy = false; SG.error = sgErr(e); toast(esc(SG.error)); render(true); }
 }
 const SG_ACTS = {
+  sgSay(arg) { const [c, k] = String(arg).split(":"); SG.say = false; sgCall("sg_say", { p_code: c, p_arg: k || null }, () => { SFX.play("click"); }); },
+  sgSayPlant() { SG.say = !SG.say; render(true); },
   sgOpen() { if (!sgOn()) return; SG.pick = null; SG.invite = false; SG.confirm = null; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {
     i = +i; const p = sgG()?.plots[i], s = sgPlot(p);
@@ -200,3 +221,37 @@ document.addEventListener("submit", ev => {
   sgCall("sg_create", { p_name: name }, () => { SFX.play("success"); setTimeout(() => SG_ACTS.sgOpen(), 300); });
 });
 document.addEventListener("input", ev => { if (ev.target.id === "sg-name") SG.name = ev.target.value; });
+
+/* ---------------- Notifications entre amis ----------------
+   Pendant que le jeu tourne en arrière-plan (notifications activées dans les Paramètres), on regarde chaque minute :
+   les messages privés, les échanges reçus et le tchat du jardin commun. Ce qui était déjà là en partant ne sonne pas. */
+const SOC = { base: null };
+function socSnapshot() {
+  return { unread: { ...(FR.unread || {}) }, trades: new Set(trIn().map(r => r.id)), chat: sgChat().length ? sgChat()[sgChat().length - 1].id : 0 };
+}
+document.addEventListener("visibilitychange", () => { SOC.base = document.hidden && friendsReady() ? socSnapshot() : null; });
+async function socialNotifs() {
+  if (!document.hidden || !SOC.base || !friendsReady() || !S.settings.notif) return;
+  const nameOf = uid => FR.list.find(f => f.user_id === uid)?.name || "Un ami";
+  // Messages privés
+  try {
+    const rows = await CLOUD.rpc("unread_counts") || [];
+    for (const r of rows) if (r.n > (SOC.base.unread[r.user_id] || 0)) NOTIF.show("msg:" + r.user_id, `Message de ${nameOf(r.user_id)}`, r.n > 1 ? `${r.n} messages non lus.` : "Tu as un nouveau message.", 2 * 60000);
+    const u = {}; rows.forEach(r => { u[r.user_id] = r.n; }); FR.unread = u; SOC.base.unread = { ...u };
+  } catch (e) {}
+  // Échanges reçus
+  try {
+    TR.list = await CLOUD.rpc("my_trades") || TR.list;
+    for (const r of trIn()) if (!SOC.base.trades.has(r.id)) { SOC.base.trades.add(r.id); NOTIF.show("trade:" + r.id, `${r.name} te propose un échange`, r.counter_of ? "Une contre-proposition t’attend dans la boîte aux lettres." : "Il t’attend dans la boîte aux lettres.", 0); }
+  } catch (e) {}
+  // Tchat du jardin commun
+  try {
+    const d = await CLOUD.rpc("sg_state");
+    if (d && typeof d === "object") { SG.data = d; SG.off = (+d.now || Date.now()) - Date.now(); }
+    const fresh = sgChat().filter(m => m.id > SOC.base.chat && !sgMember(m.by)?.me);
+    if (fresh.length) { const m = fresh[fresh.length - 1], who = sgMember(m.by);
+      NOTIF.show("sgchat", `Jardin « ${sgG()?.name || "commun"} »`, `${who?.name || "Un jardinier"} : ${sgSayText(m.code, m.arg)}`, 60000); }
+    if (sgChat().length) SOC.base.chat = sgChat()[sgChat().length - 1].id;
+  } catch (e) {}
+}
+setInterval(socialNotifs, 60e3);

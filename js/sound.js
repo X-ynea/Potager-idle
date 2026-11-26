@@ -97,9 +97,9 @@ addEventListener("pointerdown", () => SFX.unlock(), { once: true });
 const NOTIF = (() => {
   const supported = () => "Notification" in window && "serviceWorker" in navigator;
   const last = {};
-  async function show(kind, title, body) {
+  async function show(kind, title, body, gap = 10 * 60000) {
     if (!S?.settings?.notif || !supported() || Notification.permission !== "granted" || !document.hidden) return;
-    if (last[kind] && Date.now() - last[kind] < 10 * 60000) return; // au plus une par type toutes les 10 min
+    if (last[kind] && Date.now() - last[kind] < gap) return; // au plus une par type toutes les 10 min (moins pour les messages)
     last[kind] = Date.now();
     try {
       const reg = await navigator.serviceWorker.getRegistration();

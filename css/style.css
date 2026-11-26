@@ -1845,3 +1845,20 @@ button.sg-card { cursor: pointer; }
 .sg-warn { grid-column: 1 / -1; margin: 0; color: #8a5a00; }
 .sg-order { grid-template-columns: 1fr; }
 .sg-order > .btn, .sg-order > .sg-done { justify-self: end; }
+/* Jardin commun : petit tchat */
+.sg-chat { display: grid; gap: 6px; padding: 2px; }
+.sg-msg { display: flex; align-items: flex-end; gap: 6px; }
+.sg-msg .fr-av { width: 28px; height: 28px; flex: none; }
+.sg-msg.mine { flex-direction: row-reverse; }
+.sg-bubble { display: grid; gap: 1px; max-width: 78%; padding: 6px 10px; border-radius: 14px 14px 14px 4px; background: var(--panel-2); border: 1px solid var(--line); font-size: .9rem; }
+.sg-msg.mine .sg-bubble { border-radius: 14px 14px 4px 14px; background: #e3f4d8; border-color: #c4e3ad; }
+.sg-bubble b { font-size: .72rem; color: var(--muted); }
+.sg-bubble small { font-size: .66rem; color: var(--muted); justify-self: end; }
+.sg-say-plant { display: inline-block; width: 22px; height: 22px; vertical-align: middle; margin-left: 4px; }
+.sg-say-plant svg, .sg-say-plant img { width: 100%; height: 100%; }
+.sg-says { display: flex; flex-wrap: wrap; gap: 6px; }
+.sg-says .chip { font-size: .78rem; min-height: 32px; padding: 4px 10px; }
+.sg-says .chip.on { background: var(--ink); color: var(--panel); }
+.sg-says.plants .chip svg, .sg-says.plants .chip img { width: 22px; height: 22px; }
+.sg-card { position: relative; }
+.sg-card-badge { position: absolute; top: -4px; right: -4px; box-shadow: 0 0 0 2px #fff; }

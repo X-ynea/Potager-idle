@@ -196,6 +196,8 @@ begin
   select coalesce(jsonb_agg(jsonb_build_object('id', i.user_id, 'name', coalesce(pr.name, 'Jardinier'), 'avatar', pr.avatar)), '[]'::jsonb)
     into pending from shared_garden_invites i left join profiles pr on pr.user_id = i.user_id where i.garden_id = gid;
   return jsonb_build_object('garden', jsonb_build_object('id', g.id, 'name', g.name, 'plots', plots, 'basket', g.basket, 'orders', g.orders, 'delivered', g.delivered),
+    'chat', (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'by', c.user_id, 'code', c.code, 'arg', c.arg, 'at', c.created_at) order by c.id), '[]'::jsonb)
+      from (select * from shared_garden_chat where garden_id = gid order by id desc limit 30) c),
     'members', members, 'pending', pending, 'allowed', to_jsonb(sg_allowed_user(me)), 'common', to_jsonb(sg_allowed(gid)), 'invites', invites, 'now', now_ms(), 'season', saison);
 end $$;
 
@@ -336,9 +338,34 @@ create or replace function public.sg_claim() returns jsonb language sql security
   select coalesce(jsonb_agg(jsonb_build_object('garden', garden_name, 'coins', coins, 'xp', xp, 'wild', wild, 'deco', deco) order by created_at), '[]'::jsonb) from r;
 $$;
 
+-- 12. Petit tchat du jardin commun : seulement des messages tout prêts (pas de texte libre).
+--     code = coucou | livrer1 | livrer2 | oui | non | merci | jemoccupe (arg = une plante) | arrose | bonne_nuit
+create table if not exists public.shared_garden_chat (
+  id bigint generated always as identity primary key,
+  garden_id bigint not null references public.shared_gardens on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  code text not null check (code in ('coucou', 'livrer1', 'livrer2', 'oui', 'non', 'merci', 'jemoccupe', 'arrose', 'bonne_nuit')),
+  arg text,
+  created_at timestamptz not null default now()
+);
+create index if not exists shared_garden_chat_garden on public.shared_garden_chat (garden_id, id desc);
+alter table public.shared_garden_chat enable row level security;
+
+create or replace function public.sg_say(p_code text, p_arg text default null) returns void language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); gid bigint := sg_mine();
+begin
+  if gid is null then raise exception 'pas_jardin'; end if;
+  if p_code = 'jemoccupe' and not exists (select 1 from sg_plants where key = p_arg) then raise exception 'message_invalide'; end if;
+  if p_code <> 'jemoccupe' then p_arg := null; end if;
+  if exists (select 1 from shared_garden_chat where garden_id = gid and user_id = me and created_at > now() - interval '3 seconds') then raise exception 'trop_vite'; end if;
+  insert into shared_garden_chat (garden_id, user_id, code, arg) values (gid, me, p_code, p_arg);
+  delete from shared_garden_chat where garden_id = gid and (created_at < now() - interval '3 days'
+    or id <= (select id from shared_garden_chat where garden_id = gid order by id desc offset 40 limit 1)); -- ménage : 40 messages, 3 jours
+end $$;
+
 revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_plants_for(int), public.sg_allowed_user(uuid), public.sg_allowed_any(bigint),
   public.sg_make_order(text[], text[], int), public.sg_daily_orders(bigint) from public, anon, authenticated;
 revoke all on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim() from public, anon;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text) from public, anon;
 grant execute on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim() to authenticated;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text) to authenticated;
