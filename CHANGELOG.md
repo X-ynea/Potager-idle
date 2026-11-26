@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.31 (version de test, préparation de la v4)
+- Jardin commun : toucher la carte de l’onglet Amis ouvre une fenêtre pour créer le jardin (son nom, et jusqu’à 3 amis à inviter d’un coup). Une fois le jardin créé, la carte y mène directement.
+
 ### 3.1.30 (version de test, préparation de la v4)
 - Jardin commun : un petit **tchat de groupe** avec des messages tout prêts (« Coucou ! », « On livre la commande 1 ? », « Oui ! », « Pas encore, j’attends », « Je m’occupe de planter : … »…). Une pastille signale les nouveaux messages sur l’onglet Amis, la carte du jardin et le portail. Serveur : relancer `docs/jardin-commun.sql`.
 - **Notifications** (si elles sont activées dans les Paramètres, jeu en arrière-plan) : nouveaux messages privés, échanges reçus et messages du jardin commun.

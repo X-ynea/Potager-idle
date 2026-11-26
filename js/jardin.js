@@ -98,10 +98,24 @@ function sgCardHTML() {
       <small class="muted">${ripe ? `${ripe} bac${ripe > 1 ? "s" : ""} à récolter · ` : ""}${left ? `${left} commande${left > 1 ? "s" : ""} à livrer` : "Commandes du jour livrées"}</small></div>
       <span class="sg-avs">${(SG.data.members || []).map(m => `<span class="fr-av">${sgAv(m)}</span>`).join("")}</span>${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : ""}</button>`;
   }
-  return `<div class="sg-card">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">Un petit jardin à cultiver avec 3 amis au plus, pour livrer ensemble des commandes.</small></div></div>
+  return `<button class="sg-card open" data-act="sgNew">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">Crée un petit jardin à cultiver avec 3 amis au plus, pour livrer ensemble des commandes.</small></div><span class="sg-go">+</span></button>
     ${inv.map(i => `<div class="sg-inv"><span class="fr-av">${friendAvatar(i.avatar)}</span><span class="fr-id"><b>${esc(i.by)} t’invite</b><small>au jardin « ${esc(i.name)} » · ${i.members} jardinier${i.members > 1 ? "s" : ""}</small></span>
-      <span class="fr-acts"><button class="btn sm" data-act="sgAnswer" data-arg="${i.garden_id}:1" ${SG.busy ? "disabled" : ""}>Rejoindre</button><button class="btn ghost sm" data-act="sgAnswer" data-arg="${i.garden_id}:0" ${SG.busy ? "disabled" : ""}>Non merci</button></span></div>`).join("")}
-    <form class="sg-create" data-form="sgCreate"><input id="sg-name" maxlength="24" placeholder="Nom du jardin" value="${esc(SG.name)}" autocomplete="off"><button class="btn" type="submit" ${SG.busy ? "disabled" : ""}>Créer</button></form>`;
+      <span class="fr-acts"><button class="btn sm" data-act="sgAnswer" data-arg="${i.garden_id}:1" ${SG.busy ? "disabled" : ""}>Rejoindre</button><button class="btn ghost sm" data-act="sgAnswer" data-arg="${i.garden_id}:0" ${SG.busy ? "disabled" : ""}>Non merci</button></span></div>`).join("")}`;
+}
+// Fenêtre de création : nom du jardin et amis à inviter (3 au plus).
+function viewSGNew() {
+  const friends = (typeof FR !== "undefined" ? FR.list : []).filter(f => f.direction === "friend"), pick = SG.newPick || [];
+  return `<div class="sheet sg-sheet" role="dialog" aria-modal="true" aria-label="Créer un jardin commun">
+    <div class="sheet-head"><div><h2>Nouveau jardin commun</h2><span class="small muted">6 bacs à cultiver ensemble, 4 jardiniers au plus</span></div>${SHEET_X}</div>
+    ${SG.error ? `<p class="cloud-warn">${esc(SG.error)}</p>` : ""}
+    <label class="sg-field"><b>Nom du jardin</b><input id="sg-name" maxlength="24" placeholder="Les Copains" value="${esc(SG.name)}" autocomplete="off"></label>
+    <h3 class="cat-title">Amis à inviter <span class="muted num">${pick.length} / 3</span></h3>
+    ${friends.length ? `<div class="fr-list">${friends.map(f => { const on = pick.includes(f.user_id);
+      return `<button class="fr-row sg-friend${on ? " on" : ""}" data-act="sgNewPick" data-arg="${f.user_id}" aria-pressed="${on}" ${!on && pick.length >= 3 ? "disabled" : ""}><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b><small>Niv. ${f.level}</small></span><span class="sg-check">${on ? "✓" : ""}</span></button>`; }).join("")}</div>`
+      : `<p class="small muted" style="margin:0">Ajoute d’abord des amis. Tu pourras aussi les inviter plus tard, depuis le jardin.</p>`}
+    <p class="small muted" style="margin:0">Ils recevront une invitation, et pourront accepter ou refuser.</p>
+    <button class="btn big" data-act="sgCreate" ${SG.busy ? "disabled" : ""}>${SG.busy ? "Création…" : pick.length ? `Créer et inviter ${pick.length} ami${pick.length > 1 ? "s" : ""}` : "Créer le jardin"}</button>
+  </div>`;
 }
 // Petit portail au bord de son jardin, pour y aller directement.
 const sgPortalHTML = () => sgOn() && sgG() ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG().plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
@@ -212,14 +226,22 @@ const SG_ACTS = {
   sgConfirm(v) { SG.confirm = v || null; render(true); },
   sgKick(id) { SG.confirm = null; sgCall("sg_leave", { target: id }); },
   sgLeave() { SG.confirm = null; sgCall("sg_leave", {}, () => { closeModal(); toast("Tu as quitté le jardin commun."); }); },
+  sgNew() { if (!sgOn()) return; SG.name = ""; SG.newPick = []; SG.error = ""; if (typeof loadFriends === "function") loadFriends(); modalView = viewSGNew; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); },
+  sgNewPick(id) { const p = SG.newPick || []; SG.newPick = p.includes(id) ? p.filter(x => x !== id) : p.length < 3 ? [...p, id] : p; render(true); },
+  async sgCreate() {
+    if (SG.busy) return;
+    const name = (SG.name || "").trim().slice(0, 24) || "Jardin commun", pick = [...(SG.newPick || [])];
+    SG.busy = true; SG.error = ""; render(true);
+    try {
+      await CLOUD.rpc("sg_create", { p_name: name });
+      let n = 0; for (const id of pick) { try { await CLOUD.rpc("sg_invite", { target: id }); n++; } catch (e) {} }
+      SG.busy = false; SG.name = ""; SG.newPick = []; SFX.play("success");
+      toast(`🌻 Jardin « ${esc(name)} » créé${n ? ` · ${n} invitation${n > 1 ? "s" : ""} envoyée${n > 1 ? "s" : ""}` : ""}`);
+      await loadSG(true); SG_ACTS.sgOpen();
+    } catch (e) { SG.busy = false; SG.error = sgErr(e); render(true); }
+  },
   sgAnswer(arg) { const [gid, yes] = arg.split(":"); sgCall("sg_answer", { p_garden: +gid, accept: yes === "1" }, () => { if (yes === "1") { SFX.play("success"); toast("Bienvenue au jardin commun ! 🌻"); } }); },
 };
-// Création d'un jardin (formulaire de l'onglet Amis).
-document.addEventListener("submit", ev => {
-  if (ev.target.dataset?.form !== "sgCreate") return; ev.preventDefault();
-  const name = ($("#sg-name")?.value || "").trim().slice(0, 24) || "Jardin commun"; SG.name = "";
-  sgCall("sg_create", { p_name: name }, () => { SFX.play("success"); setTimeout(() => SG_ACTS.sgOpen(), 300); });
-});
 document.addEventListener("input", ev => { if (ev.target.id === "sg-name") SG.name = ev.target.value; });
 
 /* ---------------- Notifications entre amis ----------------
