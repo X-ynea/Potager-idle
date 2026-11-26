@@ -17,6 +17,8 @@ const GAMES = {
   cueillette: { lvl: 8, name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
 const GORDER = Object.keys(GAMES);
+// Version de test : tous les jeux ouverts, quel que soit le niveau.
+const gameLocked = id => !IS_TEST && S.level < GAMES[id].lvl;
 
 // Jour de Paris (AAAA-MM-JJ), comme le serveur.
 const parisDay = (t = Date.now()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(t));
@@ -35,10 +37,10 @@ const SIGNPOST = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="
 const gameArt = id => !VEC_ONLY && (IMG.games || []).includes(id) ? `<img src="assets/img/game-${id}.webp" alt="">` : `<span class="game-ph" style="--c:${GAMES[id].color}">${GAMES[id].emoji}</span>`;
 
 function views_balades() {
-  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${IS_TEST ? "Parties illimitées (test)" : `${GAME_PLAYS} parties par jeu et par jour`}</span></div></section>`;
-  if (S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
+  const head = `<section class="panel"><div class="row spread"><h2>Balades</h2><span class="small muted">${IS_TEST ? "Tout ouvert, parties illimitées (test)" : `${GAME_PLAYS} parties par jeu et par jour`}</span></div></section>`;
+  if (!IS_TEST && S.level < BALADES_LVL) return head + `<section class="panel"><div class="empty-note"><span style="font-size:2.4rem">${SIGNPOST}</span><span>Les balades ouvrent au niveau ${BALADES_LVL}.</span></div></section>`;
   const cards = GORDER.map(id => {
-    const G = GAMES[id], left = playsLeft(id), best = weekBest(id), locked = S.level < G.lvl;
+    const G = GAMES[id], left = playsLeft(id), best = weekBest(id), locked = gameLocked(id);
     const gives = G.gives ? G.gives.map(k => `<span class="g-give">${wildArt(k)}${WILD[k].name}</span>`).join("") : `<span class="g-give">${coin}Pièces et XP</span>`;
     const dots = Array.from({ length: GAME_PLAYS }, (_, i) => `<i class="${i < left ? "on" : ""}"></i>`).join("");
     const btn = left ? `<button class="btn ghost sm g-help" data-act="gameHelp" data-arg="${id}" aria-label="Comment jouer">?</button><button class="btn sm" data-act="gamePlay" data-arg="${id}">Jouer</button>` : `<button class="btn ghost sm" disabled>Reviens demain</button>`;
@@ -53,7 +55,7 @@ function views_balades() {
 /* ---------------- Moteur commun ---------------- */
 let GAME = null; // partie en cours
 function gameOpen(id, help) {
-  if (GAME || !playsLeft(id) || GAMES[id].soon || S.level < GAMES[id].lvl) return;
+  if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
   const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");

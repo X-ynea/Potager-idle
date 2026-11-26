@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.13 (version de test, préparation de la v4)
+- Version de test : l’onglet Balades et tous ses jeux sont ouverts quel que soit le niveau. La version des joueurs garde les niveaux (4 à 8).
+
 ### 3.1.12 (version de test, préparation de la v4)
 - Les jeux des Balades se débloquent au fur et à mesure : ruche au niveau 4, pêche au 5, forêt au 6, memory au 7, cueillette au 8. Avant, la carte est grisée avec « Niveau X », et la fenêtre de niveau annonce chaque nouveau jeu.
 
