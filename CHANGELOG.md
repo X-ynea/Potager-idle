@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.21
+- Échanges : dans la boîte aux lettres et les messages, chaque côté affiche aussi sa valeur totale, et chaque objet sa valeur.
+
 ### 3.0.20
 - Échanges : la valeur totale de chaque côté s’affiche à côté de « Tu donnes » et « Tu demandes », et chaque objet choisi montre sa valeur (quantité comprise).
 

@@ -26,8 +26,10 @@ function moveItems(items, coins, sign) { // sign = -1 : retirer de ma partie, +1
   if (coins > 0) S.coins += sign * coins;
   for (const [k, q] of trItems(items)) { if (!tradable(k)) continue; const bag = itemBag(k); bag[k] = Math.max(0, cnt(bag, k) + sign * q); if (!bag[k]) delete bag[k]; }
 }
-const trChips = (items, coins) => trItems(items).map(([k, q]) => `<span class="tr-chip">${itemArt(k)}<b class="num">${q}</b><small>${itemName(k)}</small></span>`).join("")
+const trChips = (items, coins) => trItems(items).map(([k, q]) => `<span class="tr-chip">${itemArt(k)}<b class="num">${q}</b><small>${itemName(k)}</small><small class="tr-val num">${fmt(trValue(k) * q)}</small></span>`).join("")
   + (coins > 0 ? `<span class="tr-chip coins">${coin}<b class="num">${fmt(coins)}</b><small>pièces</small></span>` : "");
+// Valeur totale d’un côté, à côté de son titre (« Tu donnes · 168 »).
+const trSum = (items, coins) => `<span class="tr-sum num">${coin}${fmt(sideValue(items, coins))}</span>`;
 const trPlain = (items, coins) => [...trItems(items).map(([k, q]) => `${q} × ${itemName(k)}`), ...(coins > 0 ? [`${fmt(coins)} pièces`] : [])].join(", ");
 const trBack = r => (r.give_coins || 0) + trItems(r.give).reduce((a, [, q]) => a + q, 0) > 1 ? "sont rendus" : "est rendu";
 const trLeft = iso => { const ms = Date.parse(iso) + TR_HOURS * 3600e3 - Date.now(); return ms <= 0 ? "Expire bientôt" : `Expire dans ${dur(ms)}`; };
@@ -96,11 +98,11 @@ function mailboxHTML() {
 function tradeCard(r) {
   const who = `<span class="fr-av">${friendAvatar(r.avatar)}</span>`, counter = r.counter_of ? `<span class="tr-tag">Contre-proposition</span>` : "";
   if (r.mine) return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title">À <b>${esc(r.name)}</b> ${counter}<small class="tr-exp">${trLeft(r.created_at)}</small></p>
-      <div class="tr-line"><small>Tu donnes</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre</small>${trChips(r.want, r.want_coins)}</div>
+      <div class="tr-line"><small>Tu donnes${trSum(r.give, r.give_coins)}</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre${trSum(r.want, r.want_coins)}</small>${trChips(r.want, r.want_coins)}</div>
       <div class="tr-acts"><button class="btn ghost sm" data-act="trCancel" data-arg="${r.id}">Annuler</button></div></div></div>`;
   const ok = haveItems(r.want, r.want_coins);
   return `<div class="tr-card">${who}<div class="tr-body"><p class="tr-title"><b>${esc(r.name)}</b> te propose ${counter}<small class="tr-exp">${trLeft(r.created_at)}</small></p>
-      <div class="tr-line"><small>Tu reçois</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre</small>${trChips(r.want, r.want_coins)}</div>
+      <div class="tr-line"><small>Tu reçois${trSum(r.give, r.give_coins)}</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre${trSum(r.want, r.want_coins)}</small>${trChips(r.want, r.want_coins)}</div>
       ${ok ? "" : `<p class="small tr-miss">Tu n’en as plus assez pour accepter.</p>`}
       <div class="tr-acts"><button class="btn ghost sm" data-act="trRespond" data-arg="${r.id}:0">Refuser</button><button class="btn ghost sm" data-act="trCounter" data-arg="${r.id}">Contre-proposer</button><button class="btn sm" data-act="trRespond" data-arg="${r.id}:1" ${ok ? "" : "disabled"}>Accepter</button></div></div></div>`;
 }
@@ -126,7 +128,7 @@ function chatTradeHTML(m, mine) {
   const r = TR.list.find(x => x.id === m.trade_id);
   if (!r) return "";
   const st = r.status === "pending" && Date.parse(r.created_at) + TR_HOURS * 3600e3 < Date.now() ? "expired" : r.status;
-  return `<div class="msg-trade"><div class="tr-line"><small>${mine ? "Tu donnes" : "Tu reçois"}</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre</small>${trChips(r.want, r.want_coins)}</div>
+  return `<div class="msg-trade"><div class="tr-line"><small>${mine ? "Tu donnes" : "Tu reçois"}${trSum(r.give, r.give_coins)}</small>${trChips(r.give, r.give_coins)}</div><div class="tr-line"><small>Contre${trSum(r.want, r.want_coins)}</small>${trChips(r.want, r.want_coins)}</div>
     ${st === "pending" ? (mine ? `<button class="btn ghost sm" data-act="trCancel" data-arg="${r.id}">Annuler l’échange</button>` : `<button class="btn sm" data-act="trSee">Voir dans la boîte aux lettres</button>`)
       : `<span class="tr-state ${st}">${TR_STATUS[st] || ""}</span>`}</div>`;
 }
