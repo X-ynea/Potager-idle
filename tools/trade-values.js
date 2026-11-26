@@ -10,14 +10,15 @@ eval(fs.readFileSync(path.join(ROOT, "js/data.js"), "utf8") + "\n;Object.assign(
 // Hybrides nécessaires pour « connaître » un objet (anti-spoil).
 const hybNeeds = k => PLANTS[k] ? (PLANTS[k].hybrid ? [k] : []) : WILD[k] ? [] : [...new Set(Object.keys(RECIPES[k].need).flatMap(hybNeeds))];
 const rows = [];
-for (const [k, d] of Object.entries(PLANTS)) if (!d.tuto) rows.push([k, d.sell, 0, hybNeeds(k)]);
+// lvl : niveau où une plante de base se débloque (on ne peut ni recevoir ni demander une plante pas encore débloquée).
+for (const [k, d] of Object.entries(PLANTS)) if (!d.tuto) rows.push([k, d.sell, d.hybrid ? 0 : d.lvl || 1, hybNeeds(k)]);
 for (const [k, d] of Object.entries(WILD)) rows.push([k, d.sell, 0, []]); // ingrédients de balade (v4)
 for (const [k, d] of Object.entries(RECIPES)) rows.push([k, d.sell, d.lvl, hybNeeds(k)]);
 
 const q = s => `'${String(s).replace(/'/g, "''")}'`;
 const sql = `-- Prix des objets échangeables (généré par tools/trade-values.js : ne pas modifier à la main).
 -- À lancer dans Supabase › SQL Editor après docs/echanges.sql, et de nouveau après chaque changement de prix.
--- key = plante, ingrédient de balade ou recette, value = prix de vente au marché, lvl = niveau où un plat se débloque,
+-- key = plante, ingrédient de balade ou recette, value = prix de vente au marché, lvl = niveau où une plante ou un plat se débloque,
 -- needs = hybrides à avoir découverts pour recevoir l'objet.
 begin;
 delete from public.item_values;

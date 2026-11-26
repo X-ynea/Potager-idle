@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.47 (version de test, préparation de la v4)
+- Échanges : on ne peut plus demander une plante qu’on n’a pas encore débloquée à son niveau, ni en proposer une à un ami qui ne l’a pas débloquée (comme pour les plats et les hybrides). Serveur : relancer `docs/echanges-valeurs.sql`.
+
 ### 3.1.46 (version de test, préparation de la v4)
 - Discussion du jardin commun : la flèche pour replier les messages tout prêts est en haut à droite de leur zone.
 - Bacs du jardin commun : un cercle blanc très fin sous le cercle de couleur autour de la photo.
