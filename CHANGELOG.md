@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.26
+- Objectif entre amis : chaque jardinier compte pour 1,25 part au plus (par exemple 75 commandes au lieu de 90).
+
 ### 3.0.25
 - Échanges : on ne peut plus demander une plante qu’on n’a pas encore débloquée à son niveau, ni en proposer une à un ami qui ne l’a pas débloquée.
 
