@@ -59,7 +59,7 @@ function views_balades() {
 let GAME = null; // partie en cours
 function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
-  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
+  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
@@ -398,7 +398,7 @@ const GAME_IMPL = {
         <div class="g-time"><i></i></div>
         <div class="g-basket" aria-label="Ton panier">${Array.from({ length: PECHE_BASKET }, () => `<span class="gb-slot"></span>`).join("")}</div>
         <div class="g-field peche-field"><img class="pond-bg" src="assets/img/balades/pond-${season()}.webp" alt="" draggable="false"><svg class="line" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="0"/></svg><div class="bobber" hidden>${BOBBER}</div><span class="p-msg"></span>
-          <img class="rod" src="assets/img/balades/peche-rod.webp" alt="" draggable="false"></div>
+          <div class="rod"><img src="assets/img/balades/peche-rod.webp" alt="" draggable="false"><span class="rod-tip"></span></div></div>
         <p class="g-hint">Touche l’étang pour lancer ta ligne</p>`;
       g.el.querySelector(".peche-field").addEventListener("pointerdown", ev => { if (g.state !== "play") return; ev.preventDefault(); GAME_IMPL.peche.tap(g, ev); });
     },
@@ -406,10 +406,10 @@ const GAME_IMPL = {
     hint(g, txt) { g.el.querySelector(".g-hint").textContent = txt; },
     line(g) {
       const f = g.el.querySelector(".peche-field"), fr = f.getBoundingClientRect(), b = g.el.querySelector(".bobber"), ln = g.el.querySelector(".line line");
-      const rod = g.el.querySelector(".rod").getBoundingClientRect();
+      const rod = g.el.querySelector(".rod-tip").getBoundingClientRect(); // bout de la canne (la canne est inclinée)
       if (b.hidden) { ln.setAttribute("x2", 0); ln.setAttribute("y2", 0); ln.setAttribute("x1", 0); ln.setAttribute("y1", 0); return; }
       const br = b.getBoundingClientRect();
-      ln.setAttribute("x1", rod.left + rod.width * .05 - fr.left); ln.setAttribute("y1", rod.top + rod.height * .04 - fr.top); // bout de la canne
+      ln.setAttribute("x1", rod.left - fr.left); ln.setAttribute("y1", rod.top - fr.top);
       ln.setAttribute("x2", br.left + br.width / 2 - fr.left); ln.setAttribute("y2", br.top + br.height * .1 - fr.top);
     },
     cast(g, e, ev) {

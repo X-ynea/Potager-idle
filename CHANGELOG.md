@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.50 (version de test, préparation de la v4)
+- Pêche : la canne est plus droite, et l’herbe de la saison (comme au jardin) remplit tout l’écran autour de l’étang.
+
 ### 3.1.49 (version de test, préparation de la v4)
 - Pêche : images définitives, avec un étang par saison (fleurs au printemps, nénuphars l’été, feuilles mortes l’automne, glace et neige l’hiver) et la canne à pêche.
 
