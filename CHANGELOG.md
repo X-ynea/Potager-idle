@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.37 (version de test, préparation de la v4)
+- Portail du jardin commun : image définitive (avec la vigne), plus grand ; la boîte aux lettres est plus petite à côté, pour des proportions plus justes.
+
 ### 3.1.36 (version de test, préparation de la v4)
 - Nouvelle image du portail du jardin commun, en haut à droite du jardin ; la boîte aux lettres passe à sa gauche et le chevauche un peu.
 
