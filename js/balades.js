@@ -59,7 +59,8 @@ function views_balades() {
 let GAME = null; // partie en cours
 function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
-  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche" || id === "ruche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
+  const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche" || id === "ruche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`;
+  if (id === "foret" || id === "cueillette") el.style.backgroundImage = (id === "cueillette" ? "linear-gradient(transparent 80%, #a9d68a 93%), " : "") + `url("assets/img/balades/sky-${season()}.webp")`; // le ciel de la saison el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
