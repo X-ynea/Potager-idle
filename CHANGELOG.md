@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.0 (version de test, préparation de la v4)
+- Cuisine et Serre sont réunies dans un nouvel onglet « Atelier », avec un sous-onglet pour chacune. L’onglet du bas additionne leurs pastilles et montre deux petites jauges : pêche pour la cuisson, verte pour le croisement.
+
 ### 3.0.16
 - Hors-ligne : toutes les images du jeu sont téléchargées une fois en arrière-plan, pour que les plantes, plats et décos s’affichent sans réseau.
 - Le jeu ne reste plus bloqué sur l’écran du logo quand le réseau ne répond pas : au bout de 3 secondes, il démarre avec sa copie gardée sur l’appareil.

@@ -1,4 +1,6 @@
-# Version 4 : plan (proposition, à valider)
+# Version 4 : plan
+
+Plan validé le 26 novembre 2026.
 
 Tout se prépare sur la branche `test` (version publiée dans `/test/`). Comme pour la v3, seul le propriétaire écrit dans sa sauvegarde ; ce qui est commun (jardin partagé, tableaux des scores) vit sur le serveur, dans des fichiers SQL à lancer dans Supabase › SQL Editor.
 
@@ -23,14 +25,15 @@ Tout se prépare sur la branche `test` (version publiée dans `/test/`). Comme p
 - Il contient 60 objets au plus. Quand il est plein, on ne peut plus récolter avant d'avoir livré une commande.
 
 ### Les commandes partagées
-- **2 commandes à la fois**, faites seulement avec les plantes proposées dans ce jardin, donc découvertes par tous. Quand l'une est livrée, une nouvelle arrive au bout de quelques heures.
-- **Récompense pour chaque membre qui a aidé** (planté, arrosé ou récolté depuis la commande précédente) : des pièces et de l'XP, et parfois un **ingrédient de balade** ou une graine de saison. Elle arrive dans la boîte aux lettres.
+- **2 commandes par jour, et c'est tout** (le jour change à minuit, heure de Paris). Elles sont faites seulement avec les plantes proposées dans ce jardin, donc découvertes par tous.
+- **Limite de participation** : chacun plante **8 graines par jour** au plus dans le jardin commun, parce qu'elles sont gratuites.
+- **Récompense** : un membre la reçoit s'il a planté **au moins 3 graines** depuis la commande précédente. Il gagne des pièces et de l'XP, et parfois un **ingrédient de balade** ou une graine de saison. La récompense arrive dans la boîte aux lettres.
 - Une **déco du jardin commun** (exclusive) pour la 10ᵉ commande livrée ensemble, une fois par membre.
 
 ## 2. L'onglet « Balades » : les mini-jeux
 
 ### Les onglets
-Il y aurait 7 onglets, c'est trop sur un téléphone. Je propose de réunir **Cuisine et Serre dans un onglet « Atelier »**, avec deux sous-onglets en haut, chacun avec son badge et sa jauge. On garde ainsi 6 onglets : Jardin, Atelier, Balades (icône du panneau en bois aux flèches), Marché, Village, Amis.
+Il y aurait 7 onglets, c'est trop sur un téléphone. Cuisine et Serre sont donc réunies dans un onglet **« Atelier »**, avec deux sous-onglets en haut, chacun avec son badge et sa jauge. L'onglet du bas montre la somme des badges et deux petites jauges l'une au-dessus de l'autre (cuisine en pêche, serre en vert). On garde ainsi 6 onglets : Jardin, Atelier, Balades (icône du panneau en bois aux flèches), Marché, Village, Amis.
 
 ### Les jeux
 Les jeux se jouent au doigt et durent de 30 s à 1 min. On peut faire **3 parties par jeu et par jour**. Le jour change à minuit, heure de Paris.

@@ -48,17 +48,17 @@ const TUTO = [
     when: () => RORDER.some(r => RECIPES[r].lvl <= S.level) && !S.recipes.length,
     text: "Avec tes légumes, on peut cuisiner de bons petits plats ! Achète ta première recette au Marché, rayon Recettes.",
     done: () => S.recipes.length > 0 },
-  { id: "cook", tab: ["garden", "market"], hl: '.tab[data-arg="kitchen"]',
+  { id: "cook", tab: ["garden", "market", "lab"], hl: () => tab === "lab" ? '.atelier-sw [data-arg="kitchen"]' : '.tab[data-arg="atelier"]',
     when: () => S.recipes.length > 0 && !S.stats.cooked,
-    text: "Ta recette n’attend plus que toi : file en Cuisine !",
+    text: "Ta recette n’attend plus que toi : file à l’Atelier, côté Cuisine !",
     done: () => tutoF("tab_kitchen") || S.stats.cooked > 0 },
   { id: "cook2", tab: "kitchen",
     when: () => S.recipes.length > 0 && !S.stats.cooked,
     text: "Choisis ta recette, vérifie que tu as les ingrédients, et lance la cuisson. Un plat se vend bien plus cher que les légumes qui le composent.",
     done: () => S.stats.cooked > 0, ok: "Allons-y" },
-  { id: "lab", tab: ["garden", "market", "village", "kitchen"], hl: '.tab[data-arg="lab"]',
+  { id: "lab", tab: ["garden", "market", "village", "kitchen"], hl: () => tab === "kitchen" ? '.atelier-sw [data-arg="lab"]' : '.tab[data-arg="atelier"]',
     when: () => S.level >= 3,
-    text: "La Serre est ouverte ! On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
+    text: "La Serre est ouverte, à l’Atelier ! On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
     done: () => tutoF("tab_lab") || (S.discovered || []).length > 0 },
   { id: "lab2", tab: "lab",
     when: () => S.level >= 3 && !(S.discovered || []).length,
@@ -148,7 +148,7 @@ function tutoUpdate() {
     if (show) SFX.play("click");
   }
   // Petite lueur sur l'élément concerné (réappliquée : les bacs sont redessinés).
-  const hl = show && t.hl ? document.querySelector(t.hl) : null;
+  const hl = show && t.hl ? document.querySelector(typeof t.hl === "function" ? t.hl() : t.hl) : null;
   document.querySelectorAll(".tuto-hl").forEach(el => { if (el !== hl) el.classList.remove("tuto-hl"); });
   if (hl) hl.classList.add("tuto-hl");
 }

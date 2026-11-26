@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.16" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.0" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -418,9 +418,9 @@ function genOrder() {
 }
 
 /* ---------------- Actions ---------------- */
-let tab = "garden", msub = "seeds", labSel = [null, null];
+let tab = "garden", msub = "seeds", labSel = [null, null], atelierSub = "kitchen"; // Atelier : Cuisine ou Serre, la dernière ouverte
 const A = {
-  tab(arg) { tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) { if (arg === "atelier") arg = atelierSub; if (arg === "kitchen" || arg === "lab") atelierSub = arg; tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -668,7 +668,7 @@ const A = {
   },
   goRecipe(r) { UI.sel.recipes = r; A.goRecipes(); },
   goRecipes() { tab = "market"; msub = "recipes"; render(true); window.scrollTo({ top: 0 }); },
-  cookGo(r) { tab = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
+  cookGo(r) { tab = atelierSub = "kitchen"; UI.sel.kitchen = r; render(true); window.scrollTo({ top: 0 }); },
   dangerOpen(k) { UI.danger = k; modalView = viewDanger; render(true); setTimeout(() => $("#danger-in")?.focus(), 50); },
   dangerCancel() { UI.danger = null; modalView = viewSettings; render(true); },
   async dangerGo() {
@@ -1225,7 +1225,7 @@ function views_village() {
 }
 
 /* ---------------- Render loop ---------------- */
-const VIEWS = { garden: views_garden, market: views_market, kitchen: views_kitchen, lab: views_lab, village: views_village, friends: views_friends };
+const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierBar() + views_kitchen(), lab: () => atelierBar() + views_lab(), village: views_village, friends: views_friends };
 let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
@@ -1291,7 +1291,7 @@ function render(force) {
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
       const cb2 = document.getElementById("chat-body"); if (cb2 && cb) cb2.scrollTop = cbEnd ? cb2.scrollHeight : cbTop; // conversation : on garde sa place (ou le bas)
     }
-    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab || (b.dataset.arg === "atelier" && inAtelier())));
   }
   live(t);
 }
@@ -1313,12 +1313,14 @@ function live(t) {
   const kN = S.cooking.filter(c => c.end <= t).length;
   const lN = S.lab && S.lab.end <= t ? 1 : 0;
   const vN = S.orders.filter(o => Object.entries(o.items).every(([k, q]) => cnt(itemBag(k), k) >= q)).length;
-  badge("b-garden", gN); badge("b-kitchen", kN); badge("b-lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal());
+  badge("b-garden", gN); badge("b-atelier", kN + lN); subBadge("kitchen", kN); subBadge("lab", lN); badge("b-village", vN); if (FRIENDS_ON) badge("b-friends", incoming().length + unreadTotal());
   // Barre de progression sur les onglets Cuisine et Serre pendant une préparation.
   const running = S.cooking.filter(c => c.end > t).map(c => ({ end: c.end, d: RECIPES[c.r].time * 1000 }));
   const next = running.sort((a, b) => a.end - b.end)[0];
-  tabProg("p-kitchen", next ? 1 - (next.end - t) / next.d : null);
-  tabProg("p-lab", S.lab && S.lab.end > t ? 1 - (S.lab.end - t) / (LAB_TIME * 1000) : null);
+  const fk = next ? 1 - (next.end - t) / next.d : null, fl = S.lab && S.lab.end > t ? 1 - (S.lab.end - t) / (LAB_TIME * 1000) : null;
+  tabProg("p-kitchen", fk); tabProg("p-lab", fl);
+  document.querySelector('.tab[data-arg="atelier"]')?.classList.toggle("two-prog", fk != null && fl != null); // deux jauges l'une au-dessus de l'autre
+  document.querySelectorAll(".atelier-sw .tab-prog").forEach(el => tabProg(el, el.dataset.sp === "kitchen" ? fk : fl));
   // Amis : demandes reçues, messages non lus, échanges reçus et réponses aux échanges (pas les arrosages ni les cœurs).
   const fN = FRIENDS_ON && CLOUD.signedIn ? incoming().length + unreadTotal() + trIn().length + mailNews().filter(n => !n.read && n.kind === "t").length : 0;
   const total = gN + kN + lN + fN;
@@ -1326,9 +1328,15 @@ function live(t) {
   if (document.title !== title) document.title = title;
 }
 function tabProg(id, f) {
-  const el = document.getElementById(id); if (!el) return;
+  const el = typeof id === "string" ? document.getElementById(id) : id; if (!el) return;
   el.hidden = f == null;
   if (f != null) el.firstElementChild.style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(1) + "%";
+}
+function subBadge(k, n) { const el = document.querySelector(`.atelier-sw [data-sb="${k}"]`); if (el) { el.hidden = !n; el.textContent = n; } }
+const inAtelier = () => tab === "kitchen" || tab === "lab";
+// Atelier : les deux sous-onglets Cuisine et Serre, en haut de chacune des deux pages.
+function atelierBar() {
+  return `<div class="subtabs atelier-sw">${[["kitchen", "Cuisine", "stove-on"], ["lab", "Serre", "greenhouse"]].map(([k, l, img]) => `<button data-act="tab" data-arg="${k}" aria-pressed="${tab === k}"><img src="assets/img/${img}.webp" alt="">${l}<span class="badge" data-sb="${k}" hidden></span><span class="tab-prog" data-sp="${k}" hidden><i></i></span></button>`).join("")}</div>`;
 }
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
