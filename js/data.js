@@ -40,6 +40,10 @@ const PLANTS = {
   nuage:    { name: "Champignon nuage", desc: "Des champignons au chapeau bleu ciel, doux comme du coton, qui sentent la myrtille.", hybrid: true, parents: ["champignon", "myrtille"], time: 3060, sell: 215, xp: 35, shape: "big", color: "#8fb3e8", hint: "Un habitant des sous-bois qui rêve de baies bleues…" },
   rubis:    { name: "Asperge rubis", desc: "Des pointes d’asperge rouge rubis, tendres et légèrement sucrées.", hybrid: true, parents: ["asperge", "betterave"], time: 2100, sell: 120, xp: 21, shape: "grain", color: "#c0304f", hint: "Une pousse de printemps jalouse d’une racine d’automne…" },
   cristal:  { name: "Chou de cristal", desc: "Un chou aux feuilles bleutées et translucides, givrées comme du cristal, étonnamment tendres.", hybrid: true, parents: ["chou", "laitue"], time: 3360, sell: 165, xp: 28, shape: "leafy", color: "#a9d4e8", hint: "Un gros chou d’hiver qui envie la tendresse d’une salade…" },
+  // v4 : un hybride pour chacune des trois plantes de saison qui n'en avaient pas
+  cerise:   { name: "Courgette cerise", desc: "De petites courgettes rondes comme des cerises, rouge vif rayé de vert.", hybrid: true, parents: ["courgette", "tomate"], time: 1560, sell: 88, xp: 17, shape: "round", color: "#d9453a", hint: "Une courgette d’été qui rêve d’être un fruit rouge…" },
+  poireau_soleil: { name: "Poireau soleil", desc: "Un poireau au fût orange doré, aux feuilles vert tendre, doux et sucré.", hybrid: true, parents: ["poireau", "carotte"], time: 1260, sell: 70, xp: 14, shape: "herb", color: "#f2a03a", hint: "Un poireau d’hiver jaloux d’une racine orange…" },
+  pois_sucre: { name: "Pois sucré", desc: "Des cosses roses pleines de petits pois sucrés, à croquer comme des bonbons.", hybrid: true, parents: ["petitpois", "fraise"], time: 1140, sell: 62, xp: 13, shape: "berry", round: true, color: "#f08aa8", hint: "De petites billes vertes qui voudraient rougir comme un fruit…" },
 };
 const ORDER = Object.keys(PLANTS).filter(k => !PLANTS[k].tuto); // la plante du tutoriel reste hors des listes
 const HYBRID_BY_PAIR = {};
@@ -82,6 +86,10 @@ const RECIPES = {
   tarte_rubis: { name: "Tarte rubis", desc: "Une tarte dorée garnie de pointes rouge rubis, croustillante et fondante.", lvl: 15, price: 445, need: { rubis: 2, ble: 2 }, time: 240, sell: 405, xp: 68, look: "pie", color: "#c0304f" },
   sorbet_etoile: { name: "Sorbet étoilé", desc: "Des boules de sorbet jaune soleil en forme d’étoile, au parfum de miel.", lvl: 19, price: 785, need: { etoile: 2, fraise: 1 }, time: 300, sell: 715, xp: 110, look: "cup", color: "#f7d046" },
   veloute_nuage: { name: "Velouté nuage", desc: "Un velouté bleu pâle, léger comme un nuage, au parfum de sous-bois.", lvl: 21, price: 735, need: { nuage: 2, patate: 2 }, time: 300, sell: 670, xp: 105, look: "bowl", color: "#8fb3e8" },
+  // v4 : une recette par nouvel hybride de saison
+  tian_cerise: { name: "Tian cerise", desc: "Des rondelles de courgettes cerises rôties au four, parfumées au basilic.", lvl: 13, price: 325, need: { cerise: 2, basilic: 1 }, time: 240, sell: 296, xp: 60, look: "pie", color: "#d9453a" },
+  quiche_soleil: { name: "Quiche soleil", desc: "Une quiche dorée aux poireaux soleil, fondante et légèrement sucrée.", lvl: 12, price: 275, need: { poireau_soleil: 2, ble: 2 }, time: 240, sell: 252, xp: 52, look: "pie", color: "#f2a03a" },
+  flan_pois: { name: "Flan au pois sucré", desc: "Un petit flan rose et tremblotant, avec une fraise sur le dessus.", lvl: 9, price: 235, need: { pois_sucre: 2, fraise: 1 }, time: 200, sell: 215, xp: 44, look: "cup", color: "#f08aa8" },
   // v4 : recettes avec les ingrédients de balade (WILD, plus bas), qu'on trouve dans les mini-jeux
   tartine_miel: { name: "Tartine au miel", desc: "Une tranche de pain bien dorée, nappée de miel qui coule sur les doigts.", lvl: 5, price: 100, need: { miel: 1, ble: 2 }, time: 120, sell: 92, xp: 22, look: "bread", color: "#f2b632" },
   soupe_cresson: { name: "Soupe de cresson", desc: "Un velouté vert vif, poivré juste ce qu’il faut.", lvl: 6, price: 80, need: { cresson: 2, patate: 1 }, time: 150, sell: 74, xp: 18, look: "bowl", color: "#5fae4a" },

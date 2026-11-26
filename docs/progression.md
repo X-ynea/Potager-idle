@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 3.1.21 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.1.22 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -53,11 +53,11 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 6 | Courgette (été) | Pain de campagne, Soupe de cresson | Arrosoir 1/3 (150 p) |
 | 7 | Fraise | Tarte aux fraises, Thé à la menthe | Fourneau 1/2 (800 p) |
 | 8 | Betterave (automne) | Pain d’azur | Bac n° 8 (350 p) |
-| 9 | Basilic | Soupe de betterave, Salade de la mer | Compost maison 1/3 (500 p) |
+| 9 | Basilic | Soupe de betterave, Flan au pois sucré, Salade de la mer | Compost maison 1/3 (500 p) |
 | 10 | Poireau (hiver) | Salade pourpre | — |
 | 11 | Tomate | Fondue de poireaux, Pesto d’ail des ours | Banc des voisins 1/2 (1 200 p) |
-| 12 | — | Gnocchis roses, Sauce tomate, Confiture de mûres | Arrosoir 2/3 (900 p) |
-| 13 | Myrtille | — | Bac n° 9 (1 350 p) |
+| 12 | — | Gnocchis roses, Sauce tomate, Quiche soleil, Confiture de mûres | Arrosoir 2/3 (900 p) |
+| 13 | Myrtille | Tian cerise | Bac n° 9 (1 350 p) |
 | 14 | Asperge (printemps) | Muffins myrtille, Gratin de courgettes, Velouté de châtaignes | — |
 | 15 | Lavande | Tarte aux asperges, Tarte rubis | — |
 | 16 | Melon (été) | Pizza du potager, Gâteau aux noisettes | — |
@@ -144,6 +144,9 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Champignon nuage | Champignon des bois + Myrtille | 51 min | 215 | 35 |
 | Asperge rubis | Asperge + Betterave | 35 min | 120 | 21 |
 | Chou de cristal | Chou d’hiver + Laitue | 56 min | 165 | 28 |
+| Courgette cerise | Courgette + Tomate | 26 min | 88 | 17 |
+| Poireau soleil | Poireau + Carotte | 21 min | 70 | 14 |
+| Pois sucré | Petits pois + Fraise | 19 min | 62 | 13 |
 
 ## Recettes
 
@@ -160,13 +163,16 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Thé à la menthe | 7 | 110 | 3 menthe d’eau | 3 min | 100 | 24 |
 | Pain d’azur | 8 | 270 | 3 épi d’azur | 4 min | 247 | 47 |
 | Soupe de betterave | 9 | 92 | 2 betterave, 1 pomme de terre | 3 min | 83 | 19 |
+| Flan au pois sucré | 9 | 235 | 2 pois sucré, 1 fraise | 3 min | 215 | 44 |
 | Salade de la mer | 9 | 90 | 3 algues, 1 laitue | 3 min | 82 | 20 |
 | Salade pourpre | 10 | 185 | 2 laitue poivrée, 2 radis | 3 min | 170 | 36 |
 | Fondue de poireaux | 11 | 145 | 3 poireau, 1 blé | 3 min | 140 | 30 |
 | Pesto d’ail des ours | 11 | 110 | 2 ail des ours, 1 basilic | 3 min | 98 | 24 |
 | Gnocchis roses | 12 | 325 | 3 patate cœur, 1 blé | 4 min | 294 | 58 |
 | Sauce tomate | 12 | 155 | 2 tomate, 1 basilic | 4 min | 142 | 34 |
+| Quiche soleil | 12 | 275 | 2 poireau soleil, 2 blé | 4 min | 252 | 52 |
 | Confiture de mûres | 12 | 125 | 3 mûres, 1 fraise | 3 min | 112 | 27 |
+| Tian cerise | 13 | 325 | 2 courgette cerise, 1 basilic | 4 min | 296 | 60 |
 | Muffins myrtille | 14 | 175 | 2 myrtille, 1 blé | 4 min | 161 | 37 |
 | Gratin de courgettes | 14 | 135 | 2 courgette, 1 pomme de terre, 1 tomate | 3 min | 123 | 28 |
 | Velouté de châtaignes | 14 | 108 | 2 châtaignes, 1 pomme de terre, 1 carotte | 4 min | 98 | 24 |
@@ -227,7 +233,7 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Ruée vers l’or | 1 | Récolter 10 légumes dorés au total | 800 | 150 |  |
 |  | 2 | Récolter 50 légumes dorés au total | 5 000 | 600 | titre « Orpailleur » |
 | Trésor de saison |  | Trouver une récolte dorée d’une plante de chaque saison | 2 000 | 300 |  |
-| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (32) | 20 000 | 1500 | titre « Roi Midas du potager » |
+| Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (35) | 20 000 | 1500 | titre « Roi Midas du potager » |
 | Apprenti botaniste |  | Réussir son premier croisement | 100 | 25 | titre « Botaniste » |
 | Herbier complet |  | Découvrir tous les hybrides | 1 500 | 225 | titre « Grand botaniste », +5 % de pièces sur tout, déco Ruche |
 | Expérimentateur |  | Faire 25 croisements, même ratés | 300 | 60 |  |

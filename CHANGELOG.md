@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.23 (version de test, préparation de la v4)
+- **3 nouveaux hybrides**, un pour chaque plante de saison qui n’en avait pas : **Courgette cerise** (courgette + tomate), **Poireau soleil** (poireau + carotte) et **Pois sucré** (petits pois + fraise).
+- Leurs recettes : Flan au pois sucré (niv. 9), Quiche soleil (12) et Tian cerise (13).
+
 ### 3.1.22 (version de test, préparation de la v4)
 - Moins de miel dans les recettes (3 sur 9) : Thé à la menthe (3 menthe d’eau), Confiture de mûres (3 mûres, 1 fraise) et Velouté de châtaignes (2 châtaignes, 1 pomme de terre, 1 carotte) à la place de la Crème de châtaigne.
 - Les ingrédients de balade s’échangent entre amis, dans un onglet « Balades » de la fenêtre d’échange. Serveur : `docs/echanges-balades.sql`, puis `docs/echanges-valeurs.sql`.

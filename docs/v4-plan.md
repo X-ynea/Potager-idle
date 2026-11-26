@@ -73,5 +73,7 @@ Les 7 ingrédients, les recettes, les 2 hybrides (plante et jeunes plants), les 
 2. ✅ Onglet Balades (après le Village), ingrédients de balade, et les 5 jeux — v3.1.1 à v3.1.18. Un jeu par niveau (ruche 4, pêche 5, forêt 6, memory 7, cueillette 8) ; 3 parties par jeu et par jour ; tout ouvert et illimité sur la version de test.
 3. ✅ Tableau des scores entre amis (`docs/balades.sql`) — v3.1.19.
 4. Nouvelles recettes, voisins, hybrides et décos.
+   - ✅ 9 recettes de balade (v3.1.21–22), ingrédients de balade échangeables (`docs/echanges-balades.sql`).
+   - ✅ 3 hybrides de saison : Courgette cerise, Poireau soleil, Pois sucré, avec 3 recettes (v3.1.23).
 5. Jardin commun : base de données (`docs/jardin-commun.sql`), création et invitations, bacs, panier, commandes partagées.
 6. Succès, conseils de Mamie Lapine, fenêtre « Du nouveau », CHANGELOG, puis sortie (fusion de `test` dans `main` quand tu le décides).
