@@ -113,7 +113,7 @@ function viewSG() {
   const orders = (g.orders || []).map((o, i) => { const ok = sgOrderOk(o);
     return `<div class="sg-order${o.done ? " done" : ""}"><div class="sg-need">${Object.entries(o.items || {}).filter(([k]) => PLANTS[k]).map(([k, q]) => { const h = Math.min(q, +g.basket?.[k] || 0);
         return `<span class="chip need-chip${h < q && !o.done ? " miss" : ""}">${cropArt(k)}${o.done ? q : `${h}/${q}`}</span>`; }).join("")}</div>
-      <div class="sg-reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span>${o.wild && WILD[o.wild] ? ` <span class="g-give">${wildArt(o.wild)}${WILD[o.wild].name}</span>` : ""}</div>
+      <div class="sg-reward"><small class="muted">Récompense :</small> ${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span>${o.wild && WILD[o.wild] ? ` <span class="g-give">+ ${wildArt(o.wild)}${WILD[o.wild].name}</span>` : ""}</div>
       ${o.done ? `<span class="sg-done">✓ Livrée</span>` : `<button class="btn sm" data-act="sgDeliver" data-arg="${i}" ${ok && !SG.busy ? "" : "disabled"}>Livrer</button>`}</div>`; }).join("");
   const friends = (typeof FR !== "undefined" ? FR.list : []).filter(f => f.direction === "friend" && !members.some(m => m.id === f.user_id) && !(SG.data.pending || []).some(p => p.id === f.user_id));
   const room = members.length + (SG.data.pending || []).length < 4;

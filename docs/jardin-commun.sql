@@ -109,28 +109,42 @@ create or replace function public.sg_allowed(gid bigint) returns text[] language
     and (not only_season or season = paris_season());
 $$;
 
--- Les 2 commandes du jour (créées à la première ouverture de la journée).
-create or replace function public.sg_daily_orders(gid bigint) returns void language plpgsql security definer set search_path = public as $$
-declare g shared_gardens; allowed text[]; n int; m int; o int; items jsonb; k text; q int; v_val int; v_xp int; res jsonb := '[]'::jsonb;
+-- Une commande : 2 ou 3 plantes du jardin commun (jamais d'ingrédient de balade ni d'hybride, puisque rien ne vient
+-- de l'inventaire des joueurs). L'ingrédient de balade éventuel est une récompense, pas une demande.
+create or replace function public.sg_make_order(allowed text[], m int) returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare n int; items jsonb := '{}'::jsonb; k text; q int; v_val int := 0; v_xp int := 0;
   wilds text[] := array['algue', 'cresson', 'menthe', 'ail', 'mure', 'chataigne', 'noisette', 'miel'];
 begin
+  n := least(array_length(allowed, 1), 2 + floor(random() * 2)::int);
+  for k in select a from unnest(allowed) a order by random() limit n loop
+    q := 1 + floor(random() * (1 + m))::int; -- de 1 à (1 + nombre de membres)
+    items := items || jsonb_build_object(k, q);
+    select v_val + q * p.sell, v_xp + q * p.xp into v_val, v_xp from sg_plants p where p.key = k;
+  end loop;
+  return jsonb_build_object('items', items, 'coins', round(v_val * 1.6 + 10), 'xp', round(v_xp * 1.3 + 5),
+    'wild', case when random() < .35 then wilds[1 + floor(random() * array_length(wilds, 1))::int] end, 'done', false);
+end $$;
+
+-- Les 2 commandes du jour (créées à la première ouverture de la journée). Une commande pas encore livrée
+-- qui demande une plante qu'on ne peut plus planter (un jardinier de plus petit niveau est arrivé) est refaite.
+create or replace function public.sg_daily_orders(gid bigint) returns void language plpgsql security definer set search_path = public as $$
+declare g shared_gardens; allowed text[]; m int; o jsonb; res jsonb := '[]'::jsonb; changed boolean := false;
+begin
   select * into g from shared_gardens where id = gid for update;
-  if g.orders_day = paris_today() then return; end if;
   allowed := sg_allowed(gid);
   if coalesce(array_length(allowed, 1), 0) = 0 then allowed := array['radis', 'laitue']; end if;
   select count(*) into m from shared_garden_members where garden_id = gid;
-  for o in 1..2 loop
-    items := '{}'::jsonb; v_val := 0; v_xp := 0;
-    n := least(array_length(allowed, 1), 2 + floor(random() * 2)::int);
-    for k in select a from unnest(allowed) a order by random() limit n loop
-      q := 1 + floor(random() * (1 + m))::int; -- de 1 à (1 + nombre de membres)
-      items := items || jsonb_build_object(k, q);
-      select v_val + q * p.sell, v_xp + q * p.xp into v_val, v_xp from sg_plants p where p.key = k;
-    end loop;
-    res := res || jsonb_build_array(jsonb_build_object('items', items, 'coins', round(v_val * 1.6 + 10), 'xp', round(v_xp * 1.3 + 5),
-      'wild', case when random() < .35 then wilds[1 + floor(random() * array_length(wilds, 1))::int] end, 'done', false));
+  if g.orders_day is distinct from paris_today() then
+    update shared_gardens set orders = jsonb_build_array(sg_make_order(allowed, m), sg_make_order(allowed, m)), orders_day = paris_today() where id = gid;
+    return;
+  end if;
+  for o in select * from jsonb_array_elements(g.orders) loop
+    if not (o ->> 'done')::boolean and exists (select 1 from jsonb_object_keys(o -> 'items') k where not (k = any (allowed))) then
+      o := sg_make_order(allowed, m); changed := true;
+    end if;
+    res := res || jsonb_build_array(o);
   end loop;
-  update shared_gardens set orders = res, orders_day = paris_today() where id = gid;
+  if changed then update shared_gardens set orders = res where id = gid; end if;
 end $$;
 
 -- 1. Tout ce qu'il faut pour afficher le jardin commun (ou les invitations reçues si je n'en ai pas).
@@ -293,7 +307,7 @@ create or replace function public.sg_claim() returns jsonb language sql security
   select coalesce(jsonb_agg(jsonb_build_object('garden', garden_name, 'coins', coins, 'xp', xp, 'wild', wild, 'deco', deco) order by created_at), '[]'::jsonb) from r;
 $$;
 
-revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_daily_orders(bigint) from public, anon, authenticated;
+revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_make_order(text[], int), public.sg_daily_orders(bigint) from public, anon, authenticated;
 revoke all on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
   public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int), public.sg_claim() from public, anon;
 grant execute on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),

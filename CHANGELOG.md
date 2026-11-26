@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.28 (version de test, préparation de la v4)
+- Jardin commun : les commandes ne demandent que des plantes du jardin commun (jamais d’ingrédient de balade, qu’on ne peut pas y apporter). L’ingrédient de balade d’une commande est écrit comme une récompense.
+- Si un jardinier de plus petit niveau arrive, une commande pas encore livrée qui demande une plante qu’on ne peut plus planter est refaite. Serveur : relancer `docs/jardin-commun.sql`.
+
 ### 3.1.27 (version de test, préparation de la v4)
 - **Jardin commun** : un petit jardin de 6 bacs partagé avec 3 amis au plus. On le crée (ou on accepte une invitation) depuis l’onglet Amis, et on y va aussi par le petit portail au-dessus de son jardin.
 - Graines gratuites (8 par jour chacun), plantes de base débloquées par tous, jamais d’hybride. Les récoltes vont dans un panier commun qui ne sert qu’aux 2 commandes du jour.
