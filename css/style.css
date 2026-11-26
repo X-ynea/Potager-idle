@@ -1930,6 +1930,8 @@ button.sg-card { cursor: pointer; }
 .flower .fl-open { transform: scale(.2) rotate(-40deg); opacity: 0; }
 .flower.open .fl-open { transform: scale(1) rotate(0); opacity: 1; }
 .flower.nope .bud-wrap, .flower.wilt .bud-wrap { animation: gNope .3s; }
-.bee { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+.bee { width: 40px; height: 40px; margin: -20px 0 0 -20px; transition: left .4s cubic-bezier(.3,.7,.4,1), top .4s cubic-bezier(.3,.7,.4,1); }
+.bee.flip { transform: scaleX(-1); }
 .bee img { width: 100%; height: 100%; object-fit: contain; animation: gBuzz .12s infinite alternate; }
 .g-peche .g-hint { justify-self: center; align-self: center; margin: 6px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(255,255,255,.85); width: max-content; max-width: 100%; }
+.flower.open:not(.gold) .fl-open { transform: scale(.86); } /* même taille que la fleur dorée sans ses étincelles */

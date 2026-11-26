@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.52 (version de test, préparation de la v4)
+- La ruche : les fleurs ont la même taille que la fleur dorée (sans ses étincelles), et une seule abeille vole de fleur en fleur au lieu de repartir chaque fois de la ruche.
+
 ### 3.1.51 (version de test, préparation de la v4)
 - La ruche : l’herbe de la saison remplit tout l’écran. Chaque emplacement garde la couleur de sa fleur toute la partie (plus de clignotement) ; plus de bouton jaune, la fleur dorée s’ouvre n’importe où.
 

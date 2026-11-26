@@ -489,13 +489,14 @@ const GAME_IMPL = {
       const v = f.gold ? 3 : 1; g.score += v; g.combo++; g.bees = (g.bees || 0) + 1;
       GAME_IMPL.ruche.close(g, i, false);
       g.el.querySelector(".g-score b").textContent = g.score;
-      // Une abeille part de la ruche jusqu'à la fleur.
-      const field = g.el.querySelector(".ruche-field"), fr = field.getBoundingClientRect(), br = b.getBoundingClientRect(), hr = field.querySelector(".hive").getBoundingClientRect();
-      const bee = document.createElement("span"); bee.className = "bee"; bee.innerHTML = BEE;
-      bee.style.left = (hr.left + hr.width / 2 - fr.left) + "px"; bee.style.top = (hr.top + hr.height / 2 - fr.top) + "px";
-      field.appendChild(bee);
-      requestAnimationFrame(() => { bee.style.transform = `translate(${br.left + br.width / 2 - hr.left - hr.width / 2}px, ${br.top + br.height / 2 - hr.top - hr.height / 2}px) scale(1.1)`; });
-      g.timers.push(setTimeout(() => bee.remove(), 650));
+      // Une seule abeille, qui vole de fleur en fleur (elle part de la ruche au début de la partie).
+      const field = g.el.querySelector(".ruche-field"), fr = field.getBoundingClientRect(), br = b.getBoundingClientRect();
+      let bee = g.bee;
+      if (!bee) { const hr = field.querySelector(".hive").getBoundingClientRect(); bee = g.bee = document.createElement("span"); bee.className = "bee"; bee.innerHTML = BEE;
+        bee.style.left = (hr.left + hr.width / 2 - fr.left) + "px"; bee.style.top = (hr.top + hr.height / 2 - fr.top) + "px"; field.appendChild(bee); void bee.offsetWidth; }
+      const x = br.left + br.width / 2 - fr.left, y = br.top + br.height * .35 - fr.top;
+      bee.classList.toggle("flip", x < parseFloat(bee.style.left)); // elle regarde où elle va
+      bee.style.left = x + "px"; bee.style.top = y + "px";
       const pop = document.createElement("span"); pop.className = "g-pop" + (v > 1 ? " gold" : ""); pop.textContent = "+" + v;
       pop.style.left = (br.left + br.width / 2 - fr.left) + "px"; pop.style.top = (br.top - fr.top) + "px"; field.appendChild(pop);
       g.timers.push(setTimeout(() => pop.remove(), 800));
