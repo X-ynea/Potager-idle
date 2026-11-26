@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.14 (version de test, préparation de la v4)
+- Memory : 40 secondes au lieu de 60.
+
 ### 3.1.13 (version de test, préparation de la v4)
 - Version de test : l’onglet Balades et tous ses jeux sont ouverts quel que soit le niveau. La version des joueurs garde les niveaux (4 à 8).
 
