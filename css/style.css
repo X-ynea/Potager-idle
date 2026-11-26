@@ -1732,3 +1732,18 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .bush-svg { transform-origin: 50% 100%; }
 .bush.has .bush-svg { animation: shiver 1.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @keyframes shiver { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-2.5deg); } 70% { transform: rotate(2.5deg); } 78% { transform: rotate(-1.5deg); } 86% { transform: rotate(1deg); } }
+.wild-ph svg { width: 70%; height: 70%; }
+
+/* Memory des graines */
+.g-memory { background: linear-gradient(#efe6fb, #e6f2dc 60%, #a9d68a); }
+.memo-field { display: grid; place-items: center; }
+.memo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: min(100%, calc((100dvh - 230px) * .6), 420px); }
+.memo-card { aspect-ratio: 3 / 4; border: 0; padding: 0; background: none; perspective: 600px; -webkit-tap-highlight-color: transparent; }
+.mc-in { position: relative; display: block; width: 100%; height: 100%; transition: transform .35s; transform-style: preserve-3d; }
+.memo-card.up .mc-in { transform: rotateY(180deg); }
+.mc-back, .mc-front { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
+.mc-back svg { width: 100%; height: 100%; display: block; }
+.mc-front { transform: rotateY(180deg); background: #fff; border: 2px solid #e6dcf5; display: grid; place-items: center; grid-template-rows: 1fr auto; padding: 4px 2px; }
+.mc-front svg, .mc-front img { width: 82%; height: auto; max-height: 100%; }
+.mc-front small { font-size: .6rem; font-weight: 800; color: #5a4a3a; line-height: 1.1; text-align: center; }
+.memo-card.match .mc-front { border-color: #7cc24a; background: #f0fae8; animation: gFade .3s; }

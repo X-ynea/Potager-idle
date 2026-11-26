@@ -12,7 +12,8 @@ const GAMES = {
     rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "La partie dure 5 prises ou 30 secondes.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
   foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
     rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
-  memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0", soon: true },
+  memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0",
+    rules: ["Touche deux cartes pour les retourner.", "Si ce sont les mêmes graines, la paire reste visible. Sinon, elles se retournent : retiens bien où elles sont !", "La partie dure 8 paires ou 60 secondes. Chaque paire rapporte des pièces, et si tu trouves tout, tu gardes un sachet de graines."] },
   cueillette: { name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
 const GORDER = Object.keys(GAMES);
@@ -106,7 +107,7 @@ function gameEnd() {
   if (r.xp) addXp(r.xp);
   save();
   const items = [...Object.entries(r.wild || {}).map(([k, n]) => `<span class="g-rew">${wildArt(k)}<b>${n} × ${WILD[k].name}</b></span>`),
-    r.coins ? `<span class="g-rew">${coin}<b>${fmt(r.coins)} pièces</b></span>` : "", r.xp ? `<span class="g-rew"><span class="g-xp">XP</span><b>+${r.xp} XP</b></span>` : ""].filter(Boolean);
+    r.coins ? `<span class="g-rew">${coin}<b>${fmt(r.coins)} pièces</b></span>` : "", r.extra || "", r.xp ? `<span class="g-rew"><span class="g-xp">XP</span><b>+${r.xp} XP</b></span>` : ""].filter(Boolean);
   const left = playsLeft(g.id);
   g.el.querySelector(".g-end")?.remove();
   g.el.insertAdjacentHTML("beforeend", `<div class="g-end"><div class="g-card">
@@ -169,7 +170,65 @@ const BUSH = `<svg viewBox="0 0 120 80" class="bush-svg"><ellipse cx="60" cy="74
 const TREES = `<svg class="forest-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#6f9f55"><path d="M30 200l40-150 40 150z"/><path d="M150 200l30-120 30 120z"/><path d="M300 200l45-170 45 170z"/></g><g fill="#5c8a45"><path d="M90 200l35-130 35 130z"/><path d="M230 200l38-140 38 140z"/><path d="M360 200l25-100 25 100z"/></g><g fill="#7a5a3a"><rect x="66" y="185" width="8" height="15"/><rect x="176" y="185" width="8" height="15"/><rect x="341" y="185" width="8" height="15"/></g></svg>`;
 function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
+/* ---------------- Memory des graines ----------------
+   16 cartes (8 paires de sachets de graines), 60 s. Score : 3 par paire + 1 par seconde restante si tout est trouvé.
+   Pièces : (4 + niveau) par paire ; tout trouvé = 1 sachet de graines d'une des plantes débloquées. */
+const MEMO_T = 60000, MEMO_PAIRS = 8;
+const CARD_BACK = `<svg viewBox="0 0 60 80"><rect width="60" height="80" rx="8" fill="#9a6cf0"/><rect x="4" y="4" width="52" height="72" rx="6" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/><path d="M30 58V36m0 0c-7 0-10-5-10-11 7 0 10 5 10 11zm0 0c0-7 3-11 10-11 0 6-3 11-10 11z" fill="#fff" opacity=".85"/></svg>`;
+function memoPool() {
+  const base = ORDER.filter(k => !PLANTS[k].hybrid).sort((a, b) => PLANTS[a].lvl - PLANTS[b].lvl);
+  const open = base.filter(k => PLANTS[k].lvl <= S.level);
+  const pool = open.length >= MEMO_PAIRS ? open : base.slice(0, MEMO_PAIRS);
+  return [...pool].sort(() => Math.random() - .5).slice(0, MEMO_PAIRS);
+}
+
 const GAME_IMPL = {
+  memory: {
+    setup(g) {
+      g.kinds = memoPool(); g.found = 0; g.open = []; g.lock = false;
+      const deck = [...g.kinds, ...g.kinds].sort(() => Math.random() - .5);
+      g.deck = deck;
+      g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.memory.name}</b><span class="g-score"><span class="g-pts">Paires</span><b class="num">0 / ${MEMO_PAIRS}</b></span></div>
+        <div class="g-time"><i></i></div>
+        <div class="g-field memo-field"><div class="memo-grid">${deck.map((k, i) => `<button class="memo-card" data-i="${i}" aria-label="Carte"><span class="mc-in"><span class="mc-back">${CARD_BACK}</span><span class="mc-front">${seedArt(k)}<small>${PLANTS[k].name}</small></span></span></button>`).join("")}</div></div>
+        <p class="g-hint">Retrouve les paires de graines !</p>`;
+      g.el.querySelector(".memo-grid").addEventListener("pointerdown", ev => {
+        const c = ev.target.closest(".memo-card"); if (!c || g.state !== "play") return; ev.preventDefault(); GAME_IMPL.memory.tap(g, c);
+      });
+    },
+    tap(g, c) {
+      if (g.lock || c.classList.contains("up")) return;
+      c.classList.add("up"); g.open.push(c); SFX.play("click");
+      if (g.open.length < 2) return;
+      const [a, b] = g.open; g.open = [];
+      if (g.deck[a.dataset.i] === g.deck[b.dataset.i]) {
+        g.found++; g.score += 3; a.classList.add("match"); b.classList.add("match");
+        g.el.querySelector(".g-score b").textContent = `${g.found} / ${MEMO_PAIRS}`;
+        SFX.play("harvest"); buzz(10);
+        if (g.found >= MEMO_PAIRS) {
+          const e = performance.now() - g.t0 - g.paused, left = Math.max(0, Math.floor((MEMO_T - e) / 1000));
+          g.score += left; g.done = true; GAME_IMPL.peche.hint(g, `Tout trouvé ! +${left} pour le temps restant`);
+          g.timers.push(setTimeout(gameEnd, 900));
+        }
+      } else {
+        g.lock = true;
+        g.timers.push(setTimeout(() => { a.classList.remove("up"); b.classList.remove("up"); g.lock = false; }, 750));
+      }
+    },
+    frame(g, e) {
+      g.el.querySelector(".g-time i").style.width = Math.max(0, 100 - e / MEMO_T * 100).toFixed(1) + "%";
+      if (e >= MEMO_T && !g.done) gameEnd();
+    },
+    reward(score) {
+      const g = GAME, pairs = g?.found || 0, out = { coins: pairs * (4 + S.level), xp: Math.min(4 + S.level, Math.round(score / 2)) };
+      if (pairs >= MEMO_PAIRS) { // tout trouvé : un sachet de graines d'une plante débloquée de la grille
+        const ok = g.kinds.filter(k => PLANTS[k].lvl <= S.level), k = ok.length ? pick(ok) : null;
+        if (k) { S.seeds[k] = cnt(S.seeds, k) + 1; out.extra = `<span class="g-rew">${seedArt(k)}<b>1 sachet de ${PLANTS[k].name.toLowerCase()}</b></span>`; }
+      }
+      return out;
+    },
+    cheer: s => s >= 60 ? "Mémoire d’éléphant !" : s >= 35 ? "Tout retrouvé !" : s >= 15 ? "Bien joué !" : "Quelques paires !",
+  },
   foret: {
     setup(g) {
       g.st = "walk"; g.caught = []; g.bushes = []; g.next = 200; g.uid = 0;

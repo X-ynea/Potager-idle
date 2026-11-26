@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.11 (version de test, préparation de la v4)
+- Nouveau jeu : **le memory des graines**. 8 paires de sachets à retrouver en 60 s. Chaque paire rapporte quelques pièces (4 + niveau), un peu d’XP, et un sachet de graines si tout est trouvé.
+- La noisette a une image provisoire de noisette (et plus de cacahuète).
+
 ### 3.1.10 (version de test, préparation de la v4)
 - Version de test : parties des Balades illimitées, pour essayer les jeux autant qu’on veut. La version des joueurs garde 3 parties par jeu et par jour.
 

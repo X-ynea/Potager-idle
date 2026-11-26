@@ -94,7 +94,7 @@ const WILD = {
   ail:       { name: "Ail des ours", desc: "De larges feuilles vertes au parfum d’ail, cueillies au printemps dans les sous-bois.", sell: 20, src: "foret", color: "#6fbf5a", emoji: "🧄" },
   chataigne: { name: "Châtaignes", desc: "Bien à l’abri dans leur bogue piquante, elles n’attendent que le feu.", sell: 22, src: "foret", color: "#8a5a3a", emoji: "🌰" },
   mure:      { name: "Mûres", desc: "Des mûres sauvages, noires et sucrées. Gare aux ronces !", sell: 18, src: "foret", color: "#4a2a5a", emoji: "🫐" },
-  noisette:  { name: "Noisettes", desc: "Ramassées sous le noisetier, avant que les écureuils ne passent.", sell: 20, src: "foret", color: "#b08350", emoji: "🥜" },
+  noisette:  { name: "Noisettes", desc: "Ramassées sous le noisetier, avant que les écureuils ne passent.", sell: 20, src: "foret", color: "#b08350", svg: '<svg viewBox="0 0 40 40"><path d="M20 9c8 0 13 7 13 15s-6 12-13 12S7 32 7 24 12 9 20 9z" fill="#b07a45"/><path d="M11 20c2-5 6-7 9-7s7 2 9 7" stroke="#8a5a2e" stroke-width="1.5" fill="none" opacity=".6"/><path d="M8 15c3-8 21-8 24 0-4 3-20 3-24 0z" fill="#7aa35a"/><path d="M20 4v7" stroke="#6a4a2a" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="15" cy="26" rx="3" ry="5" fill="#fff" opacity=".2"/></svg>' },
   miel:      { name: "Miel", desc: "Un pot de miel doré, butiné sur les fleurs du jardin.", sell: 30, src: "ruche", color: "#f2b632", emoji: "🍯" },
 };
 const WORDER = Object.keys(WILD);
