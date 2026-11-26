@@ -148,5 +148,8 @@ const VILLAGERS = [
   { name: "Léon le Lézard", season: "ete", color: "#8fbf4a", ear: "#5f8a2c", say: ["Il fait si bon au soleil !", "Un petit quelque chose de frais ?"] },
   { name: "Noisette la Souris", season: "automne", color: "#b89a7a", ear: "#8a6a4c", say: ["Je fais des provisions pour l’hiver !", "Les feuilles tombent, j’ai envie de soupe."] },
   { name: "Edmond l’Ours", season: "hiver", color: "#8a5a3a", ear: "#5e3a22", say: ["Je me suis réveillé exprès pour ça !", "Il me faut des forces pour finir l’hiver."] },
+  // v4 : voisins des Balades (ils passent une fois leur jeu ouvert, et demandent volontiers ses plats).
+  { name: "Margot la Cane", balade: "peche", likes: ["salade_mer", "soupe_cresson", "the_menthe"], color: "#e8e0c8", ear: "#f2a03a", say: ["Coin ! J’ai nagé jusqu’ici exprès !", "C’est pour le goûter au bord de l’eau."] },
+  { name: "Firmin le Renard", balade: "foret", likes: ["confiture_mure", "veloute_chataigne", "gateau_noisette", "tartine_miel", "pesto_ail"], color: "#e07a3a", ear: "#a3521f", say: ["Je reviens de la forêt, j’ai une faim de loup… enfin, de renard !", "Un petit quelque chose pour ma promenade ?"] },
 ];
 

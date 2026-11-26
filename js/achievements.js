@@ -3,7 +3,7 @@
    title = titre débloqué, bonus = bonus permanent. value() lit la progression dans la partie. */
 const ACH_CATS = [
   ["garden", "Jardinage"], ["lab", "Serre et hybrides"], ["kitchen", "Cuisine"], ["village", "Village"],
-  ["eco", "Économie et progression"], ["daily", "Petits moments du quotidien"], ["hidden", "Succès cachés"],
+  ["balades", "Balades"], ["eco", "Économie et progression"], ["daily", "Petits moments du quotidien"], ["hidden", "Succès cachés"],
 ];
 const st = k => (S.stats && S.stats[k]) || 0;
 const ACHIEVEMENTS = [
@@ -51,6 +51,15 @@ const ACHIEVEMENTS = [
     tiers: [{ n: VILLAGERS.length, c: 500, x: 120, title: "Ami du village", deco: "signpost" }] },
   { id: "bigdelivery", cat: "village", name: "Grosse livraison", desc: "Livrer une commande de 500 pièces ou plus", value: () => st("bigOrder"), tiers: [{ n: 1, c: 200, x: 50 }] },
 
+  // v4 : Balades
+  { id: "fisher", cat: "balades", name: "Bon pêcheur", desc: n => `Attraper ${fmt(n)} prises à la pêche`, value: () => st("fish"),
+    tiers: [{ n: 10, c: 60, x: 20 }, { n: 50, c: 400, x: 100, deco: "boat" }] },
+  { id: "forager", cat: "balades", name: "Promeneur", desc: n => `Trouver ${fmt(n)} trésors en forêt`, value: () => st("forage"),
+    tiers: [{ n: 10, c: 60, x: 20 }, { n: 50, c: 400, x: 100, deco: "forage_basket" }] },
+  { id: "bees", cat: "balades", name: "Butineur", desc: n => `Faire butiner ${fmt(n)} fleurs aux abeilles`, value: () => st("flowers"),
+    tiers: [{ n: 50, c: 60, x: 20 }, { n: 300, c: 400, x: 100, deco: "insect_hotel" }] },
+  { id: "allgames", cat: "balades", name: "Grand promeneur", desc: "Jouer aux 5 jeux des Balades", value: () => (S.stats.gamesSet || []).length,
+    tiers: [{ n: 5, c: 300, x: 80, title: "Promeneur du dimanche" }] },
   { id: "fortune", cat: "eco", name: "Petite fortune", desc: n => `Avoir ${fmt(n)} pièces en même temps`, value: () => st("maxCoins"),
     tiers: [{ n: 1000, c: 0, x: 50 }, { n: 10000, c: 0, x: 200 }, { n: 100000, c: 0, x: 800, title: "Magnat du potager", deco: "well" }] },
   { id: "equipped", cat: "eco", name: "Bien équipé", desc: "Acheter toutes les améliorations", value: () => Object.keys(UPG).filter(u => S.upg[u] >= UPG[u].steps.length).length,
@@ -94,6 +103,7 @@ const DECOS = {
   gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", birdbath: "Bain d’oiseaux", birdhouse: "Nichoir",
   hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", signpost: "Panneau du village", lantern: "Lanterne",
   rabbit: "Lapin doré", well: "Puits",
+  boat: "Petite barque", forage_basket: "Panier de cueillette", insect_hotel: "Hôtel à insectes", // v4 : Balades
 };
 // Décos des objectifs de la semaine (là où les amis sont ouverts) : une par saison, entre amis (f_) et de tous (g_).
 if (FRIENDS_ON) Object.assign(DECOS, { f_printemps: "Arche fleurie", f_ete: "Table de pique-nique", f_automne: "Hérisson et feuilles", f_hiver: "Bonhomme de neige",
@@ -103,7 +113,7 @@ const DECO_ORDER = Object.keys(DECOS);
 // (pour ne pas les confondre avec l'arrosage d'un ami et la boîte aux lettres du jardin).
 const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25, boat: 1.15, forage_basket: .8, insect_hotel: .95 };
 // Décos des objectifs de la semaine
 if (FRIENDS_ON) Object.assign(DECO_SCALE, { f_printemps: 1.1, f_ete: .9, f_automne: .75, f_hiver: .9, g_printemps: 1.05, g_ete: 1.2, g_automne: 1.15, g_hiver: 1.1 });
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };

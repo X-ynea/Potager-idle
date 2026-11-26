@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 3.1.22 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 3.1.23 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -248,6 +248,13 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 |  | 3 | Livrer 150 commandes | 2 000 | 300 | titre « Pilier du village » |
 | Ami de tous |  | Livrer une commande à chacun des voisins | 500 | 90 | titre « Ami du village », déco Panneau du village |
 | Grosse livraison |  | Livrer une commande de 500 pièces ou plus | 200 | 40 |  |
+| Bon pêcheur | 1 | Attraper 10 prises à la pêche | 60 | 15 |  |
+|  | 2 | Attraper 50 prises à la pêche | 400 | 75 | déco Petite barque |
+| Promeneur | 1 | Trouver 10 trésors en forêt | 60 | 15 |  |
+|  | 2 | Trouver 50 trésors en forêt | 400 | 75 | déco Panier de cueillette |
+| Butineur | 1 | Faire butiner 50 fleurs aux abeilles | 60 | 15 |  |
+|  | 2 | Faire butiner 300 fleurs aux abeilles | 400 | 75 | déco Hôtel à insectes |
+| Grand promeneur |  | Jouer aux 5 jeux des Balades | 300 | 60 | titre « Promeneur du dimanche » |
 | Petite fortune | 1 | Avoir 1000 pièces en même temps | 0 | 40 |  |
 |  | 2 | Avoir 10000 pièces en même temps | 0 | 150 |  |
 |  | 3 | Avoir 100000 pièces en même temps | 0 | 600 | titre « Magnat du potager », déco Puits |

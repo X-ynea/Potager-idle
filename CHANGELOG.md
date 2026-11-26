@@ -122,6 +122,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.24 (version de test, préparation de la v4)
+- **2 nouveaux voisins** : **Margot la Cane** (dès que la pêche est ouverte) et **Firmin le Renard** (dès que la forêt est ouverte). Ils passent volontiers chercher leurs plats préférés de balade. Le succès « Ami de tous » demande maintenant les 14 voisins.
+- **Succès des Balades**, dans une nouvelle catégorie : « Bon pêcheur » (déco Petite barque), « Promeneur » (déco Panier de cueillette), « Butineur » (déco Hôtel à insectes) et « Grand promeneur » (titre « Promeneur du dimanche »).
+- Images provisoires pour les 3 nouvelles décos.
+
 ### 3.1.23 (version de test, préparation de la v4)
 - **3 nouveaux hybrides**, un pour chaque plante de saison qui n’en avait pas : **Courgette cerise** (courgette + tomate), **Poireau soleil** (poireau + carotte) et **Pois sucré** (petits pois + fraise).
 - Leurs recettes : Flan au pois sucré (niv. 9), Quiche soleil (12) et Tian cerise (13).

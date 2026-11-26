@@ -107,6 +107,11 @@ function gameEnd() {
   const s = gamesState(), prev = weekBest(g.id), rec = g.score > prev;
   if (rec) s.best[g.id] = { week: weekId(), score: g.score };
   if (rec) setTimeout(() => loadBoard(true), 300); // nouveau record : on l'envoie au tableau des amis
+  // Succès des Balades : prises, trouvailles, fleurs butinées, jeux essayés.
+  const stt = S.stats; stt.gamesSet = [...new Set([...(stt.gamesSet || []), g.id])];
+  if (g.id === "peche") stt.fish = (stt.fish || 0) + g.caught.length;
+  if (g.id === "foret") stt.forage = (stt.forage || 0) + g.caught.length;
+  if (g.id === "ruche") stt.flowers = (stt.flowers || 0) + (g.bees || 0);
   const r = GAME_IMPL[g.id].reward(g.score);
   for (const k in r.wild || {}) S.wild[k] = cnt(S.wild, k) + r.wild[k];
   if (r.coins) S.coins += r.coins;
@@ -482,7 +487,7 @@ const GAME_IMPL = {
     tap(g, i, b) {
       const f = g.flowers[i];
       if (!f.open) { b.classList.remove("nope"); void b.offsetWidth; b.classList.add("nope"); return; }
-      const v = f.gold ? 3 : 1; g.score += v; g.combo++;
+      const v = f.gold ? 3 : 1; g.score += v; g.combo++; g.bees = (g.bees || 0) + 1;
       GAME_IMPL.ruche.close(g, i, false);
       g.el.querySelector(".g-score b").textContent = g.score;
       // Une abeille part de la ruche jusqu'à la fleur.

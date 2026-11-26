@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.23" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.24" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -409,10 +409,13 @@ function genOrder() {
   const used = new Set(S.orders.map(o => o.v));
   // Les voisins de saison ne passent que pendant leur saison, et demandent volontiers les plantes de saison.
   // Jamais deux fois le même voisin en même temps.
-  const here = VILLAGERS.map((_, i) => i).filter(i => !VILLAGERS[i].season || VILLAGERS[i].season === season());
+  const here = VILLAGERS.map((_, i) => i).filter(i => (!VILLAGERS[i].season || VILLAGERS[i].season === season()) && (!VILLAGERS[i].balade || !gameLocked(VILLAGERS[i].balade)));
   const free = here.filter(i => !used.has(i) && i !== S.lastVillager);
   const guest = free.find(i => VILLAGERS[i].season);
-  const v = guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here.filter(i => !used.has(i)));
+  // v4 : un voisin des Balades passe volontiers chercher un de ses plats préférés.
+  const fan = free.find(i => VILLAGERS[i].likes && Object.keys(items).some(k => VILLAGERS[i].likes.includes(k)));
+  const v = fan != null && Math.random() < .75 ? fan
+    : guest != null && Object.keys(items).some(k => inSeason(k)) && Math.random() < .7 ? guest : free.length ? pick(free) : pick(here.filter(i => !used.has(i)));
   S.lastVillager = v;
   const lines = VILLAGERS[v].say.concat(ORDER_LINES);
   // Hors saison : toujours « Difficile », avec le meilleur bonus de difficulté, puis +30 %.
