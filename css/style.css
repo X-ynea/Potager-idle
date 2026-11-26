@@ -1820,7 +1820,7 @@ button.sg-card { cursor: pointer; }
 /* Portail du jardin commun en haut à droite ; la boîte aux lettres à sa gauche, devant, le chevauche un peu */
 /* Portail et boîte aux lettres posés sur la même ligne, au-dessus des bacs ; la boîte juste à gauche du portail */
 .garden > .sg-portal { top: auto; bottom: calc(100% - 18px); right: 1%; left: auto; width: min(27%, 116px); aspect-ratio: 440 / 337; z-index: 4; }
-.garden:has(> .sg-portal) > .mailbox { top: auto; bottom: calc(100% - 13px); width: min(17%, 72px); right: calc(1% + min(27%, 116px)); z-index: 6; }
+.garden:has(> .sg-portal) > .mailbox { top: auto; bottom: calc(100% - 13px); width: min(17%, 72px); right: calc(1% + min(27%, 116px) - min(4%, 16px)); z-index: 6; }
 .sg-done { font-size: .8rem; font-weight: 800; color: #3d7a2a; background: #e3f4d8; border-radius: 99px; padding: 4px 10px; white-space: nowrap; }
 .btn.ghost.sg-leave { color: #c9563f; }
 .sg-bonus { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 8px; border-radius: 12px; background: var(--sun-soft); border: 1px dashed #e0b84a; }

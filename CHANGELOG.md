@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.42 (version de test, préparation de la v4)
+- Jardin : la boîte aux lettres est collée au portail, comme avant, en gardant leur nouvelle hauteur.
+
 ### 3.1.41 (version de test, préparation de la v4)
 - Jardin : la boîte aux lettres est juste à gauche du portail, sans le chevaucher.
 
