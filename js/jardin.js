@@ -105,8 +105,8 @@ function sgChatHTML() {
     <div class="sg-chat" id="chat-body">${list.length ? list.map(m => { const who = sgMember(m.by);
       return `<div class="sg-msg${who?.me ? " mine" : ""}"><span class="fr-av">${who ? sgAv(who) : friendAvatar(null)}</span><span class="sg-bubble"><b>${who?.me ? "Toi" : esc(who?.name || "Un ancien jardinier")}</b><span class="sg-txt">${esc(sgSayText(m.code, m.arg))}${m.code === "jemoccupe" && PLANTS[m.arg] ? `<span class="sg-say-plant">${cropArt(m.arg)}</span>` : ""}</span><small>${sgAgo(m.at)}</small></span></div>`; }).join("")
       : `<p class="small muted" style="margin:0">Pas encore de message. Dis coucou à tes amis jardiniers !</p>`}</div>
-    <div class="sg-cool-row"><span class="sg-cool" data-sgcool aria-label="Secondes avant le prochain message">${sgWait() ? `0:${String(sgWait()).padStart(2, "0")}` : ""}</span></div>
-    <div class="sg-says-wrap">
+    <div class="sg-cool-row"><button class="sg-fold${SG.fold ? " up" : ""}" data-act="sgFold" aria-label="${SG.fold ? "Afficher" : "Réduire"} les messages tout prêts" aria-expanded="${!SG.fold}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="sg-cool" data-sgcool aria-label="Secondes avant le prochain message">${sgWait() ? `0:${String(sgWait()).padStart(2, "0")}` : ""}</span></div>
+    <div class="sg-says-wrap${SG.fold ? " folded" : ""}">
     <div class="sg-says${sgWait() ? " cooling" : ""}">${SG_SAY.map(([c, t]) => `<button class="chip" data-act="sgSay" data-arg="${c}" ${sgWait() ? "disabled" : ""}>${t}</button>`).join("")}<button class="chip${SG.say ? " on" : ""}" data-act="sgSayPlant" aria-expanded="${!!SG.say}" ${sgWait() ? "disabled" : ""}>Je m’occupe de…</button></div>
     ${SG.say ? `<div class="sg-says plants">${mine.map(k => `<button class="chip" data-act="sgSay" data-arg="jemoccupe:${k}" ${sgWait() ? "disabled" : ""}>${cropArt(k)}${PLANTS[k].name}</button>`).join("")}</div>` : ""}</div></div>`;
 }
@@ -268,6 +268,7 @@ const SG_ACTS = {
     try { await CLOUD.rpc("sg_say", { p_code: c, p_arg: k || null }); SFX.play("click"); SG.at = 0; loadSG(true); }
     catch (e) { SG.data.chat = sgChat().filter(m => !m.local); toast(esc(sgErr(e))); render(true); }
   },
+  sgFold() { SG.fold = !SG.fold; SG.say = false; SG.chatAnim = false; render(true); const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgSayPlant() { if (sgWait()) return; SG.say = !SG.say; SG.chatAnim = false; render(true); },
   sgOpen() { if (!sgOn()) return; SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {
@@ -346,5 +347,6 @@ async function socialNotifs() {
       NOTIF.show("sginv:" + i.garden_id, `${i.by} t’invite au jardin commun`, `Rejoins « ${i.name} » depuis ta boîte aux lettres.`, 0); }
   } catch (e) {}
   await takeSGNews(true);
+  await loadFriends(true); // demandes d'ami reçues ou acceptées
 }
 setInterval(socialNotifs, 60e3);

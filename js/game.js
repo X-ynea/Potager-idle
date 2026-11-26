@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.43" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.44" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -820,7 +820,6 @@ function viewSettings() {
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
       <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
     </div>
-    ${cloudSettingsHTML()}
     <div class="set-group danger"><h3>Zone sensible</h3>
       <button class="set-link" data-act="dangerOpen" data-arg="reset">${ICON_RESET}<span><b>Recommencer à zéro</b><small>Efface ta progression, ton compte est gardé</small></span></button>
       ${typeof cloudDangerHTML === "function" ? cloudDangerHTML() : ""}

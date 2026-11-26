@@ -36,9 +36,23 @@ async function loadFriends(force) {
     FR.code = await CLOUD.rpc("upsert_profile", { p_name: profileName(), p_avatar: await publicAvatar(), p_title: S.title || null, p_level: S.level, p_test: IS_TEST });
     FR.list = await CLOUD.rpc("list_friends") || [];
     FR.loaded = true; FR.error = ""; FR.lastLoad = Date.now();
+    friendNews();
   } catch (e) { FR.error = offlineErr(e) ? "Pas de connexion : la liste d’amis a besoin d’internet." : /function|does not exist|404/.test(String(e.message)) ? "Le serveur des amis n’est pas encore prêt (script docs/amis.sql)." : "Connexion impossible pour le moment."; }
   FR.loading = false;
   if (typeof render === "function") { if (!$("#modal").hidden) render(true); updateBrand?.(); }
+}
+// Demandes d'ami reçues et demandes acceptées : une nouvelle dans la boîte aux lettres, et une notification sur l'appareil.
+function friendNews() {
+  const now = { in: FR.list.filter(f => f.direction === "in").map(f => f.id), out: FR.list.filter(f => f.direction === "out").map(f => f.id) };
+  const k = S.frKnown; S.frKnown = now;
+  if (!k) { save(); return; } // première fois : on retient seulement ce qui existe déjà
+  const list = Array.isArray(S.news) ? S.news : (S.news = []);
+  const push = (key, html, title, body) => { if (list.some(n => n.k === key)) return; list.push({ k: key, at: Date.now(), html, kind: "f", read: false }); NOTIF.show(key, title, body, 0); };
+  for (const f of FR.list) {
+    if (f.direction === "in" && !k.in.includes(f.id)) push("fi" + f.id, `📩 <b>${esc(f.name)}</b> te demande en ami.`, "Nouvelle demande d’ami", `${f.name} te demande en ami.`);
+    if (f.direction === "friend" && k.out.includes(f.id)) push("fa" + f.id, `🤝 <b>${esc(f.name)}</b> a accepté ta demande d’ami.`, "Demande d’ami acceptée", `${f.name} a accepté ta demande d’ami.`);
+  }
+  save();
 }
 setInterval(() => { if (friendsReady() && !document.hidden) loadFriends(); }, 120e3);
 addEventListener("load", () => setTimeout(() => loadFriends(true), 2500));

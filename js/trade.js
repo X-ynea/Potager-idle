@@ -71,10 +71,12 @@ const trIn = () => TR.list.filter(r => !r.mine && r.status === "pending");
 const trOut = () => TR.list.filter(r => r.mine && r.status === "pending");
 // Nouvelles : gardées dans la partie. Une nouvelle non lue reste ; une fois lue, elle disparaît
 // 24 h après l'arrosage, ou 7 jours après l'échange.
-const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3, l: 7 * 24 * 3600e3, g: 7 * 24 * 3600e3 };
+const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3, l: 7 * 24 * 3600e3, g: 7 * 24 * 3600e3, f: 7 * 24 * 3600e3 };
 function mailNews() {
-  const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k));
-  const add = (k, at, html, kind, read) => { if (!keys.has(k) && html) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
+  const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k)), now = Date.now();
+  // Une nouvelle plus vieille que sa durée de vie n'est jamais rajoutée : sinon, une fois lue puis effacée,
+  // elle revenait aussitôt comme non lue (arrosage ou échange encore présent ailleurs).
+  const add = (k, at, html, kind, read) => { if (!keys.has(k) && html && now - at < (NEWS_TTL[kind] || NEWS_TTL.t)) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
   for (const w of S.friendWater || []) if (!w.mine) add("w" + w.id, w.at, `💧 <b>${esc(w.name)}</b> a arrosé ton jardin.`, "w");
   for (const l of S.likes || []) add("l" + l.id, l.at, `❤️ <b>${esc(l.name)}</b> aime ton jardin.`, "l");
   for (const r of TR.list) {
@@ -84,7 +86,6 @@ function mailNews() {
     if (r.mine) add(k, at, { accepted: `✅ ${who} a accepté ton échange.`, refused: `❌ ${who} a refusé ton échange.`, expired: `⌛ Ton échange avec ${who} a expiré.`, cancelled: `↩️ Tu as annulé ton échange avec ${who}.`, countered: `🔁 ${who} t’a fait une contre-proposition.` }[r.status], "t", r.status === "cancelled");
     else add(k, at, { accepted: `✅ Tu as accepté l’échange de ${who}.`, refused: `❌ Tu as refusé l’échange de ${who}.`, expired: `⌛ L’échange proposé par ${who} a expiré.`, cancelled: `↩️ ${who} a annulé son échange.`, countered: `🔁 Tu as fait une contre-proposition à ${who}.` }[r.status], "t", ["accepted", "refused", "countered"].includes(r.status));
   }
-  const now = Date.now();
   S.news = list.filter(n => !n.read || now - n.at < (NEWS_TTL[n.kind] || NEWS_TTL.t)).sort((a, b) => b.at - a.at).slice(0, 60);
   return S.news;
 }

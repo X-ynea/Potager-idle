@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.44 (version de test, préparation de la v4)
+- Discussion du jardin commun plus haute, avec une petite flèche pour replier les messages tout prêts.
+- Sur les bacs du jardin commun, la photo de celui qui a planté a un cercle de la couleur de la saison.
+- Accueil : les décos du haut et du bas, à gauche, s’alignent de nouveau sur les bacs.
+- La connexion Discord passe des Paramètres au Profil (section « Compte »).
+- Demande d’ami reçue ou acceptée : une nouvelle dans la boîte aux lettres et une notification.
+- Reprend la correction 3.0.24 de la version des joueurs (vieilles nouvelles de la boîte aux lettres).
+
 ### 3.1.43 (version de test, préparation de la v4)
 - Accueil : la boîte aux lettres et le portail du jardin commun apparaissent ensemble, sans décalage. Le jeu se souvient s’il y a un jardin commun pour les afficher tout de suite à l’ouverture suivante.
 
@@ -277,6 +285,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ### 3.1.0 (version de test, préparation de la v4)
 - Cuisine et Serre sont réunies dans un nouvel onglet « Atelier », avec un sous-onglet pour chacune. L’onglet du bas additionne leurs pastilles et montre deux petites jauges : pêche pour la cuisson, verte pour le croisement.
+### 3.0.24
+- Boîte aux lettres : une nouvelle d’arrosage de plus d’un jour revenait sans cesse comme non lue, avec un badge « 1 » impossible à faire partir. C’est corrigé : ouvrir les Nouvelles la fait disparaître pour de bon.
+
 ### 3.0.23
 - Cuisine : chaque plat affiche le nombre déjà en stock dans l’inventaire, en bas à gauche de sa case.
 
