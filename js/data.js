@@ -91,6 +91,7 @@ const WILD = {
   algue:     { name: "Algues", desc: "De longues algues vertes et brillantes, repêchées au bord de l’étang.", sell: 16, src: "peche", color: "#3f8f6a", emoji: "🌿" },
   cresson:   { name: "Cresson", desc: "Une botte de cresson poivré, cueillie les pieds dans l’eau fraîche.", sell: 20, src: "peche", color: "#5fae4a", emoji: "🌱" },
   menthe:    { name: "Menthe d’eau", desc: "Ses petites feuilles sentent bon dès qu’on les froisse.", sell: 24, src: "peche", color: "#4fb39a", emoji: "🍃" },
+  ail:       { name: "Ail des ours", desc: "De larges feuilles vertes au parfum d’ail, cueillies au printemps dans les sous-bois.", sell: 20, src: "foret", color: "#6fbf5a", emoji: "🧄" },
   chataigne: { name: "Châtaignes", desc: "Bien à l’abri dans leur bogue piquante, elles n’attendent que le feu.", sell: 22, src: "foret", color: "#8a5a3a", emoji: "🌰" },
   mure:      { name: "Mûres", desc: "Des mûres sauvages, noires et sucrées. Gare aux ronces !", sell: 18, src: "foret", color: "#4a2a5a", emoji: "🫐" },
   noisette:  { name: "Noisettes", desc: "Ramassées sous le noisetier, avant que les écureuils ne passent.", sell: 20, src: "foret", color: "#b08350", emoji: "🥜" },

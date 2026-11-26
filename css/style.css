@@ -1719,13 +1719,16 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
   background-image: linear-gradient(transparent 30%, #e0c08a 30%, #e0c08a 52%, transparent 52%), radial-gradient(circle at 20px 20px, #98cb78 6px, transparent 7px);
   background-size: 120px 100%, 80px 60px; }
 .bush { position: absolute; left: 0; width: 150px; height: 125px; border: 0; background: none; padding: 0; -webkit-tap-highlight-color: transparent; }
-.bush.lane0 { top: 27%; z-index: 1; width: 130px; height: 108px; }
-.bush.lane1 { top: 49%; z-index: 2; }
-.bush.lane2 { top: 72%; z-index: 3; width: 175px; height: 145px; }
+/* Les buissons poussent dans l'herbe : derrière le chemin (lane0) ou devant (lane1, lane2), jamais dessus. */
+.bush.lane0 { top: auto; bottom: 44%; z-index: 1; width: 120px; height: 100px; }
+.bush.lane1 { top: auto; bottom: 12%; z-index: 2; }
+.bush.lane2 { top: auto; bottom: 0; z-index: 3; width: 170px; height: 140px; }
 .bush-svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 80%; }
-.bush-item { position: absolute; left: 50%; top: 0; width: 44%; aspect-ratio: 1; transform: translateX(-50%); z-index: 1; animation: peek 1.2s ease-in-out infinite; }
+.bush-item { position: absolute; left: 50%; top: 0; width: 44%; aspect-ratio: 1; transform: translateX(-50%); z-index: 4; animation: reveal .8s ease-out forwards; pointer-events: none; }
 .bush-item svg, .bush-item .wild-ph { width: 100%; height: 100%; font-size: 1.6rem; }
-@keyframes peek { 50% { transform: translateX(-50%) translateY(-4px) rotate(5deg); } }
+@keyframes reveal { 0% { transform: translate(-50%, 30%) scale(.5); opacity: 0; } 30% { transform: translate(-50%, -40%) scale(1.1); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(-50%, -90%) scale(1); opacity: 0; } }
 .bush.rustle .bush-svg { animation: rustle .35s; }
 @keyframes rustle { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
 .bush-svg { transform-origin: 50% 100%; }
+.bush.has .bush-svg { animation: shiver 1.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes shiver { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-2.5deg); } 70% { transform: rotate(2.5deg); } 78% { transform: rotate(-1.5deg); } 86% { transform: rotate(1deg); } }

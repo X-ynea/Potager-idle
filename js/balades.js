@@ -10,8 +10,8 @@ const GAMES = {
     rules: ["Des fleurs s’ouvrent une à une dans le pré, de plus en plus vite.", "Touche une fleur ouverte avant qu’elle se referme : une abeille part de la ruche pour la butiner.", "Une fleur dorée vaut 3 points. Toucher un bouton encore fermé ne fait rien perdre.", "Tu as 30 secondes. Plus tu butines, plus tu rapportes de miel (jusqu’à 4 pots)."], emoji: "🐝", color: "#f2b632" },
   peche:      { name: "Pêche à l’étang", tag: "Détente", desc: "Lance ta ligne et attends que le bouchon plonge…", gives: ["algue", "cresson", "menthe"], emoji: "🎣", color: "#5aa7ee",
     rules: ["Touche l’étang pour lancer ta ligne.", "Attends que le bouchon plonge pour de bon, avec un grand « plouf », puis touche vite ! S’il ne fait que frétiller, patience…", "La partie dure 5 prises ou 30 secondes.", "Algues 1 point, cresson 2, menthe d’eau 3 (la plus rare), et 1 point par seconde restante quand le panier est plein."] },
-  foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["chataigne", "mure", "noisette"], emoji: "🍂", color: "#8a5a3a",
-    rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson quand quelque chose dépasse de ses feuilles pour le cueillir.", "Mûres 1 point, noisettes 2, châtaignes 3 (les plus rares). Ce qu’on trouve change un peu avec la saison.", "La partie dure 5 trouvailles ou 30 secondes."] },
+  foret:      { name: "Balade en forêt", tag: "Détente", desc: "Suis le sentier et fouille les buissons.", gives: ["ail", "mure", "chataigne", "noisette"], emoji: "🍂", color: "#8a5a3a",
+    rules: ["Tu marches tranquillement sur le sentier, les buissons défilent.", "Touche un buisson qui frémit : quelque chose s’y cache !", "Chaque saison a sa trouvaille : ail des ours au printemps, mûres l’été, châtaignes l’automne, noisettes l’hiver. Elle vaut 1 point, les autres, plus rares, 3 points.", "La partie dure 5 trouvailles ou 30 secondes."] },
   memory:     { name: "Memory des graines", tag: "Mémoire", desc: "Retrouve les paires de sachets de graines.", coins: true, emoji: "🃏", color: "#9a6cf0", soon: true },
   cueillette: { name: "Cueillette express", tag: "Réflexes", desc: "Attrape les légumes qui tombent, pas les cailloux !", coins: true, emoji: "🧺", color: "#ec7d2e", soon: true },
 };
@@ -156,15 +156,17 @@ const POND = `<svg class="pond-bg" viewBox="0 0 400 300" preserveAspectRatio="no
   <g stroke="#4f9a3a" stroke-width="5" stroke-linecap="round"><path d="M28 230l-10-70M40 236l4-80M52 240l14-66"/><path d="M372 120l8-60M360 116l-6-70"/></g></svg>`;
 
 /* ---------------- La balade en forêt ----------------
-   30 s ou 5 trouvailles. Les buissons défilent ; certains laissent dépasser une mûre, une noisette ou une châtaigne :
-   on les touche pour cueillir. Score : mûre 1, noisette 2, châtaigne 3, + 1 par seconde restante quand le panier est plein. */
+   30 s ou 5 trouvailles. Les buissons défilent ; ceux qui frémissent cachent une trouvaille,
+   révélée seulement quand on les touche. Score : trouvaille de la saison 1, les autres 3, + 1 par seconde restante quand le panier est plein. */
 const FORET_T = 30000, FORET_BASKET = 5, FORET_CROSS = 3800;
-const FORET_PTS = { mure: 1, noisette: 2, chataigne: 3 };
-const FORET_W = { printemps: { mure: .45, noisette: .35, chataigne: .2 }, ete: { mure: .6, noisette: .25, chataigne: .15 },
-  automne: { mure: .3, noisette: .3, chataigne: .4 }, hiver: { mure: .25, noisette: .5, chataigne: .25 } };
+// Une trouvaille par saison (fréquente, 1 point) ; les trois autres sont plus rares (3 points).
+const FORET_SEASON = { printemps: "ail", ete: "mure", automne: "chataigne", hiver: "noisette" };
+const FORET_ITEMS = ["ail", "mure", "chataigne", "noisette"];
+const foretMain = () => FORET_SEASON[season()] || "ail";
+const foretPts = k => k === foretMain() ? 1 : 3;
 const BUSH = `<svg viewBox="0 0 120 80" class="bush-svg"><ellipse cx="60" cy="74" rx="52" ry="6" fill="rgba(0,0,0,.12)"/><circle cx="34" cy="50" r="26" fill="#4f9a3a"/><circle cx="86" cy="50" r="26" fill="#4f9a3a"/><circle cx="60" cy="38" r="32" fill="#5fae4a"/><circle cx="48" cy="28" r="8" fill="#7cc24a" opacity=".7"/></svg>`;
 const TREES = `<svg class="forest-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#6f9f55"><path d="M30 200l40-150 40 150z"/><path d="M150 200l30-120 30 120z"/><path d="M300 200l45-170 45 170z"/></g><g fill="#5c8a45"><path d="M90 200l35-130 35 130z"/><path d="M230 200l38-140 38 140z"/><path d="M360 200l25-100 25 100z"/></g><g fill="#7a5a3a"><rect x="66" y="185" width="8" height="15"/><rect x="176" y="185" width="8" height="15"/><rect x="341" y="185" width="8" height="15"/></g></svg>`;
-function foretPick() { const w = FORET_W[season()] || FORET_W.printemps, r = Math.random(); return r < w.mure ? "mure" : r < w.mure + w.noisette ? "noisette" : "chataigne"; }
+function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
 const GAME_IMPL = {
   foret: {
@@ -174,7 +176,7 @@ const GAME_IMPL = {
         <div class="g-time"><i></i></div>
         <div class="g-basket" aria-label="Ton panier">${Array.from({ length: FORET_BASKET }, () => `<span class="gb-slot"></span>`).join("")}</div>
         <div class="g-field foret-field">${TREES}<div class="path"></div><span class="p-msg"></span></div>
-        <p class="g-hint">Touche les buissons où quelque chose dépasse !</p>`;
+        <p class="g-hint">Touche les buissons qui frémissent !</p>`;
       g.el.querySelector(".foret-field").addEventListener("pointerdown", ev => {
         const b = ev.target.closest(".bush"); if (!b || g.state !== "play") return; ev.preventDefault(); GAME_IMPL.foret.tap(g, b);
       });
@@ -182,10 +184,11 @@ const GAME_IMPL = {
     tap(g, el) {
       const b = g.bushes.find(x => x.el === el); if (!b || g.st !== "walk") return;
       if (!b.item) { el.classList.remove("rustle"); void el.offsetWidth; el.classList.add("rustle"); return; }
-      const k = b.item, v = FORET_PTS[k]; b.item = null; el.querySelector(".bush-item")?.remove(); el.classList.add("rustle");
+      const k = b.item, v = foretPts(k); b.item = null; el.classList.remove("has"); el.classList.add("rustle");
+      el.insertAdjacentHTML("afterbegin", `<span class="bush-item">${wildArt(k)}</span>`); // la surprise sort du buisson
       g.score += v; g.caught.push(k); g.el.querySelector(".g-score b").textContent = g.score;
       g.el.querySelectorAll(".gb-slot")[g.caught.length - 1].innerHTML = wildArt(k);
-      GAME_IMPL.peche.msg(g, `${WILD[k].name} ! +${v}`, k === "chataigne" ? "gold" : "");
+      GAME_IMPL.peche.msg(g, `${WILD[k].name} ! +${v}`, v > 1 ? "gold" : "");
       SFX.play(v > 2 ? "coin" : "harvest"); buzz(10);
       if (g.caught.length >= FORET_BASKET) {
         const e = performance.now() - g.t0 - g.paused, left = Math.max(0, Math.floor((FORET_T - e) / 1000));
@@ -203,8 +206,8 @@ const GAME_IMPL = {
       if (e >= g.next) {
         // Un buisson sur trois environ cache quelque chose ; trois rangées.
         const lane = Math.floor(Math.random() * 3), item = Math.random() < .3 ? foretPick() : null;
-        const el = document.createElement("button"); el.className = "bush lane" + lane; el.setAttribute("aria-label", item ? WILD[item].name : "Buisson");
-        el.innerHTML = (item ? `<span class="bush-item">${wildArt(item)}</span>` : "") + BUSH;
+        const el = document.createElement("button"); el.className = "bush lane" + lane + (item ? " has" : ""); el.setAttribute("aria-label", "Buisson");
+        el.style.setProperty("--d", (Math.random() * -1.4).toFixed(2) + "s"); el.innerHTML = BUSH;
         field.appendChild(el); g.bushes.push({ el, t: e, item });
         g.next = e + rand(650, 1100);
       }
