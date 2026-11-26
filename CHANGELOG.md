@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.20 (version de test, préparation de la v4)
+- Tableau des scores : « Pas de récompense, juste le plaisir ! » passe à la ligne.
+
 ### 3.1.19 (version de test, préparation de la v4)
 - **Tableau des scores entre amis** pour chaque jeu des Balades : le meilleur score de la semaine de chacun, une couronne pour le premier, remis à zéro le lundi, sans récompense. Sur la carte du jeu : ton record et ta place (« 🏆 38 · 2ᵉ »), à toucher pour voir le tableau. Serveur : `docs/balades.sql`.
 - Le bouton « ? » des jeux passe en petit rond à côté du nom.

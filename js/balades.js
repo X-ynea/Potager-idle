@@ -172,7 +172,7 @@ function viewBoard(id) {
     ${rows.length ? `<div class="goal-members">${rows.map((r, i) => `<div class="goal-m board-row${r.me ? " me" : ""}"><span class="b-rank">${i === 0 && rows.length > 1 ? "👑" : i + 1}</span><span class="fr-av">${r.me ? `<img src="${esc(CLOUD.user?.avatar || "assets/img/xp-leaf.webp")}" alt="">` : friendAvatar(r.avatar)}</span><b>${r.me ? "Toi" : esc(r.name)}</b><span class="num">${r.score}</span></div>`).join("")}</div>`
       : `<p class="small muted" style="margin:0">Personne n’a encore joué cette semaine.</p>`}
     ${note ? `<p class="small muted" style="margin:0">${esc(note)}</p>` : ""}
-    <p class="small muted" style="margin:0">Le tableau repart à zéro chaque lundi. Pas de récompense, juste le plaisir !</p></div>`;
+    <p class="small muted" style="margin:0">Le tableau repart à zéro chaque lundi.<br>Pas de récompense, juste le plaisir !</p></div>`;
 }
 
 const BALADES_ACTS = {
