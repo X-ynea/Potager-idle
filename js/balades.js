@@ -221,7 +221,7 @@ const GAME_IMPL = {
         g.items.push({ el, kind, x: .08 + Math.random() * .84, y: -50, vy: 170 + 170 * d + Math.random() * 40 });
         g.next = e + 720 - 330 * d + Math.random() * 120;
       }
-      const top = H - bk.offsetHeight * .75; // haut du panier
+      const top = bk.offsetTop + bk.offsetHeight * .25; // haut du panier
       g.items = g.items.filter(it => {
         it.y += it.vy * dt;
         if (it.y >= top && it.y <= top + 30 && Math.abs(it.x * W - g.bx * W) < bw * .45) {
