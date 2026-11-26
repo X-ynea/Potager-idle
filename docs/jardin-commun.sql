@@ -6,12 +6,14 @@
 --   · on ne fait partie que d'un seul jardin commun ; seul celui qui l'a créé invite (ses amis) et peut retirer un membre ;
 --     chacun peut partir ; si le créateur part, le plus ancien membre prend sa place ; le dernier qui part efface le jardin ;
 --   · 6 bacs ; graines gratuites, mais 8 graines plantées par jour et par joueur au plus ;
---   · on ne plante que des plantes de base (jamais d'hybride), débloquées au niveau du membre le moins avancé,
+--   · chacun plante les plantes de base (jamais d'hybride) débloquées à son propre niveau,
 --     et les plantes de saison seulement pendant leur saison ;
 --   · pousse comme dans son jardin : 4 fois moins vite quand la terre est sèche (l'eau tient 10 min),
 --     25 % plus vite pour une plante de saison ; aucune amélioration personnelle ;
 --   · les récoltes vont dans le panier commun (60 objets au plus), qui ne sert qu'aux commandes ;
---   · 2 commandes par jour (jour de Paris), et c'est tout ;
+--   · 2 commandes par jour (jour de Paris), et c'est tout. La partie obligatoire ne demande que des plantes que tout le monde
+--     peut planter (personne n'attend personne) ; une ligne « bonus » facultative demande parfois une plante que seuls
+--     les plus avancés peuvent planter : livrée avec elle, la commande rapporte 50 % de plus ;
 --   · à chaque commande livrée, chaque membre qui a planté au moins 3 graines depuis la commande précédente
 --     reçoit une récompense (pièces, XP, parfois un ingrédient de balade), et la déco « Banc de l'amitié »
 --     une fois que le jardin a livré 10 commandes. Le jeu la récupère avec sg_claim().
@@ -102,45 +104,67 @@ begin
   return p || jsonb_build_object('grown', coalesce((p ->> 'grown')::numeric, 0) + (wet + dry * 0.25) * s, 'last', t);
 end $$;
 
--- Plantes autorisées : plantes de base débloquées au niveau du membre le moins avancé, de saison seulement à leur saison.
+-- Plantes du jardin commun pour un niveau : plantes de base (jamais d'hybride), de saison seulement à leur saison.
+create or replace function public.sg_plants_for(lv int) returns text[] language sql stable security definer set search_path = public as $$
+  select coalesce(array_agg(key order by lvl, key), '{}') from sg_plants where lvl <= coalesce(lv, 1) and (not only_season or season = paris_season());
+$$;
+-- Ce que chacun peut planter : selon son propre niveau.
+create or replace function public.sg_allowed_user(uid uuid) returns text[] language sql stable security definer set search_path = public as $$
+  select sg_plants_for((select level from profiles where user_id = uid));
+$$;
+-- Ce que tout le monde peut planter (niveau du membre le moins avancé) : la partie obligatoire des commandes.
 create or replace function public.sg_allowed(gid bigint) returns text[] language sql stable security definer set search_path = public as $$
-  select coalesce(array_agg(key order by lvl, key), '{}') from sg_plants
-  where lvl <= (select coalesce(min(p.level), 1) from shared_garden_members m left join profiles p on p.user_id = m.user_id where m.garden_id = gid)
-    and (not only_season or season = paris_season());
+  select sg_plants_for((select coalesce(min(p.level), 1) from shared_garden_members m left join profiles p on p.user_id = m.user_id where m.garden_id = gid));
+$$;
+-- Ce qu'au moins un membre peut planter (niveau du plus avancé) : le bonus des commandes.
+create or replace function public.sg_allowed_any(gid bigint) returns text[] language sql stable security definer set search_path = public as $$
+  select sg_plants_for((select coalesce(max(p.level), 1) from shared_garden_members m left join profiles p on p.user_id = m.user_id where m.garden_id = gid));
 $$;
 
--- Une commande : 2 ou 3 plantes du jardin commun (jamais d'ingrédient de balade ni d'hybride, puisque rien ne vient
--- de l'inventaire des joueurs). L'ingrédient de balade éventuel est une récompense, pas une demande.
-create or replace function public.sg_make_order(allowed text[], m int) returns jsonb language plpgsql volatile security definer set search_path = public as $$
-declare n int; items jsonb := '{}'::jsonb; k text; q int; v_val int := 0; v_xp int := 0;
+-- Une commande : 2 ou 3 plantes que tout le monde peut planter (personne n'attend personne), et parfois une ligne
+-- « bonus » facultative avec une plante que seuls les plus avancés peuvent planter (+50 % si on la livre aussi).
+-- Jamais d'ingrédient de balade ni d'hybride, puisque rien ne vient de l'inventaire des joueurs :
+-- l'ingrédient de balade éventuel est une récompense, pas une demande.
+drop function if exists public.sg_make_order(text[], int);
+create or replace function public.sg_make_order(common text[], extra text[], m int) returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare n int; items jsonb := '{}'::jsonb; k text; q int; v_val int := 0; v_xp int := 0; bonus jsonb;
   wilds text[] := array['algue', 'cresson', 'menthe', 'ail', 'mure', 'chataigne', 'noisette', 'miel'];
 begin
-  n := least(array_length(allowed, 1), 2 + floor(random() * 2)::int);
-  for k in select a from unnest(allowed) a order by random() limit n loop
+  n := least(array_length(common, 1), 2 + floor(random() * 2)::int);
+  for k in select a from unnest(common) a order by random() limit n loop
     q := 1 + floor(random() * (1 + m))::int; -- de 1 à (1 + nombre de membres)
     items := items || jsonb_build_object(k, q);
     select v_val + q * p.sell, v_xp + q * p.xp into v_val, v_xp from sg_plants p where p.key = k;
   end loop;
-  return jsonb_build_object('items', items, 'coins', round(v_val * 1.6 + 10), 'xp', round(v_xp * 1.3 + 5),
+  if coalesce(array_length(extra, 1), 0) > 0 and random() < .8 then
+    bonus := jsonb_build_object(extra[1 + floor(random() * array_length(extra, 1))::int], 1 + floor(random() * 2)::int);
+  end if;
+  return jsonb_build_object('items', items, 'bonus', bonus, 'coins', round(v_val * 1.6 + 10), 'xp', round(v_xp * 1.3 + 5),
     'wild', case when random() < .35 then wilds[1 + floor(random() * array_length(wilds, 1))::int] end, 'done', false);
 end $$;
 
--- Les 2 commandes du jour (créées à la première ouverture de la journée). Une commande pas encore livrée
--- qui demande une plante qu'on ne peut plus planter (un jardinier de plus petit niveau est arrivé) est refaite.
+-- Les 2 commandes du jour (créées à la première ouverture de la journée).
+-- Si les jardiniers changent : une commande pas encore livrée qui demande une plante que tout le monde ne peut plus planter
+-- est refaite, et un bonus que plus personne ne peut planter disparaît.
 create or replace function public.sg_daily_orders(gid bigint) returns void language plpgsql security definer set search_path = public as $$
-declare g shared_gardens; allowed text[]; m int; o jsonb; res jsonb := '[]'::jsonb; changed boolean := false;
+declare g shared_gardens; common text[]; anyp text[]; extra text[]; m int; o jsonb; res jsonb := '[]'::jsonb; changed boolean := false;
 begin
   select * into g from shared_gardens where id = gid for update;
-  allowed := sg_allowed(gid);
-  if coalesce(array_length(allowed, 1), 0) = 0 then allowed := array['radis', 'laitue']; end if;
+  common := sg_allowed(gid); anyp := sg_allowed_any(gid);
+  if coalesce(array_length(common, 1), 0) = 0 then common := array['radis', 'laitue']; end if;
+  select coalesce(array_agg(a), '{}') into extra from unnest(anyp) a where not (a = any (common));
   select count(*) into m from shared_garden_members where garden_id = gid;
   if g.orders_day is distinct from paris_today() then
-    update shared_gardens set orders = jsonb_build_array(sg_make_order(allowed, m), sg_make_order(allowed, m)), orders_day = paris_today() where id = gid;
+    update shared_gardens set orders = jsonb_build_array(sg_make_order(common, extra, m), sg_make_order(common, extra, m)), orders_day = paris_today() where id = gid;
     return;
   end if;
   for o in select * from jsonb_array_elements(g.orders) loop
-    if not (o ->> 'done')::boolean and exists (select 1 from jsonb_object_keys(o -> 'items') k where not (k = any (allowed))) then
-      o := sg_make_order(allowed, m); changed := true;
+    if not (o ->> 'done')::boolean then
+      if exists (select 1 from jsonb_object_keys(o -> 'items') k where not (k = any (common))) then
+        o := sg_make_order(common, extra, m); changed := true;
+      elsif jsonb_typeof(o -> 'bonus') = 'object' and exists (select 1 from jsonb_object_keys(o -> 'bonus') k where not (k = any (anyp))) then
+        o := o || '{"bonus": null}'::jsonb; changed := true;
+      end if;
     end if;
     res := res || jsonb_build_array(o);
   end loop;
@@ -172,7 +196,7 @@ begin
   select coalesce(jsonb_agg(jsonb_build_object('id', i.user_id, 'name', coalesce(pr.name, 'Jardinier'), 'avatar', pr.avatar)), '[]'::jsonb)
     into pending from shared_garden_invites i left join profiles pr on pr.user_id = i.user_id where i.garden_id = gid;
   return jsonb_build_object('garden', jsonb_build_object('id', g.id, 'name', g.name, 'plots', plots, 'basket', g.basket, 'orders', g.orders, 'delivered', g.delivered),
-    'members', members, 'pending', pending, 'allowed', to_jsonb(sg_allowed(gid)), 'invites', invites, 'now', now_ms(), 'season', saison);
+    'members', members, 'pending', pending, 'allowed', to_jsonb(sg_allowed_user(me)), 'common', to_jsonb(sg_allowed(gid)), 'invites', invites, 'now', now_ms(), 'season', saison);
 end $$;
 
 -- 2. Créer un jardin commun (je n'en ai pas encore).
@@ -240,7 +264,7 @@ declare me uuid := auth.uid(); gid bigint := sg_mine(); g shared_gardens; m shar
 begin
   if gid is null then raise exception 'pas_jardin'; end if;
   if slot < 0 or slot > 5 then raise exception 'bac_invalide'; end if;
-  if not (p_seed = any (sg_allowed(gid))) then raise exception 'graine_interdite'; end if;
+  if not (p_seed = any (sg_allowed_user(me))) then raise exception 'graine_interdite'; end if;
   select * into m from shared_garden_members where garden_id = gid and user_id = me for update;
   if m.plant_day = paris_today() and m.planted_today >= 8 then raise exception 'trop_plante'; end if;
   select * into g from shared_gardens where id = gid for update;
@@ -277,24 +301,29 @@ begin
   return k;
 end $$;
 
--- 10. Livrer une commande du jour avec le panier : récompense pour chaque membre qui a planté 3 graines ou plus.
-create or replace function public.sg_deliver(idx int) returns int language plpgsql security definer set search_path = public as $$
-declare gid bigint := sg_mine(); g shared_gardens; o jsonb; it record; b jsonb; n int := 0;
+-- 10. Livrer une commande du jour avec le panier, avec ou sans son bonus (+50 % sur les pièces et l'XP).
+--     Récompense pour chaque membre qui a planté 3 graines ou plus depuis la commande précédente.
+drop function if exists public.sg_deliver(int);
+create or replace function public.sg_deliver(idx int, with_bonus boolean default false) returns int language plpgsql security definer set search_path = public as $$
+declare gid bigint := sg_mine(); g shared_gardens; o jsonb; it record; b jsonb; n int := 0; mult numeric := 1;
 begin
   if gid is null then raise exception 'pas_jardin'; end if;
   select * into g from shared_gardens where id = gid for update;
   if g.orders_day is distinct from paris_today() then raise exception 'commande_expiree'; end if;
   o := g.orders -> idx;
   if o is null or (o ->> 'done')::boolean then raise exception 'commande_introuvable'; end if;
+  if with_bonus and jsonb_typeof(o -> 'bonus') is distinct from 'object' then raise exception 'pas_de_bonus'; end if;
   b := g.basket;
-  for it in select key, value::int as q from jsonb_each_text(o -> 'items') loop
+  for it in select key, value::int as q from jsonb_each_text(o -> 'items')
+            union all select key, value::int from jsonb_each_text(case when with_bonus then o -> 'bonus' else '{}'::jsonb end) loop
     if coalesce((b ->> it.key)::int, 0) < it.q then raise exception 'panier_incomplet'; end if;
     b := case when (b ->> it.key)::int = it.q then b - it.key else b || jsonb_build_object(it.key, (b ->> it.key)::int - it.q) end;
   end loop;
-  update shared_gardens set basket = b, orders = jsonb_set(orders, array[idx::text, 'done'], 'true'::jsonb), delivered = delivered + 1 where id = gid
-    returning * into g;
+  if with_bonus then mult := 1.5; end if;
+  update shared_gardens set basket = b, orders = jsonb_set(jsonb_set(orders, array[idx::text, 'done'], 'true'::jsonb), array[idx::text, 'with_bonus'], to_jsonb(with_bonus)),
+    delivered = delivered + 1 where id = gid returning * into g;
   insert into shared_garden_rewards (user_id, garden_name, coins, xp, wild, deco)
-    select m.user_id, g.name, (o ->> 'coins')::int, (o ->> 'xp')::int, o ->> 'wild', case when g.delivered >= 10 then 'friend_bench' end
+    select m.user_id, g.name, round((o ->> 'coins')::int * mult), round((o ->> 'xp')::int * mult), o ->> 'wild', case when g.delivered >= 10 then 'friend_bench' end
     from shared_garden_members m where m.garden_id = gid and m.contrib >= 3;
   get diagnostics n = row_count;
   update shared_garden_members set contrib = 0 where garden_id = gid;
@@ -307,8 +336,9 @@ create or replace function public.sg_claim() returns jsonb language sql security
   select coalesce(jsonb_agg(jsonb_build_object('garden', garden_name, 'coins', coins, 'xp', xp, 'wild', wild, 'deco', deco) order by created_at), '[]'::jsonb) from r;
 $$;
 
-revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_make_order(text[], int), public.sg_daily_orders(bigint) from public, anon, authenticated;
+revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_plants_for(int), public.sg_allowed_user(uuid), public.sg_allowed_any(bigint),
+  public.sg_make_order(text[], text[], int), public.sg_daily_orders(bigint) from public, anon, authenticated;
 revoke all on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int), public.sg_claim() from public, anon;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim() from public, anon;
 grant execute on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int), public.sg_claim() to authenticated;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim() to authenticated;

@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.29 (version de test, préparation de la v4)
+- Jardin commun : chacun plante les plantes de son propre niveau (toujours sans hybride).
+- Les commandes gardent une partie que tout le monde peut faire, et ont souvent une ligne **Bonus +50 %** facultative, avec une plante que seuls les plus avancés peuvent planter. On choisit de livrer avec ou sans le bonus ; si une plante du bonus pousse encore, livrer sans lui demande une confirmation. Serveur : relancer `docs/jardin-commun.sql`.
+
 ### 3.1.28 (version de test, préparation de la v4)
 - Jardin commun : les commandes ne demandent que des plantes du jardin commun (jamais d’ingrédient de balade, qu’on ne peut pas y apporter). L’ingrédient de balade d’une commande est écrit comme une récompense.
 - Si un jardinier de plus petit niveau arrive, une commande pas encore livrée qui demande une plante qu’on ne peut plus planter est refaite. Serveur : relancer `docs/jardin-commun.sql`.

@@ -15,7 +15,7 @@ const SG_ERR = {
   graine_interdite: "Cette graine n’est pas disponible au jardin commun.", bac_occupe: "Ce bac est déjà planté.", pas_mur: "Ce n’est pas encore mûr.",
   panier_plein: "Le panier est plein : livrez une commande !", panier_incomplet: "Il manque des récoltes dans le panier.",
   commande_expiree: "Cette commande est terminée.", commande_introuvable: "Cette commande est déjà livrée.", invitation_introuvable: "Cette invitation n’existe plus.",
-  "pas ami": "Vous n’êtes plus amis.",
+  "pas ami": "Vous n’êtes plus amis.", pas_de_bonus: "Cette commande n’a pas de bonus.",
 };
 function sgErr(e) {
   const m = String(e?.message || e);
@@ -110,11 +110,21 @@ function viewSG() {
   const picker = SG.pick != null ? `<div class="sg-pick"><div class="row spread"><b>Planter dans le bac ${SG.pick + 1}</b><button class="btn ghost sm" data-act="sgPick" data-arg="">Annuler</button></div>
       <p class="small muted" style="margin:0">Graines gratuites · ${leftSeeds ? `encore ${leftSeeds} aujourd’hui` : "plus de graine aujourd’hui, reviens demain !"}</p>
       <div class="sg-seeds">${allowed.map(k => `<button class="sg-seed" data-act="sgPlant" data-arg="${k}" ${leftSeeds && !SG.busy ? "" : "disabled"}>${seedArt(k)}<b>${PLANTS[k].name}</b><small>${growDur(PLANTS[k].time * 1000 / (PLANTS[k].season === SG.data.season ? SEASON_BONUS : 1))}</small></button>`).join("")}</div></div>` : "";
-  const orders = (g.orders || []).map((o, i) => { const ok = sgOrderOk(o);
-    return `<div class="sg-order${o.done ? " done" : ""}"><div class="sg-need">${Object.entries(o.items || {}).filter(([k]) => PLANTS[k]).map(([k, q]) => { const h = Math.min(q, +g.basket?.[k] || 0);
-        return `<span class="chip need-chip${h < q && !o.done ? " miss" : ""}">${cropArt(k)}${o.done ? q : `${h}/${q}`}</span>`; }).join("")}</div>
+  const chips = (items, done) => Object.entries(items || {}).filter(([k]) => PLANTS[k]).map(([k, q]) => { const h = Math.min(q, +g.basket?.[k] || 0);
+    return `<span class="chip need-chip${h < q && !done ? " miss" : ""}">${cropArt(k)}${done ? q : `${h}/${q}`}</span>`; }).join("");
+  const orders = (g.orders || []).map((o, i) => {
+    const ok = sgOrderOk(o), bonus = o.bonus && Object.keys(o.bonus).some(k => PLANTS[k]) ? o.bonus : null, bonusOk = bonus && ok && sgOrderOk({ items: bonus });
+    const growing = bonus ? g.plots.filter(p => p?.seed && bonus[p.seed] && sgPlot(p).st !== "ripe").length : 0;
+    const bk = bonus ? Object.keys(bonus)[0] : null;
+    const btns = o.done ? `<span class="sg-done">✓ Livrée${o.with_bonus ? " avec le bonus" : ""}</span>`
+      : bonusOk ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:1" ${SG.busy ? "disabled" : ""}>Livrer avec le bonus</button><button class="btn ghost sm" data-act="sgDeliver" data-arg="${i}:0" ${SG.busy ? "disabled" : ""}>Sans le bonus</button></span>`
+      : SG.confirm === "deliver:" + i ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:0:ok">Livrer quand même</button><button class="btn ghost sm" data-act="sgConfirm" data-arg="">Attendre</button></span>`
+      : `<button class="btn sm" data-act="sgDeliver" data-arg="${i}:0" ${ok && !SG.busy ? "" : "disabled"}>Livrer</button>`;
+    return `<div class="sg-order${o.done ? " done" : ""}"><div class="sg-need">${chips(o.items, o.done)}</div>
+      ${bonus ? `<div class="sg-bonus"><span class="sg-bonus-t">Bonus +50 %</span>${chips(bonus, o.done && o.with_bonus)}${!o.done && growing ? `<small class="muted">${growing} ${PLANTS[bk].name.toLowerCase()} en train de pousser</small>` : !o.done ? `<small class="muted">facultatif</small>` : ""}</div>` : ""}
+      ${SG.confirm === "deliver:" + i ? `<p class="small sg-warn">${growing} ${PLANTS[bk].name.toLowerCase()} pousse${growing > 1 ? "nt" : ""} pour le bonus. Livrer sans attendre ?</p>` : ""}
       <div class="sg-reward"><small class="muted">Récompense :</small> ${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span>${o.wild && WILD[o.wild] ? ` <span class="g-give">+ ${wildArt(o.wild)}${WILD[o.wild].name}</span>` : ""}</div>
-      ${o.done ? `<span class="sg-done">✓ Livrée</span>` : `<button class="btn sm" data-act="sgDeliver" data-arg="${i}" ${ok && !SG.busy ? "" : "disabled"}>Livrer</button>`}</div>`; }).join("");
+      ${btns}</div>`; }).join("");
   const friends = (typeof FR !== "undefined" ? FR.list : []).filter(f => f.direction === "friend" && !members.some(m => m.id === f.user_id) && !(SG.data.pending || []).some(p => p.id === f.user_id));
   const room = members.length + (SG.data.pending || []).length < 4;
   const conf = SG.confirm;
@@ -168,7 +178,13 @@ const SG_ACTS = {
   },
   sgPick(i) { SG.pick = i === "" ? null : +i; render(true); },
   sgPlant(k) { const i = SG.pick; if (i == null) return; SG.pick = null; sgCall("sg_plant", { slot: i, p_seed: k }, () => { SFX.play("plant"); buzz(8); }); },
-  sgDeliver(i) { sgCall("sg_deliver", { idx: +i }, n => { SFX.play("success"); toast(`🧺 Commande livrée ! ${+n ? `${n} jardinier${n > 1 ? "s" : ""} récompensé${n > 1 ? "s" : ""}.` : "Personne n’avait planté assez de graines cette fois."}`); }); },
+  sgDeliver(arg) {
+    const [i, b, ok] = String(arg).split(":"), o = sgG()?.orders?.[+i]; if (!o) return;
+    // Sans le bonus alors qu'il pousse : on demande d'abord confirmation.
+    const growing = b !== "1" && o.bonus ? sgG().plots.some(p => p?.seed && o.bonus[p.seed] && sgPlot(p).st !== "ripe") : false;
+    if (growing && !ok) { SG.confirm = "deliver:" + i; render(true); return; }
+    SG.confirm = null;
+    sgCall("sg_deliver", { idx: +i, with_bonus: b === "1" }, n => { SFX.play("success"); toast(`🧺 Commande livrée ! ${+n ? `${n} jardinier${n > 1 ? "s" : ""} récompensé${n > 1 ? "s" : ""}.` : "Personne n’avait planté assez de graines cette fois."}`); }); },
   sgInviteOpen() { SG.invite = true; if (typeof loadFriends === "function") loadFriends(); render(true); },
   sgInvite(id) { sgCall("sg_invite", { target: id }, () => { SFX.play("click"); toast("Invitation envoyée 🌱"); }); },
   sgUninvite(id) { sgCall("sg_uninvite", { target: id }); },
