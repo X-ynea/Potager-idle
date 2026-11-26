@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.28
+- Succès « Herbier complet » : un palier par vague d’hybrides. Ceux qui l’avaient déjà (8 hybrides) le gardent, avec son titre et son bonus, et un palier II « tous les hybrides (12) » s’ajoute, avec le titre « Maître botaniste ».
+
 ### 3.0.27
 - Objectifs du jour : plus d’objectif « Récolter » sur une plante d’une autre saison (comme les petits pois en hiver). Un tel objectif déjà reçu est remplacé à la prochaine ouverture du jeu.
 

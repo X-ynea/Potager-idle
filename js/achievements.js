@@ -6,6 +6,7 @@ const ACH_CATS = [
   ["eco", "Économie et progression"], ["daily", "Petits moments du quotidien"], ["hidden", "Succès cachés"],
 ];
 const st = k => (S.stats && S.stats[k]) || 0;
+const HYB_TOTAL = () => ORDER.filter(k => PLANTS[k].hybrid).length;
 const ACHIEVEMENTS = [
   { id: "first_harvest", cat: "garden", name: "Premier radis", desc: "Faire sa première récolte", value: () => st("harvest"), tiers: [{ n: 1, c: 20, x: 10 }] },
   { id: "green", cat: "garden", name: "Main verte", desc: n => `Récolter ${fmt(n)} plantes`, value: () => st("harvest"),
@@ -35,8 +36,12 @@ const ACHIEVEMENTS = [
   { id: "goldall", cat: "garden", name: "Tout l’or du jardin", desc: n => `Trouver toutes les plantes en version dorée (${n})`, value: () => (S.goldenFound || []).filter(k => PLANTS[k] && !PLANTS[k].tuto).length,
     tiers: [{ n: ORDER.length, c: 20000, x: 2000, title: "Roi Midas du potager" }] },
   { id: "first_cross", cat: "lab", name: "Apprenti botaniste", desc: "Réussir son premier croisement", value: () => S.hybrids.length, tiers: [{ n: 1, c: 100, x: 30, title: "Botaniste" }] },
-  { id: "herbier", cat: "lab", name: "Herbier complet", desc: "Découvrir tous les hybrides", value: () => S.hybrids.length,
-    tiers: [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins", deco: "hive" }] },
+  // Un palier par vague d'hybrides : ceux qui avaient fini l'herbier gardent leur succès (palier I)
+  // et ont un nouveau palier à atteindre. Nouveaux hybrides ajoutés au jeu : ajouter un palier ici
+  // (sinon, un dernier palier « tous les hybrides » est ajouté tout seul).
+  { id: "herbier", cat: "lab", name: "Herbier complet", desc: n => n >= HYB_TOTAL() ? `Découvrir tous les hybrides (${n})` : `Découvrir ${n} hybrides`, value: () => S.hybrids.length,
+    tiers: (() => { const t = [{ n: 8, c: 1500, x: 300, title: "Grand botaniste", bonus: "coins", deco: "hive" }, { n: 12, c: 2500, x: 450, title: "Maître botaniste" }];
+      const all = ORDER.filter(k => PLANTS[k].hybrid).length; if (all > t[t.length - 1].n) t.push({ n: all, c: 3000, x: 500 }); return t; })() },
   { id: "experimenter", cat: "lab", name: "Expérimentateur", desc: n => `Faire ${n} croisements, même ratés`, value: () => st("crosses"), tiers: [{ n: 25, c: 300, x: 80 }] },
 
   { id: "first_dish", cat: "kitchen", name: "Premier plat", desc: "Cuisiner sa première recette", value: () => st("cooked"), tiers: [{ n: 1, c: 30, x: 10 }] },
