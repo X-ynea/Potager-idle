@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.31" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.32" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1339,7 +1339,7 @@ function live(t) {
   document.querySelector('.tab[data-arg="atelier"]')?.classList.toggle("two-prog", fk != null && fl != null); // deux jauges l'une au-dessus de l'autre
   document.querySelectorAll(".atelier-sw .tab-prog").forEach(el => tabProg(el, el.dataset.sp === "kitchen" ? fk : fl));
   // Amis : demandes reçues, messages non lus, échanges reçus et réponses aux échanges (pas les arrosages ni les cœurs).
-  const fN = FRIENDS_ON && CLOUD.signedIn ? incoming().length + unreadTotal() + trIn().length + mailNews().filter(n => !n.read && n.kind === "t").length : 0;
+  const fN = FRIENDS_ON && CLOUD.signedIn ? incoming().length + unreadTotal() + trIn().length + sgInvites().length + mailNews().filter(n => !n.read && n.kind === "t").length : 0;
   const total = gN + kN + lN + fN;
   const title = total ? `(${total}) Potager idle` : "Potager idle";
   if (document.title !== title) document.title = title;

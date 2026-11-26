@@ -81,6 +81,19 @@ create table if not exists public.shared_garden_rewards (
   deco text,
   created_at timestamptz not null default now()
 );
+-- Nouvelles pour la boîte aux lettres : quelqu'un a rejoint ton jardin, tu as été retiré, le jardin a été supprimé.
+create table if not exists public.shared_garden_news (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  kind text not null check (kind in ('joined', 'kicked', 'deleted')),
+  who text,
+  garden_name text,
+  created_at timestamptz not null default now()
+);
+alter table public.shared_garden_news enable row level security;
+create or replace function public.sg_name_of(uid uuid) returns text language sql stable security definer set search_path = public as $$
+  select coalesce((select name from profiles where user_id = uid), 'Un ami');
+$$;
 alter table public.shared_gardens enable row level security;
 alter table public.shared_garden_members enable row level security;
 alter table public.shared_garden_invites enable row level security;
@@ -244,6 +257,8 @@ begin
   if (select count(*) from shared_garden_members where garden_id = p_garden) >= 4 then raise exception 'jardin_plein'; end if;
   insert into shared_garden_members (garden_id, user_id) values (p_garden, me);
   delete from shared_garden_invites where user_id = me; -- les autres invitations tombent
+  insert into shared_garden_news (user_id, kind, who, garden_name)
+    select owner, 'joined', sg_name_of(me), name from shared_gardens where id = p_garden;
 end $$;
 
 -- 6. Quitter le jardin (ou retirer un membre, pour le créateur).
@@ -254,11 +269,30 @@ begin
   select * into g from shared_gardens where id = gid;
   if who <> me and g.owner <> me then raise exception 'pas_createur'; end if;
   delete from shared_garden_members where garden_id = gid and user_id = who;
+  if who <> me then insert into shared_garden_news (user_id, kind, who, garden_name) values (who, 'kicked', sg_name_of(me), g.name); end if;
   if not exists (select 1 from shared_garden_members where garden_id = gid) then delete from shared_gardens where id = gid; return; end if;
   if who = g.owner then
     update shared_gardens set owner = (select user_id from shared_garden_members where garden_id = gid order by joined_at limit 1) where id = gid;
   end if;
 end $$;
+
+-- 6 bis. Supprimer le jardin (créateur) : tout le monde en sort, chacun reçoit une nouvelle.
+create or replace function public.sg_delete() returns void language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); gid bigint := sg_mine(); g shared_gardens;
+begin
+  if gid is null then return; end if;
+  select * into g from shared_gardens where id = gid;
+  if g.owner <> me then raise exception 'pas_createur'; end if;
+  insert into shared_garden_news (user_id, kind, who, garden_name)
+    select user_id, 'deleted', sg_name_of(me), g.name from shared_garden_members where garden_id = gid and user_id <> me;
+  delete from shared_gardens where id = gid; -- membres, invitations et tchat partent avec lui
+end $$;
+
+-- 6 ter. Mes nouvelles du jardin commun (données une seule fois : le serveur les efface en les donnant).
+create or replace function public.sg_news() returns jsonb language sql security definer set search_path = public as $$
+  with r as (delete from shared_garden_news where user_id = auth.uid() returning *)
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'kind', kind, 'who', who, 'garden', garden_name, 'at', created_at) order by created_at), '[]'::jsonb) from r;
+$$;
 
 -- 7. Planter (graines gratuites, 8 par jour et par joueur).
 create or replace function public.sg_plant(slot int, p_seed text) returns void language plpgsql security definer set search_path = public as $$
@@ -363,9 +397,10 @@ begin
     or id <= (select id from shared_garden_chat where garden_id = gid order by id desc offset 40 limit 1)); -- ménage : 40 messages, 3 jours
 end $$;
 
+revoke all on function public.sg_name_of(uuid) from public, anon, authenticated;
 revoke all on function public.sg_mine(), public.sg_grow(jsonb, text), public.sg_allowed(bigint), public.sg_plants_for(int), public.sg_allowed_user(uuid), public.sg_allowed_any(bigint),
   public.sg_make_order(text[], text[], int), public.sg_daily_orders(bigint) from public, anon, authenticated;
 revoke all on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text) from public, anon;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text), public.sg_delete(), public.sg_news() from public, anon;
 grant execute on function public.sg_state(), public.sg_create(text), public.sg_invite(uuid), public.sg_uninvite(uuid), public.sg_answer(bigint, boolean),
-  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text) to authenticated;
+  public.sg_leave(uuid), public.sg_plant(int, text), public.sg_water(int), public.sg_harvest(int), public.sg_deliver(int, boolean), public.sg_claim(), public.sg_say(text, text), public.sg_delete(), public.sg_news() to authenticated;

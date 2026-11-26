@@ -71,7 +71,7 @@ const trIn = () => TR.list.filter(r => !r.mine && r.status === "pending");
 const trOut = () => TR.list.filter(r => r.mine && r.status === "pending");
 // Nouvelles : gardées dans la partie. Une nouvelle non lue reste ; une fois lue, elle disparaît
 // 24 h après l'arrosage, ou 7 jours après l'échange.
-const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3, l: 7 * 24 * 3600e3 };
+const NEWS_TTL = { w: 24 * 3600e3, t: 7 * 24 * 3600e3, l: 7 * 24 * 3600e3, g: 7 * 24 * 3600e3 };
 function mailNews() {
   const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k));
   const add = (k, at, html, kind, read) => { if (!keys.has(k) && html) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
@@ -89,7 +89,8 @@ function mailNews() {
   return S.news;
 }
 const markNewsRead = () => { const t = Date.now(); TR.newsMark = t; for (const n of mailNews()) if (!n.read) { n.read = true; n.readAt = t; } save(); };
-const mailCount = () => FRIENDS_ON ? trIn().length + mailNews().filter(n => !n.read).length : 0;
+const sgInvites = () => typeof SG !== "undefined" && typeof sgOn === "function" && sgOn() ? SG.data?.invites || [] : []; // invitations au jardin commun
+const mailCount = () => FRIENDS_ON ? trIn().length + sgInvites().length + mailNews().filter(n => !n.read).length : 0;
 function mailboxHTML() {
   if (!FRIENDS_ON || !CLOUD.signedIn) return "";
   const n = mailCount();
@@ -109,10 +110,11 @@ function tradeCard(r) {
 function viewMail() {
   const inn = trIn(), out = trOut(), news = mailNews(), mark = TR.newsMark || 0;
   const fresh = news.filter(n => !n.read).length;
-  const tabs = [["in", `Reçus${inn.length ? ` <span class="fr-badge">${inn.length}</span>` : ""}`], ["out", `Envoyés <span class="num">${out.length}</span>`], ["news", `Nouvelles${fresh ? ` <span class="fr-badge">${fresh}</span>` : ""}`]];
+  const inv = sgInvites(), nIn = inn.length + inv.length;
+  const tabs = [["in", `Reçus${nIn ? ` <span class="fr-badge">${nIn}</span>` : ""}`], ["out", `Envoyés <span class="num">${out.length}</span>`], ["news", `Nouvelles${fresh ? ` <span class="fr-badge">${fresh}</span>` : ""}`]];
   let body;
   if (!TR.loaded) body = `<div class="empty-note"><span>On ouvre la boîte…</span></div>`;
-  else if (TR.mailTab === "in") body = inn.length ? inn.map(tradeCard).join("") : `<div class="empty-note"><span>Aucune proposition reçue.<br>Tes amis peuvent t’en faire depuis ton jardin ou vos messages.</span></div>`;
+  else if (TR.mailTab === "in") body = inv.length || inn.length ? inv.map(sgInviteHTML).join("") + inn.map(tradeCard).join("") : `<div class="empty-note"><span>Aucune proposition reçue.<br>Tes amis peuvent t’en faire depuis ton jardin ou vos messages.</span></div>`;
   else if (TR.mailTab === "out") body = `<button class="btn tr-new" data-act="trNew">${TRADE_ICON}Nouvel échange</button>
     ${out.length ? out.map(tradeCard).join("") : `<div class="empty-note"><span>Aucune proposition en attente.</span></div>`}`;
   else body = news.length ? `<div class="mail-news">${news.map(n => `<p class="${!n.read || n.readAt >= mark ? "new" : ""}"><span>${n.html}</span><small>${trAgo(n.at)}</small></p>`).join("")}</div><p class="small muted" style="margin:0;text-align:center">Une fois lues, les nouvelles s’effacent : 24 h pour les arrosages, 7 jours pour les échanges.</p>` : `<div class="empty-note"><span>Pas de nouvelles pour l’instant.</span></div>`;
@@ -267,7 +269,7 @@ const TRADE_ACTS = {
   },
   openMail() {
     tutoFlag("mail_opened");
-    TR.mailTab = trIn().length ? "in" : mailNews().some(n => !n.read) || !trOut().length ? "news" : "out";
+    TR.mailTab = trIn().length || sgInvites().length ? "in" : mailNews().some(n => !n.read) || !trOut().length ? "news" : "out";
     if (TR.mailTab === "news") markNewsRead(); modalView = viewMail; $("#modal").innerHTML = viewMail(); openModal(); loadTrades();
   },
   mailTab(t) { TR.mailTab = t; if (t === "news") markNewsRead(); render(true); },

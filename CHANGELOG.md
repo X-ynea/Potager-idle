@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.32 (version de test, préparation de la v4)
+- Jardin commun en **page entière**, avec le décor de la saison et les mêmes bacs que son jardin (anneaux de pousse et d’eau, étoile, goutte) ; la photo de celui qui a planté est dans le coin du bac.
+- La discussion s’ouvre avec un **bouton de tchat** en bas à droite, sur une demi-page.
+- Le créateur peut **supprimer le jardin** ; retirer un jardinier se fait avec une croix rouge et une fenêtre de confirmation (comme quitter le jardin).
+- Les **invitations** arrivent aussi dans la boîte aux lettres (Reçus), avec ✓ et ✗ pour répondre.
+- Nouvelles dans la boîte aux lettres : un ami a rejoint ton jardin, tu as été retiré, un jardin a été supprimé. Ces nouvelles et les invitations envoient aussi une **notification** sur l’appareil.
+- Textes plus courts sous le jardin et sous les commandes. Serveur : relancer `docs/jardin-commun.sql`.
+
 ### 3.1.31 (version de test, préparation de la v4)
 - Jardin commun : toucher la carte de l’onglet Amis ouvre une fenêtre pour créer le jardin (son nom, et jusqu’à 3 amis à inviter d’un coup). Une fois le jardin créé, la carte y mène directement.
 

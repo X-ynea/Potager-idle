@@ -1800,23 +1800,6 @@ button.sg-card { cursor: pointer; }
 .sg-portal:active img { transform: scale(.92); }
 .sg-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; border-radius: 50%; background: #f4c03e; box-shadow: 0 0 0 2px #fff; }
 .sg-sheet { display: grid; gap: 12px; }
-.sg-garden { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; border-radius: 18px; background: url("../assets/img/jardin/bg-garden.webp") center / cover, #98cb78; }
-.sg-plot { position: relative; aspect-ratio: 1; border: 0; border-radius: 14px; background: #8a5a39; box-shadow: inset 0 0 0 3px #c4904f; display: grid; place-items: center; padding: 4px; color: #fff; font: inherit; cursor: pointer; overflow: hidden; }
-.sg-plot.empty { background: rgba(138,90,57,.75); }
-.sg-plot.sel { box-shadow: inset 0 0 0 3px #fff, 0 0 0 3px var(--leaf); }
-.sg-plus { font-size: 1.8rem; font-weight: 900; line-height: 1; }
-.sg-plot small { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: .68rem; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
-.sg-plot.empty small { position: static; }
-.sg-art { position: absolute; inset: 6% 10% 22%; display: grid; place-items: center; }
-.sg-art svg, .sg-art img { width: 100%; height: 100%; }
-.sg-by { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; box-shadow: 0 0 0 2px #fff; }
-.sg-star, .sg-drop { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; }
-.sg-star img, .sg-drop img { width: 100%; height: 100%; }
-.sg-plot.dry { background: #a8764d; }
-.sg-plot.ripe { box-shadow: inset 0 0 0 3px #f4c03e; }
-.sg-bar { position: absolute; left: 10%; right: 10%; bottom: 20px; height: 5px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
-.sg-bar i { display: block; height: 100%; background: #7cc24a; border-radius: 99px; }
-.sg-plot.ripe .sg-bar { display: none; }
 .sg-pick { display: grid; gap: 8px; padding: 10px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
 .sg-seeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
 .sg-seed { display: grid; justify-items: center; gap: 2px; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 6px 4px; font: inherit; color: var(--ink); cursor: pointer; }
@@ -1833,7 +1816,6 @@ button.sg-card { cursor: pointer; }
 .sg-reward { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 800; }
 .sg-invite { display: grid; gap: 8px; }
 .fr-row.pending { opacity: .7; }
-.sg-confirm { display: grid; gap: 8px; padding: 10px; border-radius: 14px; background: var(--peach-soft); }
 .sg-leave { color: #c9563f; justify-self: center; }
 .garden > .sg-portal { top: -34px; left: 34%; bottom: auto; width: min(17%, 72px); } /* en haut à gauche, comme la boîte aux lettres à droite */
 .sg-done { font-size: .8rem; font-weight: 800; color: #3d7a2a; background: #e3f4d8; border-radius: 99px; padding: 4px 10px; white-space: nowrap; }
@@ -1846,7 +1828,6 @@ button.sg-card { cursor: pointer; }
 .sg-order { grid-template-columns: 1fr; }
 .sg-order > .btn, .sg-order > .sg-done { justify-self: end; }
 /* Jardin commun : petit tchat */
-.sg-chat { display: grid; gap: 6px; padding: 2px; }
 .sg-msg { display: flex; align-items: flex-end; gap: 6px; }
 .sg-msg .fr-av { width: 28px; height: 28px; flex: none; }
 .sg-msg.mine { flex-direction: row-reverse; }
@@ -1870,3 +1851,33 @@ button.sg-card { cursor: pointer; }
 .sg-friend:disabled { opacity: .5; }
 .sg-check { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-weight: 900; color: var(--leaf-ink); }
 .sg-friend.on .sg-check { background: var(--leaf); border-color: var(--leaf); }
+
+/* Jardin commun v2 : page entière, bacs du jardin principal, tchat en demi-page */
+.sg-sheet { position: relative; padding-bottom: 96px; }
+.sg-garden { margin: 0; }
+.sg-garden .plot.sel { outline: 4px solid #fff; outline-offset: -4px; box-shadow: 0 0 0 4px var(--leaf); border-radius: 12%; }
+.sg-garden .plot .sg-by { position: absolute; right: 8%; bottom: 10%; left: auto; top: auto; width: 24%; height: auto; aspect-ratio: 1; z-index: 3; box-shadow: 0 0 0 2px #fff; }
+.sg-end { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.sg-round { width: 40px; height: 40px; border-radius: 50%; border: 0; display: grid; place-items: center; padding: 0; cursor: pointer; flex: none; }
+.sg-round svg { width: 20px; height: 20px; }
+.sg-round.yes { background: #5fae4a; color: #fff; }
+.sg-round.no { background: #fbe3df; color: #c9563f; }
+.sg-round:disabled { opacity: .5; }
+.sg-inv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--sun-soft); flex-wrap: nowrap; }
+.sg-inv .fr-id { flex: 1; min-width: 0; }
+.sg-inv-acts { display: flex; gap: 8px; flex: none; }
+.mail-sheet .sg-inv { margin-bottom: 8px; }
+.sg-chat-fab { position: fixed; right: max(16px, calc((100vw - 760px) / 2 + 16px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 3;
+  width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--leaf); color: var(--leaf-ink); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.22); cursor: pointer; }
+.sg-chat-fab svg { width: 28px; height: 28px; }
+.sg-chat-fab .fr-badge { position: absolute; top: -2px; right: -2px; box-shadow: 0 0 0 2px #fff; }
+.sg-chat-back { position: fixed; inset: 0; z-index: 4; background: rgba(40,25,15,.35); }
+.sg-chat-panel { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; z-index: 5; width: min(100%, 760px); height: 55dvh; display: grid; grid-template-rows: auto 1fr auto auto; gap: 10px;
+  background: var(--panel); border-radius: 22px 22px 0 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(0,0,0,.18); animation: sgUp .22s ease-out; }
+@keyframes sgUp { from { transform: translate(-50%, 30%); opacity: 0; } }
+.sg-chat-head { display: flex; align-items: center; justify-content: space-between; }
+.sg-chat-panel .sg-chat { display: grid; align-content: start; gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
+.sg-pop-back { position: fixed; inset: 0; z-index: 6; display: grid; place-items: center; padding: 20px; background: rgba(40,25,15,.4); }
+.sg-pop { width: min(100%, 360px); background: var(--panel); border-radius: 20px; padding: 18px; display: grid; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.sg-pop p { margin: 0; }
+.sg-pop .row { justify-content: flex-end; gap: 8px; }
