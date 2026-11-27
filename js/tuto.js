@@ -12,7 +12,7 @@ const TUTO = [
   { id: "harvest", basic: true, tab: "garden", hl: ".plot.ripe",
     text: "Bonjour ! Moi, c’est Mamie Lapine, j’habite juste à côté. Regarde, tes radis sont mûrs : touche le bac où brille l’étoile pour les cueillir.",
     done: () => S.stats.harvest > 0 },
-  { id: "plant", basic: true, tab: "garden", hl: ".plot.empty",
+  { id: "plant", basic: true, tab: "garden", hl: ['#modal [data-act="plant"][data-arg="radis_eclair"]', ".plot.empty"],
     enter: () => { S.seeds.radis_eclair = cnt(S.seeds, "radis_eclair") + 1; },
     text: "Joli panier ! Tiens, je te donne une graine de radis éclair : il pousse en un clin d’œil. Touche un bac vide pour la semer.",
     done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair") },
@@ -40,11 +40,11 @@ const TUTO = [
     when: () => S.orders.length > 0,
     text: "Tiens, quelqu’un frappe à ta porte ! Un voisin attend une commande au Village. Les commandes rapportent bien plus que le marché.",
     done: () => tutoF("tab_village") || S.stats.orders > 0 },
-  { id: "order2", tab: "village",
+  { id: "order2", tab: "village", hl: '[data-act="deliver"]:not([disabled])',
     when: () => S.orders.length > 0,
     text: "Chaque voisin demande quelques récoltes ou un plat. Livre-le quand tu as tout, ou laisse passer s’il en demande trop : un autre viendra.",
     done: () => S.stats.orders > 0, ok: "D’accord" },
-  { id: "recipe", tab: ["garden", "market"], hl: '.tab[data-arg="market"]',
+  { id: "recipe", tab: ["garden", "market"], hl: () => tab !== "market" ? '.tab[data-arg="market"]' : msub !== "recipes" ? '[data-act="msub"][data-arg="recipes"]' : '[data-act="buyRecipe"]:not([disabled])',
     when: () => RORDER.some(r => RECIPES[r].lvl <= S.level) && !S.recipes.length,
     text: "Avec tes légumes, on peut cuisiner de bons petits plats ! Achète ta première recette au Marché, rayon Recettes.",
     done: () => S.recipes.length > 0 },
@@ -52,7 +52,7 @@ const TUTO = [
     when: () => S.recipes.length > 0 && !S.stats.cooked,
     text: "Ta recette n’attend plus que toi : file en Cuisine !",
     done: () => tutoF("tab_kitchen") || S.stats.cooked > 0 },
-  { id: "cook2", tab: "kitchen",
+  { id: "cook2", tab: "kitchen", hl: '[data-act="cook"]:not([disabled])',
     when: () => S.recipes.length > 0 && !S.stats.cooked,
     text: "Choisis ta recette, vérifie que tu as les ingrédients, et lance la cuisson. Un plat se vend bien plus cher que les légumes qui le composent.",
     done: () => S.stats.cooked > 0, ok: "Allons-y" },
@@ -60,7 +60,7 @@ const TUTO = [
     when: () => S.level >= 3,
     text: "La Serre est ouverte ! On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
     done: () => tutoF("tab_lab") || (S.discovered || []).length > 0 },
-  { id: "lab2", tab: "lab",
+  { id: "lab2", tab: "lab", hl: ['[data-act="labStart"]:not([disabled])', '[data-act="labPick"]'],
     when: () => S.level >= 3 && !(S.discovered || []).length,
     text: "Choisis deux récoltes et laisse-les mûrir ensemble. Certains mélanges donnent une variété hybride : ton herbier se remplira petit à petit.",
     done: () => (S.discovered || []).length > 0, ok: "J’essaie" },
@@ -148,7 +148,9 @@ function tutoUpdate() {
     if (show) SFX.play("click");
   }
   // Petite lueur sur l'élément concerné (réappliquée : les bacs sont redessinés).
-  const hl = show && t.hl ? document.querySelector(t.hl) : null;
+  // hl : un sélecteur, une liste (le premier présent à l'écran) ou une fonction (selon l'onglet en cours).
+  const sels = show && t.hl ? [].concat(typeof t.hl === "function" ? t.hl() : t.hl) : [];
+  let hl = null; for (const q of sels) { hl = document.querySelector(q); if (hl) break; }
   document.querySelectorAll(".tuto-hl").forEach(el => { if (el !== hl) el.classList.remove("tuto-hl"); });
   if (hl) hl.classList.add("tuto-hl");
 }

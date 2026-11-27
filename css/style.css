@@ -1602,3 +1602,5 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 @keyframes tuto-hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .tab.tuto-hl, .tab.tuto-hl svg, .tab.tuto-hl img { animation: none; } }
 :root[data-theme="dark"] .tab.tuto-hl { background: #4a3a12; color: #ffd76a; }
+/* Tutoriel : boutons et sous-onglets à toucher, contour doré fixe en plus du halo */
+.tuto-hl:not(.plot):not(.tab) { outline: 3px solid #f4c03e; outline-offset: 2px; }
