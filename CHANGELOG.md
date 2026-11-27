@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.40
+- Les 4 décorations des grands paliers sont arrivées : Cadran solaire (niveau 35), Petite serre (40), Cabane à outils (45) et Citrouille dorée (50).
+- Conseil de Mamie Lapine sur la boîte aux lettres : une lueur dorée qui suit la forme de la boîte, au lieu d’un cadre carré.
+
 ### 3.0.39
 - Le compte Discord (synchroniser, se déconnecter) passe des Paramètres au Profil, section « Compte ». La suppression du compte reste dans la zone sensible des Paramètres.
 

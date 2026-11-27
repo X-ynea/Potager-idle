@@ -105,7 +105,7 @@ const DECOS = {
   sundial: "Cadran solaire", glasshouse: "Petite serre", toolshed: "Cabane à outils", pumpkin: "Citrouille dorée", // grands paliers 35 à 50
 };
 // Décos dont l'image n'est pas encore prête : cachées partout (elles apparaissent dès qu'on les retire d'ici).
-const DECO_PENDING = new Set(["sundial", "glasshouse", "toolshed", "pumpkin"]);
+const DECO_PENDING = new Set([]);
 // Décos des objectifs de la semaine (là où les amis sont ouverts) : une par saison, entre amis (f_) et de tous (g_).
 if (FRIENDS_ON) Object.assign(DECOS, { f_printemps: "Arche fleurie", f_ete: "Table de pique-nique", f_automne: "Hérisson et feuilles", f_hiver: "Bonhomme de neige",
   g_printemps: "Fontaine fleurie", g_ete: "Moulin à vent", g_automne: "Montgolfière", g_hiver: "Sapin illuminé" });
