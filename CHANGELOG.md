@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.44
+- Recommencer à zéro garde la part aux objectifs de la semaine, mais leurs récompenses peuvent être récupérées à nouveau par la nouvelle partie.
+- Correction : en 3.0.43, « Recommencer à zéro » ne remettait plus la partie à zéro.
+
 ### 3.0.43
 - Recommencer à zéro garde la participation aux objectifs de la semaine (ta part et les paliers déjà récupérés).
 - Une partie déjà recommencée cette semaine retrouve sa part depuis le serveur : chaque nouvelle livraison, récolte ou visiteur recompte tout de suite (avant, il fallait d’abord rattraper l’ancienne part).
