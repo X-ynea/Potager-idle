@@ -56,7 +56,8 @@ begin
     from circle c left join profiles p on p.user_id = c.uid left join week_progress w on w.user_id = c.uid and w.week = p_week;
   select coalesce(sum(least(g, cap_g)), 0), count(*) filter (where g > 0) into gtotal, pnow from week_progress where week = p_week and is_test = t;
   select count(*) into plast from week_progress where week = p_week - 7 and g > 0 and is_test = t;
-  return jsonb_build_object('members', members, 'ftotal', ftotal, 'gtotal', gtotal, 'players_last', plast, 'players_now', pnow);
+  return jsonb_build_object('members', members, 'ftotal', ftotal, 'gtotal', gtotal, 'players_last', plast, 'players_now', pnow,
+    'my_g', (select coalesce(g, 0) from week_progress where user_id = me and week = p_week)); -- ma part (partie recommencée : on la retrouve)
 end $$;
 
 revoke all on function public.report_progress(date, int, int), public.week_goals(date, int, int) from public, anon;

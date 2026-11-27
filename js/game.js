@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.42" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.43" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -707,7 +707,7 @@ const A = {
     if (!d || !i || norm(i.value) !== d.word) return;
     UI.danger = null; buzz([20, 60, 20]);
     if (k === "reset") {
-      const keep = { settings: S.settings, profile: S.profile, resetAt: Date.now() }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
+      const keep = { settings: S.settings, profile: S.profile, resetAt: Date.now(), weekly: S.weekly }; // objectifs de la semaine gardés : pas de nouvelle part ni de récompenses en recommençant S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
       closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
       if (typeof CLOUD !== "undefined" && CLOUD.signedIn) { try { await CLOUD.push(); } catch (e) {} } // la sauvegarde en ligne suit tout de suite
     } else {
@@ -855,7 +855,7 @@ const norm = v => v.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036
 const DANGER = {
   reset: { title: "Recommencer à zéro", word: "RECOMMENCER", btn: "Tout recommencer",
     lost: () => ["Ton niveau, ton XP et tes pièces", "Tes bacs, graines, récoltes et plats", "Tes hybrides, recettes, décorations et améliorations", "Tes succès et tes titres"],
-    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? [FRIENDS_ON ? "Ton compte Discord, tes amis et tes messages" : "Ton compte Discord"] : [])],
+    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof goalsOn === "function" && goalsOn() ? ["Ta participation aux objectifs de la semaine"] : []), ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? [FRIENDS_ON ? "Ton compte Discord, tes amis et tes messages" : "Ton compte Discord"] : [])],
     note: "Ta sauvegarde en ligne est remplacée par la nouvelle partie." },
   account: { title: "Supprimer mon compte", word: "SUPPRIMER", btn: "Supprimer mon compte",
     lost: () => FRIENDS_ON ? ["Ta sauvegarde en ligne", "Ton profil visible par tes amis et ton code ami", "Tes amis, tes demandes et tes messages", "Les joueurs que tu as bloqués"] : ["Ta sauvegarde en ligne", "Ton lien avec ton compte Discord"],

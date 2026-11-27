@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.43
+- Recommencer à zéro garde la participation aux objectifs de la semaine (ta part et les paliers déjà récupérés).
+- Une partie déjà recommencée cette semaine retrouve sa part depuis le serveur : chaque nouvelle livraison, récolte ou visiteur recompte tout de suite (avant, il fallait d’abord rattraper l’ancienne part).
+
 ### 3.0.42
 - Fenêtre de niveau : le bandeau « À acheter au Marché › Bonus » a plus d’air, et le prix passe à la ligne en entier (plus de point tout seul).
 
