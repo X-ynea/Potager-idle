@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.32
+- Boutons avec un prix (Acheter, ×5, Vendre, Apprendre…) : le « · » ne passe plus tout seul à la ligne.
+
 ### 3.0.31
 - Conseils de Mamie Lapine : l’onglet à toucher (Marché, Village, Cuisine, Serre) est bien plus visible, avec un fond doré, un contour, un halo qui pulse et son icône qui sautille.
 
