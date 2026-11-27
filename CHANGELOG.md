@@ -122,6 +122,12 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.62 (version de test, préparation de la v4)
+
+- Images définitives de Margot la Cane et Firmin le Renard (ils deviennent aussi des avatars possibles).
+- Images définitives des décos Petite barque, Panier de cueillette, Hôtel à insectes et Banc de l'amitié.
+- Images définitives des recettes Tian cerise, Quiche soleil et Flan au pois sucré.
+
 ### 3.1.61 (version de test, préparation de la v4)
 
 - Memory des graines : les cartes montrent le sachet de graines de la plante.
