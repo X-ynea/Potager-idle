@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.29" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.30" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -699,7 +699,7 @@ const A = {
     if (!d || !i || norm(i.value) !== d.word) return;
     UI.danger = null; buzz([20, 60, 20]);
     if (k === "reset") {
-      const keep = { settings: S.settings, profile: S.profile }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
+      const keep = { settings: S.settings, profile: S.profile, resetAt: Date.now() }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
       closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
       if (typeof CLOUD !== "undefined" && CLOUD.signedIn) { try { await CLOUD.push(); } catch (e) {} } // la sauvegarde en ligne suit tout de suite
     } else {
