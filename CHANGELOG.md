@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.59 (version de test, préparation de la v4)
+
+- Balade en forêt : nouveaux arbres et nouveaux chemins de saison, qui se répètent sans raccord visible.
+
 ### 3.1.58 (version de test, préparation de la v4)
 
 - Pêche : nouveau dessin du bouchon.
