@@ -1971,3 +1971,5 @@ button.sg-card { cursor: pointer; }
 .butterfly.stay .bf { animation: tuto-hover 2.2s ease-in-out infinite; }
 @keyframes tuto-hover { 50% { transform: translate(10px, -8px); } }
 .sub-dot { display: inline-block; width: 8px; height: 8px; margin-left: 5px; vertical-align: super; border-radius: 50%; background: #e2483d; box-shadow: 0 0 0 2px var(--panel); }
+.news3-ico img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+.news3-ico svg { width: 60%; height: 60%; }

@@ -1,5 +1,78 @@
 # Notes de version
 
+## Version 4 : « Partons en balade »
+
+*Novembre 2026 · version 4.0.0*
+
+Le potager s'agrandit : de petits jeux pour se promener, des trouvailles qu'on ne peut pas cultiver, de nouvelles recettes, deux nouveaux voisins et un jardin à cultiver avec ses amis.
+
+### Un onglet Balades
+
+- **Un nouvel onglet « Balades »**, avec son panneau en bois. Il apparaît au niveau 4.
+- **Cinq petits jeux de 30 secondes**, qui s'ouvrent au fil des niveaux :
+  - **La ruche** (niveau 4) : touche les fleurs dès qu'elles s'ouvrent pour que l'abeille vienne butiner, et gare à la fleur dorée ;
+  - **Pêche à l'étang** (niveau 5) : lance ta ligne, attends que le bouchon plonge et ferre au bon moment ;
+  - **Balade en forêt** (niveau 6) : suis le sentier et touche les buissons qui frémissent ;
+  - **Memory des graines** (niveau 7) : retrouve les paires de sachets de graines ;
+  - **Cueillette express** (niveau 8) : attrape les légumes qui tombent dans ton panier, pas les cailloux.
+- **Trois parties par jeu et par jour.** Le jour change à minuit, heure de Paris.
+- **Les décors suivent la saison** : l'étang, le ciel, la forêt, le chemin et les buissons changent avec elle.
+- **Un tableau entre amis** : ton meilleur score de la semaine à chaque jeu, à côté de celui de tes amis, avec une petite couronne pour le premier. Il repart à zéro le lundi.
+
+### Des trouvailles de balade
+
+- **8 trouvailles qu'on ne peut pas cultiver** : algues, cresson et menthe d'eau à la pêche ; ail des ours, mûres, châtaignes et noisettes en forêt (la trouvaille de la saison est la plus fréquente) ; miel à la ruche.
+- Elles vont dans l'inventaire, **se vendent au marché et s'échangent avec tes amis**.
+
+### 12 nouvelles recettes
+
+- **9 recettes de balade** : tartine au miel, soupe de cresson, thé à la menthe, salade de la mer, pesto d'ail des ours, confiture de mûres, velouté de châtaignes, gâteau aux noisettes et le **grand pique-nique**, qui réunit toutes les trouvailles.
+- **3 recettes pour les nouveaux hybrides** : tian cerise, quiche soleil et flan au pois sucré.
+
+### Deux nouveaux voisins
+
+- **Margot la Cane**, qui arrive de l'étang, et **Firmin le Renard**, qui sort de la forêt. Ils raffolent des plats de balade, et on peut les choisir comme photo de profil.
+
+### Trois nouveaux hybrides
+
+- **Courgette cerise**, **Poireau soleil** et **Pois sucré** se cachent dans la Serre. Leurs indices sont dans l'herbier.
+
+### Le jardin commun
+
+- **Un petit jardin à cultiver avec 3 amis au plus**, à partir du niveau 5. On le crée depuis l'onglet Amis, et les invitations arrivent dans la boîte aux lettres.
+- **6 bacs** au décor de la saison, avec la photo de celui qui a planté. Les graines y sont **gratuites** (8 par jour et par jardinier), mais seulement celles que tout le monde a déjà découvertes.
+- **Un panier commun** pour les récoltes, qui ne sert qu'aux commandes du jardin.
+- **Deux commandes partagées par jour**, faisables par tous, avec un **bonus** si l'on ajoute une plante du jardinier le plus avancé. Chacun reçoit sa part de la récompense s'il a planté au moins 3 graines depuis la commande précédente.
+- **Une petite discussion** avec des messages tout prêts pour encourager son équipe.
+- **Un portail** au-dessus de ton jardin pour y aller en un toucher.
+
+### Nouvelles décos et nouveaux succès
+
+- **4 décos** : la **Petite barque**, le **Panier de cueillette**, l'**Hôtel à insectes** et le **Banc de l'amitié** (10 commandes livrées ensemble au jardin commun).
+- **4 succès** : « Bon pêcheur », « Promeneur », « Butineur » et « Grand promeneur », avec le titre « Promeneur du dimanche ».
+
+### L'Atelier
+
+- **La Cuisine et la Serre sont réunies** dans un seul onglet, l'Atelier, avec un bouton pour chacune en haut de la page. L'onglet du bas montre les deux jauges l'une au-dessus de l'autre.
+
+### Mamie Lapine fait visiter
+
+- **Un tutoriel pas à pas** : Mamie Lapine prépare la situation (une graine, un visiteur, une commande…) et montre ce qu'il faut toucher, sans rien bloquer. Tu peux aller ailleurs et revenir à l'étape quand tu veux.
+- **Elle présente tout au bon moment** : les premiers pas, la cuisine, les amis, la Serre, puis les Balades et le jardin commun, avec une vraie partie à jouer. Ensuite, elle donne rendez-vous au niveau de la prochaine surprise.
+- **Ce qui n'est pas encore ouvert n'apparaît pas** : la Serre au niveau 3, les Balades au niveau 4, le jardin commun au niveau 5.
+- Dans les Paramètres, on peut **passer** le tutoriel ou le **revoir** depuis le début.
+
+### Et aussi
+
+- **Une pastille rouge sur « Bonus »**, au Marché, quand une amélioration est débloquée et qu'on a de quoi l'acheter.
+- **Le radis éclair** de Mamie Lapine pousse en quelques secondes une fois arrosé.
+- **Après « Recommencer à zéro »**, les anciennes nouvelles ne reviennent plus comme neuves.
+- **Pendant les premiers pas**, les cœurs de tes amis et les pastilles de la boîte aux lettres attendent la fin du tutoriel.
+
+### En chiffres
+
+**35 plantes** (dont 8 de saison et 15 hybrides) · **8 trouvailles de balade** · **45 recettes** · **14 voisins** · **28 décorations** · **50 succès** · **5 jeux**
+
 ## Version 3 : « Entre amis »
 
 *25 novembre 2026 · version 3.0.0*
@@ -121,6 +194,10 @@ Ils ne passent qu'à leur saison, et raffolent des plantes du moment :
 Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
+
+### 3.1.76 (version de test, préparation de la v4)
+
+- Fenêtre « Du nouveau au potager ! » de la v4, et résumé de la v4 en tête des notes de version.
 
 ### 3.1.75 (version de test)
 
