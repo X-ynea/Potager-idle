@@ -270,7 +270,7 @@ const SG_ACTS = {
   },
   sgFold() { SG.fold = !SG.fold; SG.say = false; SG.chatAnim = false; render(true); const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgSayPlant() { if (sgWait()) return; SG.say = !SG.say; SG.chatAnim = false; render(true); },
-  sgOpen() { if (!sgOn()) return; SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
+  sgOpen() { if (!sgOn()) return; if (typeof tutoFlag === "function") tutoFlag("sg_opened"); SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {
     i = +i; const p = sgG()?.plots[i], s = sgPlot(p);
     if (s.st === "empty") { SG.pick = SG.pick === i ? null : i; render(true); return; }
