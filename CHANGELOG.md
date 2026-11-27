@@ -122,6 +122,13 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.67 (version de test) · Nouveau tutoriel
+- Mamie Lapine guide les débuts pas à pas, comme un petit scénario : le jeu prépare chaque situation (radis mûr, graine de radis éclair, petit visiteur, commande d’un voisin, graines au Marché…), le reste de l’écran est assombri et seul l’élément à toucher répond.
+- Premiers pas : cueillir, semer le radis éclair, l’arroser, le cueillir, attraper un visiteur volant, livrer une commande, acheter et semer de la laitue, les objectifs du jour, les saisons.
+- Niveau 2 : la cuisine (apprendre la salade, la cuisiner à l’Atelier, légumes offerts). Niveau 3 : la Serre (premier croisement, à l’Atelier). Puis les amis (code ami, ajouter un ami).
+- Le tutoriel se passe seulement depuis les Paramètres (« Passer », à côté de « Revoir »).
+- Pas de récolte dorée ni d’embêtement pendant les scénarios. Nouveau conseil sur les visiteurs volants.
+
 ### 3.1.66 (version de test)
 - Reprend les nouveautés de la version des joueurs (3.0.26 à 3.0.44) : au-delà du niveau 30, panier du jardinier à chaque niveau, étoile dorée, grands paliers 35 à 50 avec titres, bonus doré et les 4 décos (cadran solaire, petite serre, cabane à outils, citrouille dorée) ; succès Herbier complet en paliers ; objectifs du jour sans plante hors saison ; tutoriel pas à pas ; compte gardé dans le Profil ; recommencer à zéro qui garde la part de la semaine ; corrections diverses.
 
