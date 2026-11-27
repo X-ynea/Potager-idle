@@ -101,8 +101,41 @@ const FLOWS = {
       hl: () => tutoTab("friends", FR.tab !== "add" ? '[data-act="frTab"][data-arg="add"]' : [".fr-search", '[data-act="frAdd"]']),
       done: () => tutoF("friend_request") || tutoFriendCount() > 0, ok: "Plus tard" },
   ] },
+  // v4 : les Balades (niveau 4) — on joue une vraie partie.
+  balades: { when: () => S.level >= BALADES_LVL, steps: [
+    { text: "Et si on allait se promener ? Touche le panneau en bois, en bas : ce sont les Balades, de petits jeux pour pêcher, fouiller les buissons ou aider les abeilles.",
+      hl: () => tutoTab("balades", []), done: () => tab === "balades" },
+    { text: () => `Commençons par ${GAMES[tutoGame()]?.name.toLowerCase() || "un jeu"} ! Touche « Jouer » : je t’explique les règles, et c’est parti.`,
+      enter: () => { delete tutoState().f.game_end; },
+      hl: () => tutoTab("balades", `[data-act="gamePlay"][data-arg="${tutoGame()}"]`),
+      done: () => !!document.getElementById("game") || tutoF("game_end") || !tutoGame() },
+    { text: "Amuse-toi bien !", // caché pendant la partie (le jeu est au-dessus) ; passe dès qu'on revient
+      done: () => !document.getElementById("game") },
+    { text: () => (tutoF("game_end") ? "Bravo, jolie balade ! " : "") + "Les balades rapportent des trouvailles qu’on ne peut pas cultiver : algues, cresson, mûres, châtaignes, miel… Elles rejoignent ton inventaire, et tu peux les vendre ou les échanger avec tes amis.",
+      ok: "Super" },
+    { text: "Avec tes trouvailles, de nouvelles recettes t’attendent au Marché, rayon Recettes. Et deux nouveaux voisins, Margot la Cane et Firmin le Renard, passeront t’en commander !",
+      ok: "Miam" },
+    { text: "Chaque jeu se joue trois fois par jour : les petits ronds montrent les parties qui restent. D’autres jeux s’ouvrent quand tu montes de niveau. Et la coupe affiche ton meilleur score de la semaine, à côté de celui de tes amis.",
+      hl: () => tutoTab("balades", ".game-list > .game-card:first-child .g-foot"), ok: "J’y retourne" },
+  ] },
+  // v4 : le jardin commun (connecté, avec au moins un ami).
+  shared: { when: () => tutoFriends() && FR.loaded && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data, steps: [
+    { text: "Nouveau : le jardin commun ! Un petit potager à cultiver avec trois amis au plus. Va voir dans l’onglet Amis.",
+      hl: () => tutoTab("friends", []), done: () => tab === "friends" },
+    { text: () => sgG() ? "Te voilà membre d’un jardin commun : touche sa carte pour y entrer." : "Touche la carte « Jardin commun » pour le créer. Si un ami t’a déjà invité, tu peux aussi accepter son invitation juste en dessous.",
+      hl: () => tutoTab("friends", sgG() ? ".sg-card.open" : [".sg-card.open", ".sg-inv"]),
+      done: () => !$("#modal").hidden && (modalView === viewSG || modalView === viewSGNew) },
+    { text: "Donne un nom à votre jardin et choisis jusqu’à trois amis à inviter : ils recevront ton invitation dans leur boîte aux lettres. Tu peux aussi le faire plus tard.",
+      done: () => !!sgG() || modalView === viewSG, ok: "Plus tard" },
+    { text: "Ici, tout le monde plante, arrose et récolte. Les graines sont gratuites (huit par jour chacun), et les récoltes vont dans le panier commun. Chaque jour, livrez ensemble deux commandes : si tu as planté au moins trois graines depuis la précédente, tu reçois ta part de la récompense.",
+      done: () => !sgG(), ok: "Compris" },
+    { text: "La bulle en bas de l’écran ouvre la petite discussion : des messages tout prêts pour encourager ton équipe. Et de retour chez toi, le petit portail au-dessus de ton jardin te ramène ici en un toucher.",
+      hl: ".sg-chat-fab", done: () => !sgG(), ok: "À bientôt" },
+  ] },
 };
-const FLOW_ORDER = ["start", "cook", "lab", "friends"];
+const FLOW_ORDER = ["start", "cook", "lab", "friends", "balades", "shared"];
+// Balades : le premier jeu ouvert qui a encore des parties aujourd'hui.
+const tutoGame = () => typeof GORDER === "undefined" ? null : GORDER.find(id => !GAMES[id].soon && !gameLocked(id) && playsLeft(id) > 0) || null;
 
 // Conseils ponctuels (bulle, rien n'est bloqué).
 const TUTO = [
@@ -146,26 +179,6 @@ const TUTO = [
     when: () => tutoFriends() && mailCount() > 0,
     text: "Tu as du courrier ! Touche la boîte aux lettres du jardin : tu y trouveras les échanges proposés par tes amis et les dernières nouvelles.",
     done: () => tutoF("mail_opened") },
-  { id: "balades", tab: ["garden", "market", "kitchen", "lab", "village", "friends"], hl: '.tab[data-arg="balades"]',
-    when: () => S.level >= BALADES_LVL,
-    text: "Et si on allait se promener ? Touche le panneau en bois, en bas : ce sont les Balades, de petits jeux pour pêcher, fouiller les buissons ou aider les abeilles.",
-    done: () => tutoF("tab_balades") || (S.stats.gamesSet || []).length > 0 },
-  { id: "balades2", tab: "balades",
-    when: () => S.level >= BALADES_LVL && !(S.stats.gamesSet || []).length,
-    text: "Chaque jeu se joue trois fois par jour, et d’autres s’ouvrent quand tu montes de niveau. Tu y trouveras des trouvailles qu’on ne peut pas cultiver : algues, mûres, miel… Ton meilleur score de la semaine s’affiche à côté de celui de tes amis.",
-    done: () => (S.stats.gamesSet || []).length > 0, ok: "J’y vais" },
-  { id: "wild", tab: ["balades", "garden", "market"],
-    when: () => Object.keys(WILD).some(k => cnt(S.wild, k) > 0),
-    text: "Quelle belle trouvaille ! Avec ce que tu rapportes de balade, de nouvelles recettes t’attendent au Marché. Et deux nouveaux voisins, Margot la Cane et Firmin le Renard, passeront sûrement t’en commander.",
-    ok: "Miam" },
-  { id: "sg", free: true, tab: "friends", hl: ".sg-card",
-    when: () => tutoFriends() && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data && !sgG(),
-    text: "Nouveau : le jardin commun ! Crée-le ici et invite jusqu’à trois amis. Les graines y sont gratuites, et vous livrez ensemble deux commandes par jour. Plante au moins trois graines pour recevoir ta part de la récompense.",
-    done: () => typeof sgG === "function" && !!sgG(), ok: "Bonne idée" },
-  { id: "sg2", free: true, tab: "garden", hl: ".sg-portal",
-    when: () => tutoFriends() && typeof sgG === "function" && !!sgG() && !!document.querySelector(".sg-portal"),
-    text: "Tu vois le petit portail au-dessus de ton jardin ? Il mène tout droit à votre jardin commun. Là-bas, la bulle en bas de l’écran te permet de dire un mot à ton équipe.",
-    done: () => tutoF("sg_opened"), ok: "Compris" },
 ];
 // Conseils des amis : seulement là où les amis sont ouverts, une fois connecté.
 const tutoFriends = () => typeof FRIENDS_ON !== "undefined" && FRIENDS_ON && CLOUD.signedIn && !CLOUD.blocked;
@@ -183,6 +196,9 @@ function tutoState() {
     if ((S.discovered || []).length || S.hybrids.length || seen.lab || seen.lab2) T.flows.lab = true;
     if (seen.friends || seen.friends2 || seen.addfriend) T.flows.friends = true;
   }
+  // Joueurs de test qui ont déjà vu les conseils v4 en bulle : pas de scénario en double.
+  if (T.flows.balades === undefined && T.seen?.balades2) T.flows.balades = true;
+  if (T.flows.shared === undefined && T.seen?.sg2) T.flows.shared = true;
   return T;
 }
 const tutoF = k => !!tutoState().f[k];
@@ -214,6 +230,7 @@ function flowStep() {
 function tutoTargets(st) {
   const sels = st && st.hl ? [].concat(typeof st.hl === "function" ? st.hl() : st.hl).filter(Boolean) : [];
   let els = sels.flatMap(q => [...document.querySelectorAll(q)]);
+  if (document.getElementById("game")) return { els: [], free: true }; // une partie des Balades : le jeu reste jouable
   const modalOpen = !$("#modal").hidden;
   if (modalOpen) { const inM = els.filter(e => e.closest("#modal")); return { els: inM, free: !inM.length }; }
   return { els, free: false };
@@ -255,6 +272,8 @@ function tutoUpdate() {
 function tutoDim() {
   let d = document.getElementById("tuto-dim");
   const { st, els, free } = TUTO_NOW;
+  // Fenêtre ouverte et utilisable : la bulle se met en haut, au-dessus de la fenêtre (qui monte du bas).
+  if (st && free) document.getElementById("tuto")?.classList.remove("at-bottom");
   if (!st || free) { if (d) d.hidden = true; return; }
   if (!d) { d = document.createElement("div"); d.id = "tuto-dim"; d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); }
   const W = innerWidth, H = innerHeight, box = document.getElementById("tuto");
@@ -276,7 +295,7 @@ function tutoGuard(ev) {
   const el = ev.target;
   if (!el.closest) return;
   if (el.closest("#tuto, .goldpop, .top [data-act=\"openSettings\"]")) return;
-  if (TUTO_NOW.free && el.closest("#modal")) return;
+  if (TUTO_NOW.free && el.closest("#modal, #game")) return;
   if (TUTO_NOW.els.some(e => e.contains(el))) return;
   ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
   const b = document.querySelector("#tuto .tuto-bubble"); if (b) { b.classList.remove("nudge"); void b.offsetWidth; b.classList.add("nudge"); }

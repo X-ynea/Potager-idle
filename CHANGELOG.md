@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.68 (version de test, préparation de la v4)
+
+- Tutoriel : deux nouveaux scénarios guidés de Mamie Lapine.
+  - **Balades** (niveau 4) : on ouvre l'onglet, on joue une vraie partie, puis Mamie explique les trouvailles, les nouvelles recettes, Margot et Firmin, les parties du jour et le tableau des amis.
+  - **Jardin commun** (connecté, avec au moins un ami) : la carte dans l'onglet Amis, la création et les invitations, le fonctionnement des bacs et des commandes, la discussion et le portail.
+- Les anciens conseils en bulle des Balades et du jardin commun sont remplacés par ces scénarios.
+- Pendant un scénario, une partie des Balades reste jouable, et la bulle se place en haut quand une fenêtre est ouverte, pour ne pas en cacher les boutons.
+
 ### 3.1.67 (version de test) · Nouveau tutoriel
 - Mamie Lapine guide les débuts pas à pas, comme un petit scénario : le jeu prépare chaque situation (radis mûr, graine de radis éclair, petit visiteur, commande d’un voisin, graines au Marché…), le reste de l’écran est assombri et seul l’élément à toucher répond.
 - Premiers pas : cueillir, semer le radis éclair, l’arroser, le cueillir, attraper un visiteur volant, livrer une commande, acheter et semer de la laitue, les objectifs du jour, les saisons.

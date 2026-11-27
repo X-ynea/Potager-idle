@@ -117,6 +117,7 @@ function gameEnd() {
   for (const k in r.wild || {}) S.wild[k] = cnt(S.wild, k) + r.wild[k];
   if (r.coins) S.coins += r.coins;
   if (r.xp) addXp(r.xp);
+  if (typeof tutoFlag === "function") tutoFlag("game_end");
   save();
   const items = [...Object.entries(r.wild || {}).map(([k, n]) => `<span class="g-rew">${wildArt(k)}<b>${n} × ${WILD[k].name}</b></span>`),
     r.coins ? `<span class="g-rew">${coin}<b>${fmt(r.coins)} pièces</b></span>` : "", r.extra || "", r.xp ? `<span class="g-rew"><span class="g-xp">XP</span><b>+${r.xp} XP</b></span>` : ""].filter(Boolean);
