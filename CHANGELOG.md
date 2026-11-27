@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.38
+- Mamie Lapine explique comment ajouter un ami : l’onglet « Ajouter », puis le champ pour taper un code ami ou un pseudo, puis le bouton « Ajouter » à côté du joueur trouvé sont mis en avant tour à tour.
+
 ### 3.0.37
 - Mamie Lapine présente aussi les objectifs du jour et les saisons (aux nouveaux joueurs, juste après les premiers pas), et le cœur « J’aime ton jardin » pendant les visites (à tous, après une première visite).
 

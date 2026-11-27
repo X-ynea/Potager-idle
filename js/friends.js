@@ -163,7 +163,7 @@ const FRIENDS_ACTS = {
   async frCopy() { try { await navigator.clipboard.writeText(FR.code); toast(`Code ${FR.code} copié !`); } catch (e) { toast(`Ton code : ${FR.code}`); } },
   frShare() { navigator.share?.({ title: "Potager idle", text: `Ajoute-moi en ami sur Potager idle ! Mon code : ${FR.code}`, url: location.origin + location.pathname }).catch(() => {}); },
   async frAdd(id) {
-    try { const r = await CLOUD.rpc("send_friend_request", { target: id }); toast(r === "acceptee" ? "Vous êtes maintenant amis !" : r === "deja_amis" ? "Vous êtes déjà amis." : "Demande envoyée !"); SFX.play("success"); }
+    try { const r = await CLOUD.rpc("send_friend_request", { target: id }); tutoFlag("friend_request"); toast(r === "acceptee" ? "Vous êtes maintenant amis !" : r === "deja_amis" ? "Vous êtes déjà amis." : "Demande envoyée !"); SFX.play("success"); }
     catch (e) { toast(/trop/.test(e.message) ? "Trop de demandes en attente." : "Demande impossible pour le moment."); }
     loadFriends(true);
   },
