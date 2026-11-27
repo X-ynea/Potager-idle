@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.31
+- Conseils de Mamie Lapine : l’onglet à toucher (Marché, Village, Cuisine, Serre) est bien plus visible, avec un fond doré, un contour, un halo qui pulse et son icône qui sautille.
+
 ### 3.0.30
 - Recommencer à zéro : si la nouvelle partie n’avait pas encore pu être envoyée en ligne (réseau coupé), la synchronisation suivante pouvait ramener l’ancienne partie. Ce n’est plus possible.
 
