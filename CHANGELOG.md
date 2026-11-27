@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.73 (version de test)
+
+- Le radis éclair du tutoriel pousse en 3 secondes une fois arrosé (au lieu de 25).
+
 ### 3.1.72 (version de test)
 
 - Plutôt que des onglets grisés, ce qui n'est pas encore ouvert n'apparaît pas : la Serre (dans l'Atelier) au niveau 3, l'onglet Balades au niveau 4, la carte du jardin commun (onglet Amis) au niveau 5. La Cuisine et les Amis sont là dès le début.

@@ -3,7 +3,7 @@
 /* ---------------- Data ---------------- */
 const PLANTS = {
   // Graine offerte par Mamie Lapine pendant le tutoriel : pousse en quelques secondes, donne un radis.
-  radis_eclair: { name: "Radis éclair", desc: "Une graine de Mamie Lapine, qui pousse en un clin d’œil.", lvl: 1, cost: 0, time: 25, sell: 5, xp: 2, shape: "bulb", color: "#ec5b82", tuto: true, img: "radis" },
+  radis_eclair: { name: "Radis éclair", desc: "Une graine de Mamie Lapine, qui pousse en un clin d’œil.", lvl: 1, cost: 0, time: 3, sell: 5, xp: 2, shape: "bulb", color: "#ec5b82", tuto: true, img: "radis" },
   radis:    { name: "Radis", desc: "Croquant et un brin piquant. Le premier légume de tout bon potager.", lvl: 1, season: "printemps", cost: 2, time: 180, sell: 5, xp: 2, shape: "bulb", color: "#ec5b82" },
   laitue:   { name: "Laitue", desc: "Tendre et fraîche, elle pousse sans se faire prier.", lvl: 1, season: "printemps", cost: 3, time: 360, sell: 9, xp: 3, shape: "leafy", color: "#a6dc78" },
   patate:   { name: "Pomme de terre", desc: "Elle pousse cachée sous terre et se prête à toutes les recettes.", lvl: 2, season: "automne", cost: 4, time: 480, sell: 11, xp: 3, shape: "bulb", color: "#c9a26b" },
