@@ -34,6 +34,14 @@ const TUTO = [
     text: "Voilà le marché ! Les graines sont ici, et tu peux vendre tes récoltes. Mais garde toujours quelques légumes de côté : les voisins passent souvent commander.",
     ok: "Merci, Mamie" },
   // Selon la situation
+  { id: "quests", tab: "garden", hl: ".quests:not(.weekly)",
+    when: () => S.level <= 5 && !!document.querySelector(".quests:not(.weekly)"), // nouveaux joueurs
+    text: "Regarde sous ton jardin : chaque jour, trois petits objectifs t’attendent. Fais-les pour gagner des pièces et de l’XP, et un bonus si tu les finis tous les trois. Il y en a de nouveaux chaque matin !",
+    ok: "Compris" },
+  { id: "seasons", tab: "garden", hl: ".season-bar",
+    when: () => S.level <= 5 && S.stats.harvest > 2, // nouveaux joueurs
+    text: () => `Le potager vit au rythme des saisons : une par semaine, et en ce moment c’est ${SEASONS[season()].name.toLowerCase()}. Les plantes de saison poussent 25 % plus vite, certaines ne se vendent qu’à leur saison, et les petits visiteurs changent aussi. Touche le bandeau pour tout savoir !`,
+    done: () => tutoF("season_opened"), ok: "Joli !" },
   { id: "snail", tab: "garden", hl: ".plot.weed",
     when: () => S.plots.some(p => p.weed),
     text: () => PEST().tip,
@@ -83,6 +91,10 @@ const TUTO = [
     when: () => tutoFriends() && tutoFriendCount() > 0,
     text: "Touche la petite pousse pour visiter le jardin de ton ami. Une fois par jour, tu peux l’arroser : ses plantes poussent 20 % plus vite pendant 2 h, et toi tu gagnes un peu d’XP.",
     done: () => tutoF("visited") },
+  { id: "like", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
+    when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
+    text: "Pendant une visite, touche le cœur pour dire à ton ami que tu aimes son jardin : il verra une pluie de cœurs ! Un cœur par ami et par semaine.",
+    ok: "C’est mignon" },
   { id: "trade", free: true, tab: "friends", hl: '.fr-act[data-act="trOpen"]',
     when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
     text: "Une plante qui n’est pas de saison chez toi ? Touche ⇄ pour proposer un échange : des récoltes ou des plats, contre d’autres ou contre des pièces, pour une valeur à peu près égale.",

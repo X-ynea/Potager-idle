@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.37
+- Mamie Lapine présente aussi les objectifs du jour et les saisons (aux nouveaux joueurs, juste après les premiers pas), et le cœur « J’aime ton jardin » pendant les visites (à tous, après une première visite).
+
 ### 3.0.36
 - Toute première commande d’un voisin : une commande facile, faisable avec ce qui est déjà récolté (par exemple 3 radis), pour que le conseil de Mamie Lapine aille jusqu’à la livraison.
 

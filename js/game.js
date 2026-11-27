@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.36" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.37" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -590,7 +590,7 @@ const A = {
     // Mise à jour sur place : pas de re-rendu de la fenêtre (évite le clignotement).
     decoRefresh(+i);
   },
-  openSeason() { modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
+  openSeason() { tutoFlag("season_opened"); modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
   toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
   // Toucher le tri actif le retire : retour à l’ordre de base.
   setSort(arg) { const [c, m] = arg.split(":"); const cur = (S.settings.sort || {})[c]; S.settings.sort = { ...(S.settings.sort || {}), [c]: cur === m ? "none" : m }; commit(); },
