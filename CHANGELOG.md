@@ -122,6 +122,17 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.47 · Nouveau tutoriel
+- Mamie Lapine guide les débuts pas à pas, comme un petit scénario : le jeu prépare chaque situation (radis mûr, graine de radis éclair, petit visiteur, escargot, commande d’un voisin, graines au Marché…) et l’élément à toucher est mis en avant. Rien n’est bloqué : si on va ailleurs, l’étape attend et l’onglet qui y ramène s’allume.
+- Premiers pas : cueillir, semer le radis éclair (il pousse en quelques secondes une fois arrosé), l’arroser, le cueillir, attraper un visiteur volant, chasser un escargot, livrer une commande, acheter et semer de la laitue, les objectifs du jour et de la semaine, les saisons.
+- Puis la cuisine (niveau 2), les amis (dès qu’on est connecté), la Serre (niveau 3). À la fin de chaque scénario, Mamie donne rendez-vous au prochain niveau qui apporte une nouveauté.
+- Nouveaux conseils pendant la visite d’un ami (arroser, le cœur, échanger) et pour les messages.
+- L’onglet Serre n’apparaît qu’au niveau 3.
+- Marché : une pastille sur « Bonus » quand une amélioration est achetable.
+- Après « Recommencer à zéro », les anciens échanges ne reviennent plus dans la boîte aux lettres, et les anciens cœurs ne font plus pleuvoir de cœurs.
+- Le tutoriel se passe depuis les Paramètres (« Passer », à côté de « Revoir »). Pendant un scénario, pas de récolte dorée ni d’embêtement au hasard ; les cœurs et la pastille de la boîte aux lettres attendent la fin.
+- Le cadeau du jour ne rejoue plus son animation en boucle.
+
 ### 3.0.46
 - Retour au tutoriel précédent : le nouveau tutoriel en scénarios (3.0.45) est d’abord essayé sur la version de test.
 

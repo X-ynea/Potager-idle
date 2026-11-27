@@ -77,7 +77,8 @@ function mailNews() {
   const list = Array.isArray(S.news) ? S.news : [], keys = new Set(list.map(n => n.k)), now = Date.now();
   // Une nouvelle plus vieille que sa durée de vie n'est jamais rajoutée : sinon, une fois lue puis effacée,
   // elle revenait aussitôt comme non lue (arrosage ou échange encore présent ailleurs).
-  const add = (k, at, html, kind, read) => { if (!keys.has(k) && html && now - at < (NEWS_TTL[kind] || NEWS_TTL.t)) { list.push({ k, at, html, kind, read: !!read }); keys.add(k); } };
+  // Après « Recommencer à zéro » : les échanges d'avant disparaissent, le reste (arrosage, cœurs) arrive déjà lu.
+  const add = (k, at, html, kind, read) => { const old = at < (S.resetAt || 0); if (old && kind === "t") return; if (!keys.has(k) && html && now - at < (NEWS_TTL[kind] || NEWS_TTL.t)) { list.push({ k, at, html, kind, read: !!read || old }); keys.add(k); } };
   for (const w of S.friendWater || []) if (!w.mine) add("w" + w.id, w.at, `💧 <b>${esc(w.name)}</b> a arrosé ton jardin.`, "w");
   for (const l of S.likes || []) add("l" + l.id, l.at, `❤️ <b>${esc(l.name)}</b> aime ton jardin.`, "l");
   for (const r of TR.list) {
@@ -94,7 +95,7 @@ const markNewsRead = () => { const t = Date.now(); TR.newsMark = t; for (const n
 const mailCount = () => FRIENDS_ON ? trIn().length + mailNews().filter(n => !n.read).length : 0;
 function mailboxHTML() {
   if (!FRIENDS_ON || !CLOUD.signedIn) return "";
-  const n = mailCount();
+  const n = typeof tutoBusy === "function" && tutoBusy() ? 0 : mailCount(); // pas de pastille pendant le tutoriel
   return `<button class="mailbox${n ? " has" : ""}" data-act="openMail" aria-label="Boîte aux lettres${n ? ` : ${n} nouveauté${n > 1 ? "s" : ""}` : ""}">${MAIL_ICON(n > 0)}${n ? `<span class="fr-badge">${n}</span>` : ""}</button>`;
 }
 function tradeCard(r) {

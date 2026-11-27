@@ -25,13 +25,14 @@ function heartRain(names) {
 
 // Cœurs reçus : vérifiés à l'ouverture, puis chaque minute. Les nouveaux font pleuvoir des cœurs.
 async function loadLikes() {
-  if (!friendsReady()) return;
+  if (!friendsReady() || (typeof tutoBusy === "function" && tutoBusy())) return; // pendant le tutoriel : plus tard
   let rows; try { rows = await CLOUD.rpc("my_likes") || []; } catch (e) { return; }
   const t = now(), known = new Set((S.likes || []).map(l => l.id));
   const fresh = rows.filter(r => r && !known.has(r.id)).map(r => ({ id: r.id, at: Math.min(t, Date.parse(r.at) || t), name: r.name || "Un ami", avatar: r.avatar || null }));
   S.likes = (S.likes || []).filter(l => t - l.at < LIKE_KEEP).concat(fresh);
   if (!fresh.length) return;
-  save(); heartRain([...new Set(fresh.map(l => l.name))]); render(true);
+  const rain = fresh.filter(l => l.at >= (S.resetAt || 0)); // les cœurs d'avant « Recommencer » ne repleuvent pas
+  save(); if (rain.length) heartRain([...new Set(rain.map(l => l.name))]); render(true);
 }
 setInterval(() => { if (friendsReady() && !document.hidden) loadLikes(); }, 60e3);
 addEventListener("load", () => setTimeout(loadLikes, 4500));

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.46" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.47" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -449,9 +449,12 @@ function genOrder() {
 }
 
 /* ---------------- Actions ---------------- */
+// Parties qui ouvrent avec le niveau : leur onglet n'apparaît qu'à partir de ce niveau (la Serre au niveau 3).
+const TAB_LVL = { lab: 3 };
+const tabLock = k => { const l = TAB_LVL[k]; return l && S.level < l ? l : 0; };
 let tab = "garden", msub = "seeds", labSel = [null, null];
 const A = {
-  tab(arg) { tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) { if (tabLock(arg)) arg = arg === "lab" ? "kitchen" : "garden"; tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -723,7 +726,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
   const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
   if (d.tuto) tutoFlag("eclair");
-  const gold = !d.tuto && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
+  const gold = !d.tuto && !tutoLocked() && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
@@ -839,7 +842,7 @@ function viewSettings() {
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
       <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
-      <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
+      <div class="set-row"><span>Conseils de Mamie Lapine</span><span class="row" style="gap:6px">${tutoBasicsPending() || FLOW_ORDER.some(k => !tutoState().flows[k] && FLOWS[k].when()) ? `<button class="btn ghost sm" data-act="tutoSkip">Passer</button>` : ""}<button class="btn ghost sm" data-act="tutoReset">Revoir</button></span></div>
     </div>
     <div class="set-group danger"><h3>Zone sensible</h3>
       <button class="set-link" data-act="dangerOpen" data-arg="reset">${ICON_RESET}<span><b>Recommencer à zéro</b><small>Efface ta progression, ton compte est gardé</small></span></button>
@@ -1186,11 +1189,17 @@ function marketUpgrades() {
     }
   return `<div class="list">${rows.sort((a, b) => a[0] - b[0]).map(r => r[1]).join("")}</div>`;
 }
+// Une amélioration (ou une parcelle) débloquée et assez de pièces pour l'acheter : pastille sur « Bonus ».
+function upgBuyable() {
+  const ps = PLOT_STEPS[S.plots.length - 6];
+  if (ps && S.level >= ps.lvl && S.coins >= ps.cost && S.plots.length < MAX_PLOTS) return true;
+  return Object.keys(UPG).some(u => { const st = UPG[u].steps[S.upg[u]]; return st && S.level >= st.lvl && S.coins >= st.cost; });
+}
 function views_market() {
   const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["sell", "Vendre"], ["upgrades", "Bonus"]];
   const body = { seeds: marketSeeds, recipes: marketRecipes, upgrades: marketUpgrades, sell: marketSell }[msub]();
   return `<section class="panel"><div class="row spread"><h2>Marché</h2><span class="market-purse" title="Tes pièces">${coin}${fmt(S.coins)}</span></div>
-    <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
+    <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}${k === "upgrades" && upgBuyable() ? `<span class="sub-dot" aria-label="Amélioration à acheter"></span>` : ""}</button>`).join("")}</div>${body}</section>`;
 }
 
 /* ---------------- Cuisine ---------------- */
@@ -1265,7 +1274,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + weeklySig() + JSON.stringify([mailCount(), typeof tutoBusy === "function" && tutoBusy(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.dishes, S.cooking.map(c => c.r + (c.end <= t)), S.orders.map(o => o.id)]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1319,14 +1328,14 @@ function render(force) {
       const cb = document.getElementById("chat-body"), cbTop = cb?.scrollTop, cbEnd = cb ? cb.scrollHeight - cb.scrollTop - cb.clientHeight < 120 : false;
       if (os && ns && box.children.length === 1 && os.className === ns.className) {
         for (const a of ns.attributes) os.setAttribute(a.name, a.value);
-        os.innerHTML = ns.innerHTML;
+        if (os.innerHTML !== ns.innerHTML) os.innerHTML = ns.innerHTML; // inchangée : rien à refaire (pas d'animation rejouée)
         document.querySelectorAll("#modal .strip").forEach((e, k) => { e.scrollLeft = strip[k] || 0; });
       } else $("#modal").innerHTML = box.innerHTML;
       for (const [id, v, f, c] of kept) { const t = document.getElementById(id); if (t) { t.value = v; if (f) { t.focus(); try { t.setSelectionRange(c, c); } catch (e) {} } } }
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
       const cb2 = document.getElementById("chat-body"); if (cb2 && cb) cb2.scrollTop = cbEnd ? cb2.scrollHeight : cbTop; // conversation : on garde sa place (ou le bas)
     }
-    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab));
+    document.querySelectorAll(".tab").forEach(b => { b.setAttribute("aria-selected", b.dataset.arg === tab); if (b.dataset.arg !== "friends") b.hidden = !!tabLock(b.dataset.arg); });
   }
   live(t);
 }
@@ -1472,13 +1481,14 @@ function floatText(txt, x, y, gold) {
   $("#fx").appendChild(el); setTimeout(() => el.remove(), 1200);
 }
 const BCOL = [["#ff9fc0", "#ff6f9a"], ["#ffd36b", "#f4a52a"], ["#9fd0ff", "#5aa7ee"], ["#c9a5ff", "#9a6cf0"]];
-function spawnButterfly() {
+function spawnButterfly(stay) {
   const [a, b] = pick(BCOL);
   const el = document.createElement("button");
   const vis = VISITOR();
   el.className = "butterfly v-" + vis.key; el.setAttribute("aria-label", vis.label);
   el.style.top = rand(22, 70) + "vh"; el.style.left = "0";
   el.style.animationDuration = rand(11, 16) + "s";
+  if (stay) { el.classList.add("stay"); el.style.top = "38vh"; } // tutoriel : il reste le temps qu’on l’attrape
   if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf">${visitorArt(vis.key)}</span>`;
   el.addEventListener("click", ev => {
@@ -1542,10 +1552,10 @@ function start() {
   let saveCount = 0;
   setInterval(() => {
     const t = now(); tick(t);
-    if (!document.hidden && tab === "garden" && t >= nextButterfly) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
+    if (!document.hidden && tab === "garden" && t >= nextButterfly && !tutoLocked()) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
     // « Escargot de compagnie » : seul le temps passé jeu ouvert compte (pas la nuit, jeu fermé).
     if (!document.hidden) for (const q of S.plots) if (q.weed && q.weedKind === "snail") { q.snailTime = (q.snailTime || 0) + 1000; if (q.snailTime >= 3600e3) S.stats.petSnail = 1; }
-    if (t >= nextWeed) {
+    if (t >= nextWeed && !tutoLocked()) {
       const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
       if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; q.snailTime = 0; }
       nextWeed = t + rand(80, 170) * 1000;
