@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.69 (version de test)
+
+- Tutoriel : plus d'écran assombri, et on peut toucher tout le reste du jeu pendant un scénario. Si on va ailleurs, Mamie Lapine reste sur la même étape et l'onglet qui y ramène s'allume.
+
 ### 3.1.68 (version de test, préparation de la v4)
 
 - Tutoriel : deux nouveaux scénarios guidés de Mamie Lapine.

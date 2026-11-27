@@ -2,8 +2,8 @@
 /* ---------------- Mamie Lapine : tutoriel ----------------
    Deux sortes de conseils :
    1. Des SCÉNARIOS (premiers pas, cuisine au niveau 2, Serre au niveau 3, amis) : Mamie guide pas à pas,
-      le jeu prépare la situation (graine, visiteur, commande, ingrédients…), le reste de l'écran est
-      assombri et seul l'élément à toucher répond. On ne peut les passer que depuis les Paramètres.
+      le jeu prépare la situation (graine, visiteur, commande, ingrédients…), l'élément à toucher est mis
+      en avant, sans rien bloquer : on peut aller ailleurs et revenir à l'étape quand on veut. On ne peut les passer que depuis les Paramètres.
    2. Des CONSEILS ponctuels (escargot, décoration gagnée, courrier…) dans une bulle, sans rien bloquer,
       quand la situation se présente.
    « Revoir » dans les Paramètres reprend tout depuis le début. */
@@ -130,7 +130,7 @@ const FLOWS = {
     { text: "Ici, tout le monde plante, arrose et récolte. Les graines sont gratuites (huit par jour chacun), et les récoltes vont dans le panier commun. Chaque jour, livrez ensemble deux commandes : si tu as planté au moins trois graines depuis la précédente, tu reçois ta part de la récompense.",
       done: () => !sgG(), ok: "Compris" },
     { text: "La bulle en bas de l’écran ouvre la petite discussion : des messages tout prêts pour encourager ton équipe. Et de retour chez toi, le petit portail au-dessus de ton jardin te ramène ici en un toucher.",
-      hl: ".sg-chat-fab", done: () => !sgG(), ok: "À bientôt" },
+      hl: ".sg-chat-fab", home: null, done: () => !sgG(), ok: "À bientôt" },
   ] },
 };
 const FLOW_ORDER = ["start", "cook", "lab", "friends", "balades", "shared"];
@@ -233,6 +233,10 @@ function tutoTargets(st) {
   if (document.getElementById("game")) return { els: [], free: true }; // une partie des Balades : le jeu reste jouable
   const modalOpen = !$("#modal").hidden;
   if (modalOpen) { const inM = els.filter(e => e.closest("#modal")); return { els: inM, free: !inM.length }; }
+  // Étape d'un scénario dont l'élément n'est pas sur cet onglet (on est allé ailleurs) : on allume l'onglet
+  // qui y ramène (le Jardin, sauf si l'étape dit autre chose avec « home » ; home: null = rien).
+  const home = st && !st.id && st.hl && !els.length ? (st.home === undefined ? "garden" : st.home) : null;
+  if (home && tab !== home) els = [...document.querySelectorAll(`.tab[data-arg="${home === "kitchen" || home === "lab" ? "atelier" : home}"]`)];
   return { els, free: false };
 }
 let TUTO_NOW = { st: null, els: [], free: false };
@@ -268,39 +272,20 @@ function tutoUpdate() {
   els.forEach(el => el.classList.add("tuto-hl"));
   tutoDim();
 }
-// Voile sombre avec des « trous » sur la bulle et sur les éléments à toucher.
+// Plus de voile sombre : on peut toucher tout l'écran. La bulle se place seulement en haut ou en bas,
+// loin de l'élément mis en avant (en haut quand une fenêtre est ouverte, pour ne pas en cacher les boutons).
 function tutoDim() {
-  let d = document.getElementById("tuto-dim");
-  const { st, els, free } = TUTO_NOW;
-  // Fenêtre ouverte et utilisable : la bulle se met en haut, au-dessus de la fenêtre (qui monte du bas).
-  if (st && free) document.getElementById("tuto")?.classList.remove("at-bottom");
-  if (!st || free) { if (d) d.hidden = true; return; }
-  if (!d) { d = document.createElement("div"); d.id = "tuto-dim"; d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); }
-  const W = innerWidth, H = innerHeight, box = document.getElementById("tuto");
-  // La bulle se place en haut ou en bas, loin de l'élément à toucher.
-  const r0 = els[0]?.getBoundingClientRect();
-  box.classList.toggle("at-bottom", !!r0 && r0.top + r0.height / 2 < H * .5);
-  const rects = [...els.map(e => e.getBoundingClientRect()), box.firstElementChild?.getBoundingClientRect()].filter(r => r && r.width && r.height);
-  let path = `M0 0H${W}V${H}H0Z`;
-  for (const r of rects) { const p = 6, x = Math.max(0, r.left - p), y = Math.max(0, r.top - p), w = Math.min(W, r.right + p) - x, h = Math.min(H, r.bottom + p) - y; if (w > 0 && h > 0) path += ` M${x} ${y}h${w}v${h}h${-w}Z`; }
-  d.style.clipPath = `path(evenodd, "${path}")`;
-  d.hidden = false;
+  document.getElementById("tuto-dim")?.remove();
+  const { st, els, free } = TUTO_NOW, box = document.getElementById("tuto");
+  if (!st || !box) return;
+  const r0 = free ? null : els[0]?.getBoundingClientRect();
+  box.classList.toggle("at-bottom", !!r0 && r0.top + r0.height / 2 < innerHeight * .5);
 }
 addEventListener("scroll", () => { if (TUTO_NOW.st) tutoDim(); }, { passive: true });
 addEventListener("resize", () => { if (TUTO_NOW.st) tutoDim(); });
 setInterval(() => { if (TUTO_NOW.st) { tutoUpdate(); } }, 250); // suit les bacs redessinés et le papillon qui bouge
-// Pendant un scénario, seuls la bulle, l'élément à toucher, les Paramètres et une fenêtre ouverte répondent.
-function tutoGuard(ev) {
-  if (!TUTO_NOW.st) return;
-  const el = ev.target;
-  if (!el.closest) return;
-  if (el.closest("#tuto, .goldpop, .top [data-act=\"openSettings\"]")) return;
-  if (TUTO_NOW.free && el.closest("#modal, #game")) return;
-  if (TUTO_NOW.els.some(e => e.contains(el))) return;
-  ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
-  const b = document.querySelector("#tuto .tuto-bubble"); if (b) { b.classList.remove("nudge"); void b.offsetWidth; b.classList.add("nudge"); }
-}
-document.addEventListener("click", tutoGuard, true);
+// Pendant un scénario, rien n'est bloqué : si on va ailleurs, la bulle reste sur la même étape
+// et l'élément à toucher (ou l'onglet qui y mène) reste mis en avant.
 
 /* ---------- Conseils ponctuels ---------- */
 function tutoCurrent() {

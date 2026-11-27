@@ -1962,7 +1962,6 @@ button.sg-card { cursor: pointer; }
 .lv-item .lv-price { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .lv-item .lv-buy > span { color: inherit; font-size: inherit; font-weight: inherit; margin: 0; }
 /* ---- Tutoriel en scénario : voile, bulle fixe, visiteur qui attend ---- */
-#tuto-dim { position: fixed; inset: 0; z-index: 40; background: rgba(35,22,10,.5); pointer-events: none; }
 #tuto.locked { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 74px); z-index: 41; margin: 0 auto; max-width: 560px; padding: 0 12px; }
 #tuto.locked.at-bottom { top: auto; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 14px); }
 #tuto.locked .tuto-bubble { box-shadow: 0 10px 30px rgba(0,0,0,.3); }
