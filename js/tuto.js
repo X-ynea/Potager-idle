@@ -85,7 +85,7 @@ const FLOWS = {
       enter: () => { tutoGive("crops", "laitue", 2); tutoGive("crops", "radis", 1); if (S.coins < RECIPES.salade.price) S.coins = RECIPES.salade.price; },
       hl: () => tutoTab("market", msub !== "recipes" ? '[data-act="msub"][data-arg="recipes"]' : UI.sel.recipes !== "salade" ? '[data-act="sel"][data-arg="recipes:salade"]' : '[data-act="buyRecipe"][data-arg="salade"]'),
       done: () => S.recipes.includes("salade") },
-    { text: () => tab === "kitchen" ? "Te voilà dans la Cuisine ! Choisis la salade et lance la cuisson." : tab === "lab" ? "Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier." : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : la Cuisine et la Serre y sont, chacune avec son bouton en haut de la page.",
+    { text: () => tab === "kitchen" ? "Te voilà dans la Cuisine ! Choisis la salade et lance la cuisson." : tab === "lab" ? "Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier." : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : c’est là qu’on cuisine.",
       enter: () => { tutoGive("crops", "laitue", 2); tutoGive("crops", "radis", 1); tutoState().mark = { c: S.stats.cooked || 0 }; },
       hl: () => tutoTab("kitchen", UI.sel.kitchen && UI.sel.kitchen !== "salade" ? '[data-act="sel"][data-arg="kitchen:salade"]' : '[data-act="cook"][data-arg="salade"]'),
       done: () => S.cooking.some(c => c.r === "salade") || (S.stats.cooked || 0) > (tutoMark().c ?? 0) },
@@ -94,7 +94,7 @@ const FLOWS = {
   ] },
   // Niveau 3 : la Serre.
   lab: { when: () => S.level >= 3, steps: [
-    { text: () => (tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
+    { text: () => (tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Elle s’est installée à l’Atelier, à côté de la Cuisine : touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
       enter: () => { tutoGive("crops", "radis", 1); tutoGive("crops", "laitue", 1); },
       hl: () => tutoTab("lab", []), done: () => tab === "lab" },
     { text: "Choisis deux récoltes à croiser, par exemple un radis et une laitue, puis lance le croisement.",

@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.72 (version de test)
+
+- Plutôt que des onglets grisés, ce qui n'est pas encore ouvert n'apparaît pas : la Serre (dans l'Atelier) au niveau 3, l'onglet Balades au niveau 4, la carte du jardin commun (onglet Amis) au niveau 5. La Cuisine et les Amis sont là dès le début.
+
 ### 3.1.71 (version de test)
 
 - Les onglets pas encore ouverts sont grisés : l'Atelier avant le niveau 2, la Serre avant le niveau 3, les Balades avant le niveau 4 (toujours ouvertes sur la version de test). Les toucher indique à quel niveau ils ouvrent.

@@ -120,7 +120,7 @@ const SG_ICON = `<img class="sg-ico" src="assets/img/interface/ui-portal.webp" a
 const SG_LVL = 5; // le jardin commun ouvre au niveau 5 (invitations reçues gardées jusque-là)
 function sgCardHTML() {
   if (!sgOn()) return "";
-  if (S.level < SG_LVL && !sgG()) return `<div class="sg-card locked">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">Il ouvre au niveau ${SG_LVL} : tu pourras cultiver un petit jardin avec 3 amis au plus.</small></div></div>`;
+  if (S.level < SG_LVL && !sgG()) return ""; // pas encore ouvert : la carte n'apparaît qu'au niveau 5
   const g = sgG(), inv = SG.data?.invites || [];
   if (!SG.data) return `<div class="sg-card">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">${SG.error ? esc(SG.error) : "Chargement…"}</small></div></div>`;
   if (g) {
