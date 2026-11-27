@@ -48,17 +48,18 @@ const TUTO = [
     when: () => RORDER.some(r => RECIPES[r].lvl <= S.level) && !S.recipes.length,
     text: "Avec tes légumes, on peut cuisiner de bons petits plats ! Achète ta première recette au Marché, rayon Recettes.",
     done: () => S.recipes.length > 0 },
-  { id: "cook", tab: ["garden", "market", "lab"], hl: () => tab === "lab" ? '.atelier-sw [data-arg="kitchen"]' : '.tab[data-arg="atelier"]',
+  { id: "cook", tab: ["garden", "market", "lab", "village", "balades"], hl: () => tab === "lab" ? '.atelier-sw [data-arg="kitchen"]' : '.tab[data-arg="atelier"]',
     when: () => S.recipes.length > 0 && !S.stats.cooked,
-    text: "Ta recette n’attend plus que toi : file à l’Atelier, côté Cuisine !",
+    text: () => tab === "lab" ? "Ta recette n’attend plus que toi ! Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier."
+      : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : c’est là que se trouvent la Cuisine et la Serre, chacune avec son bouton en haut de la page.",
     done: () => tutoF("tab_kitchen") || S.stats.cooked > 0 },
   { id: "cook2", tab: "kitchen",
     when: () => S.recipes.length > 0 && !S.stats.cooked,
-    text: "Choisis ta recette, vérifie que tu as les ingrédients, et lance la cuisson. Un plat se vend bien plus cher que les légumes qui le composent.",
+    text: "Te voilà dans la Cuisine ! Choisis ta recette, vérifie que tu as les ingrédients, et lance la cuisson. Un plat se vend bien plus cher que les légumes qui le composent.",
     done: () => S.stats.cooked > 0, ok: "Allons-y" },
-  { id: "lab", tab: ["garden", "market", "village", "kitchen"], hl: () => tab === "kitchen" ? '.atelier-sw [data-arg="lab"]' : '.tab[data-arg="atelier"]',
+  { id: "lab", tab: ["garden", "market", "village", "kitchen", "balades"], hl: () => tab === "kitchen" ? '.atelier-sw [data-arg="lab"]' : '.tab[data-arg="atelier"]',
     when: () => S.level >= 3,
-    text: "La Serre est ouverte, à l’Atelier ! On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
+    text: () => (tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
     done: () => tutoF("tab_lab") || (S.discovered || []).length > 0 },
   { id: "lab2", tab: "lab",
     when: () => S.level >= 3 && !(S.discovered || []).length,
@@ -160,7 +161,7 @@ let tutoKey = "";
 function tutoUpdate() {
   const box = document.getElementById("tuto"); if (!box) return;
   const t = tutoCurrent(), show = t && [].concat(t.tab).includes(tab);
-  const key = show ? t.id : "";
+  const key = show ? t.id + (typeof t.text === "function" ? ":" + tab : "") : ""; // texte qui dépend de l'onglet : redessiné en changeant d'onglet
   if (t && t.enter && !tutoF("enter_" + t.id)) { tutoFlag("enter_" + t.id); t.enter(); save(); render(true); }
   if (key !== tutoKey) {
     tutoKey = key;
