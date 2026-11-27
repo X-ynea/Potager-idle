@@ -156,7 +156,7 @@ const FLOW_ORDER = ["start", "cook", "friends", "lab", "balades", "shared"];
 const tutoNext = () => [[2, "la Cuisine"], [3, "la Serre"], [BALADES_LVL, "les Balades"], ...(tutoFriends() ? [[SG_LVL, "le jardin commun"]] : [])].find(([l]) => l > S.level);
 const tutoOtherWaiting = () => { const T = tutoState(); return FLOW_ORDER.some(k => k !== T.flow && !T.flows[k] && FLOWS[k].when()); };
 for (const k of FLOW_ORDER) FLOWS[k].steps.push({
-  text: () => { const n = tutoNext(); return `C’est tout pour l’instant ! Je repasserai au niveau ${n[0]} pour te montrer ${n[1]}. D’ici là, profite bien de ton potager.`; },
+  text: () => `C’est tout pour l’instant ! Je reviendrai au niveau ${tutoNext()[0]} pour la prochaine surprise. D’ici là, profite bien de ton potager.`,
   done: () => !tutoNext() || tutoOtherWaiting(), ok: "À bientôt, Mamie" });
 // Balades : le premier jeu ouvert qui a encore des parties aujourd'hui.
 const tutoGame = () => typeof GORDER === "undefined" ? null : GORDER.find(id => !GAMES[id].soon && !gameLocked(id) && playsLeft(id) > 0) || null;

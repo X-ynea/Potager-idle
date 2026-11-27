@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.75 (version de test)
+
+- Le rendez-vous de Mamie Lapine ne dévoile plus ce qui arrive : « Je reviendrai au niveau 3 pour la prochaine surprise. »
+
 ### 3.1.74 (version de test)
 
 - Après « Recommencer à zéro », les anciennes nouvelles ne reviennent plus comme non lues : les échanges d'avant disparaissent, les arrosages et les cœurs restent mais déjà lus (et les cœurs ne repleuvent pas).
