@@ -1970,3 +1970,4 @@ button.sg-card { cursor: pointer; }
 .butterfly.stay { animation: none !important; left: 50% !important; margin-left: -28px; }
 .butterfly.stay .bf { animation: tuto-hover 2.2s ease-in-out infinite; }
 @keyframes tuto-hover { 50% { transform: translate(10px, -8px); } }
+.sub-dot { display: inline-block; width: 8px; height: 8px; margin-left: 5px; vertical-align: super; border-radius: 50%; background: #e2483d; box-shadow: 0 0 0 2px var(--panel); }

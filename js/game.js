@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.73" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.74" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1188,6 +1188,12 @@ function marketSell() {
     ${invBody("sell", UI.sellCat)}
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
 }
+// Une amélioration (ou une parcelle) débloquée et assez de pièces pour l'acheter : pastille sur « Bonus ».
+function upgBuyable() {
+  const ps = PLOT_STEPS[S.plots.length - 6];
+  if (ps && S.level >= ps.lvl && S.coins >= ps.cost && S.plots.length < MAX_PLOTS) return true;
+  return Object.keys(UPG).some(u => { const st = UPG[u].steps[S.upg[u]]; return st && S.level >= st.lvl && S.coins >= st.cost; });
+}
 function marketUpgrades() {
     const plotStep = PLOT_STEPS[S.plots.length - 6];
     // Ordre : achetables maintenant, puis à débloquer (par niveau), puis acquis.
@@ -1204,7 +1210,7 @@ function views_market() {
   const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["sell", "Vendre"], ["upgrades", "Bonus"]];
   const body = { seeds: marketSeeds, recipes: marketRecipes, upgrades: marketUpgrades, sell: marketSell }[msub]();
   return `<section class="panel"><div class="row spread"><h2>Marché</h2><span class="market-purse" title="Tes pièces">${coin}${fmt(S.coins)}</span></div>
-    <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}</button>`).join("")}</div>${body}</section>`;
+    <div class="subtabs">${sub.map(([k, l]) => `<button data-act="msub" data-arg="${k}" aria-pressed="${msub === k}">${l}${k === "upgrades" && upgBuyable() ? `<span class="sub-dot" aria-label="Amélioration à acheter"></span>` : ""}</button>`).join("")}</div>${body}</section>`;
 }
 
 /* ---------------- Cuisine ---------------- */

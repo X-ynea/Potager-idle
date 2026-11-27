@@ -73,6 +73,9 @@ const FLOWS = {
     { text: "Regarde sous ton jardin : chaque jour, trois petits objectifs t’attendent. Fais-les pour gagner des pièces et de l’XP, et un bonus si tu les finis tous les trois. Il y en a de nouveaux chaque matin !",
       enter: () => { if (document.querySelector('#modal [data-act="plant"]')) closeModal(); },
       hl: () => tutoTab("garden", ".quests:not(.weekly)"), ok: "Compris" },
+    { text: "Et là, ce sont les objectifs de la semaine ! Avec tes amis, et avec tous les jardiniers, avancez ensemble. Touche un objectif pour voir ses récompenses : la première réussite de chaque saison donne une déco rare.",
+      tick: () => { tutoState().seen.weekly = true; }, // le conseil en bulle n'a plus lieu d'être
+      hl: () => tutoTab("garden", ".weekly"), done: () => tab === "garden" && !document.querySelector(".weekly"), ok: "Super" },
     { text: () => `Le potager vit au rythme des saisons : une par semaine, et en ce moment c’est ${SEASONS[season()].name.toLowerCase()}. Les plantes de saison poussent 25 % plus vite, certaines ne se vendent qu’à leur saison, et les petits visiteurs changent aussi. Touche le bandeau pour tout savoir !`,
       enter: () => { delete tutoState().f.season_opened; },
       hl: () => tutoTab("garden", ".season-bar"), done: () => tutoF("season_opened") },
@@ -173,17 +176,25 @@ const TUTO = [
     text: "Quelle jolie récompense ! Touche « Décorer », juste au-dessus du jardin, pour installer ta décoration.",
     done: () => S.decoSlots.some(Boolean) || !!UI.editDeco },
   { id: "visit", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
-    when: () => tutoFriends() && tutoFriendCount() > 0,
-    text: "Touche la petite pousse pour visiter le jardin de ton ami. Une fois par jour, tu peux l’arroser : ses plantes poussent 20 % plus vite pendant 2 h, et toi tu gagnes un peu d’XP.",
+    when: () => tutoFriends() && tutoFriendCount() > 0 && !visitOpen(),
+    text: "Touche la petite pousse pour aller voir le jardin de ton ami.",
     done: () => tutoF("visited") },
-  { id: "like", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
-    when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
-    text: "Pendant une visite, touche le cœur pour dire à ton ami que tu aimes son jardin : il verra une pluie de cœurs ! Un cœur par ami et par semaine.",
+  { id: "vwater", free: true, tab: "friends", hl: '[data-act="visitWater"]',
+    when: () => tutoFriends() && visitOpen() && !!document.querySelector('#modal [data-act="visitWater"]'),
+    text: "Te voilà chez ton ami ! Une fois par jour, tu peux arroser son jardin : ses plantes poussent 20 % plus vite pendant 2 h, et toi tu gagnes un peu d’XP.",
+    ok: "D’accord" },
+  { id: "like", free: true, tab: "friends", hl: '[data-act="visitLike"]',
+    when: () => tutoFriends() && visitOpen() && !!document.querySelector('#modal [data-act="visitLike"]'),
+    text: "Touche le cœur pour dire à ton ami que tu aimes son jardin : il verra une pluie de cœurs ! Un cœur par ami et par semaine.",
     ok: "C’est mignon" },
-  { id: "trade", free: true, tab: "friends", hl: '.fr-act[data-act="trOpen"]',
-    when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
-    text: "Une plante qui n’est pas de saison chez toi ? Touche ⇄ pour proposer un échange : des récoltes ou des plats, contre d’autres ou contre des pièces, pour une valeur à peu près égale.",
+  { id: "trade", free: true, tab: "friends", hl: '#modal .tr-btn[data-act="trOpen"]',
+    when: () => tutoFriends() && visitOpen() && !!document.querySelector('#modal .tr-btn[data-act="trOpen"]'),
+    text: "Une plante qui n’est pas de saison chez toi ? Touche « Échanger » pour lui proposer des récoltes ou des plats, contre d’autres ou contre des pièces. Tu peux aussi le faire depuis ta liste d’amis, avec la petite flèche ⇄.",
     done: () => tutoF("trade_opened"), ok: "Bon à savoir" },
+  { id: "messages", free: true, tab: "friends", hl: '.fr-chat-btn',
+    when: () => tutoFriends() && tutoFriendCount() > 0 && !visitOpen() && !!tutoState().seen.trade,
+    text: "Et pour discuter, touche la bulle à côté de ton ami : vous pouvez vous écrire des petits messages. Une pastille rouge s’affiche quand il t’a répondu.",
+    ok: "Compris" },
   { id: "watered", free: true, tab: "garden", hl: ".fw-line",
     when: () => tutoFriends() && fwActive(now()).some(w => !w.mine),
     text: "Un ami est passé arroser ton jardin ! Tant que le compteur tourne, sous « L’eau tient… », tes plantes poussent 20 % plus vite.",
@@ -261,7 +272,7 @@ function tutoTargets(st) {
   if (home && tab !== home) els = [...document.querySelectorAll(`.tab[data-arg="${home === "kitchen" || home === "lab" ? "atelier" : home}"]`)];
   return { els, free: false };
 }
-let TUTO_NOW = { st: null, els: [], free: false };
+let TUTO_NOW = { st: null, els: [], free: false, float: false };
 
 /* ---------- Affichage ---------- */
 let tutoKey = "";
@@ -279,8 +290,9 @@ function tutoUpdate() {
   if (st) { t = st; show = true; key = "flow:" + tutoState().flow + ":" + tutoState().step; st.tick?.(); }
   else { t = tutoCurrent(); show = !!t && [].concat(t.tab).includes(tab); key = show ? t.id : ""; }
   if (show && typeof t.text === "function") key += ":" + tab; // texte qui dépend de l'onglet : redessiné en changeant d'onglet
+  const float = !!st || (show && !$("#modal").hidden); // conseil dans une fenêtre (visite d'un ami) : bulle par-dessus
   document.body.classList.toggle("tuto-lock", !!st);
-  box.classList.toggle("locked", !!st);
+  box.classList.toggle("locked", float);
   if (key !== tutoKey) {
     tutoKey = key;
     box.hidden = !show;
@@ -289,7 +301,7 @@ function tutoUpdate() {
     if (st) setTimeout(() => { const e = TUTO_NOW.els[0]; if (e && !e.closest(".nav, nav, .tabs") && e.scrollIntoView) e.scrollIntoView({ block: "center", behavior: "smooth" }); }, 120);
   }
   const { els, free } = show ? tutoTargets(t) : { els: [], free: false };
-  TUTO_NOW = { st, els, free };
+  TUTO_NOW = { st, els, free, float };
   document.querySelectorAll(".tuto-hl").forEach(el => { if (!els.includes(el)) el.classList.remove("tuto-hl"); });
   els.forEach(el => el.classList.add("tuto-hl"));
   tutoDim();
@@ -298,13 +310,23 @@ function tutoUpdate() {
 // loin de l'élément mis en avant (en haut quand une fenêtre est ouverte, pour ne pas en cacher les boutons).
 function tutoDim() {
   document.getElementById("tuto-dim")?.remove();
-  const { st, els, free } = TUTO_NOW, box = document.getElementById("tuto");
-  if (!st || !box) return;
-  const r0 = free ? null : els[0]?.getBoundingClientRect();
-  box.classList.toggle("at-bottom", !!r0 && r0.top + r0.height / 2 < innerHeight * .5);
+  const { els, free, float } = TUTO_NOW, box = document.getElementById("tuto");
+  if (!float || !box) return;
+  // La bulle ne doit pas cacher ce qu'il faut toucher, surtout le dernier élément (l'action suivante,
+  // ex. « Ajouter » sous la recherche) : on regarde ce qu'elle couvrirait en haut et en bas.
+  const rs = free ? [] : els.map(e => e.getBoundingClientRect()).filter(r => r.width && r.height);
+  if (!rs.length) { box.classList.remove("at-bottom"); return; }
+  const bh = box.firstElementChild?.offsetHeight || 160, H = innerHeight, nav = document.querySelector(".nav, nav, .tabs")?.offsetHeight || 80;
+  const topEnd = 74 + bh + 8, botStart = H - nav - 14 - bh - 8;
+  const hitTop = r => r.top < topEnd && r.bottom > 74, hitBot = r => r.bottom > botStart && r.top < H - nav;
+  const last = rs[rs.length - 1];
+  let bottom = rs.every(r => r.top + r.height / 2 < H * .5);
+  if (bottom && hitBot(last) && !hitTop(last)) bottom = false;
+  else if (!bottom && hitTop(last) && !hitBot(last)) bottom = true;
+  box.classList.toggle("at-bottom", bottom);
 }
-addEventListener("scroll", () => { if (TUTO_NOW.st) tutoDim(); }, { passive: true });
-addEventListener("resize", () => { if (TUTO_NOW.st) tutoDim(); });
+addEventListener("scroll", () => { if (TUTO_NOW.float) tutoDim(); }, { passive: true });
+addEventListener("resize", () => { if (TUTO_NOW.float) tutoDim(); });
 setInterval(() => { if (TUTO_NOW.st) { tutoUpdate(); } }, 250); // suit les bacs redessinés et le papillon qui bouge
 // Pendant un scénario, rien n'est bloqué : si on va ailleurs, la bulle reste sur la même étape
 // et l'élément à toucher (ou l'onglet qui y mène) reste mis en avant.

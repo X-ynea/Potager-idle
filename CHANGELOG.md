@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.74 (version de test)
+
+- Après « Recommencer à zéro », les anciennes nouvelles ne reviennent plus comme non lues : les échanges d'avant disparaissent, les arrosages et les cœurs restent mais déjà lus (et les cœurs ne repleuvent pas).
+- Tutoriel des amis : dans le jardin de l'ami, Mamie Lapine présente l'arrosage, le cœur et le bouton « Échanger » (la petite flèche ⇄ de la liste marche aussi), puis, de retour dans la liste, les messages.
+- Les objectifs de la semaine sont présentés juste après ceux du jour, dans les premiers pas.
+- La bulle de Mamie Lapine se place pour ne pas cacher le bouton à toucher (par exemple « Ajouter » après une recherche d'ami).
+- Marché : une pastille rouge sur « Bonus » quand une amélioration ou une parcelle est débloquée et qu'on a de quoi l'acheter.
+
 ### 3.1.73 (version de test)
 
 - Le radis éclair du tutoriel pousse en 3 secondes une fois arrosé (au lieu de 25).
