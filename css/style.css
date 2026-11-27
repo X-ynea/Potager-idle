@@ -1612,3 +1612,5 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .garden > .mailbox.tuto-hl:not(.plot):not(.tab) { outline: none; box-shadow: none; background: none; animation: tuto-glow-img 1.4s ease-in-out infinite; }
 @keyframes tuto-glow-img { 0%, 100% { filter: drop-shadow(0 0 2px #f4c03e) drop-shadow(0 0 3px #f4c03e); } 50% { filter: drop-shadow(0 0 4px #ffd24a) drop-shadow(0 0 12px rgba(255,200,60,.95)); } }
 @media (prefers-reduced-motion: reduce) { .mailbox.tuto-hl { animation: none; filter: drop-shadow(0 0 3px #f4c03e) drop-shadow(0 0 3px #f4c03e); } }
+/* La lueur de la boîte aux lettres dépasse au-dessus du jardin : on laisse plus de place avant de couper */
+.garden:has(> .mailbox.tuto-hl) { overflow-clip-margin: 72px; }
