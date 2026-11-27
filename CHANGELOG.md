@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.39
+- Le compte Discord (synchroniser, se déconnecter) passe des Paramètres au Profil, section « Compte ». La suppression du compte reste dans la zone sensible des Paramètres.
+
 ### 3.0.38
 - Mamie Lapine explique comment ajouter un ami : l’onglet « Ajouter », puis le champ pour taper un code ami ou un pseudo, puis le bouton « Ajouter » à côté du joueur trouvé sont mis en avant tour à tour.
 
