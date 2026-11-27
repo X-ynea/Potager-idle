@@ -105,7 +105,7 @@ const FLOWS = {
       ok: "J’ai hâte" },
   ] },
   // Les amis (une fois connecté, à partir du niveau 3).
-  friends: { when: () => tutoFriends() && S.level >= 3 && FR.loaded, steps: [
+  friends: { when: () => tutoFriends() && FR.loaded, steps: [
     { text: "Tu as vu l’onglet « Amis », en bas ? Avec tes amis, vous pourrez visiter vos jardins, vous donner un coup d’arrosoir et échanger vos récoltes.",
       hl: '.tab[data-arg="friends"]', done: () => tab === "friends" },
     { text: "Voici ton code ami. Envoie-le à quelqu’un pour qu’il puisse t’ajouter en ami.",
@@ -134,7 +134,7 @@ const FLOWS = {
       hl: () => tutoTab("balades", ".game-list > .game-card:first-child .g-foot"), ok: "J’y retourne" },
   ] },
   // v4 : le jardin commun (connecté, avec au moins un ami).
-  shared: { when: () => S.level >= 5 && !!tutoState().flows.friends && tutoFriends() && FR.loaded && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data, steps: [
+  shared: { when: () => S.level >= SG_LVL && !!tutoState().flows.friends && tutoFriends() && FR.loaded && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data, steps: [
     { text: "Nouveau : le jardin commun ! Un petit potager à cultiver avec trois amis au plus. Va voir dans l’onglet Amis.",
       hl: () => tutoTab("friends", []), done: () => tab === "friends" },
     { text: () => sgG() ? "Te voilà membre d’un jardin commun : touche sa carte pour y entrer." : "Touche la carte « Jardin commun » pour le créer. Si un ami t’a déjà invité, tu peux aussi accepter son invitation juste en dessous.",
@@ -148,7 +148,13 @@ const FLOWS = {
       hl: ".sg-chat-fab", home: null, done: () => !sgG(), ok: "À bientôt" },
   ] },
 };
-const FLOW_ORDER = ["start", "cook", "lab", "friends", "balades", "shared"];
+const FLOW_ORDER = ["start", "cook", "friends", "lab", "balades", "shared"];
+// Ce qui ouvre plus tard : à la fin de chaque scénario, si rien d'autre n'attend, Mamie donne rendez-vous.
+const tutoNext = () => [[2, "la Cuisine"], [3, "la Serre"], [BALADES_LVL, "les Balades"], ...(tutoFriends() ? [[SG_LVL, "le jardin commun"]] : [])].find(([l]) => l > S.level);
+const tutoOtherWaiting = () => { const T = tutoState(); return FLOW_ORDER.some(k => k !== T.flow && !T.flows[k] && FLOWS[k].when()); };
+for (const k of FLOW_ORDER) FLOWS[k].steps.push({
+  text: () => { const n = tutoNext(); return `C’est tout pour l’instant ! Je repasserai au niveau ${n[0]} pour te montrer ${n[1]}. D’ici là, profite bien de ton potager.`; },
+  done: () => !tutoNext() || tutoOtherWaiting(), ok: "À bientôt, Mamie" });
 // Balades : le premier jeu ouvert qui a encore des parties aujourd'hui.
 const tutoGame = () => typeof GORDER === "undefined" ? null : GORDER.find(id => !GAMES[id].soon && !gameLocked(id) && playsLeft(id) > 0) || null;
 
@@ -231,6 +237,7 @@ function flowStep() {
     T.flow = next; T.step = 0; T.entered = ""; save();
   }
   for (let guard = 0; guard < 20; guard++) {
+    if (!T.flow || !FLOWS[T.flow]) return null; // terminé entre-temps (render → tutoUpdate imbriqué)
     const st = FLOWS[T.flow].steps[T.step];
     if (!st) { T.flows[T.flow] = true; T.flow = null; T.mark = null; save(); render(true); return null; }
     const key = T.flow + ":" + T.step;

@@ -122,6 +122,12 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.71 (version de test)
+
+- Les onglets pas encore ouverts sont grisés : l'Atelier avant le niveau 2, la Serre avant le niveau 3, les Balades avant le niveau 4 (toujours ouvertes sur la version de test). Les toucher indique à quel niveau ils ouvrent.
+- Le jardin commun ouvre au niveau 5 : avant, sa carte dans l'onglet Amis l'annonce, grisée.
+- Tutoriel : Mamie Lapine montre tout ce qui est déjà ouvert (les amis dès le début, si l'on est connecté), puis donne rendez-vous : « C'est tout pour l'instant ! Je repasserai au niveau 3 pour te montrer la Serre. »
+
 ### 3.1.70 (version de test)
 
 - Tutoriel, après les premiers essais :

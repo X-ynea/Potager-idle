@@ -117,8 +117,10 @@ const sgChatSeen = () => { const top = sgChat().length ? sgChat()[sgChat().lengt
 
 /* ---------- Carte de l'onglet Amis ---------- */
 const SG_ICON = `<img class="sg-ico" src="assets/img/interface/ui-portal.webp" alt="">`;
+const SG_LVL = 5; // le jardin commun ouvre au niveau 5 (invitations reçues gardées jusque-là)
 function sgCardHTML() {
   if (!sgOn()) return "";
+  if (S.level < SG_LVL && !sgG()) return `<div class="sg-card locked">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">Il ouvre au niveau ${SG_LVL} : tu pourras cultiver un petit jardin avec 3 amis au plus.</small></div></div>`;
   const g = sgG(), inv = SG.data?.invites || [];
   if (!SG.data) return `<div class="sg-card">${SG_ICON}<div class="sg-card-t"><b>Jardin commun</b><small class="muted">${SG.error ? esc(SG.error) : "Chargement…"}</small></div></div>`;
   if (g) {
@@ -295,7 +297,7 @@ const SG_ACTS = {
   sgChatOpen() { SG.chatOpen = true; SG.chatAnim = true; SG.say = false; sgChatSeen(); render(true); SG.chatAnim = false; const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgChatClose() { SG.chatOpen = false; SG.say = false; render(true); },
   sgLeave() { SG.confirm = null; sgCall("sg_leave", {}, () => { closeModal(); toast("Tu as quitté le jardin commun."); }); },
-  sgNew() { if (!sgOn()) return; SG.name = ""; SG.newPick = []; SG.error = ""; if (typeof loadFriends === "function") loadFriends(); modalView = viewSGNew; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); },
+  sgNew() { if (!sgOn() || S.level < SG_LVL) return; SG.name = ""; SG.newPick = []; SG.error = ""; if (typeof loadFriends === "function") loadFriends(); modalView = viewSGNew; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); },
   sgNewPick(id) { const p = SG.newPick || []; SG.newPick = p.includes(id) ? p.filter(x => x !== id) : p.length < 3 ? [...p, id] : p; render(true); },
   async sgCreate() {
     if (SG.busy) return;

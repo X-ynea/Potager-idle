@@ -1970,3 +1970,8 @@ button.sg-card { cursor: pointer; }
 .butterfly.stay { animation: none !important; left: 50% !important; margin-left: -28px; }
 .butterfly.stay .bf { animation: tuto-hover 2.2s ease-in-out infinite; }
 @keyframes tuto-hover { 50% { transform: translate(10px, -8px); } }
+
+/* Onglets pas encore ouverts (niveau trop bas) : grisés, un toucher dit à quel niveau ils ouvrent. */
+.tab.locked { opacity: .42; filter: grayscale(1); }
+.atelier-sw button.locked { opacity: .45; filter: grayscale(1); }
+.sg-card.locked { opacity: .7; filter: grayscale(.6); }

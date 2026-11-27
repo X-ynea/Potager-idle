@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.70" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.71" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -456,9 +456,16 @@ function genOrder() {
 }
 
 /* ---------------- Actions ---------------- */
+// Parties qui ouvrent avec le niveau : leur onglet est grisé avant (les Balades restent ouvertes sur la version de test).
+const TAB_LVL = { atelier: 2, kitchen: 2, lab: 3, balades: 4 };
+const TAB_NAME = { atelier: "L’Atelier", kitchen: "La Cuisine", lab: "La Serre", balades: "Les Balades" };
+const tabLock = k => { const l = TAB_LVL[k]; return l && S.level < l && !(k === "balades" && IS_TEST) ? l : 0; };
 let tab = "garden", msub = "seeds", labSel = [null, null], atelierSub = "kitchen"; // Atelier : Cuisine ou Serre, la dernière ouverte
 const A = {
-  tab(arg) { if (arg === "atelier") arg = atelierSub; if (arg === "kitchen" || arg === "lab") atelierSub = arg; tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
+  tab(arg) {
+    const lk = tabLock(arg === "atelier" ? "atelier" : arg);
+    if (lk) { toast(`${TAB_NAME[arg] || "Cette partie"} ouvre au niveau ${lk}.`); SFX.play("click"); return; }
+    if (arg === "atelier") arg = atelierSub; if (arg === "lab" && tabLock("lab")) arg = "kitchen"; if (arg === "kitchen" || arg === "lab") atelierSub = arg; tab = arg; if (typeof FR !== "undefined") FR.hlTrade = false; tutoFlag("tab_" + arg); render(true); window.scrollTo({ top: 0 }); },
   plot(i, ev) {
     const t = now(); tick(t);
     const p = S.plots[+i]; const st = plotState(p, t);
@@ -1335,7 +1342,7 @@ function render(force) {
       const sh = $("#modal .sheet"); if (sh) sh.scrollTop = sc;
       const cb2 = document.getElementById("chat-body"); if (cb2 && cb) cb2.scrollTop = cbEnd ? cb2.scrollHeight : cbTop; // conversation : on garde sa place (ou le bas)
     }
-    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.arg === tab || (b.dataset.arg === "atelier" && inAtelier())));
+    document.querySelectorAll(".tab").forEach(b => { b.setAttribute("aria-selected", b.dataset.arg === tab || (b.dataset.arg === "atelier" && inAtelier())); b.classList.toggle("locked", !!tabLock(b.dataset.arg)); });
   }
   live(t);
 }
@@ -1380,7 +1387,7 @@ function subBadge(k, n) { const el = document.querySelector(`.atelier-sw [data-s
 const inAtelier = () => tab === "kitchen" || tab === "lab";
 // Atelier : les deux sous-onglets Cuisine et Serre, en haut de chacune des deux pages.
 function atelierBar() {
-  return `<div class="subtabs atelier-sw">${[["kitchen", "Cuisine", "stove-on"], ["lab", "Serre", "greenhouse"]].map(([k, l, img]) => `<button data-act="tab" data-arg="${k}" aria-pressed="${tab === k}"><img src="assets/img/atelier/${img}.webp" alt="">${l}<span class="badge" data-sb="${k}" hidden></span><span class="tab-prog" data-sp="${k}" hidden><i></i></span></button>`).join("")}</div>`;
+  return `<div class="subtabs atelier-sw">${[["kitchen", "Cuisine", "stove-on"], ["lab", "Serre", "greenhouse"]].map(([k, l, img]) => `<button data-act="tab" data-arg="${k}" aria-pressed="${tab === k}"${tabLock(k) ? ` class="locked"` : ""}><img src="assets/img/atelier/${img}.webp" alt="">${l}<span class="badge" data-sb="${k}" hidden></span><span class="tab-prog" data-sp="${k}" hidden><i></i></span></button>`).join("")}</div>`;
 }
 function badge(id, n) { const el = document.getElementById(id); el.hidden = !n; el.textContent = n; }
 
