@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.41" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.42" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -321,7 +321,7 @@ function showLevelUp() {
     <div class="lv-badge"><img src="assets/img/xp-leaf.webp" alt=""><span class="num">${L}</span></div>
     <h2>Niveau ${L} !</h2>
     ${items.length ? `<p class="muted" style="margin:0">${L > 30 ? "Ton panier du jardinier :" : "Tu as maintenant accès à :"}</p>
-      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy">À acheter dans Marché › Bonus&nbsp;· ${coin}${fmt(it.buy)}</span>` : ""}</div></div>`).join("")}</div>`
+      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy"><span>À acheter au Marché › Bonus</span><span class="lv-price">${coin}${fmt(it.buy)}</span></span>` : ""}</div></div>`).join("")}</div>`
       : `<p class="muted" style="margin:0">Ta main verte s’affirme. Continue comme ça !</p>`}
     <button class="btn big" data-act="close">Super !</button></div>`;
   $("#modal").innerHTML = modalView(); openModal(); buzz([15, 50, 15]); SFX.play("level");

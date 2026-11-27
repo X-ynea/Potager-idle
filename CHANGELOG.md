@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.42
+- Fenêtre de niveau : le bandeau « À acheter au Marché › Bonus » a plus d’air, et le prix passe à la ligne en entier (plus de point tout seul).
+
 ### 3.0.41
 - Conseil de Mamie Lapine sur la boîte aux lettres : la lueur n’est plus coupée en haut.
 
