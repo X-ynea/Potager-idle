@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.65" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.66" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -179,14 +179,29 @@ function addXp(n) {
   S.xp += n;
   while (S.xp >= xpNeed(S.level)) {
     S.xp -= xpNeed(S.level); S.level++;
+    if (S.level > 30) levelGift(S.level);
     LEVEL_QUEUE.push(S.level);
   }
   if (LEVEL_QUEUE.length) setTimeout(showLevelUp, 0); // après l'action en cours (une autre fenêtre passe d'abord)
 }
 /* Fenêtre « Niveau X ! » avec tout ce qui vient d'être débloqué. */
 const LEVEL_QUEUE = [];
+/* Au-delà du niveau 30 : un panier du jardinier à chaque niveau (graines d'hybrides, graines de saison, pièces). */
+function levelGift(L) {
+  const g = { coins: 300 + 20 * (L - 31), hyb: {}, seeds: {} };
+  for (let i = 0; i < 3 && S.hybrids.length; i++) { const k = pick(S.hybrids); g.hyb[k] = (g.hyb[k] || 0) + 1; }
+  const sz = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].season === season() && PLANTS[k].lvl <= L);
+  if (sz.length) g.seeds[pick(sz)] = 5;
+  S.coins += g.coins;
+  for (const [k, n] of [...Object.entries(g.hyb), ...Object.entries(g.seeds)]) S.seeds[k] = cnt(S.seeds, k) + n;
+  S.lvlGifts = { ...(S.lvlGifts || {}), [L]: g };
+}
 function unlockItems(L) {
-  const out = [];
+  const out = [], g = (S.lvlGifts || {})[L];
+  if (g) {
+    for (const [k, n] of [...Object.entries(g.hyb), ...Object.entries(g.seeds)]) out.push({ art: seedArt(k), name: `${n} graine${n > 1 ? "s" : ""} ${/^[aeéèêiîoôuh]/i.test(PLANTS[k].name) ? "d’" : "de "}${PLANTS[k].name.toLowerCase()}`, kind: "Panier du jardinier" });
+    out.push({ art: `<img src="assets/img/ui-coin.webp" alt="">`, name: `${fmt(g.coins)} pièces`, kind: "Panier du jardinier" });
+  }
   for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push({ art: seedArt(k), name: PLANTS[k].name, kind: PLANTS[k].only ? `Plante ${SEASONS[PLANTS[k].season].of}, en vente à sa saison` : "Nouvelle graine au marché" });
   for (const r of RORDER) if (RECIPES[r].lvl === L) out.push({ art: dishArt(r), name: RECIPES[r].name, kind: "Nouvelle recette au marché" });
   for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/${UPG[u].img || "ameliorations/upg-" + u}.webp" alt="">`, name: UPG[u].name, kind: `${UPG[u].desc(UPG[u].values[i + 1])}`, buy: UPG[u].steps[i].cost }); }
@@ -242,8 +257,10 @@ const GIFT = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="10" y="26" wi
 
 /* ---------------- Objectifs du jour ---------------- */
 // Chaque jour, 3 petites quêtes de types différents, adaptées au niveau.
+// Plante exclusive d'une autre saison : on ne peut pas en acheter les graines, donc pas d'objectif dessus.
+const offSeasonPlant = k => !!PLANTS[k].only && PLANTS[k].season !== season();
 const QUEST_TYPES = [
-  { id: "harvestK", w: 5, make: () => { const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level); const k = pick(pool);
+  { id: "harvestK", w: 5, make: () => { const pool = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].lvl <= S.level && !offSeasonPlant(k)); const k = pick(pool);
       const n = Math.max(3, Math.min(15, Math.round(2400 / PLANTS[k].time * (1 + S.level / 10)))); return { k, n, text: `Récolter ${n} ${PLANTS[k].name.toLowerCase()}${n > 1 && !/s$/.test(PLANTS[k].name) ? "s" : ""}`, base: PLANTS[k].sell * n }; } },
   { id: "harvest", w: 3, make: () => { const n = 10 + S.level * 2; return { n, text: `Faire ${n} récoltes`, base: n * 8 }; } },
   { id: "cook", w: 4, lvl: 2, make: () => { const n = 2 + Math.floor(S.level / 4); return { n, text: `Cuisiner ${n} plats`, base: n * 45 }; } },
@@ -256,13 +273,14 @@ const QUEST_TYPES = [
 ];
 function dailyQuests() {
   const today = dayKey();
-  if (S.quests && S.quests.day === today) return S.quests;
-  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
-  while (list.length < 3) {
-    const t = weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w);
-    const q = t.make();
-    list.push({ type: t.id, k: q.k || null, n: q.n, text: q.text, prog: 0, claimed: false, coins: Math.round((q.base * .6 + 20 + S.level * 4) * .8), xp: Math.round(8 + S.level * 3) });
+  const makeQuest = t => { const q = t.make(); return { type: t.id, k: q.k || null, n: q.n, text: q.text, prog: 0, claimed: false, coins: Math.round((q.base * .6 + 20 + S.level * 4) * .8), xp: Math.round(8 + S.level * 3) }; };
+  if (S.quests && S.quests.day === today) {
+    // Réparation (3.0.27) : un objectif sur une plante hors saison (ex. petits pois en hiver) est remplacé.
+    S.quests.list = S.quests.list.map(q => q.type === "harvestK" && !q.claimed && q.k && PLANTS[q.k] && offSeasonPlant(q.k) ? makeQuest(QUEST_TYPES[0]) : q);
+    return S.quests;
   }
+  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
+  while (list.length < 3) list.push(makeQuest(weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w)));
   S.quests = { day: today, list, bonus: false };
   return S.quests;
 }
@@ -279,10 +297,10 @@ function questsHTML() {
     ${Q.list.map((q, i) => { const ok = q.prog >= q.n; return `<div class="quest ${q.claimed ? "claimed" : ok ? "ready" : ""}">
       <div class="q-ico">${q.k ? cropArt(q.k) : q.type === "butterfly" ? visitorArt(VISITOR().key) : q.type === "snail" ? pestIcon(PEST().key) : QUEST_ICONS[q.type]}</div>
       <div class="q-txt"><b>${q.text}</b><div class="pbar"><i style="width:${(q.prog / q.n * 100).toFixed(1)}%"></i></div>
-        <span class="small muted num">${fmt(q.prog)} / ${fmt(q.n)} · ${coin}${fmt(q.coins)} · +${q.xp} XP</span></div>
+        <span class="small muted num">${fmt(q.prog)} / ${fmt(q.n)}&nbsp;· ${coin}${fmt(q.coins)} · +${q.xp} XP</span></div>
       ${q.claimed ? `<span class="q-done">✓</span>` : `<button class="btn sm" data-act="claimQuest" data-arg="${i}" ${ok ? "" : "disabled"}>Récupérer</button>`}
     </div>`; }).join("")}
-    ${doneAll && !Q.bonus ? `<button class="btn big peach" data-act="claimQuestBonus">Bonus des 3 objectifs · ${coin}${fmt(50 + S.level * 15)}</button>` : ""}
+    ${doneAll && !Q.bonus ? `<button class="btn big peach" data-act="claimQuestBonus">Bonus des 3 objectifs&nbsp;· ${coin}${fmt(50 + S.level * 15)}</button>` : ""}
     ${Q.bonus ? `<p class="small muted" style="margin:0;text-align:center">Tous les objectifs sont faits. Nouveaux objectifs demain !</p>` : ""}
   </section>`;
 }
@@ -303,8 +321,8 @@ function showLevelUp() {
     ${big ? `<span class="lv-tag">Grand palier</span>` : ""}
     <div class="lv-badge"><img src="assets/img/interface/xp-leaf.webp" alt=""><span class="num">${L}</span></div>
     <h2>Niveau ${L} !</h2>
-    ${items.length ? `<p class="muted" style="margin:0">Tu as maintenant accès à :</p>
-      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy">À acheter dans Marché › Bonus · ${coin}${fmt(it.buy)}</span>` : ""}</div></div>`).join("")}</div>`
+    ${items.length ? `<p class="muted" style="margin:0">${L > 30 ? "Ton panier du jardinier :" : "Tu as maintenant accès à :"}</p>
+      <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy"><span>À acheter au Marché › Bonus</span><span class="lv-price">${coin}${fmt(it.buy)}</span></span>` : ""}</div></div>`).join("")}</div>`
       : `<p class="muted" style="margin:0">Ta main verte s’affirme. Continue comme ça !</p>`}
     <button class="btn big" data-act="close">Super !</button></div>`;
   $("#modal").innerHTML = modalView(); openModal(); buzz([15, 50, 15]); SFX.play("level");
@@ -383,7 +401,9 @@ function genOrder() {
   const ok = t => S.level >= t.lvl && S.plots.length >= (t.plots || 0) && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
     && t.plan.filter(x => x === "c").length <= crops.length;
   const types = ORDER_TYPES.filter(ok);
-  const type = weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
+  // Toute première commande (tutoriel) : une commande facile, faisable avec ce qu'on a déjà récolté.
+  const tutoOrder = !S.stats.orders && !S.tutoOrder && !S.orders.length;
+  const type = tutoOrder ? ORDER_TYPES[0] : weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
   const items = {};
   // Plus le jardin est grand, plus les voisins en demandent : ×1 à 6 parcelles, jusqu’à ×2 à 12.
   const big = Math.min(2, S.plots.length / 6);
@@ -395,11 +415,17 @@ function genOrder() {
     if (slot === "d") { const r = take(dishes); if (r) items[r] = Math.random() < big - 1 ? 2 : 1; } // grand jardin : parfois deux fois le même plat
   }
   if (!Object.keys(items).length) { const k = pick(crops); items[k] = qtyCrop(k); }
+  if (tutoOrder) {
+    S.tutoOrder = true;
+    const have = ORDER.filter(k => !PLANTS[k].hybrid && cnt(S.crops, k) > 0).sort((a, b) => cnt(S.crops, b) - cnt(S.crops, a));
+    for (const k in items) delete items[k];
+    items[have[0] || "radis"] = have[0] ? Math.min(3, cnt(S.crops, have[0])) : 2;
+  }
   // Hors saison (1 commande sur 8) : un voisin réclame une plante exclusive déjà récoltée, ou un plat qui en contient.
   // Il faut avoir gardé des graines ou des récoltes : la commande rapporte 30 % de plus.
   let offSeason = false;
   const outEx = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season !== season() && S.discovered.includes(k));
-  if (outEx.length && Math.random() < 1 / 8) {
+  if (!tutoOrder && outEx.length && Math.random() < 1 / 8) {
     const outDish = RORDER.filter(r => RECIPES[r].lvl <= S.level && knownItem(r) && Object.keys(RECIPES[r].need).some(k => outEx.includes(k))
       && Object.keys(RECIPES[r].need).every(k => outEx.includes(k) || (WILD[k] ? wildReachable(k) : seedBuyable(k) || cnt(S.crops, k) > 0)));
     for (const k in items) delete items[k];
@@ -571,7 +597,7 @@ const A = {
     // Mise à jour sur place : pas de re-rendu de la fenêtre (évite le clignotement).
     decoRefresh(+i);
   },
-  openSeason() { modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
+  openSeason() { tutoFlag("season_opened"); modalView = () => viewSeason(false); $("#modal").innerHTML = modalView(); openModal(); },
   toggleLab() { UI.labOpen = !UI.labOpen; render(true); },
   // Toucher le tri actif le retire : retour à l’ordre de base.
   setSort(arg) { const [c, m] = arg.split(":"); const cur = (S.settings.sort || {})[c]; S.settings.sort = { ...(S.settings.sort || {}), [c]: cur === m ? "none" : m }; commit(); },
@@ -688,7 +714,9 @@ const A = {
     if (!d || !i || norm(i.value) !== d.word) return;
     UI.danger = null; buzz([20, 60, 20]);
     if (k === "reset") {
-      const keep = { settings: S.settings, profile: S.profile }; S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
+      // La part de la semaine est gardée (pas de recommencer en boucle), ses récompenses se récupèrent à nouveau.
+      const keep = { settings: S.settings, profile: S.profile, resetAt: Date.now(), weekly: S.weekly && { ...S.weekly, cf: false, cg: [false, false, false], noRewardF: false } };
+      S = Object.assign(fresh(), keep); S.orders = [genOrder(), genOrder()];
       closeModal(); commit(); toast("Nouveau jardin. Bonne pousse !");
       if (typeof CLOUD !== "undefined" && CLOUD.signedIn) { try { await CLOUD.push(); } catch (e) {} } // la sauvegarde en ligne suit tout de suite
     } else {
@@ -702,7 +730,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
   const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
   if (d.tuto) tutoFlag("eclair");
-  const gold = !d.tuto && Math.random() < GOLD_CHANCE, firstGold = gold && !S.goldenFound.includes(k);
+  const gold = !d.tuto && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
@@ -836,7 +864,7 @@ const norm = v => v.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036
 const DANGER = {
   reset: { title: "Recommencer à zéro", word: "RECOMMENCER", btn: "Tout recommencer",
     lost: () => ["Ton niveau, ton XP et tes pièces", "Tes bacs, graines, récoltes et plats", "Tes hybrides, recettes, décorations et améliorations", "Tes succès et tes titres"],
-    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? [FRIENDS_ON ? "Ton compte Discord, tes amis et tes messages" : "Ton compte Discord"] : [])],
+    kept: () => ["Ton profil : pseudo, photo et bannière", "Tes réglages", ...(typeof goalsOn === "function" && goalsOn() ? ["Ta part aux objectifs de la semaine (ses récompenses se récupèrent à nouveau)"] : []), ...(typeof CLOUD !== "undefined" && CLOUD.signedIn ? [FRIENDS_ON ? "Ton compte Discord, tes amis et tes messages" : "Ton compte Discord"] : [])],
     note: "Ta sauvegarde en ligne est remplacée par la nouvelle partie." },
   account: { title: "Supprimer mon compte", word: "SUPPRIMER", btn: "Supprimer mon compte",
     lost: () => FRIENDS_ON ? ["Ta sauvegarde en ligne", "Ton profil visible par tes amis et ton code ami", "Tes amis, tes demandes et tes messages", "Les joueurs que tu as bloqués"] : ["Ta sauvegarde en ligne", "Ton lien avec ton compte Discord"],
@@ -1094,7 +1122,7 @@ function invBody(ctx, cat) {
     const uses = (cat === "crops" || cat === "wild") && !isGold(k) ? RORDER.filter(r => RECIPES[r].need[k]) : [];
     det = detail(ctx, itemArt(k), itemName(k), itemDesc(k), mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
-      `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1 · ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout · ${priceTag(n * v)}</button>`);
+      `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1&nbsp;· ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout&nbsp;· ${priceTag(n * v)}</button>`);
   }
   const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(cat === "seeds" ? bag : itemBag(x), x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
@@ -1113,7 +1141,7 @@ function marketSeeds() {
     : detail("seeds", seedArt(k), d.name + (d.hybrid ? ` <small class="hy">Hybride</small>` : "") + (d.season ? " " + seasonIcon(d.season) : ""), d.desc + (d.season ? `<br><span class="sz-note">${seasonNote(k)}</span>` : ""),
       mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.seeds, k)), "",
       av && !seedBuyable(k) ? `<button class="btn big" disabled>En vente ${d.season === "printemps" ? "au printemps" : d.season === "ete" ? "en été" : d.season === "automne" ? "en automne" : "en hiver"}</button>`
-      : av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter · ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5 · ${priceTag(d.cost * 5)}</button>`
+      : av ? `<button class="btn big" data-act="buySeed" data-arg="${k}:1" ${S.coins < d.cost ? "disabled" : ""}>Acheter&nbsp;· ${priceTag(d.cost)}</button><button class="btn big ghost" data-act="buySeed" data-arg="${k}:5" ${S.coins < d.cost * 5 ? "disabled" : ""}>×5&nbsp;· ${priceTag(d.cost * 5)}</button>`
         : `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`);
   const tileFor = x => {
     const p = PLANTS[x], a = seedAvailable(x), m = p.hybrid && !a;
@@ -1137,7 +1165,7 @@ function marketRecipes() {
   const act = own ? `<button class="btn big ghost" data-act="cookGo" data-arg="${r}">Déjà apprise · aller en cuisine</button>`
     : lock ? `<button class="btn big" disabled>Disponible au niveau ${d.lvl}</button>`
     : hybLock ? `<button class="btn big ghost" data-act="tab" data-arg="lab">Découvre d’abord l’hybride à la Serre</button>`
-    : `<button class="btn big" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>Apprendre · ${priceTag(d.price)}</button>`;
+    : `<button class="btn big" data-act="buyRecipe" data-arg="${r}" ${S.coins < d.price ? "disabled" : ""}>Apprendre&nbsp;· ${priceTag(d.price)}</button>`;
   const det = detail("recipes", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp), ingList(d.need), act);
   // Disponibles d'abord, recettes bloquées (niveau trop bas) en bas, par niveau croissant.
   const sorted = [...RORDER].sort((x, y) => (RECIPES[x].lvl > S.level) - (RECIPES[y].lvl > S.level) || (RECIPES[x].lvl > S.level ? RECIPES[x].lvl - RECIPES[y].lvl : 0));
@@ -1150,7 +1178,7 @@ function marketRecipes() {
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
   return `${catTabs([["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
-    ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte · ${priceTag(tot)}</button>` : ""}
+    ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte&nbsp;· ${priceTag(tot)}</button>` : ""}
     ${invBody("sell", UI.sellCat)}
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
 }
@@ -1314,7 +1342,7 @@ function render(force) {
 function live(t) {
   $("#coins").innerHTML = `<span class="n-short">${fmtShort(S.coins)}</span><span class="n-full">${fmt(S.coins)}</span>`; $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
   updateBrand();
-  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>`;
+  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}${lvlStar(S.level)}</span>`;
   const ttl = $("#ttl"); ttl.hidden = !S.title; ttl.textContent = S.title || ""; // titre sous la barre d’XP
   $("#xpt").innerHTML = `<span class="n-short">${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}</span><span class="n-full">${fmt(S.xp)} / ${fmt(xpNeed(S.level))}</span><span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";
@@ -1376,7 +1404,7 @@ function viewPlotShop() {
     <div class="detail"><div class="d-head"><div class="d-art"><img src="assets/img/ameliorations/upg-plot.webp" alt="" style="width:100%;height:100%;object-fit:contain"></div>
       <div class="d-txt"><h3>Un bac de plus</h3><p>Une parcelle supplémentaire pour faire pousser plus de plantes en même temps.</p></div></div>
       <div class="meta">${mi("Parcelles", `${S.plots.length} → ${S.plots.length + 1}`)}${mi("Prix", fmt(step.cost))}${mi("Tes pièces", fmt(S.coins))}</div>
-      <div class="d-acts"><button class="btn big" data-act="buyPlot" ${lock || poor ? "disabled" : ""}>${lock ? `Disponible au niveau ${step.lvl}` : poor ? `Il te manque ${fmt(step.cost - S.coins)} pièces` : `Acheter · ${coin}${fmt(step.cost)}`}</button></div>
+      <div class="d-acts"><button class="btn big" data-act="buyPlot" ${lock || poor ? "disabled" : ""}>${lock ? `Disponible au niveau ${step.lvl}` : poor ? `Il te manque ${fmt(step.cost - S.coins)} pièces` : `Acheter&nbsp;· ${coin}${fmt(step.cost)}`}</button></div>
     </div></div>`;
 }
 function viewPicker() {
@@ -1390,7 +1418,7 @@ function viewPicker() {
     ${PICK.cat === "hybrid" && !PICK.order.some(k => PLANTS[k].hybrid) ? `<div class="empty-note"><span>Aucun hybride pour l’instant. Croise deux récoltes dans la Serre pour en découvrir.</span></div>` : ""}
     <div class="list">${PICK.order.filter(k => !!PLANTS[k].hybrid === (PICK.cat === "hybrid")).map(k => { const d = PLANTS[k], own = cnt(S.seeds, k); return `
       <div class="item">${seedArt(k)}<div class="t"><b>${d.name}${inSeason(k) ? " " + seasonIcon(d.season) : ""}</b><span>${growDur(d.time * 1000 / plantSpeed(k))} · se vend ${fmt(d.sell)} · +${d.xp} XP</span></div>
-      <div class="acts">${own ? `<button class="btn sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter · ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
+      <div class="acts">${own ? `<button class="btn sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}">Planter · ${own} en stock</button>` : `<button class="btn ghost sm${PICK.flash === k ? " planted" : ""}" data-act="plant" data-arg="${k}" ${S.coins < d.cost ? "disabled" : ""}>Acheter et planter&nbsp;· ${coin}${fmt(d.cost)}</button>`}</div></div>`; }).join("")}</div></div>`;
 }
 /* Fiche d'une plante depuis l'herbier. */
 function openPlantInfo(k) {

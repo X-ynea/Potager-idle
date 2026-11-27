@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.66 (version de test)
+- Reprend les nouveautés de la version des joueurs (3.0.26 à 3.0.44) : au-delà du niveau 30, panier du jardinier à chaque niveau, étoile dorée, grands paliers 35 à 50 avec titres, bonus doré et les 4 décos (cadran solaire, petite serre, cabane à outils, citrouille dorée) ; succès Herbier complet en paliers ; objectifs du jour sans plante hors saison ; tutoriel pas à pas ; compte gardé dans le Profil ; recommencer à zéro qui garde la part de la semaine ; corrections diverses.
+
 ### 3.1.65 (version de test, préparation de la v4)
 
 - Mamie Lapine ne présente plus les nouveaux hybrides : on les découvre en cherchant.

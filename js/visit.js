@@ -111,7 +111,7 @@ function viewVisit() {
   else body = `<div class="subtabs" style="grid-template-columns:repeat(2,1fr)">${[["garden", "Jardin"], ["herb", "Herbier"]].map(([k, l]) => `<button data-act="visitTab" data-arg="${k}" aria-pressed="${VISIT.tab === k}">${l}</button>`).join("")}</div>
     ${VISIT.tab === "herb" ? visitHerbHTML(f) : visitGardenHTML(t, f)}`;
   return `<div class="sheet tall visit-sheet" role="dialog" aria-modal="true" aria-label="Jardin de ${esc(f.name)}">
-    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="visitBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>Jardin de ${esc(f.name)}</b><small>Niv. ${VISIT.data?.level || f.level}${f.title ? ` · ${esc(f.title)}` : ""}</small></span></div>
+    <div class="sheet-head chat-head"><button class="btn ghost sm" data-act="visitBack" aria-label="Retour">‹</button><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>Jardin de ${esc(f.name)}</b><small>Niv. ${VISIT.data?.level || f.level}${lvlStar(VISIT.data?.level || f.level)}${f.title ? ` · ${esc(f.title)}` : ""}</small></span></div>
     ${body}</div>`;
 }
 const VISIT_ACTS = {

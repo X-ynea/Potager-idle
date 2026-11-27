@@ -30,7 +30,10 @@ function weekId(t = Date.now()) {
 }
 const weekIndex = () => Math.round((Date.parse(weekId() + "T12:00:00Z") - Date.parse("2026-11-16T12:00:00Z")) / (7 * 864e5));
 const goalKind = which => GOAL_ORDER[(((weekIndex() + (which === "g" ? 2 : 0)) % 4) + 4) % 4];
-const goalCap = which => Math.round(GOAL_KINDS[goalKind(which)].base * (which === "g" ? 2 : 1.5)); // part maximale d'un joueur
+// Part maximale d'un joueur. Tous les joueurs : une part « normale » (3.0.25, avant ×2 : un ou deux joueurs suffisaient).
+// Entre amis : 1,25 part (3.0.26, avant 1,5) : la cible (une part par personne) demande que tout le monde s'y mette,
+// avec un peu de marge si quelqu'un joue moins.
+const goalCap = which => Math.round(GOAL_KINDS[goalKind(which)].base * (which === "g" ? 1 : 1.25));
 function goalTarget(which) {
   const base = GOAL_KINDS[goalKind(which)].base, d = GOALS.data;
   if (which === "f") return base * Math.min(8, Math.max(1, d?.members?.length || 1));
@@ -64,6 +67,11 @@ async function loadGoals() {
     if (GOALS.dirty) { await CLOUD.rpc("report_progress", { p_week: W.week, p_f: W.f, p_g: W.g }); GOALS.dirty = false; }
     const d = await CLOUD.rpc("week_goals", { p_week: W.week, cap_f: goalCap("f"), cap_g: goalCap("g") });
     GOALS.data = d && typeof d === "object" && !Array.isArray(d) ? d : null;
+    // Ma part déjà comptée par le serveur (ex. partie recommencée en cours de semaine) : on repart de là,
+    // pour que chaque nouvelle livraison compte tout de suite (le serveur garde le plus grand des deux).
+    const myF = GOALS.data?.members?.find(m => m.me)?.n, myG = GOALS.data?.my_g;
+    if (+myF > W.f) { W.f = +myF; save(); }
+    if (+myG > W.g) { W.g = +myG; save(); }
     GOALS.error = "";
   } catch (e) { GOALS.error = /function|does not exist|404/.test(String(e.message)) ? "Les objectifs de la semaine ne sont pas encore prêts sur le serveur (script docs/objectifs.sql)." : "Objectifs indisponibles pour le moment."; }
   GOALS.loading = false;

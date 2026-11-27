@@ -1936,3 +1936,28 @@ button.sg-card { cursor: pointer; }
 .bee img { width: 100%; height: 100%; object-fit: contain; animation: gBuzz .12s infinite alternate; }
 .g-peche .g-hint { justify-self: center; align-self: center; margin: 6px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(255,255,255,.85); width: max-content; max-width: 100%; }
 .flower.open:not(.gold) .fl-open { transform: scale(.86); } /* même taille que la fleur dorée sans ses étincelles */
+/* Étoile au-delà du niveau 30 */
+.lv-star { color: #f4b400; margin-left: 3px; text-shadow: 0 0 6px rgba(244,192,62,.6); }
+/* Tutoriel : onglet à toucher bien visible (fond doré, contour fixe, halo qui pulse, icône qui sautille) */
+.tab.tuto-hl { position: relative; background: #fff3c4; color: #8a5a00; box-shadow: 0 0 0 3px #f4c03e; animation: tuto-tab 1.4s ease-in-out infinite; z-index: 1; }
+.tab.tuto-hl svg, .tab.tuto-hl img { animation: tuto-hop 1.4s ease-in-out infinite; }
+@keyframes tuto-tab { 50% { box-shadow: 0 0 0 3px #f4c03e, 0 0 22px 6px rgba(255,200,60,.75); } }
+@keyframes tuto-hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .tab.tuto-hl, .tab.tuto-hl svg, .tab.tuto-hl img { animation: none; } }
+:root[data-theme="dark"] .tab.tuto-hl { background: #4a3a12; color: #ffd76a; }
+/* Tutoriel : boutons et sous-onglets à toucher, contour doré fixe en plus du halo */
+.tuto-hl:not(.plot):not(.tab) { outline: 3px solid #f4c03e; outline-offset: 2px; }
+/* Tutoriel : bac à toucher entouré d'un cadre doré qui pulse */
+.plot.tuto-hl { border-radius: 12%; box-shadow: 0 0 0 3px #f4c03e, 0 0 16px 4px rgba(255,200,60,.65); animation: tuto-plot 1.4s ease-in-out infinite; z-index: 2; }
+@keyframes tuto-plot { 50% { box-shadow: 0 0 0 4px #ffd24a, 0 0 28px 10px rgba(255,200,60,.9); } }
+@media (prefers-reduced-motion: reduce) { .plot.tuto-hl { animation: none; } }
+/* Tutoriel : objets dessinés (boîte aux lettres) : lueur qui suit leur forme, pas de cadre carré */
+.garden > .mailbox.tuto-hl:not(.plot):not(.tab) { outline: none; box-shadow: none; background: none; animation: tuto-glow-img 1.4s ease-in-out infinite; }
+@keyframes tuto-glow-img { 0%, 100% { filter: drop-shadow(0 0 2px #f4c03e) drop-shadow(0 0 3px #f4c03e); } 50% { filter: drop-shadow(0 0 4px #ffd24a) drop-shadow(0 0 12px rgba(255,200,60,.95)); } }
+@media (prefers-reduced-motion: reduce) { .mailbox.tuto-hl { animation: none; filter: drop-shadow(0 0 3px #f4c03e) drop-shadow(0 0 3px #f4c03e); } }
+/* La lueur de la boîte aux lettres dépasse au-dessus du jardin : on laisse plus de place avant de couper */
+.garden:has(> .mailbox.tuto-hl) { overflow-clip-margin: 72px; }
+/* Fenêtre de niveau : « À acheter au Marché › Bonus » et le prix, sans point qui pend, avec de l'air */
+.lv-item .lv-buy { flex-wrap: wrap; gap: 2px 8px; padding: 4px 10px; border-radius: 12px; line-height: 1.25; }
+.lv-item .lv-price { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lv-item .lv-buy > span { color: inherit; font-size: inherit; font-weight: inherit; margin: 0; }

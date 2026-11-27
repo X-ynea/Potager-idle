@@ -7,19 +7,21 @@
    dès que l'action est faite, et le suivant arrive tout seul.
    - Les premiers pas (basic) se suivent dans l'ordre.
    - Les autres conseils arrivent quand la situation se présente (escargot, Serre…). */
+// Le bac du radis éclair (et pas un autre bac mûr ou assoiffé du jardin de départ).
+const tutoEclair = (state = "") => { const i = S.plots.findIndex(p => p.seed === "radis_eclair"); return i < 0 ? [] : `.plot${state}[data-plot="${i}"]`; };
 const TUTO = [
   // Premiers pas
   { id: "harvest", basic: true, tab: "garden", hl: ".plot.ripe",
     text: "Bonjour ! Moi, c’est Mamie Lapine, j’habite juste à côté. Regarde, tes radis sont mûrs : touche le bac où brille l’étoile pour les cueillir.",
     done: () => S.stats.harvest > 0 },
-  { id: "plant", basic: true, tab: "garden", hl: ".plot.empty",
+  { id: "plant", basic: true, tab: "garden", hl: ['#modal [data-act="plant"][data-arg="radis_eclair"]', ".plot.empty"],
     enter: () => { S.seeds.radis_eclair = cnt(S.seeds, "radis_eclair") + 1; },
     text: "Joli panier ! Tiens, je te donne une graine de radis éclair : il pousse en un clin d’œil. Touche un bac vide pour la semer.",
     done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair") },
-  { id: "water", basic: true, tab: "garden", hl: ".plot.dry",
+  { id: "water", basic: true, tab: "garden", hl: () => tutoEclair(),
     text: "Oh, la terre est toute sèche : regarde la goutte au-dessus du bac. Sans eau, une plante pousse quatre fois moins vite. Touche le bac pour l’arroser !",
     done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair" && plotState(p, now()) !== "dry") },
-  { id: "grow", basic: true, tab: "garden", hl: ".plot.ripe",
+  { id: "grow", basic: true, tab: "garden", hl: () => tutoEclair(),
     text: () => `Tu vois ? Une fois arrosé, ça pousse à toute vitesse : l’anneau vert se remplit, l’anneau bleu montre l’eau qui reste. Un arrosage tient ${UPG.water.values[S.upg.water]} minutes, ensuite la goutte revient. Dès que l’étoile brille, cueille ton radis !`,
     done: () => tutoF("eclair") },
   { id: "away", basic: true, tab: "garden",
@@ -32,6 +34,14 @@ const TUTO = [
     text: "Voilà le marché ! Les graines sont ici, et tu peux vendre tes récoltes. Mais garde toujours quelques légumes de côté : les voisins passent souvent commander.",
     ok: "Merci, Mamie" },
   // Selon la situation
+  { id: "quests", tab: "garden", hl: ".quests:not(.weekly)",
+    when: () => S.level <= 5 && !!document.querySelector(".quests:not(.weekly)"), // nouveaux joueurs
+    text: "Regarde sous ton jardin : chaque jour, trois petits objectifs t’attendent. Fais-les pour gagner des pièces et de l’XP, et un bonus si tu les finis tous les trois. Il y en a de nouveaux chaque matin !",
+    ok: "Compris" },
+  { id: "seasons", tab: "garden", hl: ".season-bar",
+    when: () => S.level <= 5 && S.stats.harvest > 2, // nouveaux joueurs
+    text: () => `Le potager vit au rythme des saisons : une par semaine, et en ce moment c’est ${SEASONS[season()].name.toLowerCase()}. Les plantes de saison poussent 25 % plus vite, certaines ne se vendent qu’à leur saison, et les petits visiteurs changent aussi. Touche le bandeau pour tout savoir !`,
+    done: () => tutoF("season_opened"), ok: "Joli !" },
   { id: "snail", tab: "garden", hl: ".plot.weed",
     when: () => S.plots.some(p => p.weed),
     text: () => PEST().tip,
@@ -40,11 +50,11 @@ const TUTO = [
     when: () => S.orders.length > 0,
     text: "Tiens, quelqu’un frappe à ta porte ! Un voisin attend une commande au Village. Les commandes rapportent bien plus que le marché.",
     done: () => tutoF("tab_village") || S.stats.orders > 0 },
-  { id: "order2", tab: "village",
+  { id: "order2", tab: "village", hl: '[data-act="deliver"]:not([disabled])',
     when: () => S.orders.length > 0,
     text: "Chaque voisin demande quelques récoltes ou un plat. Livre-le quand tu as tout, ou laisse passer s’il en demande trop : un autre viendra.",
     done: () => S.stats.orders > 0, ok: "D’accord" },
-  { id: "recipe", tab: ["garden", "market"], hl: '.tab[data-arg="market"]',
+  { id: "recipe", tab: ["garden", "market"], hl: () => tab !== "market" ? '.tab[data-arg="market"]' : msub !== "recipes" ? '[data-act="msub"][data-arg="recipes"]' : '[data-act="buyRecipe"]:not([disabled])',
     when: () => RORDER.some(r => RECIPES[r].lvl <= S.level) && !S.recipes.length,
     text: "Avec tes légumes, on peut cuisiner de bons petits plats ! Achète ta première recette au Marché, rayon Recettes.",
     done: () => S.recipes.length > 0 },
@@ -53,7 +63,7 @@ const TUTO = [
     text: () => tab === "lab" ? "Ta recette n’attend plus que toi ! Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier."
       : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : c’est là que se trouvent la Cuisine et la Serre, chacune avec son bouton en haut de la page.",
     done: () => tutoF("tab_kitchen") || S.stats.cooked > 0 },
-  { id: "cook2", tab: "kitchen",
+  { id: "cook2", tab: "kitchen", hl: '[data-act="cook"]:not([disabled])',
     when: () => S.recipes.length > 0 && !S.stats.cooked,
     text: "Te voilà dans la Cuisine ! Choisis ta recette, vérifie que tu as les ingrédients, et lance la cuisson. Un plat se vend bien plus cher que les légumes qui le composent.",
     done: () => S.stats.cooked > 0, ok: "Allons-y" },
@@ -61,7 +71,7 @@ const TUTO = [
     when: () => S.level >= 3,
     text: () => (tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
     done: () => tutoF("tab_lab") || (S.discovered || []).length > 0 },
-  { id: "lab2", tab: "lab",
+  { id: "lab2", tab: "lab", hl: ['[data-act="labStart"]:not([disabled])', '[data-act="labPick"]'],
     when: () => S.level >= 3 && !(S.discovered || []).length,
     text: "Choisis deux récoltes et laisse-les mûrir ensemble. Certains mélanges donnent une variété hybride : ton herbier se remplira petit à petit.",
     done: () => (S.discovered || []).length > 0, ok: "J’essaie" },
@@ -76,12 +86,21 @@ const TUTO = [
     done: () => tutoF("tab_friends") },
   { id: "friends2", free: true, tab: "friends", hl: ".fr-code",
     when: () => tutoFriends() && FR.loaded && !tutoFriendCount(),
-    text: "Voici ton code ami. Envoie-le à quelqu’un pour qu’il t’ajoute, ou entre le sien dans l’onglet « Ajouter ».",
+    text: "Voici ton code ami. Envoie-le à quelqu’un pour qu’il puisse t’ajouter en ami.",
     done: () => tutoFriendCount() > 0, ok: "Compris" },
+  { id: "addfriend", free: true, tab: "friends",
+    hl: () => FR.tab !== "add" ? '[data-act="frTab"][data-arg="add"]' : ['[data-act="frAdd"]', "#fr-q"],
+    when: () => tutoFriends() && FR.loaded && !tutoFriendCount(),
+    text: "Tu connais déjà quelqu’un qui joue ? Va dans « Ajouter », tape son code ami ou le début de son pseudo, puis touche le bouton à côté de son nom : il recevra ta demande.",
+    done: () => tutoF("friend_request") || tutoFriendCount() > 0, ok: "Plus tard" },
   { id: "visit", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
     when: () => tutoFriends() && tutoFriendCount() > 0,
     text: "Touche la petite pousse pour visiter le jardin de ton ami. Une fois par jour, tu peux l’arroser : ses plantes poussent 20 % plus vite pendant 2 h, et toi tu gagnes un peu d’XP.",
     done: () => tutoF("visited") },
+  { id: "like", free: true, tab: "friends", hl: '.fr-act[data-act="frVisit"]',
+    when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
+    text: "Pendant une visite, touche le cœur pour dire à ton ami que tu aimes son jardin : il verra une pluie de cœurs ! Un cœur par ami et par semaine.",
+    ok: "C’est mignon" },
   { id: "trade", free: true, tab: "friends", hl: '.fr-act[data-act="trOpen"]',
     when: () => tutoFriends() && tutoFriendCount() > 0 && tutoF("visited"),
     text: "Une plante qui n’est pas de saison chez toi ? Touche ⇄ pour proposer un échange : des récoltes ou des plats, contre d’autres ou contre des pièces, pour une valeur à peu près égale.",
@@ -170,7 +189,9 @@ function tutoUpdate() {
     if (show) SFX.play("click");
   }
   // Petite lueur sur l'élément concerné (réappliquée : les bacs sont redessinés).
-  const hl = show && t.hl ? document.querySelector(typeof t.hl === "function" ? t.hl() : t.hl) : null;
+  // hl : un sélecteur, une liste (le premier présent à l'écran) ou une fonction (selon l'onglet en cours).
+  const sels = show && t.hl ? [].concat(typeof t.hl === "function" ? t.hl() : t.hl) : [];
+  let hl = null; for (const q of sels) { hl = document.querySelector(q); if (hl) break; }
   document.querySelectorAll(".tuto-hl").forEach(el => { if (el !== hl) el.classList.remove("tuto-hl"); });
   if (hl) hl.classList.add("tuto-hl");
 }

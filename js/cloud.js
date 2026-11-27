@@ -67,7 +67,7 @@ const CLOUD = (() => {
       else {
         const rs = r.data, rt = Date.parse(r.updated_at) || 0, lt = S.last || 0;
         const same = rs && rs.level === S.level && rs.xp === S.xp && rs.coins === S.coins;
-        const progress = x => (x?.stats?.harvest || 0) > 0 || (x?.level || 1) > 1;
+        const progress = x => (x?.stats?.harvest || 0) > 0 || (x?.level || 1) > 1 || !!x?.resetAt; // resetAt : partie recommencée exprès, à garder
         if (same) lastSync = Date.now();
         else if (!progress(S)) useRemote(rs);                                     // appareil sans partie : on reprend celle du compte
         else if (fresh && progress(rs)) askChoice(rs);            // 1ʳᵉ connexion avec deux parties : on demande
