@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.35" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.36" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -397,7 +397,9 @@ function genOrder() {
   const ok = t => S.level >= t.lvl && S.plots.length >= (t.plots || 0) && (!t.need || (t.need.includes("dish") ? dishes.length : true) && (t.need.includes("hyb") ? hybs.length : true))
     && t.plan.filter(x => x === "c").length <= crops.length;
   const types = ORDER_TYPES.filter(ok);
-  const type = weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
+  // Toute première commande (tutoriel) : une commande facile, faisable avec ce qu'on a déjà récolté.
+  const tutoOrder = !S.stats.orders && !S.tutoOrder && !S.orders.length;
+  const type = tutoOrder ? ORDER_TYPES[0] : weightedPick(types, t => t.w * (t.id === S.lastOrderType ? .3 : 1));
   const items = {};
   // Plus le jardin est grand, plus les voisins en demandent : ×1 à 6 parcelles, jusqu’à ×2 à 12.
   const big = Math.min(2, S.plots.length / 6);
@@ -409,11 +411,17 @@ function genOrder() {
     if (slot === "d") { const r = take(dishes); if (r) items[r] = Math.random() < big - 1 ? 2 : 1; } // grand jardin : parfois deux fois le même plat
   }
   if (!Object.keys(items).length) { const k = pick(crops); items[k] = qtyCrop(k); }
+  if (tutoOrder) {
+    S.tutoOrder = true;
+    const have = ORDER.filter(k => !PLANTS[k].hybrid && cnt(S.crops, k) > 0).sort((a, b) => cnt(S.crops, b) - cnt(S.crops, a));
+    for (const k in items) delete items[k];
+    items[have[0] || "radis"] = have[0] ? Math.min(3, cnt(S.crops, have[0])) : 2;
+  }
   // Hors saison (1 commande sur 8) : un voisin réclame une plante exclusive déjà récoltée, ou un plat qui en contient.
   // Il faut avoir gardé des graines ou des récoltes : la commande rapporte 30 % de plus.
   let offSeason = false;
   const outEx = ORDER.filter(k => PLANTS[k].only && PLANTS[k].season !== season() && S.discovered.includes(k));
-  if (outEx.length && Math.random() < 1 / 8) {
+  if (!tutoOrder && outEx.length && Math.random() < 1 / 8) {
     const outDish = RORDER.filter(r => RECIPES[r].lvl <= S.level && knownItem(r) && Object.keys(RECIPES[r].need).some(k => outEx.includes(k))
       && Object.keys(RECIPES[r].need).every(k => outEx.includes(k) || seedBuyable(k) || cnt(S.crops, k) > 0));
     for (const k in items) delete items[k];

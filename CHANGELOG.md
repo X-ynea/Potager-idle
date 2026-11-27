@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.36
+- Toute première commande d’un voisin : une commande facile, faisable avec ce qui est déjà récolté (par exemple 3 radis), pour que le conseil de Mamie Lapine aille jusqu’à la livraison.
+
 ### 3.0.35
 - Premiers pas avec Mamie Lapine : c’est toujours le bac du radis éclair qui est mis en avant (à arroser puis à cueillir), et plus un autre radis du jardin de départ qui mûrit en même temps.
 
