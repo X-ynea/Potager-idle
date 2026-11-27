@@ -122,6 +122,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.45 · Nouveau tutoriel
+- Mamie Lapine guide maintenant les débuts pas à pas, comme un petit scénario : le jeu prépare chaque situation (radis mûr, graine de radis éclair, petit visiteur, commande d’un voisin, graines au Marché…), le reste de l’écran est assombri et seul l’élément à toucher répond.
+- Premiers pas : cueillir, semer le radis éclair, l’arroser, le cueillir, attraper un visiteur volant, livrer une commande, acheter et semer de la laitue, découvrir les objectifs du jour et les saisons.
+- Au niveau 2, scénario de la cuisine (apprendre la salade et la cuisiner, les légumes sont offerts) ; au niveau 3, la Serre (lancer un premier croisement) ; puis les amis (code ami, ajouter un ami).
+- Le tutoriel ne se passe plus depuis la bulle : bouton « Passer » dans les Paramètres, à côté de « Revoir ».
+- Pas de récolte dorée ni d’embêtement pendant les scénarios.
+- Nouveau conseil : les petits visiteurs volants, pour les joueurs qui ne les ont jamais attrapés.
+
 ### 3.0.44
 - Recommencer à zéro garde la part aux objectifs de la semaine, mais leurs récompenses peuvent être récupérées à nouveau par la nouvelle partie.
 - Correction : en 3.0.43, « Recommencer à zéro » ne remettait plus la partie à zéro.

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.44" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.45" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -723,7 +723,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
   const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
   if (d.tuto) tutoFlag("eclair");
-  const gold = !d.tuto && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
+  const gold = !d.tuto && !tutoLocked() && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
@@ -839,7 +839,7 @@ function viewSettings() {
       <div class="set-row"><span>Vibrations à la récolte</span><button class="switch" role="switch" data-act="toggleVibrate" aria-checked="${S.settings.vibrate}" aria-label="Vibrations"></button></div>
       <div class="set-row"><span>Notifications<small class="set-sub">Plantes prêtes ou assoiffées, plats et croisements terminés</small></span><button class="switch" role="switch" data-act="toggleNotif" aria-checked="${!!S.settings.notif}" aria-label="Notifications"></button></div>
       ${S.settings.notif ? `<p class="small muted" style="margin:0">Elles arrivent tant que le jeu tourne en arrière-plan. Si ton téléphone ferme complètement l’appli, elles s’arrêtent jusqu’à la prochaine ouverture.</p>` : ""}
-      <div class="set-row"><span>Conseils de Mamie Lapine</span><button class="btn ghost sm" data-act="tutoReset">Revoir</button></div>
+      <div class="set-row"><span>Conseils de Mamie Lapine</span><span class="row" style="gap:6px">${tutoBasicsPending() || FLOW_ORDER.some(k => !tutoState().flows[k] && FLOWS[k].when()) ? `<button class="btn ghost sm" data-act="tutoSkip">Passer</button>` : ""}<button class="btn ghost sm" data-act="tutoReset">Revoir</button></span></div>
     </div>
     <div class="set-group danger"><h3>Zone sensible</h3>
       <button class="set-link" data-act="dangerOpen" data-arg="reset">${ICON_RESET}<span><b>Recommencer à zéro</b><small>Efface ta progression, ton compte est gardé</small></span></button>
@@ -1472,13 +1472,14 @@ function floatText(txt, x, y, gold) {
   $("#fx").appendChild(el); setTimeout(() => el.remove(), 1200);
 }
 const BCOL = [["#ff9fc0", "#ff6f9a"], ["#ffd36b", "#f4a52a"], ["#9fd0ff", "#5aa7ee"], ["#c9a5ff", "#9a6cf0"]];
-function spawnButterfly() {
+function spawnButterfly(stay) {
   const [a, b] = pick(BCOL);
   const el = document.createElement("button");
   const vis = VISITOR();
   el.className = "butterfly v-" + vis.key; el.setAttribute("aria-label", vis.label);
   el.style.top = rand(22, 70) + "vh"; el.style.left = "0";
   el.style.animationDuration = rand(11, 16) + "s";
+  if (stay) { el.classList.add("stay"); el.style.top = "38vh"; } // tutoriel : il reste le temps qu’on l’attrape
   if (Math.random() < .5) el.classList.add("rtl"); // arrive de la droite une fois sur deux
   el.innerHTML = `<span class="bf">${visitorArt(vis.key)}</span>`;
   el.addEventListener("click", ev => {
@@ -1542,10 +1543,10 @@ function start() {
   let saveCount = 0;
   setInterval(() => {
     const t = now(); tick(t);
-    if (!document.hidden && tab === "garden" && t >= nextButterfly) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
+    if (!document.hidden && tab === "garden" && t >= nextButterfly && !tutoLocked()) { spawnButterfly(); nextButterfly = t + rand(90, 200) * 1000; }
     // « Escargot de compagnie » : seul le temps passé jeu ouvert compte (pas la nuit, jeu fermé).
     if (!document.hidden) for (const q of S.plots) if (q.weed && q.weedKind === "snail") { q.snailTime = (q.snailTime || 0) + 1000; if (q.snailTime >= 3600e3) S.stats.petSnail = 1; }
-    if (t >= nextWeed) {
+    if (t >= nextWeed && !tutoLocked()) {
       const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
       if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; q.snailTime = 0; }
       nextWeed = t + rand(80, 170) * 1000;

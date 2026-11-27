@@ -1618,3 +1618,14 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .lv-item .lv-buy { flex-wrap: wrap; gap: 2px 8px; padding: 4px 10px; border-radius: 12px; line-height: 1.25; }
 .lv-item .lv-price { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .lv-item .lv-buy > span { color: inherit; font-size: inherit; font-weight: inherit; margin: 0; }
+/* ---- Tutoriel en scénario : voile, bulle fixe, visiteur qui attend ---- */
+#tuto-dim { position: fixed; inset: 0; z-index: 40; background: rgba(35,22,10,.5); pointer-events: none; }
+#tuto.locked { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 74px); z-index: 41; margin: 0 auto; max-width: 560px; padding: 0 12px; }
+#tuto.locked.at-bottom { top: auto; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 14px); }
+#tuto.locked .tuto-bubble { box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.tuto-bubble.nudge { animation: tuto-nudge .35s; }
+@keyframes tuto-nudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+body.tuto-lock .tuto-hl { position: relative; z-index: 1; }
+.butterfly.stay { animation: none !important; left: 50% !important; margin-left: -28px; }
+.butterfly.stay .bf { animation: tuto-hover 2.2s ease-in-out infinite; }
+@keyframes tuto-hover { 50% { transform: translate(10px, -8px); } }
