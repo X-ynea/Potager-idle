@@ -122,6 +122,13 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.60 (version de test, préparation de la v4)
+
+- Balade en forêt : nouveaux sols de saison.
+- Memory des graines : nouvelles cartes, avec les graines de la plante au recto.
+- Images définitives des 9 recettes de balade.
+- Images définitives des 3 hybrides (Courgette cerise, Poireau soleil, Pois sucré) : graines, sachet, pousses, plante et récolte.
+
 ### 3.1.59 (version de test, préparation de la v4)
 
 - Balade en forêt : nouveaux arbres et nouveaux chemins de saison, qui se répètent sans raccord visible.

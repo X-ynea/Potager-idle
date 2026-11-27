@@ -1743,11 +1743,11 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .mc-in { position: relative; display: block; width: 100%; height: 100%; transition: transform .35s; transform-style: preserve-3d; }
 .memo-card.up .mc-in { transform: rotateY(180deg); }
 .mc-back, .mc-front { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
-.mc-back svg { width: 100%; height: 100%; display: block; }
-.mc-front { transform: rotateY(180deg); background: #fff; border: 2px solid #e6dcf5; display: grid; place-items: center; grid-template-rows: 1fr auto; padding: 4px 2px; }
-.mc-front svg, .mc-front img { width: 82%; height: auto; max-height: 100%; }
+.mc-back { background: url("../assets/img/balades/memo-back.webp") center / 100% 100% no-repeat; }
+.mc-front { transform: rotateY(180deg); background: url("../assets/img/balades/memo-front.webp") center / 100% 100% no-repeat; display: grid; place-items: center; padding: 18%; }
+.mc-front svg, .mc-front img { width: 100%; height: auto; max-height: 100%; }
 .mc-front small { font-size: .6rem; font-weight: 800; color: #5a4a3a; line-height: 1.1; text-align: center; }
-.memo-card.match .mc-front { border-color: #7cc24a; background: #f0fae8; animation: gFade .3s; }
+.memo-card.match .mc-front { box-shadow: 0 0 0 3px #7cc24a; animation: gFade .3s; }
 .g-give img { width: 20px; height: 20px; object-fit: contain; }
 
 /* Cueillette express */

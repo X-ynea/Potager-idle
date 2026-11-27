@@ -230,7 +230,8 @@ function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : p
    16 cartes (8 paires de sachets de graines), 25 s. Score : 3 par paire + 1 par seconde restante si tout est trouvé.
    Pièces : (4 + niveau) par paire ; tout trouvé = 1 sachet de graines d'une des plantes débloquées. */
 const MEMO_T = 25000, MEMO_PAIRS = 8;
-const CARD_BACK = `<svg viewBox="0 0 60 80"><rect width="60" height="80" rx="8" fill="#9a6cf0"/><rect x="4" y="4" width="52" height="72" rx="6" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/><path d="M30 58V36m0 0c-7 0-10-5-10-11 7 0 10 5 10 11zm0 0c0-7 3-11 10-11 0 6-3 11-10 11z" fill="#fff" opacity=".85"/></svg>`;
+// Recto : les graines de la plante (ou son sachet si elle n’a pas encore de dessin).
+const memoSeed = k => { const i = PLANTS[k]?.img || k; return hasImg("plants", i) ? imgSvg(`assets/img/plantes/${i}-grain.webp`) : seedArt(k); };
 function memoPool() {
   const base = ORDER.filter(k => !PLANTS[k].hybrid).sort((a, b) => PLANTS[a].lvl - PLANTS[b].lvl);
   const open = base.filter(k => PLANTS[k].lvl <= S.level);
@@ -301,7 +302,7 @@ const GAME_IMPL = {
       g.deck = deck;
       g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.memory.name}</b><span class="g-score"><span class="g-pts">Paires</span><b class="num">0 / ${MEMO_PAIRS}</b></span></div>
         <div class="g-time"><i></i></div>
-        <div class="g-field memo-field"><div class="memo-grid">${deck.map((k, i) => `<button class="memo-card" data-i="${i}" aria-label="Carte"><span class="mc-in"><span class="mc-back">${CARD_BACK}</span><span class="mc-front">${seedArt(k)}<small>${PLANTS[k].name}</small></span></span></button>`).join("")}</div></div>
+        <div class="g-field memo-field"><div class="memo-grid">${deck.map((k, i) => `<button class="memo-card" data-i="${i}" aria-label="Carte"><span class="mc-in"><span class="mc-back"></span><span class="mc-front">${memoSeed(k)}</span></span></button>`).join("")}</div></div>
         <p class="g-hint">Retrouve les paires de graines !</p>`;
       g.el.querySelector(".memo-grid").addEventListener("pointerdown", ev => {
         const c = ev.target.closest(".memo-card"); if (!c || g.state !== "play") return; ev.preventDefault(); GAME_IMPL.memory.tap(g, c);
