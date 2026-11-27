@@ -122,6 +122,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.61 (version de test, préparation de la v4)
+
+- Memory des graines : les cartes montrent le sachet de graines de la plante.
+- Balade en forêt : les arbres descendent jusqu'à l'herbe, et le sol continue jusqu'en bas de l'écran, sous la consigne.
+
 ### 3.1.60 (version de test, préparation de la v4)
 
 - Balade en forêt : nouveaux sols de saison.

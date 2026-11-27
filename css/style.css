@@ -1716,14 +1716,16 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 /* La balade en forêt */
 .g-foret { background: #a9d68a center top / cover; } /* le ciel de la saison */
 .g-foret .g-hint, .g-cueillette .g-hint { margin: 6px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(255,255,255,.85); width: max-content; max-width: 100%; }
-.foret-field { position: relative; overflow: hidden; margin: 0 -16px; } /* d'un bord à l'autre de l'écran */
-.forest-bg { position: absolute; left: 0; right: 0; bottom: calc(58% - 4px); height: 34%; background: repeat-x 0 100% / auto 100%; pointer-events: none; }
-.foret-field .path { position: absolute; left: 0; right: 0; top: 42%; bottom: 0; background: #8fbf4a repeat-x 0 0 / auto 100%; }
+.g-foret { --under: calc(50px + env(safe-area-inset-bottom, 0px)); } /* le sol passe aussi sous la consigne du bas */
+.foret-field { position: relative; overflow: hidden; margin: 0 -16px calc(-1 * var(--under)); } /* d'un bord à l'autre de l'écran */
+.g-foret .g-hint { position: relative; z-index: 6; }
+.forest-bg { position: absolute; left: 0; right: 0; bottom: 52%; height: 34%; background: repeat-x 0 100% / auto 100%; pointer-events: none; }
+.foret-field .path { position: absolute; left: 0; right: 0; top: 40%; bottom: 0; background: #8fbf4a repeat-x 0 0 / auto 100%; }
 .bush { position: absolute; left: 0; width: 150px; height: 125px; border: 0; background: none; padding: 0; -webkit-tap-highlight-color: transparent; }
 /* Les buissons poussent dans l'herbe : derrière le chemin (lane0) ou devant (lane1, lane2), jamais dessus. */
-.bush.lane0 { top: auto; bottom: 42%; z-index: 1; width: 120px; height: 110px; }
-.bush.lane1 { top: auto; bottom: 6%; z-index: 2; }
-.bush.lane2 { top: auto; bottom: -2%; z-index: 3; width: 170px; height: 155px; }
+.bush.lane0 { top: auto; bottom: 44%; z-index: 1; width: 120px; height: 110px; }
+.bush.lane1 { top: auto; bottom: calc(4% + var(--under)); z-index: 2; }
+.bush.lane2 { top: auto; bottom: calc(var(--under) - 24px); z-index: 3; width: 170px; height: 155px; }
 .bush-svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.18)); }
 .bush-item { position: absolute; left: 50%; top: 0; width: 44%; aspect-ratio: 1; transform: translateX(-50%); z-index: 4; animation: reveal .8s ease-out forwards; pointer-events: none; }
 .bush-item svg, .bush-item .wild-ph { width: 100%; height: 100%; font-size: 1.6rem; }
@@ -1744,7 +1746,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 .memo-card.up .mc-in { transform: rotateY(180deg); }
 .mc-back, .mc-front { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
 .mc-back { background: url("../assets/img/balades/memo-back.webp") center / 100% 100% no-repeat; }
-.mc-front { transform: rotateY(180deg); background: url("../assets/img/balades/memo-front.webp") center / 100% 100% no-repeat; display: grid; place-items: center; padding: 18%; }
+.mc-front { transform: rotateY(180deg); background: url("../assets/img/balades/memo-front.webp") center / 100% 100% no-repeat; display: grid; place-items: center; padding: 13%; }
 .mc-front svg, .mc-front img { width: 100%; height: auto; max-height: 100%; }
 .mc-front small { font-size: .6rem; font-weight: 800; color: #5a4a3a; line-height: 1.1; text-align: center; }
 .memo-card.match .mc-front { box-shadow: 0 0 0 3px #7cc24a; animation: gFade .3s; }
