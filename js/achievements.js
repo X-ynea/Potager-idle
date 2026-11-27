@@ -62,7 +62,10 @@ const ACHIEVEMENTS = [
     tiers: [{ n: Object.keys(UPG).length, c: 2000, x: 300 }] },
   { id: "domain", cat: "eco", name: "Domaine", desc: n => `Avoir les ${n} parcelles`, value: () => S.plots.length, tiers: [{ n: MAX_PLOTS, c: 1000, x: 200, title: "Propriétaire", deco: "fence" }] },
   { id: "levels", cat: "eco", name: "Jardinier confirmé", desc: n => `Atteindre le niveau ${n}`, value: () => S.level,
-    tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }, { n: 30, c: 6000, x: 0, title: "Maître jardinier" }] },
+    tiers: [{ n: 5, c: 100, x: 0 }, { n: 10, c: 500, x: 0 }, { n: 20, c: 2000, x: 0, title: "Jardinier émérite" }, { n: 30, c: 6000, x: 0, title: "Maître jardinier" },
+      // Au-delà du niveau 30 (3.0.29) : un grand palier tous les 5 niveaux.
+      { n: 35, c: 8000, x: 0, title: "Jardinier expert", deco: "sundial" }, { n: 40, c: 10000, x: 0, title: "Jardinier légendaire", deco: "glasshouse", bonus: "gold" },
+      { n: 45, c: 12000, x: 0, title: "Sage du potager", deco: "toolshed" }, { n: 50, c: 15000, x: 0, title: "Gardien du potager", deco: "pumpkin", bonus: "gold" }] },
 
   { id: "butterflies", cat: "daily", name: "Petits visiteurs", desc: n => `Attraper ${n} visiteurs ailés (papillons, libellules, coccinelles, rouges-gorges)`, value: () => st("butterflies"),
     tiers: [{ n: 10, c: 40, x: 15 }, { n: 50, c: 200, x: 60, deco: "birdhouse" }, { n: 200, c: 800, x: 200, title: "Ami des petites bêtes" }] },
@@ -99,28 +102,35 @@ const DECOS = {
   gnome: "Nain de jardin", scarecrow: "Épouvantail", fence: "Petite clôture", birdbath: "Bain d’oiseaux", birdhouse: "Nichoir",
   hive: "Ruche", wheelbarrow: "Brouette de légumes", bench: "Banc fleuri", signpost: "Panneau du village", lantern: "Lanterne",
   rabbit: "Lapin doré", well: "Puits",
+  sundial: "Cadran solaire", glasshouse: "Petite serre", toolshed: "Cabane à outils", pumpkin: "Citrouille dorée", // grands paliers 35 à 50
 };
+// Décos dont l'image n'est pas encore prête : cachées partout (elles apparaissent dès qu'on les retire d'ici).
+const DECO_PENDING = new Set(["sundial", "glasshouse", "toolshed", "pumpkin"]);
 // Décos des objectifs de la semaine (là où les amis sont ouverts) : une par saison, entre amis (f_) et de tous (g_).
 if (FRIENDS_ON) Object.assign(DECOS, { f_printemps: "Arche fleurie", f_ete: "Table de pique-nique", f_automne: "Hérisson et feuilles", f_hiver: "Bonhomme de neige",
   g_printemps: "Fontaine fleurie", g_ete: "Moulin à vent", g_automne: "Montgolfière", g_hiver: "Sapin illuminé" });
-const DECO_ORDER = Object.keys(DECOS);
+const DECO_ORDER = Object.keys(DECOS).filter(d => !DECO_PENDING.has(d));
 // v3 : l'arrosoir et la boîte aux lettres deviennent le bain d'oiseaux et le panneau du village
 // (pour ne pas les confondre avec l'arrosage d'un ami et la boîte aux lettres du jardin).
 const DECO_RENAME = { can: "birdbath", mailbox: "signpost" };
 /* Taille relative de chaque décoration dans le jardin, proche des proportions réelles. */
-const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25 };
+const DECO_SCALE = { gnome: .62, scarecrow: 1.3, fence: .9, birdbath: .8, birdhouse: .85, hive: .85, wheelbarrow: .9, bench: 1, signpost: 1.05, lantern: 1.2, rabbit: .7, well: 1.25, sundial: .9, glasshouse: 1.2, toolshed: 1.25, pumpkin: .85 };
 // Décos des objectifs de la semaine
 if (FRIENDS_ON) Object.assign(DECO_SCALE, { f_printemps: 1.1, f_ete: .9, f_automne: .75, f_hiver: .9, g_printemps: 1.05, g_ete: 1.2, g_automne: 1.15, g_hiver: 1.1 });
 const decoSource = d => { for (const ach of ACHIEVEMENTS) for (let i = 0; i < ach.tiers.length; i++) if (ach.tiers[i].deco === d) return { ach, i }; return null; };
 const decoUnlocked = d => { if ((S.goalDecos || []).includes(d)) return true; const s = decoSource(d); return !!s && ((S.ach || {})[s.ach.id] || 0) > s.i; };
 // Décos des objectifs de la semaine : d'où elles viennent (affiché tant qu'elles ne sont pas gagnées).
 const GOAL_DECO_SRC = d => { const m = /^([fg])_(\w+)$/.exec(d); return m && SEASONS[m[2]] ? `Objectif ${m[1] === "f" ? "entre amis" : "de tous"} · ${SEASONS[m[2]].name.toLowerCase()}` : ""; };
-const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide" };
+const BONUS_TEXT = { xp: "+5 % d’XP sur tout", coins: "+5 % de pièces sur tout", cook: "Cuisson 10 % plus rapide", gold: "+1 % de chance de récolte dorée" };
+// Nombre de paliers obtenus qui donnent ce bonus (les bonus « gold » s'additionnent).
+const bonusCount = b => ACHIEVEMENTS.reduce((n, a) => n + a.tiers.filter((t, i) => t.bonus === b && (S.ach || {})[a.id] > i).length, 0);
+// Étoile dorée à côté du niveau, au-delà du niveau 30.
+const lvlStar = l => l > 30 ? `<span class="lv-star" aria-label="au-delà du niveau 30">★</span>` : "";
 const hasBonus = b => ACHIEVEMENTS.some(a => a.tiers.some((t, i) => t.bonus === b && (S.ach || {})[a.id] > i));
 const xpMult = () => hasBonus("xp") ? 1.05 : 1;
 const coinMult = () => hasBonus("coins") ? 1.05 : 1;
 const cookMult = () => hasBonus("cook") ? .9 : 1;
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const achDesc = (a, n) => typeof a.desc === "function" ? a.desc(n) : a.desc;
 
 /* Vérifie les succès ; distribue les récompenses des nouveaux paliers. */
@@ -142,7 +152,7 @@ function showAchToasts() {
   while (ACH_QUEUE.length) {
     const { a, lv, t } = ACH_QUEUE.shift();
     const name = a.name + (a.tiers.length > 1 ? " " + ROMAN[lv] : "");
-    const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `+${fmt(t.c)} pièces` : "", t.x ? `+${t.x} XP` : "", t.title ? `titre « ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco && !DECO_PENDING.has(t.deco) ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     toast(`<button class="ach-toast" data-act="achGo" data-arg="${a.id}" aria-label="Voir le succès ${name}">${TROPHY}<span><b>Succès : ${name}</b><br>${rew}</span></button>`, 5500);
     buzz([10, 40, 10]); SFX.play("success");
   }
@@ -159,7 +169,7 @@ function viewAch() {
   // Obtenus : dernier palier atteint ; En cours : prochain palier à atteindre.
   const cardDone = a => {
     const lv = S.ach[a.id] || 0, max = a.tiers.length, t = a.tiers[lv - 1];
-    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco && !DECO_PENDING.has(t.deco) ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     return `<div class="ach done${UI.achFlash === a.id ? " flash" : ""}" data-ach="${a.id}">
       <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
       <div class="ach-txt"><b>${a.name}${max > 1 ? " " + ROMAN[lv] : ""}</b><span>${achDesc(a, t.n)}</span><span class="ach-rew ok">Obtenu${rew ? " · " + rew : ""}</span></div></div>`;
@@ -171,7 +181,7 @@ function viewAch() {
     const v = Math.min(a.value(), t.n);
     const name = hiddenNow ? "???" : a.name + (max > 1 ? " " + ROMAN[Math.min(lv + (doneAll ? 0 : 1), max)] : "");
     const desc = hiddenNow ? "Succès caché" : achDesc(a, t.n);
-    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
+    const rew = [t.c ? `${coin}${fmt(t.c)}` : "", t.x ? `+${t.x} XP` : "", t.title ? `« ${t.title} »` : "", t.bonus ? BONUS_TEXT[t.bonus] : "", t.deco && !DECO_PENDING.has(t.deco) ? `déco « ${DECOS[t.deco]} »` : ""].filter(Boolean).join(" · ");
     return `<div class="ach ${doneAll ? "done" : lv ? "part" : ""} ${hiddenNow ? "secret" : ""}">
       <div class="ach-ico">${TROPHY}${max > 1 ? `<span class="ach-tier">${"★".repeat(lv)}${"☆".repeat(max - lv)}</span>` : ""}</div>
       <div class="ach-txt"><b>${name}</b><span>${desc}</span>

@@ -44,7 +44,7 @@ setInterval(() => { if (friendsReady() && !document.hidden) loadFriends(); }, 12
 addEventListener("load", () => setTimeout(() => loadFriends(true), 2500));
 
 function friendRow(f) {
-  const head = `<span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b>${f.title ? `<span class="title-tag">${esc(f.title)}</span>` : ""}<small>Niv. ${f.level} · ${f.direction === "friend" ? seenAgo(f.last_seen) : "code " + esc(f.code)}</small></span>`;
+  const head = `<span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b>${f.title ? `<span class="title-tag">${esc(f.title)}</span>` : ""}<small>Niv. ${f.level}${lvlStar(f.level)} · ${f.direction === "friend" ? seenAgo(f.last_seen) : "code " + esc(f.code)}</small></span>`;
   if (f.direction === "in") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn sm" data-act="frRespond" data-arg="${f.id}:1">Accepter</button><button class="btn ghost sm" data-act="frRespond" data-arg="${f.id}:0">Refuser</button></span></div>`;
   if (f.direction === "out") return `<div class="fr-row">${head}<span class="fr-acts"><button class="btn ghost sm" data-act="frRemove" data-arg="${f.id}">Annuler</button></span></div>`;
   return `<div class="fr-row"><button class="fr-head" data-act="frChat" data-arg="${f.id}" aria-label="Messages avec ${esc(f.name)}">${head}</button><span class="fr-acts">
@@ -77,7 +77,7 @@ function viewFriends(inTab) {
     body = `<form class="fr-search" data-form="frSearch"><input id="fr-q" maxlength="20" placeholder="Code ami ou pseudo" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(FR.q)}"><button class="btn" type="submit">${FR.searching ? "…" : "Chercher"}</button></form>
       <p class="small muted" style="margin:0">Code à 5 caractères (ex. K7Q2M) ou début du pseudo.</p>
       ${res == null ? "" : res.length ? `<div class="fr-list">${res.map(r => { const rel = FR.list.find(f => f.user_id === r.user_id);
-        return `<div class="fr-row"><span class="fr-av">${friendAvatar(r.avatar)}</span><span class="fr-id"><b>${esc(r.name)}</b><small>Niv. ${r.level} · code ${esc(r.code)}</small></span><span class="fr-acts">${rel ? `<span class="small muted">${rel.direction === "friend" ? "Déjà ami" : rel.direction === "out" ? "Demande envoyée" : "T’a demandé"}</span>` : `<button class="btn sm" data-act="frAdd" data-arg="${r.user_id}">Ajouter</button>`}</span></div>`; }).join("")}</div>`
+        return `<div class="fr-row"><span class="fr-av">${friendAvatar(r.avatar)}</span><span class="fr-id"><b>${esc(r.name)}</b><small>Niv. ${r.level}${lvlStar(r.level)} · code ${esc(r.code)}</small></span><span class="fr-acts">${rel ? `<span class="small muted">${rel.direction === "friend" ? "Déjà ami" : rel.direction === "out" ? "Demande envoyée" : "T’a demandé"}</span>` : `<button class="btn sm" data-act="frAdd" data-arg="${r.user_id}">Ajouter</button>`}</span></div>`; }).join("")}</div>`
         : `<p class="small muted" style="margin:0">Aucun joueur trouvé.</p>`}`;
   }
   return shell(`<div class="fr-code"><small>Ton code ami</small><b class="num">${esc(FR.code)}</b><button class="btn fr-ico ghost" data-act="frCopy" aria-label="Copier le code" title="Copier">${FR_ICONS.copy}</button>${navigator.share ? `<button class="btn fr-ico ghost" data-act="frShare" aria-label="Partager le code" title="Partager">${FR_ICONS.share}</button>` : ""}</div>

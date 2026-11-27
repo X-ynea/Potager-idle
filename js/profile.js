@@ -37,7 +37,7 @@ function viewProfile() {
         ${S.title ? `<span class="pf-sub"><span class="title-tag">${S.title}</span></span>` : ""}
       </div>
     </div>
-    <div class="pf-xp"><div class="pf-xp-top"><b>Niveau ${S.level}</b><span class="num">${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP</span></div>
+    <div class="pf-xp"><div class="pf-xp-top"><b>Niveau ${S.level}${lvlStar(S.level)}</b><span class="num">${fmt(S.xp)} / ${fmt(xpNeed(S.level))} XP</span></div>
       <div class="xpbar"><i style="width:${(S.xp / xpNeed(S.level) * 100).toFixed(1)}%"></i></div>
       <small class="muted">Encore ${fmt(xpNeed(S.level) - S.xp)} XP avant le niveau ${S.level + 1}</small></div>
     ${pick === "avatar" ? `<div class="set-group"><h3>Photo de profil</h3>

@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.0.28" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.0.29" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -179,14 +179,29 @@ function addXp(n) {
   S.xp += n;
   while (S.xp >= xpNeed(S.level)) {
     S.xp -= xpNeed(S.level); S.level++;
+    if (S.level > 30) levelGift(S.level);
     LEVEL_QUEUE.push(S.level);
   }
   if (LEVEL_QUEUE.length) setTimeout(showLevelUp, 0); // après l'action en cours (une autre fenêtre passe d'abord)
 }
 /* Fenêtre « Niveau X ! » avec tout ce qui vient d'être débloqué. */
 const LEVEL_QUEUE = [];
+/* Au-delà du niveau 30 : un panier du jardinier à chaque niveau (graines d'hybrides, graines de saison, pièces). */
+function levelGift(L) {
+  const g = { coins: 300 + 20 * (L - 31), hyb: {}, seeds: {} };
+  for (let i = 0; i < 3 && S.hybrids.length; i++) { const k = pick(S.hybrids); g.hyb[k] = (g.hyb[k] || 0) + 1; }
+  const sz = ORDER.filter(k => !PLANTS[k].hybrid && PLANTS[k].season === season() && PLANTS[k].lvl <= L);
+  if (sz.length) g.seeds[pick(sz)] = 5;
+  S.coins += g.coins;
+  for (const [k, n] of [...Object.entries(g.hyb), ...Object.entries(g.seeds)]) S.seeds[k] = cnt(S.seeds, k) + n;
+  S.lvlGifts = { ...(S.lvlGifts || {}), [L]: g };
+}
 function unlockItems(L) {
-  const out = [];
+  const out = [], g = (S.lvlGifts || {})[L];
+  if (g) {
+    for (const [k, n] of [...Object.entries(g.hyb), ...Object.entries(g.seeds)]) out.push({ art: seedArt(k), name: `${n} graine${n > 1 ? "s" : ""} ${/^[aeéèêiîoôuh]/i.test(PLANTS[k].name) ? "d’" : "de "}${PLANTS[k].name.toLowerCase()}`, kind: "Panier du jardinier" });
+    out.push({ art: `<img src="assets/img/ui-coin.webp" alt="">`, name: `${fmt(g.coins)} pièces`, kind: "Panier du jardinier" });
+  }
   for (const k of ORDER) if (!PLANTS[k].hybrid && PLANTS[k].lvl === L) out.push({ art: seedArt(k), name: PLANTS[k].name, kind: PLANTS[k].only ? `Plante ${SEASONS[PLANTS[k].season].of}, en vente à sa saison` : "Nouvelle graine au marché" });
   for (const r of RORDER) if (RECIPES[r].lvl === L) out.push({ art: dishArt(r), name: RECIPES[r].name, kind: "Nouvelle recette au marché" });
   for (const u in UPG) { const i = UPG[u].steps.findIndex(s => s.lvl === L); if (i >= 0) out.push({ art: `<img src="assets/img/${UPG[u].img || "upg-" + u}.webp" alt="">`, name: UPG[u].name, kind: `${UPG[u].desc(UPG[u].values[i + 1])}`, buy: UPG[u].steps[i].cost }); }
@@ -305,7 +320,7 @@ function showLevelUp() {
     ${big ? `<span class="lv-tag">Grand palier</span>` : ""}
     <div class="lv-badge"><img src="assets/img/xp-leaf.webp" alt=""><span class="num">${L}</span></div>
     <h2>Niveau ${L} !</h2>
-    ${items.length ? `<p class="muted" style="margin:0">Tu as maintenant accès à :</p>
+    ${items.length ? `<p class="muted" style="margin:0">${L > 30 ? "Ton panier du jardinier :" : "Tu as maintenant accès à :"}</p>
       <div class="lv-list">${items.map(it => `<div class="lv-item"><div class="lv-art">${it.art}</div><div><b>${it.name}</b><span>${it.kind}</span>${it.buy ? `<span class="lv-buy">À acheter dans Marché › Bonus · ${coin}${fmt(it.buy)}</span>` : ""}</div></div>`).join("")}</div>`
       : `<p class="muted" style="margin:0">Ta main verte s’affirme. Continue comme ça !</p>`}
     <button class="btn big" data-act="close">Super !</button></div>`;
@@ -698,7 +713,7 @@ function harvest(i, x, y) {
   const p = S.plots[i], d = PLANTS[p.seed];
   const k = d.tuto ? d.img : p.seed; // le radis éclair donne un vrai radis
   if (d.tuto) tutoFlag("eclair");
-  const gold = !d.tuto && Math.random() < GOLD_CHANCE, firstGold = gold && !S.goldenFound.includes(k);
+  const gold = !d.tuto && Math.random() < GOLD_CHANCE + .01 * bonusCount("gold"), firstGold = gold && !S.goldenFound.includes(k);
   const n = !gold && Math.random() < .08 ? 2 : 1;
   if (gold) {
     const gk = "gold_" + k; S.golden[gk] = cnt(S.golden, gk) + 1;
@@ -1309,7 +1324,7 @@ function render(force) {
 function live(t) {
   $("#coins").innerHTML = `<span class="n-short">${fmtShort(S.coins)}</span><span class="n-full">${fmt(S.coins)}</span>`; $("#coins").parentNode.title = `${fmt(S.coins)} pièces`;
   updateBrand();
-  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}</span>`;
+  $("#lvl").innerHTML = `<span class="lv-name"><span class="lv-long">Niveau</span><span class="lv-short">Niv.</span> ${S.level}${lvlStar(S.level)}</span>`;
   const ttl = $("#ttl"); ttl.hidden = !S.title; ttl.textContent = S.title || ""; // titre sous la barre d’XP
   $("#xpt").innerHTML = `<span class="n-short">${fmtXp(S.xp)} / ${fmtXp(xpNeed(S.level))}</span><span class="n-full">${fmt(S.xp)} / ${fmt(xpNeed(S.level))}</span><span class="xp-unit"> XP</span>`;
   $("#xpb").style.width = (S.xp / xpNeed(S.level) * 100).toFixed(1) + "%";

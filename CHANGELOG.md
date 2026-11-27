@@ -122,6 +122,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.29
+- Au-delà du niveau 30 : chaque niveau donne un panier du jardinier (3 graines d’hybrides, 5 graines de saison et des pièces), et une étoile dorée s’affiche à côté du niveau (aussi chez les amis).
+- Succès « Jardinier confirmé » : quatre nouveaux paliers aux niveaux 35, 40, 45 et 50, avec les titres « Jardinier expert », « Jardinier légendaire », « Sage du potager » et « Gardien du potager », et +1 % de chance de récolte dorée aux niveaux 40 et 50. Les décos de ces paliers arriveront avec leurs images.
+
 ### 3.0.28
 - Succès « Herbier complet » : un palier par vague d’hybrides. Ceux qui l’avaient déjà (8 hybrides) le gardent, avec son titre et son bonus, et un palier II « tous les hybrides (12) » s’ajoute, avec le titre « Maître botaniste ».
 
