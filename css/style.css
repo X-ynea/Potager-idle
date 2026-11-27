@@ -1604,3 +1604,7 @@ button.brand { border: 0; background: none; padding: 0; cursor: pointer; }
 :root[data-theme="dark"] .tab.tuto-hl { background: #4a3a12; color: #ffd76a; }
 /* Tutoriel : boutons et sous-onglets à toucher, contour doré fixe en plus du halo */
 .tuto-hl:not(.plot):not(.tab) { outline: 3px solid #f4c03e; outline-offset: 2px; }
+/* Tutoriel : bac à toucher entouré d'un cadre doré qui pulse */
+.plot.tuto-hl { border-radius: 12%; box-shadow: 0 0 0 3px #f4c03e, 0 0 16px 4px rgba(255,200,60,.65); animation: tuto-plot 1.4s ease-in-out infinite; z-index: 2; }
+@keyframes tuto-plot { 50% { box-shadow: 0 0 0 4px #ffd24a, 0 0 28px 10px rgba(255,200,60,.9); } }
+@media (prefers-reduced-motion: reduce) { .plot.tuto-hl { animation: none; } }

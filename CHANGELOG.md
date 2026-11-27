@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.34
+- Conseils de Mamie Lapine : le bac à toucher (récolter, planter, arroser) est entouré d’un cadre doré qui pulse.
+
 ### 3.0.33
 - Conseils de Mamie Lapine : chaque étape où elle demande de toucher quelque chose est mise en avant, pas à pas. Pour la première recette : l’onglet Marché, puis le rayon Recettes, puis le bouton « Apprendre ». Aussi : la graine de radis éclair à planter, « Livrer » au Village, « Cuisiner » en Cuisine, les récoltes à croiser à la Serre.
 - Les boutons mis en avant ont un contour doré fixe en plus du halo.
