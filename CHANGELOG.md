@@ -122,6 +122,9 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.0.35
+- Premiers pas avec Mamie Lapine : c’est toujours le bac du radis éclair qui est mis en avant (à arroser puis à cueillir), et plus un autre radis du jardin de départ qui mûrit en même temps.
+
 ### 3.0.34
 - Conseils de Mamie Lapine : le bac à toucher (récolter, planter, arroser) est entouré d’un cadre doré qui pulse.
 

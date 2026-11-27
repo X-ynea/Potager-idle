@@ -7,6 +7,8 @@
    dès que l'action est faite, et le suivant arrive tout seul.
    - Les premiers pas (basic) se suivent dans l'ordre.
    - Les autres conseils arrivent quand la situation se présente (escargot, Serre…). */
+// Le bac du radis éclair (et pas un autre bac mûr ou assoiffé du jardin de départ).
+const tutoEclair = (state = "") => { const i = S.plots.findIndex(p => p.seed === "radis_eclair"); return i < 0 ? [] : `.plot${state}[data-plot="${i}"]`; };
 const TUTO = [
   // Premiers pas
   { id: "harvest", basic: true, tab: "garden", hl: ".plot.ripe",
@@ -16,10 +18,10 @@ const TUTO = [
     enter: () => { S.seeds.radis_eclair = cnt(S.seeds, "radis_eclair") + 1; },
     text: "Joli panier ! Tiens, je te donne une graine de radis éclair : il pousse en un clin d’œil. Touche un bac vide pour la semer.",
     done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair") },
-  { id: "water", basic: true, tab: "garden", hl: ".plot.dry",
+  { id: "water", basic: true, tab: "garden", hl: () => tutoEclair(),
     text: "Oh, la terre est toute sèche : regarde la goutte au-dessus du bac. Sans eau, une plante pousse quatre fois moins vite. Touche le bac pour l’arroser !",
     done: () => tutoF("eclair") || S.plots.some(p => p.seed === "radis_eclair" && plotState(p, now()) !== "dry") },
-  { id: "grow", basic: true, tab: "garden", hl: ".plot.ripe",
+  { id: "grow", basic: true, tab: "garden", hl: () => tutoEclair(),
     text: () => `Tu vois ? Une fois arrosé, ça pousse à toute vitesse : l’anneau vert se remplit, l’anneau bleu montre l’eau qui reste. Un arrosage tient ${UPG.water.values[S.upg.water]} minutes, ensuite la goutte revient. Dès que l’étoile brille, cueille ton radis !`,
     done: () => tutoF("eclair") },
   { id: "away", basic: true, tab: "garden",
