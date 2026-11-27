@@ -102,7 +102,7 @@ const TUTO = [
     when: () => tutoFriends() && mailCount() > 0,
     text: "Tu as du courrier ! Touche la boîte aux lettres du jardin : tu y trouveras les échanges proposés par tes amis et les dernières nouvelles.",
     done: () => tutoF("mail_opened") },
-  // v4 : les Balades, les nouveautés de la Serre et le jardin commun
+  // v4 : les Balades et le jardin commun
   { id: "balades", tab: ["garden", "market", "kitchen", "lab", "village", "friends"], hl: '.tab[data-arg="balades"]',
     when: () => S.level >= BALADES_LVL,
     text: "Et si on allait se promener ? Touche le panneau en bois, en bas : ce sont les Balades, de petits jeux pour pêcher, fouiller les buissons ou aider les abeilles.",
@@ -115,10 +115,6 @@ const TUTO = [
     when: () => Object.keys(WILD).some(k => cnt(S.wild, k) > 0),
     text: "Quelle belle trouvaille ! Avec ce que tu rapportes de balade, de nouvelles recettes t’attendent au Marché. Et deux nouveaux voisins, Margot la Cane et Firmin le Renard, passeront sûrement t’en commander.",
     ok: "Miam" },
-  { id: "hybrids4", tab: "lab", hl: ".herbier",
-    when: () => S.level >= 3 && (S.hybrids || []).length > 0 && ["cerise", "poireau_soleil", "pois_sucre"].some(k => !S.hybrids.includes(k)),
-    text: "Trois nouvelles variétés poussent en secret dans la Serre : une Courgette cerise, un Poireau soleil et un Pois sucré. Regarde leurs indices dans l’herbier !",
-    ok: "Je cherche" },
   { id: "sg", free: true, tab: "friends", hl: ".sg-card",
     when: () => tutoFriends() && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data && !sgG(),
     text: "Nouveau : le jardin commun ! Crée-le ici et invite jusqu’à trois amis. Les graines y sont gratuites, et vous livrez ensemble deux commandes par jour. Plante au moins trois graines pour recevoir ta part de la récompense.",

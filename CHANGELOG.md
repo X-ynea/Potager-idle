@@ -122,13 +122,17 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.65 (version de test, préparation de la v4)
+
+- Mamie Lapine ne présente plus les nouveaux hybrides : on les découvre en cherchant.
+
 ### 3.1.64 (version de test, préparation de la v4)
 
 - Conseils de Mamie Lapine : la Cuisine et la Serre sont expliquées comme deux parties de l'Atelier, avec le bon bouton allumé selon l'endroit où l'on se trouve.
 
 ### 3.1.63 (version de test, préparation de la v4)
 
-- Mamie Lapine présente les nouveautés de la v4 : l'onglet Balades et ses jeux, les trouvailles de balade et leurs recettes, les trois nouveaux hybrides, le jardin commun et son portail.
+- Mamie Lapine présente les nouveautés de la v4 : l'onglet Balades et ses jeux, les trouvailles de balade et leurs recettes, le jardin commun et son portail.
 
 ### 3.1.62 (version de test, préparation de la v4)
 
