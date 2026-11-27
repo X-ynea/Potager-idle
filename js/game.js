@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "3.1.69" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "3.1.70" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1273,7 +1273,7 @@ let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");
   switch (tab) {
-    case "garden": return base + weeklySig() + JSON.stringify([sgPortalHTML(), sgKnown(), mailCount(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.wild, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
+    case "garden": return base + weeklySig() + JSON.stringify([sgPortalHTML(), sgKnown(), mailCount(), typeof tutoBusy === "function" && tutoBusy(), CLOUD.signedIn, fwActive(t).map(w => w.id), S.decoSlots, S.quests && S.quests.list.map(q => [q.prog, q.claimed]), S.quests && S.quests.bonus, S.plots.length, S.upg, S.crops, S.wild, S.dishes, S.plots.filter(p => !p.seed).length, S.plots.filter(p => plotState(p, t) === "weed").length, S.plots.filter(p => plotState(p, t) === "ripe").length, S.plots.filter(p => plotState(p, t) === "dry").length]);
     case "market": return base + JSON.stringify([S.seeds, S.crops, S.wild, S.dishes, S.recipes, S.upg, S.plots.length, S.hybrids]);
     case "kitchen": return base + JSON.stringify([S.recipes, S.crops, S.wild, S.dishes, S.cooking.map(c => c.r + (c.end <= t)), S.orders.map(o => o.id)]);
     case "lab": return base + JSON.stringify([S.crops, S.lab && (S.lab.a + S.lab.b + (S.lab.end <= t)), S.hybrids, S.discovered]);
@@ -1328,7 +1328,7 @@ function render(force) {
       const cb = document.getElementById("chat-body"), cbTop = cb?.scrollTop, cbEnd = cb ? cb.scrollHeight - cb.scrollTop - cb.clientHeight < 120 : false;
       if (os && ns && box.children.length === 1 && os.className === ns.className) {
         for (const a of ns.attributes) os.setAttribute(a.name, a.value);
-        os.innerHTML = ns.innerHTML;
+        if (os.innerHTML !== ns.innerHTML) os.innerHTML = ns.innerHTML; // inchangée : rien à refaire (pas d'animation rejouée)
         document.querySelectorAll("#modal .strip").forEach((e, k) => { e.scrollLeft = strip[k] || 0; });
       } else $("#modal").innerHTML = box.innerHTML;
       for (const [id, v, f, c] of kept) { const t = document.getElementById(id); if (t) { t.value = v; if (f) { t.focus(); try { t.setSelectionRange(c, c); } catch (e) {} } } }

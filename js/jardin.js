@@ -153,7 +153,7 @@ function viewSGNew() {
 // Petit portail au bord de son jardin, pour y aller directement.
 // Tant que le serveur n'a pas répondu, on se fie à la dernière ouverture (pas de portail qui surgit après coup).
 const sgKnown = () => !!SG.data || !!SG.error || S.sgHas !== undefined;
-const sgPortalHTML = () => sgOn() && (sgG() || (!SG.data && S.sgHas)) ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG()?.plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
+const sgPortalHTML = () => sgOn() && (sgG() || (!SG.data && S.sgHas)) ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${typeof tutoBusy === "function" && tutoBusy() ? "" : sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG()?.plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
 
 /* ---------- Page du jardin commun ---------- */
 const sgOpen = () => modalView === viewSG && !$("#modal").hidden;

@@ -122,6 +122,17 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 3.1.70 (version de test)
+
+- Tutoriel, après les premiers essais :
+  - l'escargot (ou la bête de la saison) fait partie des premiers pas, juste après le petit visiteur ;
+  - le choix des graines se ferme tout seul avant l'étape des objectifs du jour ;
+  - plus de conseil en bulle qui s'ajoute pendant qu'un scénario attend son tour ;
+  - le jardin commun n'est présenté qu'après la Serre et les amis, à partir du niveau 5 ;
+  - pendant le tutoriel, les cœurs des amis et les pastilles de la boîte aux lettres et du portail attendent la fin ;
+  - la bulle de discussion du jardin commun ne se déplace plus à gauche quand elle est mise en avant.
+- Le cadeau du jour ne « clignote » plus : une fenêtre ouverte n'est redessinée que si son contenu change.
+
 ### 3.1.69 (version de test)
 
 - Tutoriel : plus d'écran assombri, et on peut toucher tout le reste du jeu pendant un scénario. Si on va ailleurs, Mamie Lapine reste sur la même étape et l'onglet qui y ramène s'allume.

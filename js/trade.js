@@ -96,7 +96,7 @@ const mailCount = () => FRIENDS_ON ? trIn().length + sgInvites().length + mailNe
 function mailboxHTML() {
   if (!FRIENDS_ON || !CLOUD.signedIn) return "";
   if (typeof sgOn === "function" && sgOn() && !sgKnown()) return ""; // on attend de savoir s'il y a un portail à côté
-  const n = mailCount();
+  const n = typeof tutoBusy === "function" && tutoBusy() ? 0 : mailCount(); // pas de pastille pendant le tutoriel
   return `<button class="mailbox${n ? " has" : ""}" data-act="openMail" aria-label="Boîte aux lettres${n ? ` : ${n} nouveauté${n > 1 ? "s" : ""}` : ""}">${MAIL_ICON(n > 0)}${n ? `<span class="fr-badge">${n}</span>` : ""}</button>`;
 }
 function tradeCard(r) {

@@ -25,7 +25,7 @@ function heartRain(names) {
 
 // Cœurs reçus : vérifiés à l'ouverture, puis chaque minute. Les nouveaux font pleuvoir des cœurs.
 async function loadLikes() {
-  if (!friendsReady()) return;
+  if (!friendsReady() || (typeof tutoBusy === "function" && tutoBusy())) return; // pendant le tutoriel : plus tard
   let rows; try { rows = await CLOUD.rpc("my_likes") || []; } catch (e) { return; }
   const t = now(), known = new Set((S.likes || []).map(l => l.id));
   const fresh = rows.filter(r => r && !known.has(r.id)).map(r => ({ id: r.id, at: Math.min(t, Date.parse(r.at) || t), name: r.name || "Un ami", avatar: r.avatar || null }));

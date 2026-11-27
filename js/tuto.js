@@ -13,6 +13,16 @@ const tutoEclair = () => { const i = S.plots.findIndex(p => p.seed === "radis_ec
 const tutoPlotSel = test => { const i = S.plots.findIndex(test); return i < 0 ? [] : `.plot[data-plot="${i}"]`; };
 const tutoGive = (bag, k, n) => { if (cnt(S[bag], k) < n) S[bag][k] = n; };
 const tutoMark = () => tutoState().mark || {};
+// Un escargot (ou la bête de la saison) sur un bac qui pousse : on en plante un radis si besoin.
+function tutoWeed() {
+  if (S.plots.some(p => p.weed)) return;
+  let q = S.plots.find(p => p.seed && !p.weed && plotState(p, now()) !== "ripe");
+  if (!q) { q = S.plots.find(p => !p.seed); if (!q) return; Object.assign(q, { seed: "radis", grown: 1000, waterUntil: now() + 3e5 }); }
+  Object.assign(q, { weed: true, weedAt: now(), weedKind: PEST().key, snailTime: 0 });
+}
+// Tutoriel en cours (premiers pas pas finis, ou un scénario en route) : on garde pour plus tard
+// les cœurs des amis et les pastilles de la boîte aux lettres et du portail.
+const tutoBusy = () => typeof S !== "undefined" && !!S.tuto && (!!S.tuto.flow || !S.tuto.flows?.start);
 // Cuisine et Serre sont réunies dans l'Atelier : l'onglet du bas, puis le bouton en haut de la page.
 const tutoTab = (t, then) => tab === t ? then : (t === "kitchen" || t === "lab") ? (tab === "kitchen" || tab === "lab" ? `.atelier-sw [data-arg="${t}"]` : '.tab[data-arg="atelier"]') : `.tab[data-arg="${t}"]`;
 const tutoPicker = k => !$("#modal").hidden && document.querySelector(`#modal [data-act="plant"][data-arg="${k}"]`);
@@ -44,6 +54,10 @@ const FLOWS = {
       enter: () => { tutoState().mark = { b: S.stats.butterflies }; },
       tick: () => { if (!document.querySelector(".butterfly")) spawnButterfly(true); },
       hl: ".butterfly", done: () => S.stats.butterflies > (tutoMark().b ?? 0) },
+    { text: () => PEST().tip,
+      enter: () => { tutoState().mark = { w: S.stats.weeds || 0 }; tutoWeed(); },
+      tick: () => tutoWeed(),
+      hl: () => tutoPlotSel(p => p.weed), done: () => (S.stats.weeds || 0) > (tutoMark().w ?? 0) },
     { text: "Tiens, quelqu’un frappe à ta porte ! Un voisin passe une commande au Village. Tu as déjà ce qu’il demande : va la lui livrer, les commandes rapportent bien plus que le marché.",
       enter: () => { tutoEnsureOrder(); tutoState().mark = { o: S.stats.orders }; },
       tick: () => tutoEnsureOrder(),
@@ -57,6 +71,7 @@ const FLOWS = {
       hl: () => tutoTab("garden", tutoPicker("laitue") ? '#modal [data-act="plant"][data-arg="laitue"]' : ".plot.empty"),
       done: () => S.plots.filter(p => p.seed === "laitue").length > (tutoMark().n ?? 0) || !cnt(S.seeds, "laitue") },
     { text: "Regarde sous ton jardin : chaque jour, trois petits objectifs t’attendent. Fais-les pour gagner des pièces et de l’XP, et un bonus si tu les finis tous les trois. Il y en a de nouveaux chaque matin !",
+      enter: () => { if (document.querySelector('#modal [data-act="plant"]')) closeModal(); },
       hl: () => tutoTab("garden", ".quests:not(.weekly)"), ok: "Compris" },
     { text: () => `Le potager vit au rythme des saisons : une par semaine, et en ce moment c’est ${SEASONS[season()].name.toLowerCase()}. Les plantes de saison poussent 25 % plus vite, certaines ne se vendent qu’à leur saison, et les petits visiteurs changent aussi. Touche le bandeau pour tout savoir !`,
       enter: () => { delete tutoState().f.season_opened; },
@@ -119,7 +134,7 @@ const FLOWS = {
       hl: () => tutoTab("balades", ".game-list > .game-card:first-child .g-foot"), ok: "J’y retourne" },
   ] },
   // v4 : le jardin commun (connecté, avec au moins un ami).
-  shared: { when: () => tutoFriends() && FR.loaded && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data, steps: [
+  shared: { when: () => S.level >= 5 && !!tutoState().flows.friends && tutoFriends() && FR.loaded && tutoFriendCount() > 0 && typeof SG !== "undefined" && !!SG.data, steps: [
     { text: "Nouveau : le jardin commun ! Un petit potager à cultiver avec trois amis au plus. Va voir dans l’onglet Amis.",
       hl: () => tutoTab("friends", []), done: () => tab === "friends" },
     { text: () => sgG() ? "Te voilà membre d’un jardin commun : touche sa carte pour y entrer." : "Touche la carte « Jardin commun » pour le créer. Si un ami t’a déjà invité, tu peux aussi accepter son invitation juste en dessous.",
@@ -290,6 +305,7 @@ setInterval(() => { if (TUTO_NOW.st) { tutoUpdate(); } }, 250); // suit les bacs
 /* ---------- Conseils ponctuels ---------- */
 function tutoCurrent() {
   const T = tutoState(); if (T.off || T.flow || !T.flows.start) return null;
+  if (FLOW_ORDER.some(k => !T.flows[k] && FLOWS[k].when())) return null; // un scénario attend (fenêtre ouverte…) : pas de bulle en plus
   for (const t of TUTO) {
     if (T.seen[t.id]) continue;
     if (t.done && t.done()) { T.seen[t.id] = true; continue; }

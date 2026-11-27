@@ -1967,7 +1967,6 @@ button.sg-card { cursor: pointer; }
 #tuto.locked .tuto-bubble { box-shadow: 0 10px 30px rgba(0,0,0,.3); }
 .tuto-bubble.nudge { animation: tuto-nudge .35s; }
 @keyframes tuto-nudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-body.tuto-lock .tuto-hl { position: relative; z-index: 1; }
 .butterfly.stay { animation: none !important; left: 50% !important; margin-left: -28px; }
 .butterfly.stay .bf { animation: tuto-hover 2.2s ease-in-out infinite; }
 @keyframes tuto-hover { 50% { transform: translate(10px, -8px); } }
