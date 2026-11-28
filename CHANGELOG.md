@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.0 (version de test)
+
+- La version de test repart de la 4.0.0 des joueurs (caches à part).
+
 ### 4.0.0 · Sortie de la v4 « Partons en balade »
 
 - La version de test devient la version des joueurs (voir le résumé de la v4 en haut).
