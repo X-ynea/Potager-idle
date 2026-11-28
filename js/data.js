@@ -128,6 +128,7 @@ const UPG = {
   stove: { name: "Fourneau", steps: [{ cost: 800, lvl: 7 }, { cost: 7500, lvl: 21 }], values: [1, 2, 3], desc: v => `${v} plat${v > 1 ? "s" : ""} en même temps` },
   village: { name: "Banc des voisins", img: "decos/deco-bench", steps: [{ cost: 1200, lvl: 11 }, { cost: 6000, lvl: 20 }], values: [3, 4, 5],
            desc: v => `${v} voisins peuvent passer commander en même temps` },
+  guard: { name: "Hérisson gardien", img: "decos/deco-f_automne", steps: [{ cost: 15000, lvl: 28 }], values: [0, 1], desc: v => v ? "Plus aucun bac n’est bloqué par les embêtements" : "Plus aucun bac ne sera bloqué par les embêtements (escargots, herbes folles, feuilles, gel)" },
   auto:  { name: "Arroseur automatique", steps: [{ cost: 12000, lvl: 25 }], values: [0, 1], desc: v => v ? "Tes plantes n’ont plus jamais soif" : "Tes plantes n’auront plus jamais soif" },
 };
 const PLOT_STEPS = [{ cost: 120, lvl: 3 }, { cost: 350, lvl: 8 }, { cost: 1350, lvl: 13 }, { cost: 3000, lvl: 19 }, { cost: 6000, lvl: 25 }, { cost: 10500, lvl: 29 }];

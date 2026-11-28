@@ -195,6 +195,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.26
+
+- Nouvelle amélioration au niveau 28 : le Hérisson gardien (15 000 pièces). Il veille sur le jardin : plus aucun bac n’est bloqué par les embêtements (escargots, herbes folles, feuilles, gel).
+- Avec l’Arroseur automatique, plus d’objectif du jour « Arroser » ; avec le Hérisson gardien, plus d’objectif pour chasser les embêtements. Un tel objectif déjà reçu est remplacé par un autre.
+
 ### 4.0.25
 
 - Ordinateur, **décorations** : la fenêtre pour choisir et placer une décoration s’ouvre sur le côté droit, le jardin reste visible.

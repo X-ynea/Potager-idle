@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.25" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.26" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -69,7 +69,7 @@ function fresh() {
     v: 1, xpCurve2: true, xpCurve3: true, xpCurve4: true, xpCurve5: true, coins: 25, xp: 0, level: 1, settings: { theme: "light", vibrate: true, sound: true, volume: .6, notif: false },
     plots: Array.from({ length: 6 }, P),
     seeds: { radis: 3, laitue: 2 }, crops: {}, dishes: {}, wild: {}, games: {}, recipes: [], discovered: [], hybrids: [], golden: {}, goldenFound: [], decoSlots: [null, null, null], friendWater: [],
-    upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0 },
+    upg: { water: 0, basket: 0, hose: 0, gloves: 0, fert: 0, stove: 0, auto: 0, village: 0, guard: 0 },
     cooking: [], lab: null, orders: [], nextOrderAt: t + 45000,
     stats: { harvest: 0, butterflies: 0, cooked: 0, orders: 0, weeds: 0 }, last: t, lastPick: "radis",
   };
@@ -265,9 +265,9 @@ const QUEST_TYPES = [
   { id: "harvest", w: 3, make: () => { const n = 10 + S.level * 2; return { n, text: `Faire ${n} récoltes`, base: n * 8 }; } },
   { id: "cook", w: 4, lvl: 2, make: () => { const n = 2 + Math.floor(S.level / 4); return { n, text: `Cuisiner ${n} plats`, base: n * 45 }; } },
   { id: "deliver", w: 4, make: () => { const n = 1 + Math.floor(S.level / 5); return { n, text: `Livrer ${n} commande${n > 1 ? "s" : ""} au village`, base: n * 60 }; } },
-  { id: "water", w: 3, make: () => { const n = 10 + S.level; return { n, text: `Arroser ${n} fois`, base: n * 5 }; } },
+  { id: "water", w: 3, skip: () => !!S.upg.auto, make: () => { const n = 10 + S.level; return { n, text: `Arroser ${n} fois`, base: n * 5 }; } },
   { id: "butterfly", w: 2, make: () => { const n = 2 + Math.floor(S.level / 6); return { n, text: `Attraper ${n} ${n > 1 ? VISITOR().plural : VISITOR().name}`, base: n * 30 }; } },
-  { id: "snail", w: 2, make: () => { const n = 3 + Math.floor(S.level / 5); return { n, text: PEST().quest(n), base: n * 15 }; } },
+  { id: "snail", w: 2, skip: () => !!S.upg.guard, make: () => { const n = 3 + Math.floor(S.level / 5); return { n, text: PEST().quest(n), base: n * 15 }; } },
   { id: "cross", w: 3, lvl: 3, make: () => { const n = 1 + Math.floor(S.level / 7); return { n, text: `Faire ${n} croisement${n > 1 ? "s" : ""} dans la serre`, base: n * 70 }; } },
   { id: "sell", w: 3, make: () => { const n = Math.round((60 + S.level * 40) / 10) * 10; return { n, text: `Gagner ${fmt(n)} pièces au marché`, base: n * .4 }; } },
 ];
@@ -277,9 +277,12 @@ function dailyQuests() {
   if (S.quests && S.quests.day === today) {
     // Réparation (3.0.27) : un objectif sur une plante hors saison (ex. petits pois en hiver) est remplacé.
     S.quests.list = S.quests.list.map(q => q.type === "harvestK" && !q.claimed && q.k && PLANTS[q.k] && offSeasonPlant(q.k) ? makeQuest(QUEST_TYPES[0]) : q);
+    // Arroseur automatique ou hérisson gardien : plus d'objectif d'arrosage ni d'embêtement (remplacé par un autre).
+    S.quests.list = S.quests.list.map(q => { const t = QUEST_TYPES.find(x => x.id === q.type); if (q.claimed || !t?.skip?.()) return q;
+      const free = QUEST_TYPES.filter(x => S.level >= (x.lvl || 1) && !x.skip?.() && !S.quests.list.some(l => l.type === x.id)); return free.length ? makeQuest(weightedPick(free, x => x.w)) : q; });
     return S.quests;
   }
-  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1)), list = [];
+  const types = QUEST_TYPES.filter(q => S.level >= (q.lvl || 1) && !q.skip?.()), list = [];
   while (list.length < 3) list.push(makeQuest(weightedPick(types.filter(q => !list.some(l => l.type === q.id)), q => q.w)));
   S.quests = { day: today, list, bonus: false };
   return S.quests;
@@ -534,7 +537,7 @@ const A = {
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r) || d.lvl > S.level || missingHyb(r).length) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
   buyUpg(u) {
-    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; SFX.play("success"); commit(); },
+    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; if (u === "guard") S.plots.forEach(p => { p.weed = false; }); SFX.play("success"); commit(); },
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
@@ -920,11 +923,11 @@ function views_garden() {
   const qLate = !!dailyQuests().bonus;
   return `<div class="cols garden-cols"><div class="col col-main">${installPrompt && isPhone() && !S.settings.hideInstall ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button><button class="install-x" data-act="hideInstall" aria-label="Ne plus proposer">✕</button></div>` : ""}
   <section class="panel garden-panel">
-    <div class="garden-head n${[S.upg.basket, S.upg.gloves, S.upg.hose && !S.upg.auto].filter(Boolean).length}">
+    <div class="garden-head n${[S.upg.basket, S.upg.gloves && !S.upg.guard, S.upg.hose && !S.upg.auto].filter(Boolean).length}">
     <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
     <div class="garden-tools">
       ${S.upg.basket ? `<button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>` : ""}
-      ${S.upg.gloves ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>${PEST().remove}${snails ? ` (${snails})` : ""}</button>` : ""}
+      ${S.upg.gloves && !S.upg.guard ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>${PEST().remove}${snails ? ` (${snails})` : ""}</button>` : ""}
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
     </div>
@@ -1625,7 +1628,7 @@ function start() {
     if (!document.hidden) for (const q of S.plots) if (q.weed && q.weedKind === "snail") { q.snailTime = (q.snailTime || 0) + 1000; if (q.snailTime >= 3600e3) S.stats.petSnail = 1; }
     if (t >= nextWeed && !tutoLocked()) {
       const cand = S.plots.filter(p => p.seed && !p.weed && plotState(p, t) !== "ripe" && p.grown > 0);
-      if (cand.length) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; q.snailTime = 0; }
+      if (cand.length && !S.upg.guard) { const q = pick(cand); q.weed = true; q.weedAt = t; q.weedKind = PEST().key; q.snailTime = 0; }
       nextWeed = t + rand(80, 170) * 1000;
     }
     render();
