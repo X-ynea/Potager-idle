@@ -2039,13 +2039,17 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   /* Jardin : le potager et l'inventaire à gauche, les objectifs à droite */
   .garden-cols { grid-template-columns: minmax(0, 1.3fr) minmax(360px, 1fr); align-items: stretch; }
   /* Objectifs : à la hauteur du jardin, plus d'air entre les deux, de l'espace en bas des hebdomadaires */
-  .garden-cols .col-side { gap: 24px; grid-template-rows: auto 1fr; align-content: stretch; }
-  .garden-cols .col-side > .weekly:last-child, .garden-cols .col-side > :only-child { align-content: start; }
-  .garden-cols .col-side.q-late, .garden-cols .col-side:has(> :only-child) { grid-template-rows: 1fr; }
+  .garden-cols .col-side { display: flex; flex-direction: column; gap: 24px; }
+  .garden-cols .col-side > * { flex: 1 1 auto; align-content: start; } /* l'espace en plus est partagé entre les deux */
+  /* Bandeau de saison et boutons : côte à côte avec un seul bouton, l'un sous l'autre avec deux ou trois */
+  .garden-head { display: grid; gap: 10px; }
+  .garden-head.n1 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+  .garden-head.n1 > .season-bar { min-height: 100%; }
   /* Inventaire : sur toute la largeur, une colonne par catégorie */
   .garden-cols > .inv-panel { grid-column: 1 / -1; }
   .inv-cats { display: flex; flex-wrap: wrap; gap: 12px 36px; align-items: start; }
-  .inv-cat { display: grid; gap: 12px; align-content: start; flex: var(--k) 1 0; min-width: calc(min(var(--k), 3) * 80px); }
+  .inv-cat { display: grid; gap: 12px; align-content: start; flex: 1 1 0; min-width: min(60%, calc(var(--k) * 82px + 8px)); }
+  .inv-cat .tiles.mini { grid-template-columns: repeat(auto-fill, minmax(72px, 76px)); }
   main[data-tab="garden"] .inv-cat > .cat-title { margin-top: 0; }
   /* Atelier : l'herbier sous la Cuisine et la Serre, Plantes et Hybrides côte à côte */
   .atelier-cols > .col:last-child { display: contents; }
@@ -2062,7 +2066,11 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .upg-list { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
   /* Village : les commandes en grille */
   .orders { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: stretch; }
-  .orders .order { align-content: start; }
+  .orders .order { align-content: stretch; }
+  .orders .order > .avatar { align-self: start; }
+  /* Récompense et boutons toujours en bas de la carte, alignés d'une carte à l'autre */
+  .orders .order > div:last-child { display: flex; flex-direction: column; }
+  .orders .order .foot { margin-top: auto; padding-top: 6px; }
   /* Balades : les jeux en grille */
   .game-list { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
   /* Amis : les amis en cases en haut, le jardin commun ouvert en dessous, sur trois colonnes */
@@ -2100,3 +2108,43 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
 @keyframes sgSide { from { transform: translateY(16px); opacity: 0; } }
 /* Jardin commun : les trois colonnes s'effacent dans la fenêtre (téléphone) */
 .sg-cols, .sg-col { display: contents; }
+@media (min-width: 1000px) {
+  /* En-tête plus grand : avatar, barre d'XP, pièces, et « Succès » / « Paramètres » écrits à côté des icônes */
+  .top { gap: 18px; padding-top: calc(env(safe-area-inset-top, 0px) + 14px); padding-bottom: 12px; }
+  .brand img { width: 50px; height: 50px; }
+  .lvl { max-width: 480px; gap: 6px; }
+  .lvl-top { font-size: .85rem; }
+  .lvl-top b { font-size: 1.1rem; }
+  .xpbar { height: 14px; }
+  .pill { font-size: 1.1rem; padding: 7px 16px 7px 9px; }
+  .bag { width: auto; height: 46px; padding: 0 16px 0 12px; grid-auto-flow: column; gap: 8px; border-radius: 14px; }
+  .bag svg { width: 26px; height: 26px; }
+  .bag-l { display: inline; font-weight: 800; font-size: .9rem; color: var(--ink); }
+  /* Fiches sur deux colonnes : les chiffres à gauche, les ingrédients à droite, les boutons en bas */
+  .d-seeds, .d-recipes, .d-kitchen { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+  :is(.d-seeds, .d-recipes, .d-kitchen) > .d-head { grid-area: head; } :is(.d-seeds, .d-recipes, .d-kitchen) > .meta { grid-area: meta; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-body { grid-area: body; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-acts { grid-area: acts; }
+  .d-recipes { grid-template-areas: "head body" "meta body" "acts acts"; }
+  .d-seeds { grid-template-areas: "head meta" "head acts"; align-items: center; }
+  .d-kitchen { grid-template-areas: "head head" "meta body" "acts acts"; }
+  .d-kitchen .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Vendre : trois rayons côte à côte */
+  .sell-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start; }
+  .sell-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .sell-col > .cat-title { margin-top: 0; }
+  /* Atelier : trois colonnes de même hauteur, l'herbier en dessous */
+  .atelier3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  .atelier3 > * { min-width: 0; align-content: start; }
+  .atelier3 .a-col { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+  .atelier3 .k-det { align-content: start; }
+  .atelier3 .stoves { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+  .atelier3 .k-list .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .atelier3 > .herb-panel { grid-column: 1 / -1; }
+  .atelier3 .basket { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .atelier3 .basket .chip { min-height: 56px; padding: 6px 12px 6px 6px; gap: 8px; font-size: .95rem; border-radius: 14px; }
+  .atelier3 .basket .chip svg, .atelier3 .basket .chip img { width: 42px; height: 42px; }
+  .atelier3 .lab-slots .slot { min-height: 130px; }
+}
+.bag-l { display: none; }
+.garden-head { display: contents; }
+.d-body { display: contents; }
+@media (min-width: 1000px) { .garden-head { display: grid; } .d-body { display: grid; gap: 10px; min-width: 0; } .bag-l { display: inline; } }

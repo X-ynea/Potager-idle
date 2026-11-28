@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.15" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.16" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -913,12 +913,14 @@ function views_garden() {
   const qLate = !!dailyQuests().bonus;
   return `<div class="cols garden-cols"><div class="col col-main">${installPrompt && isPhone() && !S.settings.hideInstall ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button><button class="install-x" data-act="hideInstall" aria-label="Ne plus proposer">✕</button></div>` : ""}
   <section class="panel garden-panel">
+    <div class="garden-head n${[S.upg.basket, S.upg.gloves, S.upg.hose && !S.upg.auto].filter(Boolean).length}">
+    <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
     <div class="garden-tools">
       ${S.upg.basket ? `<button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>` : ""}
       ${S.upg.gloves ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>${PEST().remove}${snails ? ` (${snails})` : ""}</button>` : ""}
       ${S.upg.hose && !S.upg.auto ? `<button class="btn water" data-act="waterAll">Tout arroser${thirsty ? ` (${thirsty})` : ""}</button>` : ""}
     </div>
-    <button class="season-bar sz-bg-${season()}" data-act="openSeason">${seasonIcon(season())}<b>${SEASONS[season()].name}</b><span class="muted">· encore ${seasonDaysLeft()} jour${seasonDaysLeft() > 1 ? "s" : ""}</span><span class="sb-more">Plantes de saison +25 %</span></button>
+    </div>
     <div class="garden-bar"><p class="garden-hint">${S.upg.auto ? "Arroseur automatique actif" : `L’eau tient ${UPG.water.values[S.upg.water]} min`}${S.upg.fert ? ` · <span style="white-space:nowrap">Compost : +${Math.round((speed() - 1) * 100)} %</span>` : ""}</p>${fwLineHTML(t)}</div>
     <div class="garden-zone"><button class="deco-edit${UI.editDeco ? " on" : ""}" data-act="toggleDecoEdit" aria-label="${UI.editDeco ? "Terminer" : "Décorer le jardin"}">${UI.editDeco ? "✓ Terminé" : PENCIL + " Décorer"}</button>
     <div class="garden${UI.editDeco ? " editing" : ""}${UI.editDeco || S.decoSlots.some(Boolean) ? " decorated" : ""}" data-season="${season()}">${seasonFxHTML(season())}
@@ -1084,8 +1086,8 @@ function tile(art, o) {
 }
 const emptyTiles = n => Array.from({ length: Math.max(0, n) }, () => `<div class="tile-wrap"><div class="tile empty"></div></div>`).join("");
 function detail(ctx, art, title, desc, meta, body = "", actions = "") {
-  return `<div class="detail" id="detail-${ctx}"><div class="d-head"><div class="d-art">${art}</div><div class="d-txt"><h3>${title}</h3><p>${desc}</p></div></div>` +
-    (meta ? `<div class="meta">${meta}</div>` : "") + body + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
+  return `<div class="detail d-${ctx}" id="detail-${ctx}"><div class="d-head"><div class="d-art">${art}</div><div class="d-txt"><h3>${title}</h3><p>${desc}</p></div></div>` +
+    (meta ? `<div class="meta">${meta}</div>` : "") + (body ? `<div class="d-body">${body}</div>` : "") + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
 }
 const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="num">${val}</b></span>`;
 function ingList(need) {
@@ -1110,29 +1112,29 @@ function sortBar(ctx, opts) {
   return `<div class="sortbar"><span>Trier</span>${opts.map(([k, l]) => `<button class="chip sort-chip" data-act="setSort" data-arg="${ctx}:${k}" aria-pressed="${cur === k}">${l}</button>`).join("")}</div>`;
 }
 const sortOf = ctx => (S.settings.sort || {})[ctx] || "none"; // "none" = ordre de base
-function invBody(ctx, cat) {
+function invBody(ctx, cat, selKey = ctx) {
   const bag = catBag(cat);
   const keys = (cat === "dishes" ? RORDER : cat === "wild" ? WORDER : ORDER).filter(k => cnt(bag, k) > 0).concat(cat === "crops" ? ORDER.map(k => "gold_" + k).filter(k => cnt(S.golden, k) > 0) : []);
   if (ctx === "sell") { const m = sortOf("sell"); if (m !== "none") keys.sort(m === "name" ? (a, b) => byName(a, b, itemName) : m === "total" ? (a, b) => cnt(itemBag(b), b) * itemVal(b) - cnt(itemBag(a), a) * itemVal(a) : (a, b) => itemVal(b) - itemVal(a)); }
   if (ctx === "sell") keys.sort((a, b) => isGold(b) - isGold(a)); // à la vente, les dorées d’abord (elles ne servent qu’à ça)
-  let k = UI.sel[ctx]; if (!keys.includes(k)) k = keys[0];
+  let k = UI.sel[selKey]; if (!keys.includes(k)) k = keys[0];
   let det;
   if (!k) {
     det = `<div class="detail empty-note">${cat === "dishes" ? dishArt("soupe") : plantArt("radis", 2)}<span>${{ crops: "Aucune récolte pour l’instant. Va faire un tour au jardin !", wild: "Rien de la balade pour l’instant. Pêche, promène-toi ou aide les abeilles dans l’onglet Balades !", seeds: "Aucune graine en stock. Le marché en vend.", dishes: "Aucun plat pour l’instant. Ce que tu cuisines arrive ici." }[cat]}</span></div>`;
   } else if (cat === "seeds") {
     const d = PLANTS[k];
-    det = detail(ctx, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)),
+    det = detail(selKey, seedArt(k), `Graines de ${d.name.toLowerCase()}`, d.desc, mi("En stock", cnt(bag, k)) + mi("Pousse", growDur(d.time * 1000 / plantSpeed(k))) + mi("Vente", fmt(d.sell)),
       "", `<button class="btn big" data-act="plantFromInv" data-arg="${k}">Planter au jardin</button>`);
   } else {
     const n = cnt(itemBag(k), k), v = itemVal(k);
     const uses = (cat === "crops" || cat === "wild") && !isGold(k) ? RORDER.filter(r => RECIPES[r].need[k]) : [];
-    det = detail(ctx, itemArt(k), itemName(k), itemDesc(k), mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
+    det = detail(selKey, itemArt(k), itemName(k), itemDesc(k), mi("En stock", n) + mi("Prix", fmt(v)) + mi("Total", fmt(n * v)),
       uses.length ? `<p class="uses">Sert pour : ${uses.map(r => RECIPES[r].name).join(", ")}</p>` : "",
       `<button class="btn big ghost" data-act="sell" data-arg="${k}:one">Vendre 1&nbsp;· ${priceTag(v)}</button><button class="btn big" data-act="sell" data-arg="${k}:all">Vendre tout&nbsp;· ${priceTag(n * v)}</button>`);
   }
-  const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${ctx}:${x}`, sel: x === k, label: itemName(x), count: cnt(cat === "seeds" ? bag : itemBag(x), x) })).join("");
+  const grid = keys.map(x => tile(cat === "seeds" ? seedArt(x) : itemArt(x), { act: "sel", arg: `${selKey}:${x}`, sel: x === k, label: itemName(x), count: cnt(cat === "seeds" ? bag : itemBag(x), x) })).join("");
   const fill = Math.max(8, Math.ceil(keys.length / 4) * 4) - keys.length;
-  return det + (ctx === "sell" && keys.length > 1 ? sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) : "") + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
+  return det + (ctx === "sell" && selKey === ctx && keys.length > 1 ? sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) : "") + `<div class="tiles">${grid}${emptyTiles(fill)}</div>`;
 }
 function viewInv() {
   return `<div class="sheet tall" role="dialog" aria-modal="true" aria-label="Inventaire"><div class="sheet-head"><h2>Inventaire</h2>${SHEET_X}</div>${catTabs(CATS, UI.invCat, "invCat")}${invBody("inv", UI.invCat)}</div>`;
@@ -1184,6 +1186,11 @@ function marketRecipes() {
 }
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
+  const cats = [["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]];
+  // Ordinateur : les trois rayons côte à côte, chacun avec sa fiche en haut et ses objets en dessous.
+  if (wide()) return sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) + `<div class="sell-cols">${cats.map(([c, l]) => `<div class="sell-col"><h3 class="cat-title">${l}</h3>
+    ${c === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte&nbsp;· ${priceTag(tot)}</button>` : ""}${invBody("sell", c, "sell_" + c)}</div>`).join("")}</div>
+    <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
   return `${catTabs([["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
     ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte&nbsp;· ${priceTag(tot)}</button>` : ""}
     ${invBody("sell", UI.sellCat)}
@@ -1215,7 +1222,7 @@ function views_market() {
 }
 
 /* ---------------- Cuisine ---------------- */
-function views_kitchen() {
+function views_kitchen(parts) {
   const t = now(), n = stoves();
   const slots = [];
   for (let i = 0; i < n; i++) {
@@ -1235,6 +1242,7 @@ function views_kitchen() {
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
   const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, count: cnt(S.dishes, x), dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
+  if (parts) return { head, det, list: `<div class="row spread"><h2>Recettes</h2><span class="small muted">${S.recipes.length} apprise${S.recipes.length > 1 ? "s" : ""}</span></div>${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div>` };
   return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }
 
@@ -1288,7 +1296,13 @@ const wide = () => WIDE_MQ.matches;
 const atTab = t => tab === t || ((t === "kitchen" || t === "lab") && inAtelier() && atelierBoth());
 const atelierBoth = () => wide() && !tabLock("lab");
 WIDE_MQ.addEventListener("change", () => { if (modalView === viewSG && !$("#modal").hidden) closeModal(); $("#view").replaceChildren(); render(true); });
-const atelierView = sub => atelierBoth() ? `<div class="cols atelier-cols"><div class="col">${views_kitchen()}</div><div class="col">${views_lab()}</div></div>` : atelierBar() + sub();
+// Ordinateur : trois colonnes de même hauteur (fourneaux et recette choisie, recettes, Serre), puis l'herbier en dessous.
+function atelierView(sub) {
+  if (!atelierBoth()) return atelierBar() + sub();
+  const k = views_kitchen(true);
+  if (typeof k === "string") return `<div class="cols atelier-cols"><div class="col">${k}</div><div class="col">${views_lab()}</div></div>`;
+  return `<div class="atelier3"><div class="a-col">${k.head}<section class="panel k-det">${k.det}</section></div><section class="panel k-list">${k.list}</section>${views_lab()}</div>`;
+}
 const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierView(views_kitchen), lab: () => atelierView(views_lab), village: views_village, friends: views_friends, balades: views_balades };
 let lastSig = "";
 function sig(t) {

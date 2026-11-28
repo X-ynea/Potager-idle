@@ -238,9 +238,9 @@ function viewSG(embed) {
     ${sgGardenHTML(g)}
     ${picker}
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>
-    </div><div class="sg-col">
     <h3 class="cat-title">Panier commun <span class="muted num">${sgBasketN()} / ${SG_BASKET}</span></h3>
     ${basket.length ? `<div class="sg-basket">${basket.map(([k, q]) => `<span class="chip">${cropArt(k)}<b class="num">${q}</b></span>`).join("")}</div>` : `<p class="small muted" style="margin:0">Le panier est vide. Les récoltes du jardin commun arrivent ici, et ne servent qu’aux commandes.</p>`}
+    </div><div class="sg-col">
     <h3 class="cat-title sg-title">Commandes <span class="muted num">${fmt(g.delivered || 0)} livrée${(g.delivered || 0) > 1 ? "s" : ""}</span><button class="g-help" data-act="sgConfirm" data-arg="help" aria-label="Comment ça marche">?</button></h3>
     <div class="sg-orders">${orders}</div>
     </div><div class="sg-col">

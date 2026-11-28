@@ -195,6 +195,18 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.16
+
+- Le bandeau de la saison passe au-dessus des boutons « Tout récolter », « Tout arroser »… (sur téléphone aussi). Sur ordinateur, avec un seul bouton, les deux sont côte à côte.
+- Ordinateur :
+  - **En-tête** plus grand (photo, barre d’XP, pièces), avec « Succès » et « Paramètres » écrits à côté des icônes ;
+  - **Jardin** : l’espace libre est partagé entre les objectifs du jour et ceux de la semaine ; les colonnes de l’inventaire ont la même largeur (sauf une catégorie bien remplie) ;
+  - **Atelier** : trois colonnes de même hauteur (les fourneaux et la recette choisie, les recettes, la Serre avec de plus grandes cartes de récoltes), puis l’herbier en dessous ;
+  - **Fiches** des graines, des recettes et de la cuisine sur deux colonnes : les chiffres à gauche, les ingrédients à droite ;
+  - **Vendre** : récoltes, balades et plats côte à côte, chacun avec sa fiche en haut ;
+  - **Village** : la récompense et les boutons toujours en bas des cartes, alignés d’une commande à l’autre ;
+  - **Jardin commun** : le panier commun sous les bacs.
+
 ### 4.0.15
 
 - Ordinateur : le jeu prend encore plus de place (jusqu’à 1 640 px de large, pour les écrans 1920 × 1080).

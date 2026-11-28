@@ -6,13 +6,13 @@
   <title>Potager idle</title>
   <meta name="description" content="Un petit jeu idle de potager : plante, arrose, récolte, cuisine et découvre des variétés hybrides.">
   <meta name="theme-color" content="#fdf3e7" id="theme-color">
-  <link rel="manifest" href="manifest.webmanifest?v=502">
+  <link rel="manifest" href="manifest.webmanifest?v=503">
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
   <link rel="preload" href="fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=502">
+  <link rel="stylesheet" href="css/style.css?v=503">
 </head>
 <body>
 <div id="app">
@@ -24,8 +24,8 @@
       <span id="ttl" class="title-tag" hidden></span>
     </div>
     <span class="pill" title="Pièces"><span class="coin"></span><span id="coins">0</span></span>
-    <button class="bag trophy" data-act="openAch" aria-label="Succès"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10 13h4l-.5 4h-3z" fill="currentColor"/><rect x="7.5" y="17" width="9" height="3" rx="1" fill="currentColor"/></svg></button>
-    <button class="bag" data-act="openSettings" aria-label="Paramètres"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="12" cy="12" r="7.2"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(0 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(45 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(90 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(135 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(180 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(225 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(270 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(315 12 12)"/></g><circle cx="12" cy="12" r="3" fill="var(--panel)"/></svg></button>
+    <button class="bag trophy" data-act="openAch" aria-label="Succès" title="Succès"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10 13h4l-.5 4h-3z" fill="currentColor"/><rect x="7.5" y="17" width="9" height="3" rx="1" fill="currentColor"/></svg><span class="bag-l">Succès</span></button>
+    <button class="bag" data-act="openSettings" aria-label="Paramètres" title="Paramètres"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="12" cy="12" r="7.2"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(0 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(45 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(90 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(135 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(180 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(225 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(270 12 12)"/><rect x="10.4" y="1.8" width="3.2" height="4.4" rx="1" transform="rotate(315 12 12)"/></g><circle cx="12" cy="12" r="3" fill="var(--panel)"/></svg><span class="bag-l">Paramètres</span></button>
   </header>
   <div id="tuto" hidden></div>
   <div id="plot-tip" class="plot-tip" hidden></div>
@@ -45,27 +45,27 @@
 <div id="fx"></div>
 <div id="toasts" aria-live="polite"></div>
 
-<script src="js/env.js?v=502"></script>
-<script src="js/typo.js?v=502"></script>
-<script src="js/data.js?v=502"></script>
-<script src="assets/img/manifest.js?v=502"></script>
-<script src="js/art.js?v=502"></script>
-<script src="js/seasons.js?v=502"></script>
-<script src="js/sound.js?v=502"></script>
-<script src="js/achievements.js?v=502"></script>
-<script src="js/cloud-config.js?v=502"></script>
-<script src="js/cloud.js?v=502"></script>
-<script src="js/profile.js?v=502"></script>
-<script src="js/friends.js?v=502"></script>
-<script src="js/visit.js?v=502"></script>
-<script src="js/water.js?v=502"></script>
-<script src="js/trade.js?v=502"></script>
-<script src="js/like.js?v=502"></script>
-<script src="js/goals.js?v=502"></script>
-<script src="js/news.js?v=502"></script>
-<script src="js/balades.js?v=502"></script>
-<script src="js/jardin.js?v=502"></script>
-<script src="js/tuto.js?v=502"></script>
-<script src="js/game.js?v=502"></script>
+<script src="js/env.js?v=503"></script>
+<script src="js/typo.js?v=503"></script>
+<script src="js/data.js?v=503"></script>
+<script src="assets/img/manifest.js?v=503"></script>
+<script src="js/art.js?v=503"></script>
+<script src="js/seasons.js?v=503"></script>
+<script src="js/sound.js?v=503"></script>
+<script src="js/achievements.js?v=503"></script>
+<script src="js/cloud-config.js?v=503"></script>
+<script src="js/cloud.js?v=503"></script>
+<script src="js/profile.js?v=503"></script>
+<script src="js/friends.js?v=503"></script>
+<script src="js/visit.js?v=503"></script>
+<script src="js/water.js?v=503"></script>
+<script src="js/trade.js?v=503"></script>
+<script src="js/like.js?v=503"></script>
+<script src="js/goals.js?v=503"></script>
+<script src="js/news.js?v=503"></script>
+<script src="js/balades.js?v=503"></script>
+<script src="js/jardin.js?v=503"></script>
+<script src="js/tuto.js?v=503"></script>
+<script src="js/game.js?v=503"></script>
 </body>
 </html>
