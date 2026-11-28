@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.3
+
+- Retour aux fonds du jardin d'avant pour les quatre saisons (le nouveau chemin d'automne de la balade en forêt reste).
+
 ### 4.0.2
 
 - Nouveaux fonds du jardin pour les quatre saisons, et nouveau chemin d'automne pour la balade en forêt.
