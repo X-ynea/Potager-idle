@@ -9,7 +9,7 @@ const CLOUD = (() => {
   // Les sauvegardes de la version de test sont marquées : un compte ne sert jamais aux deux versions.
   const payload = () => IS_TEST ? { ...S, cloudTest: true } : S;
   let blocked = ""; // compte refusé pour cette version (compte principal en test, ou compte de test sur la version des joueurs)
-  let sess = null, busy = false, lastSync = 0, lastError = "", dirty = false;
+  let sess = null, busy = false, lastSync = 0, lastError = "";
   try { sess = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
   const keep = () => { try { sess ? localStorage.setItem(KEY, JSON.stringify(sess)) : localStorage.removeItem(KEY); } catch (e) {} };
 
@@ -42,14 +42,37 @@ const CLOUD = (() => {
     return sess.access_token;
   }
   const remote = async () => (await api(`/rest/v1/saves?select=data,updated_at&user_id=eq.${sess.user.id}`))?.[0] || null;
+  /* Plusieurs appareils : chaque écriture en ligne n'a lieu que si la partie en ligne est toujours celle que cet appareil
+     a vue en dernier (« base », la date d'enregistrement donnée par le serveur). Sinon, un autre appareil a joué entre-temps :
+     on garde la partie la plus avancée (la plus récente remise à zéro d'abord, puis le plus d'XP au total), et à égalité
+     celle de l'autre appareil. Un appareil resté ouvert en arrière-plan ne peut donc plus écraser une partie plus avancée. */
+  const setBase = t => { if (!sess) return; sess.base = t || ""; delete sess.prev; keep(); };
+  const sameTs = (a, b) => !!a && !!b && (a === b || Date.parse(a) === Date.parse(b));
+  const totalXp = x => { let t = +x?.xp || 0; for (let l = 1; l < (+x?.level || 1); l++) t += xpNeed(l); return t; };
+  const remoteWins = rs => { const ra = +rs?.resetAt || 0, la = +S.resetAt || 0; return ra !== la ? ra > la : totalXp(rs) >= totalXp(S); };
+  const rowOf = rows => Array.isArray(rows) ? rows[0] : null;
+  // Écriture conditionnelle ; en cas de conflit, on départage puis on réessaie une fois.
+  async function write(depth = 0) {
+    const uid = sess.user.id, now = new Date().toISOString(), body = JSON.stringify({ user_id: uid, data: payload(), updated_at: now });
+    let row = null;
+    if (sess.base) row = rowOf(await api(`/rest/v1/saves?user_id=eq.${uid}&updated_at=eq.${encodeURIComponent(sess.base)}&select=updated_at`, { method: "PATCH", headers: { Prefer: "return=representation" }, body }));
+    else { const r = await remote(); if (r) return resolve(r, depth);
+      try { row = rowOf(await api("/rest/v1/saves?select=updated_at", { method: "POST", headers: { Prefer: "return=representation" }, body })); } catch (e) { if (!/^409/.test(e.message)) throw e; } }
+    if (row) { setBase(row.updated_at); lastSync = Date.now(); lastError = ""; return true; }
+    return resolve(await remote(), depth);
+  }
+  async function resolve(r, depth) {
+    if (!r) { setBase(""); return depth < 2 ? write(depth + 1) : false; }
+    setBase(r.updated_at);
+    if (remoteWins(r.data)) { useRemote(r.data); return false; }
+    return depth < 2 ? write(depth + 1) : false;
+  }
   async function push() {
     if (blocked) throw new Error(blocked);
-    await token();
-    await api("/rest/v1/saves?on_conflict=user_id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({ user_id: sess.user.id, data: payload(), updated_at: new Date(S.last || Date.now()).toISOString() }) });
-    lastSync = Date.now(); dirty = false; lastError = "";
+    if (busy) return; busy = true;
+    try { await token(); await write(); } finally { busy = false; }
   }
-  // Ouverture ou connexion : on compare la partie en ligne et celle de l'appareil.
+  // Ouverture, retour sur le jeu ou connexion : on compare la partie en ligne et celle de l'appareil.
   async function sync(manual) {
     if (!enabled() || !sess || busy) return;
     busy = true;
@@ -63,24 +86,23 @@ const CLOUD = (() => {
       }
       blocked = "";
       const fresh = sess.fresh; if (fresh) { delete sess.fresh; keep(); }
-      if (!r) await push();
-      else {
-        const rs = r.data, rt = Date.parse(r.updated_at) || 0, lt = S.last || 0;
-        const same = rs && rs.level === S.level && rs.xp === S.xp && rs.coins === S.coins;
-        const progress = x => (x?.stats?.harvest || 0) > 0 || (x?.level || 1) > 1 || !!x?.resetAt; // resetAt : partie recommencée exprès, à garder
-        if (same) lastSync = Date.now();
-        else if (!progress(S)) useRemote(rs);                                     // appareil sans partie : on reprend celle du compte
-        else if (fresh && progress(rs)) askChoice(rs);            // 1ʳᵉ connexion avec deux parties : on demande
-        else if (rt > lt + 5000) useRemote(rs);                                     // la partie en ligne est plus récente
-        else await push();                                                          // celle de l'appareil est plus récente
-      }
+      const progress = x => (x?.stats?.harvest || 0) > 0 || (x?.level || 1) > 1 || !!x?.resetAt; // resetAt : partie recommencée exprès, à garder
+      if (!r) await write();
+      else if (sameTs(r.updated_at, sess.base)) await write();             // personne d'autre n'a joué : on envoie la partie de l'appareil
+      else if (sameTs(r.updated_at, sess.prev)) { setBase(r.updated_at); await write(); } // le dernier envoi en partant n'est pas arrivé : idem
+      else if (fresh && progress(S) && progress(r.data) && !sess.base) { setBase(r.updated_at); askChoice(r.data); } // 1ʳᵉ connexion avec deux parties : on demande
+      else await resolve(r, 0);                                              // un autre appareil a joué entre-temps
       lastError = "";
       if (manual) toast("Partie synchronisée.");
       showGate();
     } catch (e) { lastError = String(e.message || e); if (manual) toast("Synchronisation impossible pour le moment."); }
     busy = false; if (typeof render === "function" && !$("#modal").hidden) render(true);
   }
-  function useRemote(rs) { S = migrate(rs); save(); applyTheme(); lastSync = Date.now(); commit(); }
+  function useRemote(rs) {
+    const was = S && (S.stats?.harvest || 0) > 0;
+    S = migrate(rs); save(); applyTheme(); lastSync = Date.now(); commit();
+    if (was) toast("Partie reprise depuis ton autre appareil.");
+  }
   function askChoice(rs) {
     const L = (s, n) => `<button class="set-link" data-act="cloudPick" data-arg="${n}"><span class="ico">${n === "remote" ? "☁️" : "📱"}</span><span><b>${n === "remote" ? "La partie en ligne" : "La partie de cet appareil"}</b><small>Niveau ${s.level} · ${fmt(s.coins)} pièces · ${fmt(s.stats?.harvest || 0)} récoltes</small></span></button>`;
     CLOUD._choice = rs;
@@ -91,13 +113,17 @@ const CLOUD = (() => {
     $("#modal").innerHTML = modalView(); openModal();
   }
   // Sauvegarde régulière en ligne (et à la fermeture).
-  setInterval(() => { if (enabled() && sess?.user && !busy && Date.now() - lastSync > 60e3) push().catch(e => { lastError = String(e.message || e); }); }, 15e3);
-  addEventListener("pagehide", () => {
-    if (!enabled() || !sess?.user || blocked || Date.now() > sess.expires_at) return;
-    try { fetch(cfg.url + "/rest/v1/saves?on_conflict=user_id", { method: "POST", keepalive: true, headers: { apikey: cfg.anonKey, Authorization: `Bearer ${sess.access_token}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({ user_id: sess.user.id, data: payload(), updated_at: new Date(S.last || Date.now()).toISOString() }) }); } catch (e) {}
-  });
-  addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
+  setInterval(() => { if (enabled() && sess?.user && !busy && !blocked && !document.hidden && Date.now() - lastSync > 60e3) push().catch(e => { lastError = String(e.message || e); }); }, 15e3);
+  // En quittant le jeu (ou en le passant en arrière-plan) : dernier envoi, seulement si personne n'a joué ailleurs entre-temps.
+  function leaveSave() {
+    if (!enabled() || !sess?.user || !sess.base || blocked || busy || Date.now() > sess.expires_at) return;
+    const now = new Date().toISOString(), prev = sess.base;
+    try { fetch(cfg.url + `/rest/v1/saves?user_id=eq.${sess.user.id}&updated_at=eq.${encodeURIComponent(prev)}`, { method: "PATCH", keepalive: true, headers: { apikey: cfg.anonKey, Authorization: `Bearer ${sess.access_token}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ data: payload(), updated_at: now }) }); setBase(now); sess.prev = prev; keep(); } catch (e) {}
+    // Si l'envoi n'a pas abouti, la prochaine ouverture verra une partie différente et départagera les deux.
+  }
+  addEventListener("pagehide", leaveSave);
+  addEventListener("visibilitychange", () => { if (document.hidden) leaveSave(); else sync(); });
 
   return {
     enabled, sync, push,

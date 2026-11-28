@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.23
+
+- **Synchronisation entre appareils** : un appareil resté ouvert avec une ancienne partie (un onglet oublié, le téléphone en veille) ne peut plus écraser la partie plus avancée d’un autre appareil. Chaque envoi en ligne vérifie d’abord que personne n’a joué ailleurs entre-temps ; sinon, le jeu garde la partie la plus avancée et le dit d’un petit message.
+
 ### 4.0.22
 
 - Ordinateur, **Cuisine** : les cases des recettes ont la même taille que celles de l’inventaire de l’accueil.
