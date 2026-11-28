@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.7
+
+- Jardin : le portail du jardin commun ne passe plus par-dessus « L’eau tient… » ; le jardin descend juste assez pour lui laisser sa place, et « Décorer » reste collé au jardin.
+
 ### 4.0.6
 
 - Ruche et pêche : le fond de la saison est net, en motif répété au lieu d’être agrandi.

@@ -1992,3 +1992,6 @@ button.sg-card { cursor: pointer; }
 .bush { width: 175px; height: 146px; }
 .bush.lane0 { width: 140px; height: 128px; }
 .bush.lane2 { width: 198px; height: 180px; }
+/* Portail du jardin commun : il dépasse au-dessus du jardin, on laisse sa place pour qu'il ne passe pas sur les textes */
+.garden-zone:has(> .garden > .sg-portal) { --pt: calc(min(27cqw, 116px) * 337 / 440 + 4px); padding-top: var(--pt); container-type: inline-size; }
+.garden-zone:has(> .garden > .sg-portal) > .deco-edit { top: calc(var(--pt) - 40px); } /* « Décorer » reste collé au jardin */
