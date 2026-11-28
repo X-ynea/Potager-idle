@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.1
+
+- La fenêtre « Du nouveau au potager ! » attend la fin de la connexion avant de s'afficher (elle pouvait disparaître pendant le chargement), et ne compte comme vue qu'une fois « C'est parti ! » touché : si elle a été manquée, elle revient à la prochaine ouverture.
+
 ### 4.0.0 · Sortie de la v4 « Partons en balade »
 
 - La version de test devient la version des joueurs (voir le résumé de la v4 en haut).

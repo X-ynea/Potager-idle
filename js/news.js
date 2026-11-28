@@ -31,7 +31,7 @@ function showNews3() {
 }
 function checkNews3() {
   if (!FRIENDS_ON || !CLOUD.enabled() || !CLOUD.signedIn || CLOUD.blocked || document.getElementById("gate")) return;
-  let seen = true; try { seen = !!localStorage.getItem(NEWS3_KEY); } catch (e) {}
+  const seen = true; // v4 sortie : la fenêtre de la v3 ne s'affiche plus (celle de la v4 la remplace)
   if (seen) return;
   try { localStorage.setItem(NEWS3_KEY, "1"); } catch (e) {}
   if ((S.stats?.harvest || 0) > 0 || S.level > 1) { closeModal(); showNews3(); resetTuto3(); } // les nouveaux joueurs ne la voient pas
@@ -59,7 +59,7 @@ addEventListener("load", () => setTimeout(() => {
   if (changed) { save(); tutoUpdate(); }
 }, 1500));
 const NEWS3_ACTS = {
-  news3Close() { document.getElementById("gate")?.remove(); SFX.play("success"); render(true); },
+  news3Close() { if (document.querySelector("#gate .news4")) news4Seen(); document.getElementById("gate")?.remove(); SFX.play("success"); render(true); },
   news3Replay() { closeModal(); showNews3(); resetTuto3(); },
 };
 
@@ -97,11 +97,15 @@ function showNews4() {
   g.innerHTML = news4HTML();
 }
 function checkNews4() {
-  if (document.getElementById("gate")) { setTimeout(checkNews4, 3000); return; } // connexion en cours : on attend
+  // On attend la fin de la connexion (sinon l'écran de connexion la remplace, puis disparaît avec elle).
+  if (document.getElementById("gate") || (CLOUD.enabled() && (!CLOUD.signedIn || CLOUD.blocked))) { setTimeout(checkNews4, 2000); return; }
+  if (!checkNews4.calm) { checkNews4.calm = true; setTimeout(checkNews4, 2500); return; } // connexion toute fraîche : la partie en ligne arrive
   let seen = true; try { seen = !!localStorage.getItem(NEWS4_KEY); } catch (e) {}
   if (seen) return;
-  try { localStorage.setItem(NEWS4_KEY, "1"); localStorage.setItem(NEWS3_KEY, "1"); } catch (e) {} // la v3 n'a plus à s'afficher
   if ((S.stats?.harvest || 0) > 0 || S.level > 1) { closeModal(); showNews4(); } // les nouveaux joueurs ne la voient pas
+  else news4Seen();
 }
-addEventListener("load", () => setTimeout(checkNews4, 1900)); // avant celle de la v3 (2,2 s), qui est alors marquée comme vue
+// Vue seulement quand on la ferme avec « C'est parti ! » (si elle disparaît avant, elle reviendra).
+function news4Seen() { try { localStorage.setItem(NEWS4_KEY, "1"); localStorage.setItem(NEWS3_KEY, "1"); } catch (e) {} }
+addEventListener("load", () => setTimeout(checkNews4, 1900)); // avant celle de la v3 (2,2 s), qui attend la même chose
 NEWS3_ACTS.news4Replay = () => { closeModal(); showNews4(); };
