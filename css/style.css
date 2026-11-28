@@ -2048,7 +2048,11 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   /* Inventaire : sur toute la largeur, une colonne par catégorie */
   .garden-cols > .inv-panel { grid-column: 1 / -1; }
   .inv-cats { display: flex; flex-wrap: wrap; gap: 16px 56px; align-items: start; }
-  .inv-cat { display: grid; gap: 12px; align-content: start; flex: 1 1 0; min-width: min(60%, calc(var(--k) * 82px + 8px)); }
+  /* Titres sur une seule ligne (la colonne s'élargit au besoin) : toutes les cases partent à la même hauteur */
+  .inv-cats { container-type: inline-size; }
+  .inv-cat { display: grid; gap: 12px; align-content: start; flex: 1 1 0; }
+  .inv-cat > .cat-title { white-space: nowrap; }
+  .inv-cat > .tiles.mini { min-width: min(60cqw, calc(var(--k) * 82px + 8px)); }
   .inv-cat .tiles.mini { grid-template-columns: repeat(auto-fill, minmax(72px, 76px)); }
   main[data-tab="garden"] .inv-cat > .cat-title { margin-top: 0; }
   /* Atelier : l'herbier sous la Cuisine et la Serre, Plantes et Hybrides côte à côte */

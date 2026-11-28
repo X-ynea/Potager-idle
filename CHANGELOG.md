@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.21
+
+- Ordinateur, **inventaire** : les titres des catégories tiennent sur une ligne, toutes les cases sont alignées.
+
 ### 4.0.20
 
 - Ordinateur, **Jardin** : le cadre du jardin descend jusqu’au bas des objectifs quand ceux-ci sont plus hauts.
