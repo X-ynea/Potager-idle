@@ -195,16 +195,21 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
-### 4.0.9 (version de test)
+### 4.0.10
+
+- Ruche et pêche : le fond de la saison un peu plus zoomé.
+- Pêche sur ordinateur : l'étang un peu plus petit, la canne un peu plus grande.
+
+### 4.0.9
 
 - La ruche sur ordinateur : un pré plus grand, des fleurs moins serrées, et la ruche bien au-dessus des fleurs.
 
-### 4.0.8 (version de test)
+### 4.0.8
 
 - Jardin commun : 30 graines gratuites par jour et par jardinier (au lieu de 8), et des commandes toute la journée : deux à la fois, et une nouvelle arrive 20 min après chaque livraison (docs/jardin-commun.sql à relancer).
 - Jardin commun : toucher à côté ne ferme plus la page (on la ferme avec la croix), et elle prend plus de largeur sur grand écran.
 
-### 4.0.7 (version de test)
+### 4.0.7 bis
 
 - Nouveaux fonds du jardin au printemps, en été et en automne.
 - Objectifs de la semaine : au chargement, plus de chiffres provisoires (ta seule part) qui changent ensuite ; les cartes attendent les vrais chiffres.
