@@ -195,11 +195,15 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
-### 4.0.14
+### 4.0.15
 
 - Ordinateur : le jeu prend encore plus de place (jusqu’à 1 640 px de large, pour les écrans 1920 × 1080).
 - **Jardin** : les objectifs ont la même hauteur que le jardin, avec plus d’air entre ceux du jour et ceux de la semaine ; l’inventaire passe en dessous, sur toute la largeur, une colonne par catégorie.
 - **Atelier** : l’herbier passe sous la Cuisine et la Serre, sur toute la largeur, avec les plantes à gauche et les hybrides à droite.
+
+### 4.0.14
+
+- Nouvelles images des recettes de balade : tartine au miel, soupe de cresson, thé à la menthe, salade de la mer, pesto d’ail des ours, confiture de mûres, velouté de châtaignes, gâteau aux noisettes et grand pique-nique.
 
 ### 4.0.13
 
