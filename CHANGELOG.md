@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.14
+
+- Nouvelles images des recettes de balade : tartine au miel, soupe de cresson, thé à la menthe, salade de la mer, pesto d’ail des ours, confiture de mûres, velouté de châtaignes, gâteau aux noisettes et grand pique-nique.
+
 ### 4.0.13
 
 - Ordinateur, **Marché** : la fiche de l’objet choisi en haut, sur toute la largeur ; en dessous, les plantes à gauche et les hybrides à droite.
