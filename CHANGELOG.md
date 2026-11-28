@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.22
+
+- Ordinateur, **Cuisine** : les cases des recettes ont la même taille que celles de l’inventaire de l’accueil.
+
 ### 4.0.21
 
 - Ordinateur, **inventaire** : les titres des catégories tiennent sur une ligne, toutes les cases sont alignées.
