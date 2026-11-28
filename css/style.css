@@ -2239,3 +2239,9 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .sg-embed .sg-orders { grid-template-columns: 1fr; }
 }
 .sg-tools { margin: 0; }
+/* Ordinateur : la fenêtre des décorations s'ouvre sur le côté droit, le jardin reste visible */
+@media (min-width: 1000px) {
+  #modal:has(.deco-sheet) { justify-items: end; align-items: center; padding-right: max(24px, calc((100vw - 1640px) / 2 + 32px)); }
+  .sheet.deco-sheet { width: min(440px, 40vw); max-height: 88dvh; border-radius: 22px; box-shadow: 0 14px 40px rgba(0,0,0,.25); animation: sgSide .2s ease-out; }
+  .sheet.deco-sheet::before { display: none; }
+}

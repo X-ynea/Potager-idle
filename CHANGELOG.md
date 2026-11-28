@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.25
+
+- Ordinateur, **décorations** : la fenêtre pour choisir et placer une décoration s’ouvre sur le côté droit, le jardin reste visible.
+
 ### 4.0.24
 
 - **Jardin commun** : boutons « Tout récolter » et « Tout arroser » au-dessus des bacs (la récolte s’arrête si le panier commun est plein).
