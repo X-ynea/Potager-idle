@@ -195,6 +195,16 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.5
+
+- Nouveau fond du jardin en hiver.
+
+### 4.0.4
+
+- Les fonds du jardin sont moins zoomés.
+- La ruche sur ordinateur : les fleurs restent groupées au milieu de l'écran, comme sur un téléphone.
+- La carte du jardin commun se lit bien en thème sombre.
+
 ### 4.0.3
 
 - Retour aux fonds du jardin d'avant pour les quatre saisons (le nouveau chemin d'automne de la balade en forêt reste).

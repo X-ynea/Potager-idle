@@ -1022,10 +1022,10 @@ img.pest.pest-frost, .pest.pest-frost { width: 40%; left: auto; right: 5%; top: 
 /* Escargot (printemps) : même taille et place qu'avant les saisons */
 .pest.pest-snail { width: 46%; right: 4%; bottom: 14%; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 /* Fonds du jardin selon la saison */
-.garden[data-season="printemps"] { background-image: url("../assets/img/jardin/bg-printemps.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
-.garden[data-season="ete"] { background-image: url("../assets/img/jardin/bg-ete.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
-.garden[data-season="automne"] { background-image: url("../assets/img/jardin/bg-automne.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
-.garden[data-season="hiver"] { background-image: url("../assets/img/jardin/bg-hiver.webp"); background-size: 420px 420px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="printemps"] { background-image: url("../assets/img/jardin/bg-printemps.webp"); background-size: 300px 300px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="ete"] { background-image: url("../assets/img/jardin/bg-ete.webp"); background-size: 300px 300px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="automne"] { background-image: url("../assets/img/jardin/bg-automne.webp"); background-size: 300px 300px; background-repeat: repeat; background-position: center top; }
+.garden[data-season="hiver"] { background-image: url("../assets/img/jardin/bg-hiver.webp"); background-size: 300px 300px; background-repeat: repeat; background-position: center top; }
 /* Mode clair : encarts de saison plus marqués (la fiche elle-même est déjà teintée) */
 .season-bar, .ss-facts > div { background: color-mix(in srgb, var(--leaf) 20%, #fff); border: 1.5px solid color-mix(in srgb, var(--leaf) 55%, #fff); box-shadow: none; }
 :root[data-theme="dark"] .season-bar, :root[data-theme="dark"] .ss-facts > div { box-shadow: none; background: color-mix(in srgb, var(--leaf) 24%, var(--panel)); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
@@ -1973,3 +1973,9 @@ button.sg-card { cursor: pointer; }
 .sub-dot { display: inline-block; width: 8px; height: 8px; margin-left: 5px; vertical-align: super; border-radius: 50%; background: #e2483d; box-shadow: 0 0 0 2px var(--panel); }
 .news3-ico img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
 .news3-ico svg { width: 60%; height: 60%; }
+
+/* La ruche sur grand écran : les fleurs restent groupées au milieu, comme sur un téléphone. */
+.ruche-field { width: 100%; max-width: 520px; margin-left: auto; margin-right: auto; }
+/* Carte du jardin commun en thème sombre : un dégradé vert sombre au lieu du vert très clair. */
+:root[data-theme="dark"] .sg-card { background: linear-gradient(135deg, color-mix(in srgb, var(--leaf) 24%, var(--panel)), var(--panel)); }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] .sg-card { background: linear-gradient(135deg, color-mix(in srgb, var(--leaf) 24%, var(--panel)), var(--panel)); } }
