@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.27
+
+- En achetant l’Arroseur automatique ou le Hérisson gardien, un objectif du jour d’arrosage ou d’embêtements en cours est terminé tout de suite, avec sa récompense.
+
 ### 4.0.26
 
 - Nouvelle amélioration au niveau 28 : le Hérisson gardien (15 000 pièces). Il veille sur le jardin : plus aucun bac n’est bloqué par les embêtements (escargots, herbes folles, feuilles, gel).

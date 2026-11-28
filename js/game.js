@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.26" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.27" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -537,7 +537,12 @@ const A = {
   },
   buyRecipe(r) { const d = RECIPES[r]; if (S.coins < d.price || S.recipes.includes(r) || d.lvl > S.level || missingHyb(r).length) return; S.coins -= d.price; S.recipes.push(r); toast(`Recette apprise : <b>${d.name}</b>. Direction la Cuisine !`); commit(); },
   buyUpg(u) {
-    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; if (u === "guard") S.plots.forEach(p => { p.weed = false; }); SFX.play("success"); commit(); },
+    S.upgBought017 = true; const step = UPG[u].steps[S.upg[u]]; if (!step || S.coins < step.cost || S.level < step.lvl) return; S.coins -= step.cost; S.upg[u]++; if (u === "guard") S.plots.forEach(p => { p.weed = false; });
+    // Un objectif du jour devenu inutile (arroser, chasser les embêtements) : terminé et récompensé tout de suite.
+    for (const q of (S.quests && S.quests.day === dayKey() ? S.quests.list : [])) { const t = QUEST_TYPES.find(x => x.id === q.type); if (q.claimed || !t?.skip?.()) continue;
+      q.prog = q.n; q.claimed = true; S.stats.quests = (S.stats.quests || 0) + 1; earn(q.coins, null, null, q.xp);
+      toast(`Objectif terminé : <b>${q.text}</b> · +${fmt(q.coins)} pièces, +${q.xp} XP`); }
+    SFX.play("success"); commit(); },
   buyPlot() {
     const step = PLOT_STEPS[S.plots.length - 6]; if (!step || S.coins < step.cost || S.level < step.lvl) return;
     S.coins -= step.cost; const t = now(); S.plots.push({ seed: null, grown: 0, last: t, waterUntil: 0, weed: false, lastSeed: null });
