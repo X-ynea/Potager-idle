@@ -1979,3 +1979,16 @@ button.sg-card { cursor: pointer; }
 /* Carte du jardin commun en thème sombre : un dégradé vert sombre au lieu du vert très clair. */
 :root[data-theme="dark"] .sg-card { background: linear-gradient(135deg, color-mix(in srgb, var(--leaf) 24%, var(--panel)), var(--panel)); }
 @media (prefers-color-scheme: dark) { :root[data-theme="system"] .sg-card { background: linear-gradient(135deg, color-mix(in srgb, var(--leaf) 24%, var(--panel)), var(--panel)); } }
+/* Ruche et pêche : l'herbe de la saison en motif répété (nette), comme dans le jardin */
+.g-ruche, .g-peche { background-size: 300px 300px !important; background-repeat: repeat !important; background-position: center top !important; }
+/* Ruche : le pré des fleurs reste carré et centré, pour que le rond de fleurs ne s'étire pas sur grand écran */
+.ruche-field { flex: 0 1 auto; width: min(100%, 520px, calc(100dvh - 170px)); aspect-ratio: 1; margin: auto; }
+/* Pêche sur grand écran : l'étang et la canne restent groupés au milieu (la canne près de l'eau, pas au bord de l'écran) */
+.peche-field { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; }
+/* Memory : le ciel de la saison en fond, comme la forêt et la cueillette */
+.g-memory { background: #cfe8f7 center top / cover; }
+/* Forêt sur grand écran : arbres de la lisière moins zoomés ; buissons un peu plus grands partout */
+.forest-bg { height: min(34%, 280px); }
+.bush { width: 175px; height: 146px; }
+.bush.lane0 { width: 140px; height: 128px; }
+.bush.lane2 { width: 198px; height: 180px; }

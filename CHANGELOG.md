@@ -195,14 +195,19 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
-### 4.0.7
+### 4.0.7 (version de test)
 
+- Nouveaux fonds du jardin au printemps, en été et en automne.
 - Objectifs de la semaine : au chargement, plus de chiffres provisoires (ta seule part) qui changent ensuite ; les cartes attendent les vrais chiffres.
 - Objectif entre amis : une fois atteint, il le reste jusqu'à la fin de la semaine, même si un nouvel ami arrive.
 
 ### 4.0.6
 
-- Nouveaux fonds du jardin au printemps, en été et en automne.
+- Ruche et pêche : le fond de la saison est net, en motif répété au lieu d’être agrandi.
+- Ruche sur ordinateur : les fleurs forment un vrai rond au milieu de l’écran.
+- Pêche sur ordinateur : la canne reste près de l’étang, au milieu de l’écran.
+- Forêt : arbres moins grands sur ordinateur, buissons un peu plus gros, défilement un peu plus lent (et le même sur tous les écrans).
+- Memory : le ciel de la saison en fond.
 
 ### 4.0.5
 
