@@ -2137,7 +2137,11 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   /* Atelier : trois colonnes de même hauteur, l'herbier en dessous */
   .atelier3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
   .atelier3 > * { min-width: 0; align-content: start; }
-  .atelier3 .a-col { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+  .atelier3 .a-col, .atelier2 .a-col { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+  .atelier2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+  .atelier2 > * { min-width: 0; align-content: start; }
+  .atelier2 .stoves { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+  .atelier2 .k-list .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   .atelier3 .k-det { align-content: start; }
   .atelier3 .stoves { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
   .atelier3 .k-list .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
@@ -2178,8 +2182,7 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
   .ach-grid > .ach { align-items: start; height: 100%; }
   /* Commandes : les cartes se partagent toute la largeur */
-  .orders { display: flex; flex-wrap: wrap; }
-  .orders > .order { flex: 1 1 360px; }
+  .orders { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); } /* les cartes remplissent la ligne, une carte seule à la ligne garde sa largeur */
   /* Jardin commun : un titre au-dessus de chaque colonne, à la même hauteur ; boutons à droite */
   .sg-embed .sg-col-t { display: flex; }
   .sg-embed .sg-col > .cat-title:first-child { margin: 0; height: 30px; display: flex; align-items: center; gap: 8px; }
@@ -2216,4 +2219,19 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .game-card { padding: 20px 22px; gap: 20px; grid-template-columns: 100px 1fr; }
   .game-card .g-art { width: 100px; height: 100px; }
   .game-card .g-body { gap: 10px; }
+}
+@media (min-width: 1000px) {
+  /* Jardin : il descend jusqu'au bas des objectifs quand ceux-ci sont plus hauts */
+  .garden-cols > .col-main { display: flex; flex-direction: column; gap: 12px; }
+  .garden-cols > .col-main > .garden-panel { flex: 1 1 auto; align-content: start; }
+}
+@media (min-width: 1000px) and (max-width: 1399px) {
+  /* Jardin commun sur écran moyen : les bacs et les commandes côte à côte, les jardiniers en dessous */
+  .sg-embed .sg-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .sg-embed .sg-col:last-child { grid-column: 1 / -1; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: stretch; }
+  .sg-embed .sg-col:last-child > :not(.fr-list) { grid-column: 1 / -1; }
+  .sg-embed .sg-col:last-child > .fr-list { display: contents; }
+  .sg-embed .sg-col:last-child .fr-row { margin: 0; }
+  .sg-embed .sg-col:last-child > .sg-end { justify-content: flex-end; }
+  .sg-embed .sg-orders { grid-template-columns: 1fr; }
 }

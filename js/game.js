@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.19" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.20" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1203,7 +1203,7 @@ function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
   const cats = [["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]];
   // Ordinateur : les trois rayons côte à côte, chacun avec sa fiche en haut et ses objets en dessous.
-  if (wide()) return sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) + `<div class="sell-cols">${cats.map(([c, l]) => `<div class="sell-col"><h3 class="cat-title">${l}</h3>
+  if (big()) return sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) + `<div class="sell-cols">${cats.map(([c, l]) => `<div class="sell-col"><h3 class="cat-title">${l}</h3>
     ${sellAllBtn(c) || "<div></div>"}${invBody("sell", c, "sell_" + c)}</div>`).join("")}</div>
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
   return `${catTabs([["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
@@ -1309,12 +1309,19 @@ function views_village() {
 /* Grand écran (ordinateur) : l'appli s'élargit et plusieurs écrans passent sur deux colonnes. */
 const WIDE_MQ = matchMedia("(min-width: 1000px)");
 const wide = () => WIDE_MQ.matches;
+// Très grand écran : Cuisine et Serre ensemble, les trois rayons de vente côte à côte.
+const BIG_MQ = matchMedia("(min-width: 1400px)");
+const big = () => BIG_MQ.matches;
+BIG_MQ.addEventListener("change", () => { $("#view").replaceChildren(); render(true); });
 // Sur ordinateur, la Cuisine et la Serre sont affichées ensemble : être sur l'une, c'est être sur les deux.
 const atTab = t => tab === t || ((t === "kitchen" || t === "lab") && inAtelier() && atelierBoth());
-const atelierBoth = () => wide() && !tabLock("lab");
+const atelierBoth = () => big() && !tabLock("lab");
 WIDE_MQ.addEventListener("change", () => { if (modalView === viewSG && !$("#modal").hidden) closeModal(); $("#view").replaceChildren(); render(true); });
 // Ordinateur : trois colonnes de même hauteur (fourneaux et recette choisie, recettes, Serre), puis l'herbier en dessous.
 function atelierView(sub) {
+  // Écran moyen : la Serre garde son onglet, la Cuisine est sur deux colonnes.
+  if (wide() && !atelierBoth() && sub === views_kitchen) { const k = views_kitchen(true);
+    if (typeof k !== "string") return atelierBar() + `<div class="atelier2"><div class="a-col">${k.head}<section class="panel k-det">${k.det}</section></div><section class="panel k-list">${k.list}</section></div>`; }
   if (!atelierBoth()) return atelierBar() + sub();
   const k = views_kitchen(true);
   if (typeof k === "string") return `<div class="cols atelier-cols"><div class="col">${k}</div><div class="col">${views_lab()}</div></div>`;

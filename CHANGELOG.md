@@ -195,6 +195,15 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.20
+
+- Ordinateur, **Jardin** : le cadre du jardin descend jusqu’au bas des objectifs quand ceux-ci sont plus hauts.
+- **Commandes du village** : une commande seule sur sa ligne garde la largeur des autres.
+- Écrans d’ordinateur moyens (moins de 1 400 px) :
+  - la Serre retrouve son onglet ; la Cuisine reste sur deux colonnes (fourneaux et recette choisie, recettes) ;
+  - Vendre : les rayons Récoltes, Balades et Plats repassent en onglets ;
+  - jardin commun : les bacs et les commandes côte à côte, les jardiniers en dessous.
+
 ### 4.0.19
 
 - Ordinateur, paramètres : les boutons « Recommencer à zéro » et « Supprimer mon compte » ont la même hauteur et prennent toute la largeur.
