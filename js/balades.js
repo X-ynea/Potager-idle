@@ -60,7 +60,7 @@ let GAME = null; // partie en cours
 function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
   const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche" || id === "ruche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`;
-  if (id === "foret" || id === "cueillette") el.style.backgroundImage = (id === "cueillette" ? "linear-gradient(transparent 80%, #a9d68a 93%), " : "") + `url("assets/img/balades/sky-${season()}.webp")`; // le ciel de la saison el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
+  if (id === "foret" || id === "cueillette" || id === "memory") el.style.backgroundImage = (id === "cueillette" ? "linear-gradient(transparent 80%, #a9d68a 93%), " : "") + `url("assets/img/balades/sky-${season()}.webp")`; // le ciel de la saison el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
@@ -224,6 +224,9 @@ const foretPts = k => k === foretMain() ? 1 : 3;
 // Les buissons, la lisière et le chemin changent avec la saison (4 variantes de buisson).
 const BUSH = () => `<img class="bush-svg" src="assets/img/balades/bush-${season()}-${1 + Math.floor(Math.random() * 4)}.webp" alt="" draggable="false">`;
 const TREES = () => `<div class="forest-bg" style="background-image:url('assets/img/balades/foret-${season()}.webp')"></div>`;
+// Vitesse de défilement (px par ms) : la même sur grand écran que sur un téléphone (sinon tout file),
+// et un peu plus calme qu'avant (4.0.6).
+const foretSpeed = W => Math.min(W, 480) * FORET_SPAN / FORET_CROSS * .8;
 const FORET_DEPTH = .5; // la lisière défile deux fois moins vite que le chemin : effet de profondeur
 function foretPick() { const m = foretMain(); return Math.random() < .55 ? m : pick(FORET_ITEMS.filter(k => k !== m)); }
 
@@ -373,7 +376,7 @@ const GAME_IMPL = {
       if (e >= FORET_T) { gameEnd(); return; }
       if (g.st !== "walk") return;
       const field = g.el.querySelector(".foret-field"), W = field.clientWidth;
-      const dx = -(e / FORET_CROSS) * W * FORET_SPAN;
+      const dx = -e * foretSpeed(W);
       g.el.querySelector(".path").style.backgroundPositionX = dx.toFixed(1) + "px"; // même vitesse que les buissons
       g.el.querySelector(".forest-bg").style.backgroundPositionX = (dx * FORET_DEPTH).toFixed(1) + "px";
       if (e >= g.next) {
@@ -385,7 +388,7 @@ const GAME_IMPL = {
         g.next = e + rand(650, 1100);
       }
       g.bushes = g.bushes.filter(b => {
-        const x = W * 1.1 - (e - b.t) / FORET_CROSS * W * FORET_SPAN;
+        const x = W * 1.1 - (e - b.t) * foretSpeed(W);
         if (x < -W * .3) { b.el.remove(); return false; }
         b.el.style.transform = `translateX(${x.toFixed(1)}px)`; return true;
       });

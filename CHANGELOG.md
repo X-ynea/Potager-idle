@@ -195,6 +195,14 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.6
+
+- Ruche et pêche : le fond de la saison est net, en motif répété au lieu d’être agrandi.
+- Ruche sur ordinateur : les fleurs forment un vrai rond au milieu de l’écran.
+- Pêche sur ordinateur : la canne reste près de l’étang, au milieu de l’écran.
+- Forêt : arbres moins grands sur ordinateur, buissons un peu plus gros, défilement un peu plus lent (et le même sur tous les écrans).
+- Memory : le ciel de la saison en fond.
+
 ### 4.0.5
 
 - Nouveau fond du jardin en hiver.
