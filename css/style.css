@@ -1994,3 +1994,7 @@ button.sg-card { cursor: pointer; }
 .bush.lane2 { width: 198px; height: 180px; }
 /* Jardin commun sur grand écran : plus large. */
 @media (min-width: 900px) { .sheet.visit-sheet.sg-sheet { max-width: min(1100px, 94vw); } }
+/* Ruche : un pré plus grand sur ordinateur, des fleurs à sa taille (pas trop serrées), la ruche bien au-dessus d'elles. */
+.ruche-field { width: min(100%, 700px, calc(100dvh - 150px)); container-type: inline-size; }
+.ruche-field .flower { width: min(24cqw, 130px); }
+.ruche-field .hive { width: min(17cqw, 96px); height: min(17cqw, 96px); top: 1%; }

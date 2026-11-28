@@ -201,7 +201,7 @@ const FLOWER = c => RIMG("fl-" + c).replace("<img ", '<img class="fl-open" ');
 const BUDIMG = c => RIMG("bud-" + c).replace("<img ", '<img class="fl-bud" ');
 const BEE = RIMG("bee");
 const rucheColor = () => pick(["rose", "bleue", "blanche"]); // couleur d'un emplacement, gardée toute la partie
-const RUCHE_SPOTS = [[50, 50], [24, 36], [76, 36], [24, 66], [76, 66], [50, 22], [50, 80]]; // une fleur au centre, six autour
+const RUCHE_SPOTS = [[50, 57], [22, 43], [78, 43], [22, 73], [78, 73], [50, 30], [50, 86]]; // une fleur au centre, six autour
 const RUCHE_T = 30000;
 
 /* ---------------- La pêche ----------------

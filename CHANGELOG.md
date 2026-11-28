@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.9 (version de test)
+
+- La ruche sur ordinateur : un pré plus grand, des fleurs moins serrées, et la ruche bien au-dessus des fleurs.
+
 ### 4.0.8 (version de test)
 
 - Jardin commun : 30 graines gratuites par jour et par jardinier (au lieu de 8), et des commandes toute la journée : deux à la fois, et une nouvelle arrive 20 min après chaque livraison (docs/jardin-commun.sql à relancer).
