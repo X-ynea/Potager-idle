@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.19
+
+- Ordinateur, paramètres : les boutons « Recommencer à zéro » et « Supprimer mon compte » ont la même hauteur et prennent toute la largeur.
+
 ### 4.0.18
 
 - **Cuisine** : une nouvelle image en haut, comme pour la Serre, et un filtre « Commandes » pour ne voir que les plats que les voisins attendent.

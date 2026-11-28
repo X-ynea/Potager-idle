@@ -2203,11 +2203,13 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .d-kitchen .d-body .ings { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
   .d-kitchen .d-body .ing { padding: 8px 6px; }
   .d-kitchen .d-body .ing > svg, .d-kitchen .d-body .ing > img { width: 38px; height: 38px; }
-  .set-group.danger > .set-link { margin: 0; height: 100%; }
   /* Paramètres : les réglages et les boutons de la zone sensible en grille de cases */
   .set-group:has(> .set-row + .set-row), .set-group.danger:has(> .set-link + .set-link) { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); align-items: stretch; }
   .set-group:has(> .set-row + .set-row) > :not(.set-row), .set-group.danger > :not(.set-link) { grid-column: 1 / -1; }
   .set-group:has(> .set-row + .set-row) > .set-row { align-items: center; min-height: 64px; }
+  /* Zone sensible : les deux boutons à la même hauteur, sur toute la largeur */
+  .set-group.danger:has(> .set-link + .set-link) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .set-group.danger > .set-link, .danger .set-link + .set-link { margin: 0; height: auto; align-self: stretch; }
   /* Profil : les chiffres sur plus de colonnes */
   .profile-sheet .stats { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
   /* Balades : des cartes plus aérées */
