@@ -195,6 +195,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.13
+
+- Ordinateur, **Marché** : la fiche de l’objet choisi en haut, sur toute la largeur ; en dessous, les plantes à gauche et les hybrides à droite.
+- Ordinateur, **Amis** : tes amis en cases en haut ; le jardin commun ouvert en dessous, sur trois colonnes (les bacs, le panier et les commandes, les jardiniers). La discussion s’ouvre dans une petite fenêtre sur le côté.
+
 ### 4.0.12
 
 - Sur ordinateur, le jeu prend plus de place (jusqu’à 1 240 px de large) et les écrans s’organisent sur deux colonnes :

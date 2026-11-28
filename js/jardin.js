@@ -158,7 +158,7 @@ const sgKnown = () => !!SG.data || !!SG.error || S.sgHas !== undefined;
 const sgPortalHTML = () => sgOn() && (sgG() || (!SG.data && S.sgHas)) ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${typeof tutoBusy === "function" && tutoBusy() ? "" : sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG()?.plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
 
 /* ---------- Page du jardin commun ---------- */
-// Ouvert dans une fenêtre, ou sur ordinateur dans la colonne de droite de l'onglet Amis.
+// Ouvert dans une fenêtre, ou sur ordinateur directement dans l'onglet Amis.
 const sgOpen = () => (modalView === viewSG && !$("#modal").hidden) || !!document.querySelector(".sg-embed");
 // Les bacs utilisent le dessin du jardin principal : on prête au jeu un petit état « jardin commun »
 // (eau 10 min, pas d'arroseur automatique) le temps de dessiner.
@@ -195,7 +195,7 @@ function sgPopHTML(g) {
   if (c === "delete") return pop("Supprimer le jardin ?", `« ${esc(g.name)} » sera effacé pour tout le monde : bacs, panier et commandes. Tous les jardiniers en sortent.`, "sgDelete", "", "Supprimer");
   return "";
 }
-// Sur ordinateur : le jardin commun, déjà ouvert à droite de la liste d'amis.
+// Sur ordinateur : le jardin commun, déjà ouvert sous les amis (trois colonnes).
 function sgEmbedHTML() {
   if (!sgOn()) return "";
   if (!sgG()) return S.level < SG_LVL ? "" : `<section class="panel"><h2>Jardin commun</h2>${sgCardHTML()}</section>`;
@@ -234,13 +234,16 @@ function viewSG(embed) {
   return `<div class="${embed ? "sg-sheet sg-in" : "sheet tall visit-sheet sg-sheet"}"${embed ? ` aria-label="Jardin commun"` : ` role="dialog" aria-modal="true" aria-label="Jardin commun"`}>
     <div class="sheet-head"><div><h2>${esc(g.name)}</h2><span class="small muted">Jardin commun · ${SEASONS[SG.data.season]?.name || ""}</span></div>${embed ? "" : SHEET_X}</div>
     ${SG.error ? `<p class="cloud-warn">${esc(SG.error)}</p>` : ""}
+    <div class="sg-cols"><div class="sg-col">
     ${sgGardenHTML(g)}
     ${picker}
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>
+    </div><div class="sg-col">
     <h3 class="cat-title">Panier commun <span class="muted num">${sgBasketN()} / ${SG_BASKET}</span></h3>
     ${basket.length ? `<div class="sg-basket">${basket.map(([k, q]) => `<span class="chip">${cropArt(k)}<b class="num">${q}</b></span>`).join("")}</div>` : `<p class="small muted" style="margin:0">Le panier est vide. Les récoltes du jardin commun arrivent ici, et ne servent qu’aux commandes.</p>`}
     <h3 class="cat-title sg-title">Commandes <span class="muted num">${fmt(g.delivered || 0)} livrée${(g.delivered || 0) > 1 ? "s" : ""}</span><button class="g-help" data-act="sgConfirm" data-arg="help" aria-label="Comment ça marche">?</button></h3>
     <div class="sg-orders">${orders}</div>
+    </div><div class="sg-col">
     <h3 class="cat-title">Jardiniers <span class="muted num">${members.length} / 4</span></h3>
     <div class="fr-list">${members.map(m => `<div class="fr-row"><span class="fr-av">${sgAv(m)}</span><span class="fr-id"><b>${m.me ? "Toi" : esc(m.name)}${m.owner ? ` <span class="tr-tag">Créateur</span>` : ""}</b><small>Niv. ${m.level} · ${m.planted || 0} / ${SG_PLANTS_DAY} graines aujourd’hui</small></span>
       ${owner && !m.me ? `<span class="fr-acts"><button class="sg-round no" data-act="sgConfirm" data-arg="kick:${m.id}" aria-label="Retirer ${esc(m.name)} du jardin">${CROSS_ICON}</button></span>` : ""}</div>`).join("")}
@@ -248,7 +251,7 @@ function viewSG(embed) {
     ${owner && room ? (SG.invite ? `<div class="sg-invite"><b>Inviter un ami</b>${friends.length ? `<div class="fr-list">${friends.map(f => `<div class="fr-row"><span class="fr-av">${friendAvatar(f.avatar)}</span><span class="fr-id"><b>${esc(f.name)}</b></span><span class="fr-acts"><button class="btn sm" data-act="sgInvite" data-arg="${f.user_id}" ${SG.busy ? "disabled" : ""}>Inviter</button></span></div>`).join("")}</div>` : `<p class="small muted" style="margin:0">Tous tes amis sont déjà là, ou invités.</p>`}</div>`
       : `<button class="btn ghost" data-act="sgInviteOpen">Inviter un ami</button>`) : ""}
     <div class="sg-end"><button class="btn ghost sg-leave" data-act="sgConfirm" data-arg="leave">Quitter le jardin</button>${owner ? `<button class="btn ghost sg-leave" data-act="sgConfirm" data-arg="delete">Supprimer le jardin</button>` : ""}</div>
-    ${sgChatHTML()}${sgPopHTML(g)}
+    ${sgChatHTML()}</div></div>${sgPopHTML(g)}
   </div>`;
 }
 // Chaque seconde : la pousse avance ; seuls les bacs qui changent sont redessinés, les anneaux glissent.
@@ -282,7 +285,7 @@ const SG_ACTS = {
   sgFold() { SG.fold = !SG.fold; SG.say = false; SG.chatAnim = false; render(true); const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgSayPlant() { if (sgWait()) return; SG.say = !SG.say; SG.chatAnim = false; render(true); },
   sgOpen() { if (!sgOn()) return; if (typeof tutoFlag === "function") tutoFlag("sg_opened");
-    // Ordinateur : le jardin commun s'ouvre à droite, dans l'onglet Amis.
+    // Ordinateur : le jardin commun est déjà ouvert dans l'onglet Amis.
     if (wide() && FRIENDS_ON) { closeModal(); SG.chatOpen = false; if (tab !== "friends") A.tab("friends"); else render(true); loadSG(true); return; }
     SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {

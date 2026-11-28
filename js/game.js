@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.12" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.13" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1159,8 +1159,9 @@ function marketSeeds() {
   const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && plantLvl(a) - plantLvl(b))) : l.sort(sorter);
   const base = srt(ORDER.filter(x => !PLANTS[x].hybrid)), hyb = srt(ORDER.filter(x => PLANTS[x].hybrid));
   const found = hyb.filter(seedAvailable).length;
-  return `<div class="mk-split"><div class="mk-det">${det}</div><div class="mk-list">` + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
-    <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div></div></div>`;
+  // Sur ordinateur : la fiche en haut, puis les plantes à gauche et les hybrides à droite.
+  return det + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<div class="mk-cols"><div class="mk-col"><h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div></div>
+    <div class="mk-col"><h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div></div></div>`;
 }
 // Hybrides d'une recette pas encore découverts : on ne peut pas l'apprendre avant.
 const missingHyb = r => Object.keys(RECIPES[r].need).filter(k => PLANTS[k]?.hybrid && !S.hybrids.includes(k));
@@ -1179,7 +1180,7 @@ function marketRecipes() {
     const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level, h = !o && !l && missingHyb(x).length > 0;
     return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l || h, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : h ? "Hybride ?" : priceTag(e.price) });
   }).join("");
-  return `<div class="mk-split"><div class="mk-det">${det}</div><div class="mk-list"><div class="tiles">${grid}</div></div></div>`;
+  return det + `<div class="tiles">${grid}</div>`;
 }
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);

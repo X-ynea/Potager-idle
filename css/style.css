@@ -2028,7 +2028,7 @@ main[data-tab="garden"] .quests:not(.weekly) { order: 2; }
 main[data-tab="garden"] .weekly { order: 3; }
 main[data-tab="garden"] .inv-panel { order: 4; }
 main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs du jour finis : tout en bas */
-.mk-split, .mk-det, .mk-list { display: grid; gap: 12px; min-width: 0; }
+.mk-cols, .mk-col { display: grid; gap: 12px; min-width: 0; }
 .orders { display: grid; gap: 12px; }
 @media (min-width: 1000px) {
   #app { max-width: 1240px; padding-left: 24px; padding-right: 24px; }
@@ -2042,27 +2042,47 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   /* Atelier : la Cuisine et la Serre côte à côte */
   .atelier-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .atelier-cols .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
-  /* Marché : la fiche à gauche (elle suit en descendant), la liste à droite */
-  .mk-split { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 16px; align-items: start; }
-  .mk-det { position: sticky; top: 76px; }
-  .mk-list .tiles { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-  main[data-tab="market"] .tiles:not(.mini) { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  /* Marché : la fiche en haut, puis les plantes à gauche et les hybrides à droite */
+  .mk-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  main[data-tab="market"] .tiles:not(.mini) { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
   .upg-list { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
   /* Village : les commandes en grille */
   .orders { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: stretch; }
   .orders .order { align-content: start; }
   /* Balades : les jeux en grille */
   .game-list { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
-  /* Amis : la liste à gauche, le jardin commun ouvert à droite */
-  .friends-cols { grid-template-columns: minmax(340px, 1fr) minmax(0, 1.5fr); }
+  /* Amis : les amis en cases en haut, le jardin commun ouvert en dessous, sur trois colonnes */
+  .friends-wide { display: grid; gap: 12px; }
   main[data-tab="friends"] > .friends-page { max-width: 760px; width: 100%; justify-self: center; }
-  .sg-embed { padding: 14px; }
-  .sg-embed .sg-in { padding-bottom: 0; }
-  .sg-embed .sheet-head { position: static; margin: 0; padding: 0 64px 10px 0; background: none; }
-  .sg-embed .sg-orders { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-  .sg-embed .sg-in { position: relative; }
-  .sg-embed .sg-chat-fab { position: absolute; top: 0; right: 0; bottom: auto; width: 50px; height: 50px; }
-  .sg-embed .sg-chat-back { z-index: 30; }
-  .sg-embed .sg-chat-panel { z-index: 31; }
+  .friends-wide .friends-page { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .friends-wide .friends-page > * { grid-column: 1 / -1; }
+  .friends-wide .friends-page > .fr-code { grid-column: 1; }
+  .friends-wide .friends-page > .subtabs { grid-column: 2; align-self: stretch; }
+  .friends-wide .friends-page .fr-list { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
+  .friends-wide .friends-page .fr-row { aspect-ratio: 1; height: 100%; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 10px; text-align: center; }
+  .friends-wide .friends-page .fr-head { flex: none; flex-direction: column; gap: 6px; text-align: center; width: 100%; }
+  .friends-wide .friends-page .fr-row > .fr-av, .friends-wide .friends-page .fr-head .fr-av { width: 64px; height: 64px; }
+  .friends-wide .friends-page .fr-id { flex: none; justify-items: center; width: 100%; }
+  .friends-wide .friends-page .fr-id .title-tag { justify-self: center; }
+  .friends-wide .friends-page .fr-acts { justify-content: center; flex-wrap: wrap; }
+  .sg-embed { padding: 16px; }
+  .sg-embed .sg-in { position: relative; padding-bottom: 0; }
+  .sg-embed .sheet-head { position: static; margin: 0; padding: 0 170px 10px 0; background: none; }
+  .sg-embed .sg-cols { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .sg-embed .sg-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .sg-embed .sg-col > .cat-title:first-child { margin-top: 0; }
+  .sg-embed .sg-end { justify-content: flex-start; }
+  /* Bulle de discussion : dans la colonne des jardiniers ; le tchat s'ouvre en petite fenêtre sur le côté */
+  .sg-embed .sg-chat-fab { position: absolute; top: 0; right: 0; bottom: auto; width: auto; height: 46px; padding: 0 18px 0 14px; border-radius: 99px; gap: 8px; grid-auto-flow: column; font-weight: 800; }
+  .sg-embed .sg-chat-fab::after { content: "Discussion"; }
+  .sg-embed .sg-chat-fab svg { width: 24px; height: 24px; }
+  .sg-embed .sg-chat-back { z-index: 30; background: transparent; }
+  .sg-embed .sg-chat-panel { z-index: 31; left: auto; right: max(24px, calc((100vw - 1240px) / 2 + 24px)); bottom: calc(var(--nav-h) + 24px); transform: none; width: 380px; height: min(560px, calc(100dvh - var(--nav-h) - 120px));
+    border-radius: 20px; border: 1px solid var(--line); box-shadow: 0 14px 40px rgba(0,0,0,.25); padding-bottom: 14px; }
+  .sg-embed .sg-chat-panel.anim { animation: sgSide .2s ease-out; }
   .sg-embed .sg-pop-back { z-index: 32; }
 }
+}
+@keyframes sgSide { from { transform: translateY(16px); opacity: 0; } }
+/* Jardin commun : les trois colonnes s'effacent dans la fenêtre (téléphone) */
+.sg-cols, .sg-col { display: contents; }

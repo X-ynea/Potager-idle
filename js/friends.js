@@ -163,10 +163,10 @@ const friendsRouter = () => TR.draft ? viewTrade() : VISIT.id != null ? viewVisi
 const openFriends = () => { FR.fromTab = false; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
 // Depuis l'onglet « Amis » : la visite et la conversation s'ouvrent par-dessus ; « retour » les referme.
 function friendsOver() { if ($("#modal").hidden || modalView !== friendsRouter) { FR.fromTab = true; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); } else render(true); }
-// Ordinateur : la liste d'amis à gauche, le jardin commun ouvert à droite.
+// Ordinateur : les amis en cases en haut, le jardin commun ouvert en dessous.
 function views_friends() {
   const sg = wide() && friendsReady() && FR.loaded && typeof sgEmbedHTML === "function" ? sgEmbedHTML() : "";
-  return sg ? `<div class="cols friends-cols"><div class="col">${viewFriends(true, true)}</div><div class="col">${sg}</div></div>` : viewFriends(true);
+  return sg ? `<div class="friends-wide">${viewFriends(true, true)}${sg}</div>` : viewFriends(true);
 }
 document.addEventListener("submit", async ev => {
   if (ev.target.dataset?.form !== "frSearch") return; ev.preventDefault();
