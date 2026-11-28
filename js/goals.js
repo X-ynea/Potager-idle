@@ -36,7 +36,8 @@ const goalKind = which => GOAL_ORDER[(((weekIndex() + (which === "g" ? 2 : 0)) %
 const goalCap = which => Math.round(GOAL_KINDS[goalKind(which)].base * (which === "g" ? 1 : 1.25));
 function goalTarget(which) {
   const base = GOAL_KINDS[goalKind(which)].base, d = GOALS.data;
-  if (which === "f") return base * Math.min(8, Math.max(1, d?.members?.length || 1));
+  // Entre amis : une fois atteint, l'objectif ne bouge plus (un ami ajouté le dimanche ne le « défait » pas).
+  if (which === "f") return weekly().fReach || base * Math.min(8, Math.max(1, d?.members?.length || 1));
   return Math.max(50, Math.round(base * Math.max(5, d?.players_last || 0) * .6 / 10) * 10);
 }
 function weekly() {
@@ -48,6 +49,8 @@ function weekly() {
   return S.weekly;
 }
 const goalsOn = () => FRIENDS_ON && CLOUD.signedIn && !CLOUD.blocked;
+// Objectif entre amis atteint (avec les vrais chiffres du serveur) : sa cible est gardée pour la semaine.
+function goalLockF() { const W = weekly(); if (!W.fReach && GOALS.data && goalTotal("f") >= goalTarget("f")) { W.fReach = goalTarget("f"); save(); } }
 const goalTotal = which => Math.max(+(which === "f" ? GOALS.data?.ftotal : GOALS.data?.gtotal) || 0, Math.min(+weekly()[which] || 0, goalCap(which)));
 
 // Appelé à chaque progrès des objectifs du jour (récolte, commande, plat, visiteur).
@@ -73,6 +76,7 @@ async function loadGoals() {
     if (+myF > W.f) { W.f = +myF; save(); }
     if (+myG > W.g) { W.g = +myG; save(); }
     GOALS.error = "";
+    goalLockF();
   } catch (e) { GOALS.error = /function|does not exist|404/.test(String(e.message)) ? "Les objectifs de la semaine ne sont pas encore prêts sur le serveur (script docs/objectifs.sql)." : "Objectifs indisponibles pour le moment."; }
   GOALS.loading = false;
   render(true);
@@ -115,7 +119,15 @@ const rewardText = r => r.none ? "Récompense déjà reçue cette semaine" : [r.
 
 /* ---------- Écran d'accueil ---------- */
 const goalDone = which => which === "f" ? weekly().cf : weekly().cg.every(Boolean);
+// Avant la réponse du serveur : la carte sans chiffres (sinon on voit d'abord sa seule part, puis le total).
+function goalCardWait(which) {
+  const K = GOAL_KINDS[goalKind(which)];
+  return `<div class="quest wk loading" aria-busy="true"><div class="q-ico">${K.icon()}</div>
+    <div class="q-txt"><small class="wk-who">${which === "f" ? "Entre amis" : "Tous les joueurs"}</small><b>…</b><div class="pbar wk-bar"><i style="width:0"></i></div><span class="small muted">Chargement…</span></div>
+    <span class="wk-more" aria-hidden="true">›</span></div>`;
+}
 function goalCard(which) {
+  if (!GOALS.data) return goalCardWait(which);
   const kind = goalKind(which), K = GOAL_KINDS[kind], target = goalTarget(which), total = Math.min(goalTotal(which), target), W = weekly();
   const pct = total / target * 100, done = goalDone(which);
   const ready = which === "f" ? !W.cf && total >= target : GOAL_TIERS.some((p, i) => !W.cg[i] && total >= target * p);
@@ -158,13 +170,14 @@ function viewGoal(which) {
   </div>`;
 }
 const GOAL_ACTS = {
-  openGoal(which) { if (!goalsOn()) return; modalView = () => viewGoal(which); $("#modal").innerHTML = modalView(); openModal(); loadGoals(); },
+  openGoal(which) { if (!goalsOn() || !GOALS.data) return; modalView = () => viewGoal(which); $("#modal").innerHTML = modalView(); openModal(); loadGoals(); },
   claimGoal(which, ev) {
     ev?.stopPropagation?.();
+    if (!GOALS.data) return; // pas avant les vrais chiffres du serveur
     const W = weekly(), target = goalTarget(which), total = goalTotal(which);
     let r;
     if (which === "f" && W.noRewardF) { if (W.cf || total < target) return; W.cf = true; SFX.play("success"); toast("🎉 Objectif entre amis terminé ! (récompense déjà reçue cette semaine)"); commit(); return; }
-    if (which === "f") { if (W.cf || total < target) return; r = goalRewards.f(); W.cf = true; S.stats.weeklyGoals = (S.stats.weeklyGoals || 0) + 1; }
+    if (which === "f") { if (W.cf || total < target) return; r = goalRewards.f(); W.cf = true; W.fReach = W.fReach || target; S.stats.weeklyGoals = (S.stats.weeklyGoals || 0) + 1; }
     else { const i = GOAL_TIERS.findIndex((p, j) => !W.cg[j] && total >= target * p); if (i < 0) return; r = goalRewards.g(i); W.cg[i] = true; if (i === 2) S.stats.weeklyGoals = (S.stats.weeklyGoals || 0) + 1; }
     let msg = "";
     if (r.deco) { S.goalDecos = [...new Set([...(S.goalDecos || []), r.deco])]; msg = `Nouvelle déco : <b>${GOAL_DECOS[r.deco]}</b> !`; }

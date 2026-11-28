@@ -195,6 +195,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.7
+
+- Objectifs de la semaine : au chargement, plus de chiffres provisoires (ta seule part) qui changent ensuite ; les cartes attendent les vrais chiffres.
+- Objectif entre amis : une fois atteint, il le reste jusqu'à la fin de la semaine, même si un nouvel ami arrive.
+
 ### 4.0.6
 
 - Nouveaux fonds du jardin au printemps, en été et en automne.
