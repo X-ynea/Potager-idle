@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.13" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.14" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -925,12 +925,12 @@ function views_garden() {
       <div class="plots">
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
     </div>${decoRowHTML()}${mailboxHTML()}${sgPortalHTML()}</div></div>
-  </section>
+  </section></div>
+  <div class="col col-side${qLate ? " q-late" : ""}">${questsHTML()}${weeklyHTML()}</div>
   <section class="panel inv-panel">
     <h2>Inventaire</h2>
-    ${cropKeys.length || wildKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${wildKeys.length ? `<h3 class="cat-title">Trouvailles de balade</h3>${miniTiles(wildKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/decos/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
+    ${cropKeys.length || wildKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `<div class="inv-cats">${goldKeys.length ? `<div class="inv-cat" style="--k:${goldKeys.length}"><h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}</div>` : ""}${seedKeys.length ? `<div class="inv-cat" style="--k:${seedKeys.length}"><h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}</div>` : ""}${cropKeys.length ? `<div class="inv-cat" style="--k:${cropKeys.length}"><h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}</div>` : ""}${wildKeys.length ? `<div class="inv-cat" style="--k:${wildKeys.length}"><h3 class="cat-title">Trouvailles de balade</h3>${miniTiles(wildKeys)}</div>` : ""}${dishKeys.length ? `<div class="inv-cat" style="--k:${dishKeys.length}"><h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}</div>` : ""}${decoKeys.length ? `<div class="inv-cat" style="--k:${decoKeys.length}"><h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/decos/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div></div>` : ""}</div>` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
   </section></div>
-  <div class="col col-side${qLate ? " q-late" : ""}">${questsHTML()}${weeklyHTML()}</div></div>
 `;
 }
 /* Notifications : on prévient quand quelque chose change pendant que le jeu est en arrière-plan. */
@@ -1246,9 +1246,9 @@ function views_lab() {
   // Les plantes pas encore découvertes vont à la fin, par niveau de déblocage.
   const byKnown = (a, b) => isKnown(b) - isKnown(a) || plantLvl(a) - plantLvl(b); // découvertes d’abord, puis par niveau d’accès
   const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort(byKnown), hybK = ORDER.filter(k => PLANTS[k].hybrid).sort(byKnown);
-  const herb = `<section class="panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
-    <h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div>
-    <h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3>${hybK.some(k => !isKnown(k)) ? `<p class="small muted" style="margin:-4px 0 0">Touche un hybride inconnu pour un indice.</p>` : ""}<div class="herbier">${hybK.map(herbCard).join("")}</div></section>`;
+  const herb = `<section class="panel herb-panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
+    <div class="herb-cats"><div class="herb-cat"><h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div></div>
+    <div class="herb-cat"><h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3>${hybK.some(k => !isKnown(k)) ? `<p class="small muted" style="margin:-4px 0 0">Touche un hybride inconnu pour un indice.</p>` : ""}<div class="herbier">${hybK.map(herbCard).join("")}</div></div></div></section>`;
   if (S.level < 3) return `<section class="panel"><h2>Serre</h2><div class="empty-note"><img class="banner-img" src="assets/img/atelier/greenhouse.webp" alt=""><span>La Serre ouvre au niveau 3. Tu pourras y croiser deux récoltes pour découvrir des variétés hybrides.</span></div></section>${herb}`;
   let top;
   if (S.lab) {

@@ -195,6 +195,12 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.14
+
+- Ordinateur : le jeu prend encore plus de place (jusqu’à 1 640 px de large, pour les écrans 1920 × 1080).
+- **Jardin** : les objectifs ont la même hauteur que le jardin, avec plus d’air entre ceux du jour et ceux de la semaine ; l’inventaire passe en dessous, sur toute la largeur, une colonne par catégorie.
+- **Atelier** : l’herbier passe sous la Cuisine et la Serre, sur toute la largeur, avec les plantes à gauche et les hybrides à droite.
+
 ### 4.0.13
 
 - Ordinateur, **Marché** : la fiche de l’objet choisi en haut, sur toute la largeur ; en dessous, les plantes à gauche et les hybrides à droite.
