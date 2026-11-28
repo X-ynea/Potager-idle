@@ -28,12 +28,16 @@ declare me uuid := auth.uid(); t boolean;
 begin
   if me is null or p_week is distinct from paris_week() then return; end if;
   select coalesce(is_test, false) into t from profiles where user_id = me;
+  if coalesce(t, false) then return; end if; -- comptes de test : ils ne participent pas aux objectifs
   insert into week_progress (user_id, week, f, g, is_test)
     values (me, p_week, least(greatest(coalesce(p_f, 0), 0), 100000), least(greatest(coalesce(p_g, 0), 0), 100000), coalesce(t, false))
   on conflict (user_id, week) do update set
     f = greatest(week_progress.f, excluded.f), g = greatest(week_progress.g, excluded.g), is_test = excluded.is_test, updated_at = now();
   delete from week_progress where week < paris_week() - 28; -- ménage
 end $$;
+
+-- Comptes de test : leurs parts sont effacées (et ils ne peuvent plus en envoyer, voir ci-dessus).
+delete from public.week_progress w where w.is_test or exists (select 1 from public.profiles p where p.user_id = w.user_id and p.is_test);
 
 -- 2. Où en sont les objectifs : mon cercle (moi et mes amis, avec la part de chacun), et tous les joueurs.
 create or replace function public.week_goals(p_week date, cap_f int, cap_g int) returns jsonb

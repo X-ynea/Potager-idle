@@ -2,7 +2,7 @@
 
 ## Version 4 : « Partons en balade »
 
-*Novembre 2026 · version 4.0.0*
+*28 novembre 2026 · version 4.0.0*
 
 Le potager s'agrandit : de petits jeux pour se promener, des trouvailles qu'on ne peut pas cultiver, de nouvelles recettes, deux nouveaux voisins et un jardin à cultiver avec ses amis.
 
@@ -194,6 +194,11 @@ Ils ne passent qu'à leur saison, et raffolent des plantes du moment :
 Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
+
+### 4.0.0 · Sortie de la v4 « Partons en balade »
+
+- La version de test devient la version des joueurs (voir le résumé de la v4 en haut).
+- Reprend la dernière version des joueurs (3.0.45 à 3.0.47 : tutoriel en scénarios, pastille Bonus, nouvelles après « Recommencer ») et le correctif des objectifs de la semaine : les comptes de test n'y participent plus (docs/objectifs.sql).
 
 ### 3.1.76 (version de test, préparation de la v4)
 
