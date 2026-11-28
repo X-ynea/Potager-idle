@@ -197,11 +197,15 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ### 4.0.2 (version de test)
 
+- La version de test suit la 4.0.2 des joueurs (caches à part).
+
+### 4.0.2
+
 - Nouveaux fonds du jardin pour les quatre saisons, et nouveau chemin d'automne pour la balade en forêt.
 
-### 4.0.0 (version de test)
+### 4.0.1
 
-- La version de test repart de la 4.0.0 des joueurs (caches à part).
+- La fenêtre « Du nouveau au potager ! » attend la fin de la connexion avant de s'afficher (elle pouvait disparaître pendant le chargement), et ne compte comme vue qu'une fois « C'est parti ! » touché : si elle a été manquée, elle revient à la prochaine ouverture.
 
 ### 4.0.0 · Sortie de la v4 « Partons en balade »
 
