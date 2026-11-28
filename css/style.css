@@ -2006,3 +2006,15 @@ button.sg-card { cursor: pointer; }
   .pond-bg { top: 5%; height: 76%; }
   .rod { width: 210px; }
 }
+/* Cueillette : un vrai sol d'herbe de saison en bas (au lieu d'un dégradé vert sur le ciel) */
+.g-cueillette { background-color: #cfe8f7; }
+.cuei-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 12%; z-index: 1; pointer-events: none; background: #98cb78 center top / 300px 300px repeat;
+  box-shadow: 0 -3px 0 rgba(255,255,255,.55); border-radius: 50% 50% 0 0 / 22px 22px 0 0; }
+.g-cueillette .g-hint { position: relative; z-index: 4; }
+/* Ordinateur : ciel répété (moins zoomé), éléments qui tombent et panier plus grands */
+@media (min-width: 700px) {
+  .g-foret, .g-cueillette, .g-memory { background-size: auto 100% !important; background-repeat: repeat-x !important; background-position: center top !important; }
+  .fall { width: 76px; height: 76px; left: -38px; }
+  .fall.stone { width: 64px; height: 64px; left: -32px; }
+  .cuei-basket { width: 140px; height: 140px; }
+}

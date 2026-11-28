@@ -195,6 +195,11 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.11
+
+- Cueillette, forêt et memory sur ordinateur : le ciel de la saison est répété au lieu d’être agrandi.
+- Cueillette : un vrai sol d’herbe de la saison en bas, au lieu du dégradé vert ; sur ordinateur, légumes, cailloux et panier plus grands ; le panier attrape tout ce qui touche son osier.
+
 ### 4.0.10
 
 - Ruche et pêche : le fond de la saison un peu plus zoomé.

@@ -60,7 +60,7 @@ let GAME = null; // partie en cours
 function gameOpen(id, help) {
   if (GAME || !playsLeft(id) || GAMES[id].soon || gameLocked(id)) return;
   const el = document.createElement("div"); el.id = "game"; el.className = "game g-" + id; if (id === "peche" || id === "ruche") el.style.backgroundImage = `url("assets/img/jardin/bg-${season()}.webp")`;
-  if (id === "foret" || id === "cueillette" || id === "memory") el.style.backgroundImage = (id === "cueillette" ? "linear-gradient(transparent 80%, #a9d68a 93%), " : "") + `url("assets/img/balades/sky-${season()}.webp")`; // le ciel de la saison el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
+  if (id === "foret" || id === "cueillette" || id === "memory") el.style.backgroundImage = `url("assets/img/balades/sky-${season()}.webp")`; // le ciel de la saison el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", GAMES[id].name);
   document.body.appendChild(el);
   history.pushState({ game: 1 }, "");
   GAME = { id, el, score: 0, state: "count", timers: [] };
@@ -255,7 +255,7 @@ const GAME_IMPL = {
       g.pool = pool.length ? pool : ["radis", "laitue"]; g.items = []; g.next = 300; g.last = 0; g.bx = .5;
       g.el.innerHTML = `<div class="g-top"><button class="g-x" data-act="gameStop" aria-label="Arrêter">${X_SVG}</button><b class="g-name">${GAMES.cueillette.name}</b><span class="g-score"><span class="g-pts">Points</span><b class="num">0</b></span></div>
         <div class="g-time"><i></i></div>
-        <div class="g-field cuei-field"><span class="p-msg"></span><div class="cuei-basket">${BASKET}</div></div>
+        <div class="g-field cuei-field"><span class="p-msg"></span><span class="cuei-ground" style="background-image:url('assets/img/jardin/bg-${season()}.webp')"></span><div class="cuei-basket">${BASKET}</div></div>
         <p class="g-hint">Fais glisser ton doigt pour déplacer le panier</p>`;
       const f = g.el.querySelector(".cuei-field");
       const move = ev => { if (g.state !== "play" && g.state !== "count") return; const r = f.getBoundingClientRect(); g.bx = Math.min(.92, Math.max(.08, (ev.clientX - r.left) / r.width)); ev.preventDefault(); };
@@ -276,10 +276,12 @@ const GAME_IMPL = {
         g.items.push({ el, kind, x: .08 + Math.random() * .84, y: -50, vy: 170 + 170 * d + Math.random() * 40 });
         g.next = e + 720 - 330 * d + Math.random() * 120;
       }
-      const top = bk.offsetTop + bk.offsetHeight * .5; // ouverture du panier (sous l'anse)
+      // Zone d'attrape : tout le corps du panier (sous l'anse), un peu plus large que l'osier.
+      const bh = bk.offsetHeight, top = bk.offsetTop + bh * .3, bot = bk.offsetTop + bh * .85, fh = f.querySelector(".fall")?.offsetHeight || 56;
       g.items = g.items.filter(it => {
         it.y += it.vy * dt;
-        if (it.y >= top && it.y <= top + 30 && Math.abs(it.x * W - g.bx * W) < bw * .45) {
+        const cy = it.y + fh / 2;
+        if (cy >= top && cy <= bot && Math.abs(it.x * W - g.bx * W) < bw * .5 + fh * .25) {
           const v = it.kind === "stone" ? -2 : it.kind === "gold" ? 3 : 1;
           g.score = Math.max(0, g.score + v); g.el.querySelector(".g-score b").textContent = g.score;
           bk.classList.remove("bump", "ouch"); void bk.offsetWidth; bk.classList.add(v < 0 ? "ouch" : "bump");
