@@ -195,6 +195,16 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.12
+
+- Sur ordinateur, le jeu prend plus de place (jusqu’à 1 240 px de large) et les écrans s’organisent sur deux colonnes :
+  - **Jardin** : le potager et l’inventaire à gauche, les objectifs du jour et de la semaine à droite ;
+  - **Atelier** : la Cuisine et la Serre côte à côte ;
+  - **Marché** : la fiche de l’objet choisi à gauche (elle suit quand on descend), la liste à droite ; les bonus sur deux colonnes ;
+  - **Village** et **Balades** : les commandes et les jeux en grille ;
+  - **Amis** : la liste d’amis à gauche, le jardin commun déjà ouvert à droite (le portail du jardin y mène aussi).
+- Sur téléphone, rien ne change.
+
 ### 4.0.11
 
 - Cueillette, forêt et memory sur ordinateur : le ciel de la saison est répété au lieu d’être agrandi.

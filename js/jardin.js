@@ -158,7 +158,8 @@ const sgKnown = () => !!SG.data || !!SG.error || S.sgHas !== undefined;
 const sgPortalHTML = () => sgOn() && (sgG() || (!SG.data && S.sgHas)) ? `<button class="sg-portal" data-act="sgOpen" aria-label="Aller au jardin commun"><img src="assets/img/interface/ui-portal.webp" alt="">${typeof tutoBusy === "function" && tutoBusy() ? "" : sgChatNew() ? `<span class="fr-badge sg-card-badge">${sgChatNew()}</span>` : sgG()?.plots.some(p => sgPlot(p).st === "ripe") ? `<span class="sg-dot"></span>` : ""}</button>` : "";
 
 /* ---------- Page du jardin commun ---------- */
-const sgOpen = () => modalView === viewSG && !$("#modal").hidden;
+// Ouvert dans une fenêtre, ou sur ordinateur dans la colonne de droite de l'onglet Amis.
+const sgOpen = () => (modalView === viewSG && !$("#modal").hidden) || !!document.querySelector(".sg-embed");
 // Les bacs utilisent le dessin du jardin principal : on prête au jeu un petit état « jardin commun »
 // (eau 10 min, pas d'arroseur automatique) le temps de dessiner.
 UPG.water.values.sg = SG_WATER / 60000;
@@ -194,7 +195,13 @@ function sgPopHTML(g) {
   if (c === "delete") return pop("Supprimer le jardin ?", `« ${esc(g.name)} » sera effacé pour tout le monde : bacs, panier et commandes. Tous les jardiniers en sortent.`, "sgDelete", "", "Supprimer");
   return "";
 }
-function viewSG() {
+// Sur ordinateur : le jardin commun, déjà ouvert à droite de la liste d'amis.
+function sgEmbedHTML() {
+  if (!sgOn()) return "";
+  if (!sgG()) return S.level < SG_LVL ? "" : `<section class="panel"><h2>Jardin commun</h2>${sgCardHTML()}</section>`;
+  return `<section class="panel sg-embed">${viewSG(true)}</section>`;
+}
+function viewSG(embed) {
   const g = sgG();
   if (SG.chatOpen) sgChatSeen();
   if (!g) return `<div class="sheet tall visit-sheet sg-sheet" role="dialog" aria-modal="true" aria-label="Jardin commun"><div class="sheet-head"><h2>Jardin commun</h2>${SHEET_X}</div>
@@ -224,8 +231,8 @@ function viewSG() {
       ${btns}</div>`; }).join("");
   const friends = (typeof FR !== "undefined" ? FR.list : []).filter(f => f.direction === "friend" && !members.some(m => m.id === f.user_id) && !(SG.data.pending || []).some(p => p.id === f.user_id));
   const room = members.length + (SG.data.pending || []).length < 4;
-  return `<div class="sheet tall visit-sheet sg-sheet" role="dialog" aria-modal="true" aria-label="Jardin commun">
-    <div class="sheet-head"><div><h2>${esc(g.name)}</h2><span class="small muted">Jardin commun · ${SEASONS[SG.data.season]?.name || ""}</span></div>${SHEET_X}</div>
+  return `<div class="${embed ? "sg-sheet sg-in" : "sheet tall visit-sheet sg-sheet"}"${embed ? ` aria-label="Jardin commun"` : ` role="dialog" aria-modal="true" aria-label="Jardin commun"`}>
+    <div class="sheet-head"><div><h2>${esc(g.name)}</h2><span class="small muted">Jardin commun · ${SEASONS[SG.data.season]?.name || ""}</span></div>${embed ? "" : SHEET_X}</div>
     ${SG.error ? `<p class="cloud-warn">${esc(SG.error)}</p>` : ""}
     ${sgGardenHTML(g)}
     ${picker}
@@ -274,7 +281,10 @@ const SG_ACTS = {
   },
   sgFold() { SG.fold = !SG.fold; SG.say = false; SG.chatAnim = false; render(true); const c = document.getElementById("chat-body"); if (c) c.scrollTop = c.scrollHeight; },
   sgSayPlant() { if (sgWait()) return; SG.say = !SG.say; SG.chatAnim = false; render(true); },
-  sgOpen() { if (!sgOn()) return; if (typeof tutoFlag === "function") tutoFlag("sg_opened"); SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
+  sgOpen() { if (!sgOn()) return; if (typeof tutoFlag === "function") tutoFlag("sg_opened");
+    // Ordinateur : le jardin commun s'ouvre à droite, dans l'onglet Amis.
+    if (wide() && FRIENDS_ON) { closeModal(); SG.chatOpen = false; if (tab !== "friends") A.tab("friends"); else render(true); loadSG(true); return; }
+    SG.pick = null; SG.invite = false; SG.confirm = null; SG.chatOpen = false; modalView = viewSG; $("#modal").innerHTML = modalView(); openModal(); SFX.play("click"); loadSG(true); },
   sgTap(i) {
     i = +i; const p = sgG()?.plots[i], s = sgPlot(p);
     if (s.st === "empty") { SG.pick = SG.pick === i ? null : i; render(true); return; }

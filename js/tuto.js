@@ -24,7 +24,7 @@ function tutoWeed() {
 // les cœurs des amis et les pastilles de la boîte aux lettres et du portail.
 const tutoBusy = () => typeof S !== "undefined" && !!S.tuto && (!!S.tuto.flow || !S.tuto.flows?.start);
 // Cuisine et Serre sont réunies dans l'Atelier : l'onglet du bas, puis le bouton en haut de la page.
-const tutoTab = (t, then) => tab === t ? then : (t === "kitchen" || t === "lab") ? (tab === "kitchen" || tab === "lab" ? `.atelier-sw [data-arg="${t}"]` : '.tab[data-arg="atelier"]') : `.tab[data-arg="${t}"]`;
+const tutoTab = (t, then) => atTab(t) ? then : (t === "kitchen" || t === "lab") ? (tab === "kitchen" || tab === "lab" ? `.atelier-sw [data-arg="${t}"]` : '.tab[data-arg="atelier"]') : `.tab[data-arg="${t}"]`;
 const tutoPicker = k => !$("#modal").hidden && document.querySelector(`#modal [data-act="plant"][data-arg="${k}"]`);
 // Commande du tutoriel : faisable tout de suite (on la crée si aucune commande en cours ne l'est).
 function tutoEnsureOrder() {
@@ -88,7 +88,7 @@ const FLOWS = {
       enter: () => { tutoGive("crops", "laitue", 2); tutoGive("crops", "radis", 1); if (S.coins < RECIPES.salade.price) S.coins = RECIPES.salade.price; },
       hl: () => tutoTab("market", msub !== "recipes" ? '[data-act="msub"][data-arg="recipes"]' : UI.sel.recipes !== "salade" ? '[data-act="sel"][data-arg="recipes:salade"]' : '[data-act="buyRecipe"][data-arg="salade"]'),
       done: () => S.recipes.includes("salade") },
-    { text: () => tab === "kitchen" ? "Te voilà dans la Cuisine ! Choisis la salade et lance la cuisson." : tab === "lab" ? "Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier." : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : c’est là qu’on cuisine.",
+    { text: () => atTab("kitchen") ? "Te voilà dans la Cuisine ! Choisis la salade et lance la cuisson." : tab === "lab" ? "Touche « Cuisine », en haut de la page : la Cuisine et la Serre sont toutes les deux ici, à l’Atelier." : "Ta recette n’attend plus que toi ! Touche l’Atelier, en bas : c’est là qu’on cuisine.",
       enter: () => { tutoGive("crops", "laitue", 2); tutoGive("crops", "radis", 1); tutoState().mark = { c: S.stats.cooked || 0 }; },
       hl: () => tutoTab("kitchen", UI.sel.kitchen && UI.sel.kitchen !== "salade" ? '[data-act="sel"][data-arg="kitchen:salade"]' : '[data-act="cook"][data-arg="salade"]'),
       done: () => S.cooking.some(c => c.r === "salade") || (S.stats.cooked || 0) > (tutoMark().c ?? 0) },
@@ -97,9 +97,9 @@ const FLOWS = {
   ] },
   // Niveau 3 : la Serre.
   lab: { when: () => S.level >= 3, steps: [
-    { text: () => (tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Elle s’est installée à l’Atelier, à côté de la Cuisine : touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
+    { text: () => (atelierBoth() && inAtelier() ? "La Serre est ouverte ! Elle est juste là, à droite de la Cuisine." : tab === "kitchen" ? "La Serre est ouverte ! Touche « Serre », juste en haut : elle est ici, à côté de la Cuisine." : "La Serre est ouverte ! Elle s’est installée à l’Atelier, à côté de la Cuisine : touche l’Atelier, en bas, puis « Serre » en haut de la page.") + " On raconte qu’en croisant deux récoltes, on obtient parfois des graines que personne n’a jamais vues…",
       enter: () => { tutoGive("crops", "radis", 1); tutoGive("crops", "laitue", 1); },
-      hl: () => tutoTab("lab", []), done: () => tab === "lab" },
+      hl: () => tutoTab("lab", []), done: () => atTab("lab") },
     { text: "Choisis deux récoltes à croiser, par exemple un radis et une laitue, puis lance le croisement.",
       enter: () => { tutoGive("crops", "radis", 1); tutoGive("crops", "laitue", 1); tutoState().mark = { x: S.stats.crosses || 0 }; },
       hl: () => tutoTab("lab", !labSel.includes("radis") ? '[data-act="labPick"][data-arg="radis"]' : !labSel.includes("laitue") ? '[data-act="labPick"][data-arg="laitue"]' : '[data-act="labStart"]'),
@@ -142,7 +142,7 @@ const FLOWS = {
       hl: () => tutoTab("friends", []), done: () => tab === "friends" },
     { text: () => sgG() ? "Te voilà membre d’un jardin commun : touche sa carte pour y entrer." : "Touche la carte « Jardin commun » pour le créer. Si un ami t’a déjà invité, tu peux aussi accepter son invitation juste en dessous.",
       hl: () => tutoTab("friends", sgG() ? ".sg-card.open" : [".sg-card.open", ".sg-inv"]),
-      done: () => !$("#modal").hidden && (modalView === viewSG || modalView === viewSGNew) },
+      done: () => sgOpen() || (!$("#modal").hidden && modalView === viewSGNew) },
     { text: "Donne un nom à votre jardin et choisis jusqu’à trois amis à inviter : ils recevront ton invitation dans leur boîte aux lettres. Tu peux aussi le faire plus tard.",
       done: () => !!sgG() || modalView === viewSG, ok: "Plus tard" },
     { text: "Ici, tout le monde plante, arrose et récolte. Les graines sont gratuites (30 par jour chacun), et les récoltes vont dans le panier commun. Livrez ensemble les commandes : deux à la fois, et une nouvelle arrive 20 min après chaque livraison. Si tu as planté au moins trois graines depuis la commande précédente, tu reçois ta part de la récompense.",
@@ -288,7 +288,7 @@ function tutoUpdate() {
   const st = flowStep();
   let t = null, show = false, key = "";
   if (st) { t = st; show = true; key = "flow:" + tutoState().flow + ":" + tutoState().step; st.tick?.(); }
-  else { t = tutoCurrent(); show = !!t && [].concat(t.tab).includes(tab); key = show ? t.id : ""; }
+  else { t = tutoCurrent(); show = !!t && [].concat(t.tab).some(atTab); key = show ? t.id : ""; }
   if (show && typeof t.text === "function") key += ":" + tab; // texte qui dépend de l'onglet : redessiné en changeant d'onglet
   const float = !!st || (show && !$("#modal").hidden); // conseil dans une fenêtre (visite d'un ami) : bulle par-dessus
   document.body.classList.toggle("tuto-lock", !!st);
@@ -338,7 +338,7 @@ function tutoCurrent() {
   for (const t of TUTO) {
     if (T.seen[t.id]) continue;
     if (t.done && t.done()) { T.seen[t.id] = true; continue; }
-    if (t.free && ![].concat(t.tab).includes(tab)) continue;
+    if (t.free && ![].concat(t.tab).some(atTab)) continue;
     if (!t.when || t.when()) return t;
   }
   return null;

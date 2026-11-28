@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.11" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.12" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -910,8 +910,9 @@ function views_garden() {
   // Toucher un objet mène au marché : graines vers l'achat, récoltes et plats vers la vente.
   const miniTiles = keys => `<div class="tiles mini">${keys.map(k => tile(itemArt(k), { act: "invGo", arg: k, label: itemName(k), count: cnt(itemBag(k), k), badge: PLANTS[k] ? seasonBadge(k) : "" })).join("")}</div>`;
   const seedTiles = keys => `<div class="tiles mini">${keys.map(k => tile(seedArt(k), { act: "invGo", arg: "seed:" + k, label: `Graines de ${PLANTS[k].name.toLowerCase()}`, count: cnt(S.seeds, k), badge: seasonBadge(k) })).join("")}</div>`;
-  return `${installPrompt && isPhone() && !S.settings.hideInstall ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button><button class="install-x" data-act="hideInstall" aria-label="Ne plus proposer">✕</button></div>` : ""}
-  <section class="panel">
+  const qLate = !!dailyQuests().bonus;
+  return `<div class="cols garden-cols"><div class="col col-main">${installPrompt && isPhone() && !S.settings.hideInstall ? `<div class="install"><p>Installe Potager idle sur ton téléphone pour y jouer comme une vraie appli, même hors-ligne.</p><button class="btn sm" data-act="install">Installer</button><button class="install-x" data-act="hideInstall" aria-label="Ne plus proposer">✕</button></div>` : ""}
+  <section class="panel garden-panel">
     <div class="garden-tools">
       ${S.upg.basket ? `<button class="btn" data-act="harvestAll" ${ripe ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>` : ""}
       ${S.upg.gloves ? `<button class="btn danger" data-act="snailsAll" ${snails ? "" : "disabled"}>${PEST().remove}${snails ? ` (${snails})` : ""}</button>` : ""}
@@ -925,13 +926,11 @@ function views_garden() {
       ${S.plots.map((p, i) => `<button class="plot" data-act="plot" data-arg="${i}" data-plot="${i}"></button>`).join("")}
     </div>${decoRowHTML()}${mailboxHTML()}${sgPortalHTML()}</div></div>
   </section>
-  ${dailyQuests().bonus ? "" : questsHTML()}
-  ${weeklyHTML()}
-  <section class="panel">
+  <section class="panel inv-panel">
     <h2>Inventaire</h2>
     ${cropKeys.length || wildKeys.length || dishKeys.length || seedKeys.length || goldKeys.length || decoKeys.length ? `${goldKeys.length ? `<h3 class="cat-title">Récoltes dorées</h3>${miniTiles(goldKeys)}` : ""}${seedKeys.length ? `<h3 class="cat-title">Graines</h3>${seedTiles(seedKeys)}` : ""}${cropKeys.length ? `<h3 class="cat-title">Ingrédients</h3>${miniTiles(cropKeys)}` : ""}${wildKeys.length ? `<h3 class="cat-title">Trouvailles de balade</h3>${miniTiles(wildKeys)}` : ""}${dishKeys.length ? `<h3 class="cat-title">Plats</h3>${miniTiles(dishKeys)}` : ""}${decoKeys.length ? `<h3 class="cat-title">Décorations</h3><div class="tiles mini">${decoKeys.map(d => tile(imgSvg(`assets/img/decos/deco-${d}.webp`), { act: "decoSlots", arg: d, label: DECOS[d], check: S.decoSlots.includes(d) })).join("")}</div>` : ""}` : `<p class="muted small" style="margin:0">Ton inventaire est vide. Récolte tes premiers radis !</p>`}
-  </section>
-  ${dailyQuests().bonus ? questsHTML() : ""}
+  </section></div>
+  <div class="col col-side${qLate ? " q-late" : ""}">${questsHTML()}${weeklyHTML()}</div></div>
 `;
 }
 /* Notifications : on prévient quand quelque chose change pendant que le jeu est en arrière-plan. */
@@ -1160,8 +1159,8 @@ function marketSeeds() {
   const srt = l => sm === "none" ? l.sort((a, b) => seedAvailable(b) - seedAvailable(a) || (!seedAvailable(a) && plantLvl(a) - plantLvl(b))) : l.sort(sorter);
   const base = srt(ORDER.filter(x => !PLANTS[x].hybrid)), hyb = srt(ORDER.filter(x => PLANTS[x].hybrid));
   const found = hyb.filter(seedAvailable).length;
-  return det + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
-    <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div>`;
+  return `<div class="mk-split"><div class="mk-det">${det}</div><div class="mk-list">` + sortBar("seeds", [["ready", "Achetables"], ["cost", "Achat"], ["price", "Vente"], ["name", "A → Z"]]) + `<h3 class="cat-title">Plantes <span class="muted num">${base.filter(seedAvailable).length} / ${base.length}</span></h3><div class="tiles">${base.map(tileFor).join("")}</div>
+    <h3 class="cat-title">Hybrides <span class="muted num">${found} / ${hyb.length}</span></h3><div class="tiles">${hyb.map(tileFor).join("")}</div></div></div>`;
 }
 // Hybrides d'une recette pas encore découverts : on ne peut pas l'apprendre avant.
 const missingHyb = r => Object.keys(RECIPES[r].need).filter(k => PLANTS[k]?.hybrid && !S.hybrids.includes(k));
@@ -1180,7 +1179,7 @@ function marketRecipes() {
     const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level, h = !o && !l && missingHyb(x).length > 0;
     return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l || h, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : h ? "Hybride ?" : priceTag(e.price) });
   }).join("");
-  return det + `<div class="tiles">${grid}</div>`;
+  return `<div class="mk-split"><div class="mk-det">${det}</div><div class="mk-list"><div class="tiles">${grid}</div></div></div>`;
 }
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
@@ -1205,7 +1204,7 @@ function marketUpgrades() {
       rows.push([rank(step), `<div class="item"><img class="upg-img" src="assets/img/${U.img || "ameliorations/upg-" + u}.webp" alt=""><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step && U.desc(nxt) !== U.desc(cur) ? ` → ${U.desc(nxt)}` : ""}</span></div>
       <div class="acts">${!step ? `<span class="small muted"><b>Acquis</b></span>` : S.level < step.lvl ? `<span class="small muted">Niveau ${step.lvl}</span>` : `<button class="btn sm" data-act="buyUpg" data-arg="${u}" ${S.coins < step.cost ? "disabled" : ""}>${coin}${fmt(step.cost)}</button>`}</div></div>`]);
     }
-  return `<div class="list">${rows.sort((a, b) => a[0] - b[0]).map(r => r[1]).join("")}</div>`;
+  return `<div class="list upg-list">${rows.sort((a, b) => a[0] - b[0]).map(r => r[1]).join("")}</div>`;
 }
 function views_market() {
   const sub = [["seeds", "Graines"], ["recipes", "Recettes"], ["sell", "Vendre"], ["upgrades", "Bonus"]];
@@ -1276,12 +1275,20 @@ function views_village() {
       <div class="need" style="margin-top:6px">${Object.entries(o.items).map(([k, q]) => `<button class="chip need-chip ${cnt(itemBag(k), k) < q ? "miss" : ""}" data-name="${itemName(k)}" data-act="chipName" data-arg="${k}" aria-label="${itemName(k)}">${itemArt(k)}${cnt(itemBag(k), k)}/${q}</button>${RECIPES[k] && !S.recipes.includes(k) ? `<button class="learn-tag" data-act="goRecipe" data-arg="${k}">Recette à apprendre</button>` : ""}`).join("")}</div>
       <div class="foot"><span class="reward">${coin}${fmt(o.coins)} <span class="muted">+${o.xp} XP</span></span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-act="dismiss" data-arg="${o.id}">Refuser</button><button class="btn sm" data-act="deliver" data-arg="${o.id}" ${ok ? "" : "disabled"}>Livrer</button></span></div></div></div>`; }).join("");
   return `<section class="panel"><div class="row spread"><h2>Commandes du village</h2><span class="small muted">${S.orders.length} / ${maxOrders()}</span></div>
-    ${cards || `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}
+    ${cards ? `<div class="orders">${cards}</div>` : `<div class="empty-note"><span>Aucune commande pour le moment.</span></div>`}
     ${S.orders.length < maxOrders() ? `<p class="small muted num" style="margin:0">Prochaine visite dans <span data-left="${S.nextOrderAt}"></span></p>` : ""}</section>`;
 }
 
 /* ---------------- Render loop ---------------- */
-const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierBar() + views_kitchen(), lab: () => atelierBar() + views_lab(), village: views_village, friends: views_friends, balades: views_balades };
+/* Grand écran (ordinateur) : l'appli s'élargit et plusieurs écrans passent sur deux colonnes. */
+const WIDE_MQ = matchMedia("(min-width: 1000px)");
+const wide = () => WIDE_MQ.matches;
+// Sur ordinateur, la Cuisine et la Serre sont affichées ensemble : être sur l'une, c'est être sur les deux.
+const atTab = t => tab === t || ((t === "kitchen" || t === "lab") && inAtelier() && atelierBoth());
+const atelierBoth = () => wide() && !tabLock("lab");
+WIDE_MQ.addEventListener("change", () => { if (modalView === viewSG && !$("#modal").hidden) closeModal(); $("#view").replaceChildren(); render(true); });
+const atelierView = sub => atelierBoth() ? `<div class="cols atelier-cols"><div class="col">${views_kitchen()}</div><div class="col">${views_lab()}</div></div>` : atelierBar() + sub();
+const VIEWS = { garden: views_garden, market: views_market, kitchen: () => atelierView(views_kitchen), lab: () => atelierView(views_lab), village: views_village, friends: views_friends, balades: views_balades };
 let lastSig = "";
 function sig(t) {
   const base = [tab, season(), S.coins, S.level, msub, labSel.join(","), JSON.stringify(UI)].join("|");

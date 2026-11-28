@@ -71,7 +71,7 @@ const friendListHTML = () => { const q = (FR.filter || "").trim().toLowerCase(),
   return list.length ? list.map(friendRow).join("") : `<p class="small muted" style="margin:0">Aucun ami ne s’appelle comme ça.</p>`; };
 document.addEventListener("input", ev => { if (ev.target.id !== "fr-filter") return; FR.filter = ev.target.value; const l = document.getElementById("fr-list"); if (l) l.innerHTML = friendListHTML(); });
 // Liste d'amis : dans l'onglet « Amis » (inTab), ou dans une fenêtre.
-function viewFriends(inTab) {
+function viewFriends(inTab, noCard) {
   const shell = inTab ? body => `<section class="panel friends-page"><h2>Amis</h2>${body}</section>`
     : body => `<div class="sheet tall friends-sheet" role="dialog" aria-modal="true" aria-label="Amis">
     <div class="sheet-head"><h2>Amis</h2>${SHEET_X}</div>${body}</div>`;
@@ -95,7 +95,7 @@ function viewFriends(inTab) {
         : `<p class="small muted" style="margin:0">Aucun joueur trouvé.</p>`}`;
   }
   return shell(`<div class="fr-code"><small>Ton code ami</small><b class="num">${esc(FR.code)}</b><button class="btn fr-ico ghost" data-act="frCopy" aria-label="Copier le code" title="Copier">${FR_ICONS.copy}</button>${navigator.share ? `<button class="btn fr-ico ghost" data-act="frShare" aria-label="Partager le code" title="Partager">${FR_ICONS.share}</button>` : ""}</div>
-    ${typeof sgCardHTML === "function" ? sgCardHTML() : ""}
+    ${!noCard && typeof sgCardHTML === "function" ? sgCardHTML() : ""}
     <div class="subtabs" style="grid-template-columns:repeat(3,1fr)">${tabs.map(([k, l]) => `<button data-act="frTab" data-arg="${k}" aria-pressed="${FR.tab === k}">${l}</button>`).join("")}</div>
     ${FR.error ? `<p class="cloud-warn">${esc(FR.error)}</p>` : ""}${body}`);
 }
@@ -163,7 +163,11 @@ const friendsRouter = () => TR.draft ? viewTrade() : VISIT.id != null ? viewVisi
 const openFriends = () => { FR.fromTab = false; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); loadFriends(true); };
 // Depuis l'onglet « Amis » : la visite et la conversation s'ouvrent par-dessus ; « retour » les referme.
 function friendsOver() { if ($("#modal").hidden || modalView !== friendsRouter) { FR.fromTab = true; modalView = friendsRouter; $("#modal").innerHTML = modalView(); openModal(); } else render(true); }
-const views_friends = () => viewFriends(true);
+// Ordinateur : la liste d'amis à gauche, le jardin commun ouvert à droite.
+function views_friends() {
+  const sg = wide() && friendsReady() && FR.loaded && typeof sgEmbedHTML === "function" ? sgEmbedHTML() : "";
+  return sg ? `<div class="cols friends-cols"><div class="col">${viewFriends(true, true)}</div><div class="col">${sg}</div></div>` : viewFriends(true);
+}
 document.addEventListener("submit", async ev => {
   if (ev.target.dataset?.form !== "frSearch") return; ev.preventDefault();
   const q = $("#fr-q").value.trim(); FR.q = q; if (q.length < 2) { FR.results = []; render(true); return; }
