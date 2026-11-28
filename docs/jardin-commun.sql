@@ -5,13 +5,14 @@
 -- Règles :
 --   · on ne fait partie que d'un seul jardin commun ; seul celui qui l'a créé invite (ses amis) et peut retirer un membre ;
 --     chacun peut partir ; si le créateur part, le plus ancien membre prend sa place ; le dernier qui part efface le jardin ;
---   · 6 bacs ; graines gratuites, mais 8 graines plantées par jour et par joueur au plus ;
+--   · 6 bacs ; graines gratuites, mais 30 graines plantées par jour et par joueur au plus ;
 --   · chacun plante les plantes de base (jamais d'hybride) débloquées à son propre niveau,
 --     et les plantes de saison seulement pendant leur saison ;
 --   · pousse comme dans son jardin : 4 fois moins vite quand la terre est sèche (l'eau tient 10 min),
 --     25 % plus vite pour une plante de saison ; aucune amélioration personnelle ;
 --   · les récoltes vont dans le panier commun (60 objets au plus), qui ne sert qu'aux commandes ;
---   · 2 commandes par jour (jour de Paris), et c'est tout. La partie obligatoire ne demande que des plantes que tout le monde
+--   · 2 commandes à la fois, toute la journée : une commande livrée est remplacée par une nouvelle 20 min plus tard.
+--     La partie obligatoire ne demande que des plantes que tout le monde
 --     peut planter (personne n'attend personne) ; une ligne « bonus » facultative demande parfois une plante que seuls
 --     les plus avancés peuvent planter : livrée avec elle, la commande rapporte 50 % de plus ;
 --   · à chaque commande livrée, chaque membre qui a planté au moins 3 graines depuis la commande précédente
@@ -153,10 +154,10 @@ begin
     bonus := jsonb_build_object(extra[1 + floor(random() * array_length(extra, 1))::int], 1 + floor(random() * 2)::int);
   end if;
   return jsonb_build_object('items', items, 'bonus', bonus, 'coins', round(v_val * 1.6 + 10), 'xp', round(v_xp * 1.3 + 5),
-    'wild', case when random() < .35 then wilds[1 + floor(random() * array_length(wilds, 1))::int] end, 'done', false);
+    'wild', case when random() < .35 then wilds[1 + floor(random() * array_length(wilds, 1))::int] end, 'done', false, 'id', floor(random() * 1e9)::bigint);
 end $$;
 
--- Les 2 commandes du jour (créées à la première ouverture de la journée).
+-- Les 2 commandes en cours. Une commande livrée est remplacée par une nouvelle 20 min après (toute la journée).
 -- Si les jardiniers changent : une commande pas encore livrée qui demande une plante que tout le monde ne peut plus planter
 -- est refaite, et un bonus que plus personne ne peut planter disparaît.
 create or replace function public.sg_daily_orders(gid bigint) returns void language plpgsql security definer set search_path = public as $$
@@ -167,12 +168,17 @@ begin
   if coalesce(array_length(common, 1), 0) = 0 then common := array['radis', 'laitue']; end if;
   select coalesce(array_agg(a), '{}') into extra from unnest(anyp) a where not (a = any (common));
   select count(*) into m from shared_garden_members where garden_id = gid;
-  if g.orders_day is distinct from paris_today() then
+  if jsonb_array_length(coalesce(g.orders, '[]'::jsonb)) = 0 then
     update shared_gardens set orders = jsonb_build_array(sg_make_order(common, extra, m), sg_make_order(common, extra, m)), orders_day = paris_today() where id = gid;
     return;
   end if;
   for o in select * from jsonb_array_elements(g.orders) loop
-    if not (o ->> 'done')::boolean then
+    if (o ->> 'done')::boolean then
+      -- Livrée depuis 20 min (ou un autre jour, pour les anciennes commandes) : une nouvelle arrive.
+      if coalesce((o ->> 'done_at')::bigint, 0) + 1200000 <= now_ms() then
+        o := sg_make_order(common, extra, m); changed := true;
+      end if;
+    else
       if exists (select 1 from jsonb_object_keys(o -> 'items') k where not (k = any (common))) then
         o := sg_make_order(common, extra, m); changed := true;
       elsif jsonb_typeof(o -> 'bonus') = 'object' and exists (select 1 from jsonb_object_keys(o -> 'bonus') k where not (k = any (anyp))) then
@@ -294,7 +300,7 @@ create or replace function public.sg_news() returns jsonb language sql security 
   select coalesce(jsonb_agg(jsonb_build_object('id', id, 'kind', kind, 'who', who, 'garden', garden_name, 'at', created_at) order by created_at), '[]'::jsonb) from r;
 $$;
 
--- 7. Planter (graines gratuites, 8 par jour et par joueur).
+-- 7. Planter (graines gratuites, 30 par jour et par joueur).
 create or replace function public.sg_plant(slot int, p_seed text) returns void language plpgsql security definer set search_path = public as $$
 declare me uuid := auth.uid(); gid bigint := sg_mine(); g shared_gardens; m shared_garden_members; t bigint := now_ms();
 begin
@@ -302,7 +308,7 @@ begin
   if slot < 0 or slot > 5 then raise exception 'bac_invalide'; end if;
   if not (p_seed = any (sg_allowed_user(me))) then raise exception 'graine_interdite'; end if;
   select * into m from shared_garden_members where garden_id = gid and user_id = me for update;
-  if m.plant_day = paris_today() and m.planted_today >= 8 then raise exception 'trop_plante'; end if;
+  if m.plant_day = paris_today() and m.planted_today >= 30 then raise exception 'trop_plante'; end if;
   select * into g from shared_gardens where id = gid for update;
   if g.plots -> slot ->> 'seed' is not null then raise exception 'bac_occupe'; end if;
   update shared_gardens set plots = jsonb_set(plots, array[slot::text], jsonb_build_object('seed', p_seed, 'by', me, 'grown', 0, 'last', t, 'water', t + 600000)) where id = gid;
@@ -345,7 +351,6 @@ declare gid bigint := sg_mine(); g shared_gardens; o jsonb; it record; b jsonb; 
 begin
   if gid is null then raise exception 'pas_jardin'; end if;
   select * into g from shared_gardens where id = gid for update;
-  if g.orders_day is distinct from paris_today() then raise exception 'commande_expiree'; end if;
   o := g.orders -> idx;
   if o is null or (o ->> 'done')::boolean then raise exception 'commande_introuvable'; end if;
   if with_bonus and jsonb_typeof(o -> 'bonus') is distinct from 'object' then raise exception 'pas_de_bonus'; end if;
@@ -356,7 +361,7 @@ begin
     b := case when (b ->> it.key)::int = it.q then b - it.key else b || jsonb_build_object(it.key, (b ->> it.key)::int - it.q) end;
   end loop;
   if with_bonus then mult := 1.5; end if;
-  update shared_gardens set basket = b, orders = jsonb_set(jsonb_set(orders, array[idx::text, 'done'], 'true'::jsonb), array[idx::text, 'with_bonus'], to_jsonb(with_bonus)),
+  update shared_gardens set basket = b, orders = jsonb_set(orders, array[idx::text], (orders -> idx) || jsonb_build_object('done', true, 'with_bonus', with_bonus, 'done_at', now_ms())),
     delivered = delivered + 1 where id = gid returning * into g;
   insert into shared_garden_rewards (user_id, garden_name, coins, xp, wild, deco)
     select m.user_id, g.name, round((o ->> 'coins')::int * mult), round((o ->> 'xp')::int * mult), o ->> 'wild', case when g.delivered >= 10 then 'friend_bench' end

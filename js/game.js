@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.7" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.8" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1540,7 +1540,7 @@ document.addEventListener("error", ev => {
 /* ---------------- Events ---------------- */
 document.addEventListener("click", ev => {
   const el = ev.target.closest("[data-act]");
-  if (!el) { if (ev.target.id === "modal") closeModal(); return; }
+  if (!el) { if (ev.target.id === "modal" && !$("#modal .visit-sheet")) closeModal(); return; } // pages entières (visite, jardin commun) : on ferme avec la croix
   if (el.disabled) return;
   const fn = A[el.dataset.act]; if (fn) fn(el.dataset.arg, ev);
 });

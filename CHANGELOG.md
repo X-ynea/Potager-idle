@@ -40,9 +40,9 @@ Le potager s'agrandit : de petits jeux pour se promener, des trouvailles qu'on n
 ### Le jardin commun
 
 - **Un petit jardin à cultiver avec 3 amis au plus**, à partir du niveau 5. On le crée depuis l'onglet Amis, et les invitations arrivent dans la boîte aux lettres.
-- **6 bacs** au décor de la saison, avec la photo de celui qui a planté. Les graines y sont **gratuites** (8 par jour et par jardinier), mais seulement celles que tout le monde a déjà découvertes.
+- **6 bacs** au décor de la saison, avec la photo de celui qui a planté. Les graines y sont **gratuites** (30 par jour et par jardinier), mais seulement celles que tout le monde a déjà découvertes.
 - **Un panier commun** pour les récoltes, qui ne sert qu'aux commandes du jardin.
-- **Deux commandes partagées par jour**, faisables par tous, avec un **bonus** si l'on ajoute une plante du jardinier le plus avancé. Chacun reçoit sa part de la récompense s'il a planté au moins 3 graines depuis la commande précédente.
+- **Des commandes partagées toute la journée** (deux à la fois, une nouvelle 20 min après chaque livraison), faisables par tous, avec un **bonus** si l'on ajoute une plante du jardinier le plus avancé. Chacun reçoit sa part de la récompense s'il a planté au moins 3 graines depuis la commande précédente.
 - **Une petite discussion** avec des messages tout prêts pour encourager son équipe.
 - **Un portail** au-dessus de ton jardin pour y aller en un toucher.
 
@@ -194,6 +194,11 @@ Ils ne passent qu'à leur saison, et raffolent des plantes du moment :
 Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
+
+### 4.0.8 (version de test)
+
+- Jardin commun : 30 graines gratuites par jour et par jardinier (au lieu de 8), et des commandes toute la journée : deux à la fois, et une nouvelle arrive 20 min après chaque livraison (docs/jardin-commun.sql à relancer).
+- Jardin commun : toucher à côté ne ferme plus la page (on la ferme avec la croix), et elle prend plus de largeur sur grand écran.
 
 ### 4.0.7 (version de test)
 

@@ -145,7 +145,7 @@ const FLOWS = {
       done: () => !$("#modal").hidden && (modalView === viewSG || modalView === viewSGNew) },
     { text: "Donne un nom à votre jardin et choisis jusqu’à trois amis à inviter : ils recevront ton invitation dans leur boîte aux lettres. Tu peux aussi le faire plus tard.",
       done: () => !!sgG() || modalView === viewSG, ok: "Plus tard" },
-    { text: "Ici, tout le monde plante, arrose et récolte. Les graines sont gratuites (huit par jour chacun), et les récoltes vont dans le panier commun. Chaque jour, livrez ensemble deux commandes : si tu as planté au moins trois graines depuis la précédente, tu reçois ta part de la récompense.",
+    { text: "Ici, tout le monde plante, arrose et récolte. Les graines sont gratuites (30 par jour chacun), et les récoltes vont dans le panier commun. Livrez ensemble les commandes : deux à la fois, et une nouvelle arrive 20 min après chaque livraison. Si tu as planté au moins trois graines depuis la commande précédente, tu reçois ta part de la récompense.",
       done: () => !sgG(), ok: "Compris" },
     { text: "La bulle en bas de l’écran ouvre la petite discussion : des messages tout prêts pour encourager ton équipe. Et de retour chez toi, le petit portail au-dessus de ton jardin te ramène ici en un toucher.",
       hl: ".sg-chat-fab", home: null, done: () => !sgG(), ok: "À bientôt" },

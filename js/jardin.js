@@ -1,11 +1,11 @@
 "use strict";
 /* ---------------- v4 · Jardin commun ----------------
    Un petit jardin partagé par 4 jardiniers au plus, tenu par le serveur (docs/jardin-commun.sql).
-   6 bacs, graines gratuites (8 par jour et par joueur), plantes de base débloquées par tous, panier commun,
-   2 commandes par jour. Récompense pour chaque membre qui a planté au moins 3 graines depuis la commande précédente.
+   6 bacs, graines gratuites (30 par jour et par joueur), plantes de base débloquées par tous, panier commun,
+   2 commandes à la fois toute la journée (une commande livrée est remplacée 20 min plus tard). Récompense pour chaque membre qui a planté au moins 3 graines depuis la commande précédente.
    Tout passe par des fonctions serveur (heure du serveur) ; le jeu ne fait qu'afficher et récupérer ses récompenses. */
 const SG = { data: null, error: "", loading: false, at: 0, off: 0, busy: false, pick: null, invite: false, confirm: null, name: "" };
-const SG_PLANTS_DAY = 8, SG_CONTRIB = 3, SG_BASKET = 60, SG_WATER = 600000, SG_DRY = .25;
+const SG_PLANTS_DAY = 30, SG_ORDER_GAP = 1200000, SG_CONTRIB = 3, SG_BASKET = 60, SG_WATER = 600000, SG_DRY = .25;
 const sgOn = () => typeof friendsReady === "function" && friendsReady();
 const sgG = () => SG.data?.garden || null;
 const sgNow = () => Date.now() + SG.off;
@@ -171,7 +171,8 @@ function sgPlotInner(p, i, t) {
 // Chaque commande du jardin commun est passée par un voisin (illustré), le même pour tous les jardiniers.
 function sgVillager(g, i) {
   const pool = VILLAGERS.map((v, k) => k).filter(k => k < VILLAGER_IMAGES && !VILLAGERS[k].season);
-  const seed = `${g.id}:${parisDay()}:${i}`; let h = 0; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  // Chaque nouvelle commande a son voisin (tiré de son numéro).
+  const seed = `${g.id}:${g.orders?.[i]?.id ?? parisDay() + ":" + i}`; let h = 0; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return VILLAGERS[pool[h % pool.length]];
 }
 function sgGardenHTML(g) {
@@ -186,7 +187,7 @@ function sgPopHTML(g) {
   if (m) return pop(`Retirer ${esc(m.name)} ?`, `${esc(m.name)} quittera « ${esc(g.name)} ». Ses récoltes restent dans le panier commun.`, "sgKick", m.id, "Retirer");
   if (c === "leave") return pop("Quitter le jardin ?", `Tu quittes « ${esc(g.name)} ». Tes récoltes restent dans le panier commun.${(SG.data.members || []).length === 1 ? " Tu es le dernier jardinier : le jardin sera effacé." : ""}`, "sgLeave", "", "Quitter");
   if (c === "help") return `<div class="sg-pop-back" data-act="sgConfirm" data-arg=""><div class="sg-pop" role="dialog"><b>Les commandes du jardin commun</b>
-    <ul class="sg-help"><li>2 commandes par jour, à faire avec le panier commun.</li><li>Le bonus est facultatif : livré avec lui, la commande rapporte 50 % de plus.</li>
+    <ul class="sg-help"><li>2 commandes à la fois, toute la journée, à faire avec le panier commun. Une commande livrée est remplacée par une nouvelle 20 min plus tard.</li><li>Le bonus est facultatif : livré avec lui, la commande rapporte 50 % de plus.</li>
       <li>Chaque jardinier qui a planté au moins ${SG_CONTRIB} graines depuis la commande précédente reçoit la récompense.</li>
       <li>À la 10ᵉ commande livrée ensemble (${g.delivered} / 10), chacun gagne la déco <b>${DECOS.friend_bench}</b>.</li></ul>
     <div class="row"><button class="btn" data-act="sgConfirm" data-arg="">Compris</button></div></div></div>`;
@@ -210,7 +211,8 @@ function viewSG() {
     const ok = sgOrderOk(o), bonus = o.bonus && Object.keys(o.bonus).some(k => PLANTS[k]) ? o.bonus : null, bonusOk = bonus && ok && sgOrderOk({ items: bonus });
     const growing = bonus ? g.plots.filter(p => p?.seed && bonus[p.seed] && sgPlot(p).st !== "ripe").length : 0;
     const bk = bonus ? Object.keys(bonus)[0] : null;
-    const btns = o.done ? `<span class="sg-done">✓ Livrée${o.with_bonus ? " avec le bonus" : ""}</span>`
+    const wait = o.done ? Math.max(1, Math.ceil(((+o.done_at || 0) + SG_ORDER_GAP - sgNow()) / 60000)) : 0;
+    const btns = o.done ? `<span class="sg-done">✓ Livrée${o.with_bonus ? " avec le bonus" : ""}${o.done_at ? ` · nouvelle commande dans ${wait} min` : ""}</span>`
       : bonusOk ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:1" ${SG.busy ? "disabled" : ""}>Livrer avec le bonus</button><button class="btn ghost sm" data-act="sgDeliver" data-arg="${i}:0" ${SG.busy ? "disabled" : ""}>Sans le bonus</button></span>`
       : SG.confirm === "deliver:" + i ? `<span class="sg-btns"><button class="btn sm" data-act="sgDeliver" data-arg="${i}:0:ok">Livrer quand même</button><button class="btn ghost sm" data-act="sgConfirm" data-arg="">Attendre</button></span>`
       : `<button class="btn sm" data-act="sgDeliver" data-arg="${i}:0" ${ok && !SG.busy ? "" : "disabled"}>Livrer</button>`;
@@ -230,7 +232,7 @@ function viewSG() {
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>
     <h3 class="cat-title">Panier commun <span class="muted num">${sgBasketN()} / ${SG_BASKET}</span></h3>
     ${basket.length ? `<div class="sg-basket">${basket.map(([k, q]) => `<span class="chip">${cropArt(k)}<b class="num">${q}</b></span>`).join("")}</div>` : `<p class="small muted" style="margin:0">Le panier est vide. Les récoltes du jardin commun arrivent ici, et ne servent qu’aux commandes.</p>`}
-    <h3 class="cat-title sg-title">Commandes du jour <span class="muted num">${(g.orders || []).filter(o => o.done).length} / ${(g.orders || []).length}</span><button class="g-help" data-act="sgConfirm" data-arg="help" aria-label="Comment ça marche">?</button></h3>
+    <h3 class="cat-title sg-title">Commandes <span class="muted num">${fmt(g.delivered || 0)} livrée${(g.delivered || 0) > 1 ? "s" : ""}</span><button class="g-help" data-act="sgConfirm" data-arg="help" aria-label="Comment ça marche">?</button></h3>
     <div class="sg-orders">${orders}</div>
     <h3 class="cat-title">Jardiniers <span class="muted num">${members.length} / 4</span></h3>
     <div class="fr-list">${members.map(m => `<div class="fr-row"><span class="fr-av">${sgAv(m)}</span><span class="fr-id"><b>${m.me ? "Toi" : esc(m.name)}${m.owner ? ` <span class="tr-tag">Créateur</span>` : ""}</b><small>Niv. ${m.level} · ${m.planted || 0} / ${SG_PLANTS_DAY} graines aujourd’hui</small></span>

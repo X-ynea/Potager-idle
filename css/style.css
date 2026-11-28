@@ -1992,3 +1992,5 @@ button.sg-card { cursor: pointer; }
 .bush { width: 175px; height: 146px; }
 .bush.lane0 { width: 140px; height: 128px; }
 .bush.lane2 { width: 198px; height: 180px; }
+/* Jardin commun sur grand écran : plus large. */
+@media (min-width: 900px) { .sheet.visit-sheet.sg-sheet { max-width: min(1100px, 94vw); } }

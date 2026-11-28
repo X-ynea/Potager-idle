@@ -75,7 +75,7 @@ const NEWS4_ITEMS = () => [
   [n4img("plats/dish-pique_nique"), "12 nouvelles recettes", "Du thé à la menthe au grand pique-nique, et une recette pour chaque nouvel hybride."],
   [n4img("voisins/villager-12"), "Deux nouveaux voisins", "Margot la Cane et Firmin le Renard raffolent de tes trouvailles."],
   [n4img("plantes/cerise-crop"), "Trois nouveaux hybrides", "De nouvelles variétés se cachent dans la Serre. À toi de les trouver !"],
-  ...(FRIENDS_ON ? [[n4img("interface/ui-portal"), "Le jardin commun", "Dès le niveau 5, un petit jardin à cultiver avec 3 amis au plus, pour livrer ensemble deux commandes par jour."],
+  ...(FRIENDS_ON ? [[n4img("interface/ui-portal"), "Le jardin commun", "Dès le niveau 5, un petit jardin à cultiver avec 3 amis au plus, pour livrer ensemble des commandes toute la journée."],
     [BOARD_ICON, "Un tableau entre amis", "Ton meilleur score de la semaine à chaque jeu, à côté de celui de tes amis."]] : []),
   [n4img("decos/deco-boat"), "4 décos et 4 succès", "Une barque, un panier de cueillette, un hôtel à insectes et le banc de l’amitié à gagner."],
   [n4img("atelier/stove-on"), "L’Atelier", "La Cuisine et la Serre sont maintenant réunies dans un seul onglet."],
