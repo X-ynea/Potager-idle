@@ -195,6 +195,19 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.18
+
+- **Cuisine** : une nouvelle image en haut, comme pour la Serre, et un filtre « Commandes » pour ne voir que les plats que les voisins attendent.
+- **Serre** : un peu plus d’air entre le croisement et les récoltes.
+- **Herbier** : l’aide des hybrides passe dans leur titre, les cartes sont alignées avec celles des plantes.
+- La partie vide de la barre de niveau est blanche, pour bien se détacher du fond.
+- Ordinateur :
+  - fiche d’une graine sur trois colonnes (description, « En bref », boutons l’un au-dessus de l’autre) ;
+  - ingrédients des recettes en cases ;
+  - paramètres en grille de cases, profil avec plus de colonnes de chiffres ;
+  - plus d’espace entre les catégories (inventaire, herbier, marché) ;
+  - cartes des Balades plus aérées.
+
 ### 4.0.17
 
 - **Vendre** : nouveaux boutons « Vendre toutes les trouvailles » et « Vendre tous les plats ».

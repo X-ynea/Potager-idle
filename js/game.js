@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.17" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.18" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -1094,7 +1094,7 @@ function tile(art, o) {
 const emptyTiles = n => Array.from({ length: Math.max(0, n) }, () => `<div class="tile-wrap"><div class="tile empty"></div></div>`).join("");
 function detail(ctx, art, title, desc, meta, body = "", actions = "") {
   return `<div class="detail d-${ctx}" id="detail-${ctx}"><div class="d-head"><div class="d-art">${art}</div><div class="d-txt"><h3>${title}</h3><p>${desc}</p></div></div>` +
-    (meta ? (body.includes('class="ings"') ? `<div class="d-meta"><h4>En bref</h4><div class="meta">${meta}</div></div>` : `<div class="meta">${meta}</div>`) : "") + (body ? `<div class="d-body">${body}</div>` : "") + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
+    (meta ? (body.includes('class="ings"') || ctx === "seeds" ? `<div class="d-meta"><h4>En bref</h4><div class="meta">${meta}</div></div>` : `<div class="meta">${meta}</div>`) : "") + (body ? `<div class="d-body">${body}</div>` : "") + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
 }
 const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="num">${val}</b></span>`;
 function ingList(need) {
@@ -1246,19 +1246,21 @@ function views_kitchen(parts) {
     else if (c.end <= t) slots.push(`<div class="stove done">${dishArt(c.r)}<b class="small">${RECIPES[c.r].name}</b><button class="btn sm" data-act="serve" data-arg="${i}">Récupérer</button></div>`);
     else slots.push(`<div class="stove busy"><div class="stove-pic"><img class="stove-img" src="assets/img/atelier/stove-on.webp" alt=""><span class="stove-dish">${dishArt(c.r)}</span></div><b class="small">${RECIPES[c.r].name}</b><div class="pbar"><i data-pb="${c.end}" data-pd="${RECIPES[c.r].time * 1000}"></i></div><span class="small muted num" data-left="${c.end}"></span></div>`);
   }
-  const head = `<section class="panel"><div class="row spread"><h2>Cuisine</h2><span class="small muted">${n} fourneau${n > 1 ? "x" : ""}</span></div><div class="stoves">${slots.join("")}</div></section>`;
+  const head = `<section class="panel"><div class="lab-head"><img src="assets/img/atelier/kitchen.webp" alt=""><div><h2>Cuisine</h2><p class="small muted" style="margin:0">${n} fourneau${n > 1 ? "x" : ""} · des petits plats avec tes récoltes</p></div></div><div class="stoves">${slots.join("")}</div></section>`;
   if (!S.recipes.length) return head + `<section class="panel"><div class="empty-note">${dishArt("salade")}<span>${S.level >= 2 ? "Apprends ta première recette au Marché." : "La cuisine ouvre au niveau 2 avec la Salade croquante."}</span>${S.level >= 2 ? `<button class="btn" data-act="goRecipes">Voir les recettes</button>` : ""}</div></section>`;
   let r = UI.sel.kitchen; if (!S.recipes.includes(r)) r = S.recipes.find(canCook) || S.recipes[0];
   const d = RECIPES[r], ok = canCook(r), free = S.cooking.length < n;
   const btn = `<button class="btn big peach" data-act="cook" data-arg="${r}" ${ok && free ? "" : "disabled"}>${!ok ? "Il manque des ingrédients" : !free ? "Fourneaux occupés" : `Cuisiner · ${dur(d.time * 1000)}`}</button>`;
   const det = detail("kitchen", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp) + mi("En stock", cnt(S.dishes, r)), ingList(d.need), btn);
-  const km = sortOf("kitchen"), rec = [...S.recipes];
-  if (km !== "none") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
+  const km = sortOf("kitchen"), wanted = x => S.orders.some(o => o.items[x]);
+  // « Commandes » : seulement les plats que les voisins attendent (faisables d'abord).
+  let rec = km === "orders" ? S.recipes.filter(wanted).sort((a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name)) : [...S.recipes];
+  if (km !== "none" && km !== "orders") rec.sort(km === "name" ? (a, b) => byName(a, b, x => RECIPES[x].name) : km === "price" ? (a, b) => RECIPES[b].sell - RECIPES[a].sell
     : (a, b) => canCook(b) - canCook(a) || byName(a, b, x => RECIPES[x].name));
-  const grid = rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, count: cnt(S.dishes, x), dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
+  const grid = (km === "orders" && !rec.length ? `<p class="small muted k-none">Aucune commande du village ne demande un plat que tu sais cuisiner.</p>` : "") + rec.map(x => tile(dishArt(x), { act: "sel", arg: "kitchen:" + x, sel: x === r, label: RECIPES[x].name, count: cnt(S.dishes, x), dot: canCook(x), want: S.orders.some(o => o.items[x]) })).join("") +
     `<div class="tile-wrap"><button class="tile more" data-act="goRecipes" aria-label="Apprendre des recettes">+</button><span class="under">Recettes</span></div>`;
-  if (parts) return { head, det, list: `<div class="row spread"><h2>Recettes</h2><span class="small muted">${S.recipes.length} apprise${S.recipes.length > 1 ? "s" : ""}</span></div>${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div>` };
-  return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
+  if (parts) return { head, det, list: `<div class="row spread"><h2>Recettes</h2><span class="small muted">${S.recipes.length} apprise${S.recipes.length > 1 ? "s" : ""}</span></div>${sortBar("kitchen", [["ready", "Faisables"], ["orders", "Commandes"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div>` };
+  return head + `<section class="panel">${det}${sortBar("kitchen", [["ready", "Faisables"], ["orders", "Commandes"], ["price", "Prix"], ["name", "A → Z"]])}<div class="tiles">${grid}</div></section>`;
 }
 
 function views_lab() {
@@ -1271,7 +1273,7 @@ function views_lab() {
   const baseK = ORDER.filter(k => !PLANTS[k].hybrid).sort(byKnown), hybK = ORDER.filter(k => PLANTS[k].hybrid).sort(byKnown);
   const herb = `<section class="panel herb-panel"><div class="row spread"><h2>Herbier</h2><span class="small muted num">${ORDER.filter(isKnown).length} / ${ORDER.length} · <span class="gold-count">★ ${S.goldenFound.length} dorée${S.goldenFound.length > 1 ? "s" : ""}</span></span></div>
     <div class="herb-cats"><div class="herb-cat"><h3 class="cat-title">Plantes <span class="muted num">${baseK.filter(isKnown).length} / ${baseK.length}</span></h3><div class="herbier">${baseK.map(herbCard).join("")}</div></div>
-    <div class="herb-cat"><h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span></h3>${hybK.some(k => !isKnown(k)) ? `<p class="small muted" style="margin:-4px 0 0">Touche un hybride inconnu pour un indice.</p>` : ""}<div class="herbier">${hybK.map(herbCard).join("")}</div></div></div></section>`;
+    <div class="herb-cat"><h3 class="cat-title">Hybrides <span class="muted num">${hybK.filter(isKnown).length} / ${hybK.length}</span>${hybK.some(k => !isKnown(k)) ? `<small class="herb-hint">Touche un hybride inconnu pour un indice.</small>` : ""}</h3><div class="herbier">${hybK.map(herbCard).join("")}</div></div></div></section>`;
   if (S.level < 3) return `<section class="panel"><h2>Serre</h2><div class="empty-note"><img class="banner-img" src="assets/img/atelier/greenhouse.webp" alt=""><span>La Serre ouvre au niveau 3. Tu pourras y croiser deux récoltes pour découvrir des variétés hybrides.</span></div></section>${herb}`;
   let top;
   if (S.lab) {

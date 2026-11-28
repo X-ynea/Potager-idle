@@ -2047,21 +2047,21 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .garden-head.n1 > .season-bar { min-height: 100%; }
   /* Inventaire : sur toute la largeur, une colonne par catégorie */
   .garden-cols > .inv-panel { grid-column: 1 / -1; }
-  .inv-cats { display: flex; flex-wrap: wrap; gap: 12px 36px; align-items: start; }
+  .inv-cats { display: flex; flex-wrap: wrap; gap: 16px 56px; align-items: start; }
   .inv-cat { display: grid; gap: 12px; align-content: start; flex: 1 1 0; min-width: min(60%, calc(var(--k) * 82px + 8px)); }
   .inv-cat .tiles.mini { grid-template-columns: repeat(auto-fill, minmax(72px, 76px)); }
   main[data-tab="garden"] .inv-cat > .cat-title { margin-top: 0; }
   /* Atelier : l'herbier sous la Cuisine et la Serre, Plantes et Hybrides côte à côte */
   .atelier-cols > .col:last-child { display: contents; }
   .atelier-cols .herb-panel { grid-column: 1 / -1; }
-  .herb-cats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  .herb-cats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
   .herb-cat { display: grid; gap: 12px; align-content: start; min-width: 0; }
   .herb-cat > .cat-title { margin-top: 0; }
   /* Atelier : la Cuisine et la Serre côte à côte */
   .atelier-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .atelier-cols .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   /* Marché : la fiche en haut, puis les plantes à gauche et les hybrides à droite */
-  .mk-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .mk-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
   main[data-tab="market"] .tiles:not(.mini) { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
   .upg-list { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
   /* Village : les commandes en grille */
@@ -2072,7 +2072,7 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .orders .order > div:last-child { display: flex; flex-direction: column; }
   .orders .order .foot { margin-top: auto; padding-top: 6px; }
   /* Balades : les jeux en grille */
-  .game-list { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+  .game-list { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
   /* Amis : les amis en cases en haut, le jardin commun ouvert en dessous, sur trois colonnes */
   .friends-wide { display: grid; gap: 12px; }
   main[data-tab="friends"] > .friends-page { max-width: 760px; width: 100%; justify-self: center; }
@@ -2124,12 +2124,14 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .d-seeds, .d-recipes, .d-kitchen { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
   :is(.d-seeds, .d-recipes, .d-kitchen) > .d-head { grid-area: head; } :is(.d-seeds, .d-recipes, .d-kitchen) > :is(.meta, .d-meta) { grid-area: meta; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-body { grid-area: body; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-acts { grid-area: acts; }
   .d-recipes { grid-template-areas: "head head" "meta body" "acts acts"; }
-  .d-seeds { grid-template-areas: "head meta" "head acts"; align-items: center; }
+  .d-seeds { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(200px, .7fr); grid-template-areas: "head meta acts"; align-items: center; }
+  .d-seeds > .d-acts { flex-direction: column; align-self: stretch; justify-content: center; }
+  .d-seeds > .d-acts .btn { flex: none; }
   .d-kitchen { grid-template-areas: "head head" "meta body" "acts acts"; }
   .d-kitchen .meta, .d-recipes .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .d-recipes .meta:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   /* Vendre : trois rayons côte à côte */
-  .sell-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start; }
+  .sell-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 40px; align-items: start; }
   .sell-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
   .sell-col > .cat-title { margin-top: 0; }
   /* Atelier : trois colonnes de même hauteur, l'herbier en dessous */
@@ -2161,7 +2163,7 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
 @media (min-width: 1000px) {
   .d-meta { display: grid; gap: 6px; align-content: start; }
   .d-meta > h4 { display: block; margin: 0; font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
-  .rec-cols { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: start; }
+  .rec-cols { display: flex; flex-wrap: wrap; gap: 16px 48px; align-items: start; }
   .rec-col { flex: var(--k) 1 0; min-width: min(100%, 230px); }
   .rec-own { order: -1; }
   .rec-col .tiles { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
@@ -2183,4 +2185,33 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .sg-embed .sg-col > .cat-title:first-child { margin: 0; height: 30px; display: flex; align-items: center; gap: 8px; }
   .sg-embed .sg-col > .cat-title:first-child .g-help { margin-block: -6px; }
   .sg-embed .sg-end { justify-content: flex-end; }
+}
+/* Barre de niveau : la partie vide en blanc, pour se détacher du fond */
+.xpbar { background: var(--panel); }
+/* Herbier : l'aide des hybrides dans le titre, pour aligner les cartes avec celles des plantes */
+.herb-hint { margin-left: 10px; font-family: var(--f-body); font-size: .78rem; font-weight: 600; color: var(--muted); }
+/* Serre : un peu d'air entre le croisement et les récoltes */
+.lab-slots { margin-bottom: 6px; }
+.k-none { margin: 0; grid-column: 1 / -1; }
+@media (min-width: 1000px) {
+  /* Ingrédients d'une recette en cases */
+  .d-body .ings { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
+  .d-body .ings > h4 { grid-column: 1 / -1; }
+  .d-body .ing { grid-template-columns: none; justify-items: center; text-align: center; gap: 4px; padding: 10px 8px; }
+  .d-body .ing > svg, .d-body .ing > img, .d-body .ing .sil, .d-body .ing .sil svg { width: 44px; height: 44px; }
+  .d-body .ing small { display: block; }
+  .d-kitchen .d-body .ings { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .d-kitchen .d-body .ing { padding: 8px 6px; }
+  .d-kitchen .d-body .ing > svg, .d-kitchen .d-body .ing > img { width: 38px; height: 38px; }
+  .set-group.danger > .set-link { margin: 0; height: 100%; }
+  /* Paramètres : les réglages et les boutons de la zone sensible en grille de cases */
+  .set-group:has(> .set-row + .set-row), .set-group.danger:has(> .set-link + .set-link) { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); align-items: stretch; }
+  .set-group:has(> .set-row + .set-row) > :not(.set-row), .set-group.danger > :not(.set-link) { grid-column: 1 / -1; }
+  .set-group:has(> .set-row + .set-row) > .set-row { align-items: center; min-height: 64px; }
+  /* Profil : les chiffres sur plus de colonnes */
+  .profile-sheet .stats { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  /* Balades : des cartes plus aérées */
+  .game-card { padding: 20px 22px; gap: 20px; grid-template-columns: 100px 1fr; }
+  .game-card .g-art { width: 100px; height: 100px; }
+  .game-card .g-body { gap: 10px; }
 }
