@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.6
+
+- Nouveaux fonds du jardin au printemps, en été et en automne.
+
 ### 4.0.5
 
 - Nouveau fond du jardin en hiver.
