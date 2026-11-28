@@ -195,6 +195,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.2 (version de test)
+
+- Nouveaux fonds du jardin pour les quatre saisons, et nouveau chemin d'automne pour la balade en forêt.
+
 ### 4.0.0 (version de test)
 
 - La version de test repart de la 4.0.0 des joueurs (caches à part).
