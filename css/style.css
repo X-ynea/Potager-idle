@@ -1998,3 +1998,6 @@ button.sg-card { cursor: pointer; }
 .ruche-field { width: min(100%, 700px, calc(100dvh - 150px)); container-type: inline-size; }
 .ruche-field .flower { width: min(24cqw, 130px); }
 .ruche-field .hive { width: min(17cqw, 96px); height: min(17cqw, 96px); top: 1%; }
+/* Portail du jardin commun : il dépasse au-dessus du jardin, on laisse sa place pour qu'il ne passe pas sur les textes */
+.garden-zone:has(> .garden > .sg-portal) { --pt: calc(min(27cqw, 116px) * 337 / 440 + 4px); padding-top: var(--pt); container-type: inline-size; }
+.garden-zone:has(> .garden > .sg-portal) > .deco-edit { top: calc(var(--pt) - 40px); } /* « Décorer » reste collé au jardin */

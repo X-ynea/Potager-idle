@@ -210,6 +210,10 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 - Objectifs de la semaine : au chargement, plus de chiffres provisoires (ta seule part) qui changent ensuite ; les cartes attendent les vrais chiffres.
 - Objectif entre amis : une fois atteint, il le reste jusqu'à la fin de la semaine, même si un nouvel ami arrive.
 
+### 4.0.7
+
+- Jardin : le portail du jardin commun ne passe plus par-dessus « L’eau tient… » ; le jardin descend juste assez pour lui laisser sa place, et « Décorer » reste collé au jardin.
+
 ### 4.0.6
 
 - Ruche et pêche : le fond de la saison est net, en motif répété au lieu d’être agrandi.
