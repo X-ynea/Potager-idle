@@ -1,6 +1,6 @@
 # Progression et équilibrage
 
-*Généré automatiquement par `node tools/progression.js` · version 3.1.23 du jeu. Ne pas modifier à la main.*
+*Généré automatiquement par `node tools/progression.js` · version 4.0.26 du jeu. Ne pas modifier à la main.*
 
 ## Courbe d'XP
 
@@ -72,7 +72,7 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 | 25 | — | Tourte forestière | Arroseur automatique (12 000 p), Bac n° 11 (6 000 p) |
 | 26 | — | Potée au chou | — |
 | 27 | — | Sirop de soleil lilas | — |
-| 28 | — | Biscuits à la lavande | — |
+| 28 | — | Biscuits à la lavande | Hérisson gardien (15 000 p) |
 | 29 | — | — | Bac n° 12 (10 500 p) |
 | 30 | — | Gâteau des moissons | — |
 
@@ -93,6 +93,7 @@ Entre parenthèses après une plante : sa saison, pour les plantes exclusives ; 
 |  | 2/2 | 21 | 7 500 |
 | Banc des voisins | 1/2 | 11 | 1 200 |
 |  | 2/2 | 20 | 6 000 |
+| Hérisson gardien | 1/1 | 28 | 15 000 |
 | Arroseur automatique | 1/1 | 25 | 12 000 |
 | Nouvelle parcelle | bac 7/12 | 3 | 120 |
 |  | bac 8/12 | 8 | 350 |
@@ -235,7 +236,9 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 | Trésor de saison |  | Trouver une récolte dorée d’une plante de chaque saison | 2 000 | 300 |  |
 | Tout l’or du jardin |  | Trouver toutes les plantes en version dorée (35) | 20 000 | 1500 | titre « Roi Midas du potager » |
 | Apprenti botaniste |  | Réussir son premier croisement | 100 | 25 | titre « Botaniste » |
-| Herbier complet |  | Découvrir tous les hybrides | 1 500 | 225 | titre « Grand botaniste », +5 % de pièces sur tout, déco Ruche |
+| Herbier complet | 1 | Découvrir 8 hybrides | 1 500 | 225 | titre « Grand botaniste », +5 % de pièces sur tout, déco Ruche |
+|  | 2 | Découvrir 12 hybrides | 2 500 | 340 | titre « Maître botaniste » |
+|  | 3 | Découvrir tous les hybrides (15) | 3 000 | 375 |  |
 | Expérimentateur |  | Faire 25 croisements, même ratés | 300 | 60 |  |
 | Premier plat |  | Cuisiner sa première recette | 30 | 10 |  |
 | Chef | 1 | Cuisiner 10 plats | 100 | 25 |  |
@@ -264,6 +267,10 @@ Temps de pousse sans compost ni bonus de saison (+25 % de vitesse pendant la sai
 |  | 2 | Atteindre le niveau 10 | 500 | 0 |  |
 |  | 3 | Atteindre le niveau 20 | 2 000 | 0 | titre « Jardinier émérite » |
 |  | 4 | Atteindre le niveau 30 | 6 000 | 0 | titre « Maître jardinier » |
+|  | 5 | Atteindre le niveau 35 | 8 000 | 0 | titre « Jardinier expert », déco Cadran solaire |
+|  | 6 | Atteindre le niveau 40 | 10 000 | 0 | titre « Jardinier légendaire », +1 % de chance de récolte dorée, déco Petite serre |
+|  | 7 | Atteindre le niveau 45 | 12 000 | 0 | titre « Sage du potager », déco Cabane à outils |
+|  | 8 | Atteindre le niveau 50 | 15 000 | 0 | titre « Gardien du potager », +1 % de chance de récolte dorée, déco Citrouille dorée |
 | Petits visiteurs | 1 | Attraper 10 visiteurs ailés (papillons, libellules, coccinelles, rouges-gorges) | 40 | 10 |  |
 |  | 2 | Attraper 50 visiteurs ailés (papillons, libellules, coccinelles, rouges-gorges) | 200 | 45 | déco Nichoir |
 |  | 3 | Attraper 200 visiteurs ailés (papillons, libellules, coccinelles, rouges-gorges) | 800 | 150 | titre « Ami des petites bêtes » |
