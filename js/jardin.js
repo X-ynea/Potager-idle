@@ -176,6 +176,12 @@ function sgVillager(g, i) {
   const seed = `${g.id}:${g.orders?.[i]?.id ?? parisDay() + ":" + i}`; let h = 0; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return VILLAGERS[pool[h % pool.length]];
 }
+// « Tout récolter » et « Tout arroser » du jardin commun (comme au jardin, sans amélioration à acheter).
+function sgToolsHTML(g) {
+  const st = g.plots.map(p => sgPlot(p).st), ripe = st.filter(x => x === "ripe").length, dry = st.filter(x => x === "dry").length;
+  return `<div class="garden-tools sg-tools"><button class="btn" data-act="sgAll" data-arg="ripe" ${ripe && !SG.busy ? "" : "disabled"}>Tout récolter${ripe ? ` (${ripe})` : ""}</button>
+    <button class="btn water" data-act="sgAll" data-arg="dry" ${dry && !SG.busy ? "" : "disabled"}>Tout arroser${dry ? ` (${dry})` : ""}</button></div>`;
+}
 function sgGardenHTML(g) {
   const t = sgNow(), saison = SG.data.season || season();
   return `<div class="garden sg-garden" data-season="${saison}">${seasonFxHTML(saison)}<div class="plots">${g.plots.map((p, i) => { const r = sgPlotInner(p, i, t);
@@ -236,6 +242,7 @@ function viewSG(embed) {
     ${SG.error ? `<p class="cloud-warn">${esc(SG.error)}</p>` : ""}
     <div class="sg-cols"><div class="sg-col">
     <h3 class="cat-title sg-col-t">Les bacs</h3>
+    ${sgToolsHTML(g)}
     ${sgGardenHTML(g)}
     ${picker}
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>
@@ -262,7 +269,8 @@ setInterval(() => {
   sgG().plots.forEach((p, i) => {
     const el = document.querySelector(`[data-sgplot="${i}"]`); if (!el) return;
     const r = sgPlotInner(p, i, t);
-    if (el.dataset.sig !== r.sig) { el.dataset.sig = r.sig; el.className = `plot ${r.st}${SG.pick === i ? " sel" : ""}`; el.innerHTML = r.html; return; }
+    if (el.dataset.sig !== r.sig) { el.dataset.sig = r.sig; el.className = `plot ${r.st}${SG.pick === i ? " sel" : ""}`; el.innerHTML = r.html;
+      document.querySelectorAll(".sg-tools").forEach(b => { b.outerHTML = sgToolsHTML(sgG()); }); return; }
     if (p?.seed) { const v = asSG(() => { const f = sgFake(p); return ringValues(f, plotState(f, t), t); });
       const rg = el.querySelector("[data-rg]"); if (rg) rg.style.strokeDashoffset = v.g; const rw = el.querySelector("[data-rw]"); if (rw) rw.style.strokeDashoffset = v.w; }
   });
@@ -274,6 +282,16 @@ async function sgCall(fn, args, after) {
   catch (e) { SG.busy = false; SG.error = sgErr(e); toast(esc(SG.error)); render(true); }
 }
 const SG_ACTS = {
+  // Un appel au serveur par bac, l'un après l'autre (le panier plein arrête la récolte).
+  async sgAll(kind) {
+    const g = sgG(); if (!g || SG.busy) return;
+    const slots = g.plots.map((p, i) => [i, sgPlot(p).st]).filter(([, st]) => st === kind).map(([i]) => i); if (!slots.length) return;
+    SG.busy = true; SG.error = ""; render(true); let n = 0;
+    try { for (const i of slots) { await CLOUD.rpc(kind === "ripe" ? "sg_harvest" : "sg_water", { slot: i }); n++; } }
+    catch (e) { SG.error = sgErr(e); toast(esc(SG.error)); }
+    if (n) { SFX.play(kind === "ripe" ? "harvest" : "water"); if (kind === "ripe") buzz(8); }
+    SG.busy = false; SG.at = 0; await loadSG(true);
+  },
   async sgSay(arg) {
     if (sgWait() || SG.busy) return;
     const [c, k] = String(arg).split(":"); SG.say = false; SG.sayAt = Date.now(); SG.chatAnim = false;
