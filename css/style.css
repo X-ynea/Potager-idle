@@ -2081,7 +2081,7 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .friends-wide .friends-page > .fr-code { grid-column: 1; }
   .friends-wide .friends-page > .subtabs { grid-column: 2; align-self: stretch; }
   .friends-wide .friends-page .fr-list { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
-  .friends-wide .friends-page .fr-row { aspect-ratio: 1; height: 100%; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 10px; text-align: center; }
+  .friends-wide .friends-page .fr-row { height: 100%; min-height: 176px; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 10px; text-align: center; }
   .friends-wide .friends-page .fr-head { flex: none; flex-direction: column; gap: 6px; text-align: center; width: 100%; }
   .friends-wide .friends-page .fr-row > .fr-av, .friends-wide .friends-page .fr-head .fr-av { width: 64px; height: 64px; }
   .friends-wide .friends-page .fr-id { flex: none; justify-items: center; width: 100%; }
@@ -2122,11 +2122,12 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
   .bag-l { display: inline; font-weight: 800; font-size: .9rem; color: var(--ink); }
   /* Fiches sur deux colonnes : les chiffres à gauche, les ingrédients à droite, les boutons en bas */
   .d-seeds, .d-recipes, .d-kitchen { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
-  :is(.d-seeds, .d-recipes, .d-kitchen) > .d-head { grid-area: head; } :is(.d-seeds, .d-recipes, .d-kitchen) > .meta { grid-area: meta; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-body { grid-area: body; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-acts { grid-area: acts; }
-  .d-recipes { grid-template-areas: "head body" "meta body" "acts acts"; }
+  :is(.d-seeds, .d-recipes, .d-kitchen) > .d-head { grid-area: head; } :is(.d-seeds, .d-recipes, .d-kitchen) > :is(.meta, .d-meta) { grid-area: meta; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-body { grid-area: body; } :is(.d-seeds, .d-recipes, .d-kitchen) > .d-acts { grid-area: acts; }
+  .d-recipes { grid-template-areas: "head head" "meta body" "acts acts"; }
   .d-seeds { grid-template-areas: "head meta" "head acts"; align-items: center; }
   .d-kitchen { grid-template-areas: "head head" "meta body" "acts acts"; }
-  .d-kitchen .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .d-kitchen .meta, .d-recipes .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .d-recipes .meta:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   /* Vendre : trois rayons côte à côte */
   .sell-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start; }
   .sell-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
@@ -2148,3 +2149,38 @@ main[data-tab="garden"] .q-late .quests:not(.weekly) { order: 5; } /* objectifs 
 .garden-head { display: contents; }
 .d-body { display: contents; }
 @media (min-width: 1000px) { .garden-head { display: grid; } .d-body { display: grid; gap: 10px; min-width: 0; } .bag-l { display: inline; } }
+/* Bonus déjà achetés : un peu grisés */
+.item.owned { opacity: .62; filter: grayscale(.45); }
+/* Titre « En bref » au-dessus des chiffres (ordinateur) ; recettes à apprendre puis apprises */
+.d-meta { display: contents; }
+.d-meta > h4 { display: none; }
+.rec-cols, .rec-col { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.rec-col > .cat-title { margin-top: 0; }
+.ach-grid { display: contents; }
+.sg-col-t { display: none; }
+@media (min-width: 1000px) {
+  .d-meta { display: grid; gap: 6px; align-content: start; }
+  .d-meta > h4 { display: block; margin: 0; font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
+  .rec-cols { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: start; }
+  .rec-col { flex: var(--k) 1 0; min-width: min(100%, 230px); }
+  .rec-own { order: -1; }
+  .rec-col .tiles { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  /* Vendre : les fiches des trois rayons à la même hauteur (une fiche vide aussi) */
+  .sell-cols { grid-template-rows: repeat(4, auto); row-gap: 12px; }
+  .sell-col { grid-row: span 4; grid-template-rows: subgrid; }
+  .sell-col > .detail { align-self: stretch; }
+  /* Atelier : un peu plus d'air avant la Serre */
+  .atelier3 > :nth-child(3) { margin-left: 16px; }
+  /* Fenêtres (succès, profil, paramètres…) plus larges ; les succès en grille de cases */
+  .sheet.tall:not(.visit-sheet):not(.chat-sheet) { max-width: min(960px, 94vw); }
+  .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
+  .ach-grid > .ach { align-items: start; height: 100%; }
+  /* Commandes : les cartes se partagent toute la largeur */
+  .orders { display: flex; flex-wrap: wrap; }
+  .orders > .order { flex: 1 1 360px; }
+  /* Jardin commun : un titre au-dessus de chaque colonne, à la même hauteur ; boutons à droite */
+  .sg-embed .sg-col-t { display: flex; }
+  .sg-embed .sg-col > .cat-title:first-child { margin: 0; height: 30px; display: flex; align-items: center; gap: 8px; }
+  .sg-embed .sg-col > .cat-title:first-child .g-help { margin-block: -6px; }
+  .sg-embed .sg-end { justify-content: flex-end; }
+}

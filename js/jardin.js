@@ -235,6 +235,7 @@ function viewSG(embed) {
     <div class="sheet-head"><div><h2>${esc(g.name)}</h2><span class="small muted">Jardin commun · ${SEASONS[SG.data.season]?.name || ""}</span></div>${embed ? "" : SHEET_X}</div>
     ${SG.error ? `<p class="cloud-warn">${esc(SG.error)}</p>` : ""}
     <div class="sg-cols"><div class="sg-col">
+    <h3 class="cat-title sg-col-t">Les bacs</h3>
     ${sgGardenHTML(g)}
     ${picker}
     <p class="small muted" style="margin:0">Graines gratuites, ${SG_PLANTS_DAY} par jour chacun.<br>Tu en as planté <b>${planted}</b> aujourd’hui.</p>

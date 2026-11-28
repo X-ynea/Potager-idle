@@ -195,6 +195,20 @@ Bonne saison au potager ! 🌸☀️🍂❄️
 
 ## Détail des mises à jour
 
+### 4.0.17
+
+- **Vendre** : nouveaux boutons « Vendre toutes les trouvailles » et « Vendre tous les plats ».
+- **Recettes du marché** : celles qui restent à apprendre d’abord, les recettes apprises dans un encart à part (sur ordinateur : les apprises à gauche, les autres à droite).
+- **Bonus** : ceux déjà achetés sont grisés.
+- Ordinateur :
+  - fiches de recettes : un titre « En bref » au-dessus des chiffres, à la même hauteur que les ingrédients ;
+  - Atelier : un peu plus d’espace avant la Serre ;
+  - Vendre : une fiche vide fait la même hauteur que les autres ;
+  - fenêtres (succès, profil, paramètres…) plus larges, et les succès en grille de cases ;
+  - commandes du village sur toute la largeur ;
+  - cartes d’amis à la même hauteur, même avec un titre ;
+  - jardin commun : un titre au-dessus des bacs pour aligner les trois colonnes, boutons « Quitter » et « Supprimer » à droite.
+
 ### 4.0.16
 
 - Le bandeau de la saison passe au-dessus des boutons « Tout récolter », « Tout arroser »… (sur téléphone aussi). Sur ordinateur, avec un seul bouton, les deux sont côte à côte.

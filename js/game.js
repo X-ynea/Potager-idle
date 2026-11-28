@@ -1,7 +1,7 @@
 "use strict";
 /* Numéro de version affiché dans les Paramètres.
    À chaque mise à jour : changer APP_VERSION, le ?v= dans index.html et VERSION dans sw.js. */
-const APP_VERSION = "4.0.16" + (IS_TEST ? "-test" : "");
+const APP_VERSION = "4.0.17" + (IS_TEST ? "-test" : "");
 /* ---------------- Helpers ---------------- */
 const $ = s => document.querySelector(s);
 const now = () => Date.now();
@@ -518,6 +518,13 @@ const A = {
   sell(arg, ev) {
     const [k, mode] = arg.split(":"); const bag = itemBag(k); const n = mode === "all" ? cnt(bag, k) : Math.min(1, cnt(bag, k));
     if (!n) return; bag[k] -= n; questProgress("sell", itemVal(k) * n); const { x, y } = pos(ev); earn(itemVal(k) * n, x, y); commit();
+  },
+  sellAll(c, ev) {
+    if (c === "crops") return A.sellCrops(c, ev);
+    const [, bag, val] = SELL_ALL[c] || []; if (!bag) return;
+    let tot = 0; const b = bag(); for (const k in b) { const n = cnt(b, k); if (!n || !val(k)) continue; tot += n * val(k); b[k] = 0; }
+    if (tot >= 1000) S.stats.bigSale = 1;
+    if (tot) { questProgress("sell", tot); const { x, y } = pos(ev); earn(tot, x, y); } commit();
   },
   sellCrops(_, ev) {
     let tot = 0; for (const k in S.crops) { tot += S.crops[k] * PLANTS[k].sell; S.crops[k] = 0; }
@@ -1087,7 +1094,7 @@ function tile(art, o) {
 const emptyTiles = n => Array.from({ length: Math.max(0, n) }, () => `<div class="tile-wrap"><div class="tile empty"></div></div>`).join("");
 function detail(ctx, art, title, desc, meta, body = "", actions = "") {
   return `<div class="detail d-${ctx}" id="detail-${ctx}"><div class="d-head"><div class="d-art">${art}</div><div class="d-txt"><h3>${title}</h3><p>${desc}</p></div></div>` +
-    (meta ? `<div class="meta">${meta}</div>` : "") + (body ? `<div class="d-body">${body}</div>` : "") + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
+    (meta ? (body.includes('class="ings"') ? `<div class="d-meta"><h4>En bref</h4><div class="meta">${meta}</div></div>` : `<div class="meta">${meta}</div>`) : "") + (body ? `<div class="d-body">${body}</div>` : "") + (actions ? `<div class="d-acts">${actions}</div>` : "") + `</div>`;
 }
 const mi = (label, val) => `<span class="mi"><small>${label}</small><b class="num">${val}</b></span>`;
 function ingList(need) {
@@ -1178,21 +1185,29 @@ function marketRecipes() {
   const det = detail("recipes", dishArt(r), d.name, d.desc, mi("Cuisson", dur(d.time * 1000)) + mi("Vente", fmt(d.sell)) + mi("XP", "+" + d.xp), ingList(d.need), act);
   // Disponibles d'abord, recettes bloquées (niveau trop bas) en bas, par niveau croissant.
   const sorted = [...RORDER].sort((x, y) => (RECIPES[x].lvl > S.level) - (RECIPES[y].lvl > S.level) || (RECIPES[x].lvl > S.level ? RECIPES[x].lvl - RECIPES[y].lvl : 0));
-  const grid = sorted.map(x => {
+  const tileFor = x => {
     const e = RECIPES[x], o = S.recipes.includes(x), l = e.lvl > S.level, h = !o && !l && missingHyb(x).length > 0;
     return tile(dishArt(x), { act: "sel", arg: "recipes:" + x, sel: x === r, label: e.name, locked: l || h, check: o, under: o ? `<span class="under-name">${e.name}</span>` : l ? `Niv. ${e.lvl}` : h ? "Hybride ?" : priceTag(e.price) });
-  }).join("");
-  return det + `<div class="tiles">${grid}</div>`;
+  };
+  // Celles qui restent à apprendre d'abord (sur ordinateur : les apprises à gauche, les autres à droite).
+  const todo = sorted.filter(x => !S.recipes.includes(x)), learned = sorted.filter(x => S.recipes.includes(x));
+  const col = (cls, title, list) => list.length ? `<div class="rec-col ${cls}" style="--k:${list.length}"><h3 class="cat-title">${title} <span class="muted num">${list.length}</span></h3><div class="tiles">${list.map(tileFor).join("")}</div></div>` : "";
+  return det + `<div class="rec-cols">${col("rec-todo", "À apprendre", todo)}${col("rec-own", "Apprises", learned)}</div>`;
 }
+// « Tout vendre » d'un rayon : la récolte (sans les dorées), les trouvailles de balade ou les plats.
+const sellVal = D => k => D[k] ? D[k].sell || 0 : 0; // objet inconnu (ancienne sauvegarde) : ignoré
+const SELL_ALL = { crops: ["Vendre toute la récolte", () => S.crops, sellVal(PLANTS)], wild: ["Vendre toutes les trouvailles", () => S.wild, sellVal(WILD)], dishes: ["Vendre tous les plats", () => S.dishes, sellVal(RECIPES)] };
+const sellAllTotal = c => { const [, bag, val] = SELL_ALL[c]; return Object.keys(bag()).reduce((t, k) => t + cnt(bag(), k) * val(k), 0); };
+const sellAllBtn = c => { const tot = sellAllTotal(c); return tot ? `<button class="btn peach" data-act="sellAll" data-arg="${c}">${SELL_ALL[c][0]}&nbsp;· ${priceTag(tot)}</button>` : ""; };
 function marketSell() {
   const tot = ORDER.reduce((s, k) => s + cnt(S.crops, k) * PLANTS[k].sell, 0);
   const cats = [["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]];
   // Ordinateur : les trois rayons côte à côte, chacun avec sa fiche en haut et ses objets en dessous.
   if (wide()) return sortBar("sell", [["price", "Prix"], ["total", "Total"], ["name", "A → Z"]]) + `<div class="sell-cols">${cats.map(([c, l]) => `<div class="sell-col"><h3 class="cat-title">${l}</h3>
-    ${c === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte&nbsp;· ${priceTag(tot)}</button>` : ""}${invBody("sell", c, "sell_" + c)}</div>`).join("")}</div>
+    ${sellAllBtn(c) || "<div></div>"}${invBody("sell", c, "sell_" + c)}</div>`).join("")}</div>
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
   return `${catTabs([["crops", "Récoltes"], ["wild", "Balades"], ["dishes", "Plats"]], UI.sellCat, "sellCat")}
-    ${UI.sellCat === "crops" && tot ? `<button class="btn peach" data-act="sellCrops">Vendre toute la récolte&nbsp;· ${priceTag(tot)}</button>` : ""}
+    ${sellAllBtn(UI.sellCat)}
     ${invBody("sell", UI.sellCat)}
     <p class="small muted" style="margin:0">Garde des ingrédients pour la Cuisine et les commandes du Village : elles rapportent plus.</p>`;
 }
@@ -1209,7 +1224,7 @@ function marketUpgrades() {
     rows.push([rank(plotStep), `<div class="item"><img class="upg-img" src="assets/img/ameliorations/upg-plot.webp" alt=""><div class="t"><b>Nouvelle parcelle</b><span>${S.plots.length} / ${MAX_PLOTS} parcelles</span></div><div class="acts">${plotStep ? (S.level < plotStep.lvl ? `<span class="small muted">Niveau ${plotStep.lvl}</span>` : `<button class="btn sm" data-act="buyPlot" ${S.coins < plotStep.cost ? "disabled" : ""}>${coin}${fmt(plotStep.cost)}</button>`) : `<span class="small muted"><b>Complet</b></span>`}</div></div>`]);
     for (const u in UPG) {
       const U = UPG[u], lv = S.upg[u], step = U.steps[lv], cur = U.values[lv], nxt = U.values[lv + 1];
-      rows.push([rank(step), `<div class="item"><img class="upg-img" src="assets/img/${U.img || "ameliorations/upg-" + u}.webp" alt=""><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step && U.desc(nxt) !== U.desc(cur) ? ` → ${U.desc(nxt)}` : ""}</span></div>
+      rows.push([rank(step), `<div class="item${step ? "" : " owned"}"><img class="upg-img" src="assets/img/${U.img || "ameliorations/upg-" + u}.webp" alt=""><div class="t"><b>${U.name}${U.steps.length > 1 ? ` <small class="muted">${lv}/${U.steps.length}</small>` : ""}</b><span>${U.desc(cur)}${step && U.desc(nxt) !== U.desc(cur) ? ` → ${U.desc(nxt)}` : ""}</span></div>
       <div class="acts">${!step ? `<span class="small muted"><b>Acquis</b></span>` : S.level < step.lvl ? `<span class="small muted">Niveau ${step.lvl}</span>` : `<button class="btn sm" data-act="buyUpg" data-arg="${u}" ${S.coins < step.cost ? "disabled" : ""}>${coin}${fmt(step.cost)}</button>`}</div></div>`]);
     }
   return `<div class="list upg-list">${rows.sort((a, b) => a[0] - b[0]).map(r => r[1]).join("")}</div>`;
